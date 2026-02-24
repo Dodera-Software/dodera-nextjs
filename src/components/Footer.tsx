@@ -14,10 +14,10 @@ const EMAIL_RE =
 
 export function Footer() {
     const [nlEmail, setNlEmail] = useState("");
-    const [nlStatus, setNlStatus] = useState<"idle" | "error" | "success">("idle");
+    const [nlStatus, setNlStatus] = useState<"idle" | "error" | "success" | "loading">("idle");
     const [nlError, setNlError] = useState("");
 
-    function handleNewsletterSubmit(e: React.FormEvent<HTMLFormElement>) {
+    async function handleNewsletterSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         const email = nlEmail.trim();
         if (!email || email.length > 254 || !EMAIL_RE.test(email)) {
@@ -25,9 +25,31 @@ export function Footer() {
             setNlError("Please enter a valid email address.");
             return;
         }
-        // TODO: wire up to newsletter API
-        setNlStatus("success");
+
+        setNlStatus("loading");
         setNlError("");
+
+        try {
+            const res = await fetch("/api/newsletter", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok || data.status === "error") {
+                setNlStatus("error");
+                setNlError(data.message ?? "Something went wrong. Please try again.");
+                return;
+            }
+
+            setNlStatus("success");
+            setNlError("");
+        } catch {
+            setNlStatus("error");
+            setNlError("Network error. Please try again.");
+        }
     }
 
     return (
@@ -153,8 +175,8 @@ export function Footer() {
                                         <AlertCircle className="size-3 shrink-0" /> {nlError}
                                     </p>
                                 )}
-                                <Button type="submit" variant="default" size="sm" className="w-full">
-                                    Subscribe
+                                <Button type="submit" variant="default" size="sm" className="w-full" disabled={nlStatus === "loading"}>
+                                    {nlStatus === "loading" ? "Subscribing…" : "Subscribe"}
                                     <Send className="ml-2 size-3" />
                                 </Button>
                             </form>
