@@ -7,7 +7,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { ScrollManager } from "@/components/ScrollManager";
 import { SERVICE_PAGES, SERVICE_PAGE_SLUGS } from "@/config/services";
 import { SITE } from "@/config/seo";
-import { breadcrumbSchema, faqSchema } from "@/lib/structured-data";
+import { breadcrumbSchema, faqSchema, serviceSchema } from "@/lib/structured-data";
 
 /* ── Static params for SSG ────────────────────────────────── */
 export function generateStaticParams() {
@@ -78,6 +78,11 @@ export default async function ServicePage({ params }: PageProps) {
 
     const structuredData = [
         breadcrumbSchema(breadcrumbItems),
+        serviceSchema({
+            name: data.heroLabel,
+            description: data.metaDescription,
+            url: `${SITE.url}${data.canonical}`,
+        }),
         ...(data.faqs.length > 0 ? [faqSchema(data.faqs)] : []),
     ];
 

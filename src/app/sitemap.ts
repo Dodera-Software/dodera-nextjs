@@ -1,16 +1,21 @@
 import type { MetadataRoute } from "next";
 import { SITE } from "@/config/seo";
 import { SERVICE_PAGE_SLUGS } from "@/config/services";
-import { BLOG_POSTS } from "@/config/blog";
+import { getAllPosts } from "@/lib/cms";
 
 /**
  * Programmatic sitemap — served at /sitemap.xml.
  *
- * Includes every indexable page: home, blog listing, individual blog posts
- * (future CMS), all parent & child service pages.
+ * Includes every indexable page: home, blog listing,
+ * all parent & child service pages, and blog posts.
+ *
+ * Blog posts are sourced via the CMS abstraction layer
+ * (lib/cms.ts). When you switch to Prismic/Sanity the
+ * sitemap will automatically include all CMS posts.
  */
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const now = new Date();
+    const posts = await getAllPosts();
 
     /* ── Static pages ──────────────────────────────────────── */
     const staticPages: MetadataRoute.Sitemap = [
@@ -28,14 +33,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
         },
     ];
 
-    /* ── Blog post pages (ready for CMS / individual posts) ── */
-    const blogPages: MetadataRoute.Sitemap = BLOG_POSTS.map((post) => ({
-        url: `${SITE.url}/blog/${post.slug}`,
-        lastModified: new Date(post.date),
-        changeFrequency: "monthly" as const,
-        priority: 0.6,
-    }));
-
     /* ── Service pages ─────────────────────────────────────── */
     const servicePages: MetadataRoute.Sitemap = SERVICE_PAGE_SLUGS.map((key) => {
         const isParent = !key.includes("/");
@@ -47,5 +44,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
         };
     });
 
-    return [...staticPages, ...blogPages, ...servicePages];
+    /* ── Blog posts ────────────────────────────────────────── */
+    const blogPosts: MetadataRoute.Sitemap = posts.map((post) => ({
+        url: `${SITE.url}/blog/${post.slug}`,
+        lastModified: post.updatedAt ? new Date(post.updatedAt) : new Date(post.date),
+        changeFrequency: "monthly" as const,
+        priority: 0.6,
+    }));
+
+    return [...staticPages, ...servicePages, ...blogPosts];
 }

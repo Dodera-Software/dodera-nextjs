@@ -61,14 +61,35 @@ export interface ServicePageData {
 
 // ── Blog ────────────────────────────────────────────────
 
+export interface BlogAuthor {
+    name: string;
+    slug?: string;
+    avatar?: string;
+    bio?: string;
+}
+
 export interface BlogPost {
     slug: string;
     title: string;
     excerpt: string;
     date: string;
+    /** ISO date string for last modification (defaults to date if not set). */
+    updatedAt?: string;
     readTime: string;
     category: string;
     tags: string[];
+    /** CMS fields — populated when a headless CMS is connected. */
+    author?: BlogAuthor;
+    /** Featured image URL (absolute or relative). */
+    image?: string;
+    /** Full HTML or rich-text body from CMS. Undefined for placeholder posts. */
+    body?: string;
+    /** Optional SEO overrides from CMS. */
+    seo?: {
+        metaTitle?: string;
+        metaDescription?: string;
+        ogImage?: string;
+    };
 }
 
 // ── Process ─────────────────────────────────────────────

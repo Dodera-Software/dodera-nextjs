@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import { BlogPageContent } from "./BlogPageContent";
 import { SITE } from "@/config/seo";
 import { JsonLd } from "@/components/JsonLd";
-import { breadcrumbSchema } from "@/lib/structured-data";
+import { breadcrumbSchema, collectionPageSchema } from "@/lib/structured-data";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { ScrollManager } from "@/components/ScrollManager";
+import { getAllPosts } from "@/lib/cms";
 
 export const metadata: Metadata = {
     title: "Blog - Engineering Insights & AI Development",
@@ -26,10 +27,20 @@ export const metadata: Metadata = {
         description:
             "Technical articles on AI development, software engineering, SaaS architecture, and documentation best practices from the Dodera Software team.",
         url: `${SITE.url}/blog`,
+        type: "website",
+        siteName: SITE.name,
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "Blog - Engineering Insights & AI Development",
+        description:
+            "Technical articles on AI development, software engineering, SaaS architecture, and documentation best practices from the Dodera Software team.",
     },
 };
 
-export default function BlogPage() {
+export default async function BlogPage() {
+    const posts = await getAllPosts();
+
     return (
         <div className="min-h-screen bg-background">
             <JsonLd
@@ -38,12 +49,18 @@ export default function BlogPage() {
                         { name: "Home", url: SITE.url },
                         { name: "Blog", url: `${SITE.url}/blog` },
                     ]),
+                    collectionPageSchema({
+                        name: "Blog - Engineering Insights & AI Development",
+                        description:
+                            "Technical articles on AI development, software engineering, SaaS architecture, and documentation best practices.",
+                        url: `${SITE.url}/blog`,
+                    }),
                 ]}
             />
             <ScrollManager />
             <Navbar />
             <main>
-                <BlogPageContent />
+                <BlogPageContent posts={posts} />
             </main>
             <Footer />
         </div>

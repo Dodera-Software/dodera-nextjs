@@ -10,7 +10,24 @@
 
 import { SITE, DEFAULT_META } from "@/config/seo";
 
-/** Schema.org Organization */
+/* ── Helpers ─────────────────────────────────────────────── */
+
+const SOCIAL_URLS = [
+    SITE.social.linkedin,
+    SITE.social.instagram,
+    SITE.social.facebook,
+].filter(Boolean);
+
+function orgSnippet() {
+    return {
+        "@type": "Organization",
+        name: SITE.name,
+        url: SITE.url,
+        logo: `${SITE.url}${SITE.logo}`,
+    };
+}
+
+/* ── Schema.org Organization ─────────────────────────────── */
 export function organizationSchema() {
     return {
         "@context": "https://schema.org",
@@ -18,22 +35,25 @@ export function organizationSchema() {
         name: SITE.name,
         legalName: SITE.legalName,
         url: SITE.url,
-        logo: `${SITE.url}/logo.png`,
+        logo: `${SITE.url}${SITE.logo}`,
         email: SITE.email,
         description: DEFAULT_META.description,
+        foundingDate: "2024",
         address: {
             "@type": "PostalAddress",
             addressCountry: SITE.address.country,
         },
-        sameAs: [
-            "https://linkedin.com/company/dodera",
-            "https://instagram.com/doderasoftware",
-            "https://facebook.com/doderasoftware",
-        ],
+        contactPoint: {
+            "@type": "ContactPoint",
+            email: SITE.email,
+            contactType: "customer service",
+            availableLanguage: ["English", "Romanian"],
+        },
+        sameAs: SOCIAL_URLS,
     };
 }
 
-/** Schema.org WebSite (enables sitelinks search-box in Google) */
+/* ── Schema.org WebSite (sitelinks search-box in Google) ── */
 export function webSiteSchema() {
     return {
         "@context": "https://schema.org",
@@ -41,12 +61,8 @@ export function webSiteSchema() {
         name: SITE.name,
         url: SITE.url,
         description: DEFAULT_META.description,
-        inLanguage: "en-US",
-        publisher: {
-            "@type": "Organization",
-            name: SITE.name,
-            url: SITE.url,
-        },
+        inLanguage: SITE.locale.replace("_", "-"),
+        publisher: orgSnippet(),
         potentialAction: {
             "@type": "SearchAction",
             target: {
@@ -58,7 +74,7 @@ export function webSiteSchema() {
     };
 }
 
-/** Schema.org ProfessionalService */
+/* ── Schema.org ProfessionalService ───────────────────────── */
 export function professionalServiceSchema() {
     return {
         "@context": "https://schema.org",
@@ -66,15 +82,20 @@ export function professionalServiceSchema() {
         name: SITE.name,
         url: SITE.url,
         email: SITE.email,
+        logo: `${SITE.url}${SITE.logo}`,
+        image: `${SITE.url}${SITE.ogImage}`,
         description: DEFAULT_META.description,
+        priceRange: "$$$$",
         address: {
             "@type": "PostalAddress",
             addressCountry: SITE.address.country,
         },
         areaServed: {
-            "@type": "Place",
-            name: "Worldwide",
+            "@type": "GeoCircle",
+            geoMidpoint: { "@type": "GeoCoordinates", latitude: 44.43, longitude: 26.1 },
+            geoRadius: "20000",
         },
+        sameAs: SOCIAL_URLS,
         serviceType: [
             "AI Development",
             "Custom Software Development",
@@ -91,11 +112,92 @@ export function professionalServiceSchema() {
             "Nuxt",
             "TypeScript",
             "React",
+            "Next.js",
         ],
     };
 }
 
-/** Schema.org BreadcrumbList */
+/* ── Schema.org Service (per service page) ────────────────── */
+export function serviceSchema(opts: {
+    name: string;
+    description: string;
+    url: string;
+}) {
+    return {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        name: opts.name,
+        description: opts.description,
+        url: opts.url,
+        provider: orgSnippet(),
+        areaServed: {
+            "@type": "Place",
+            name: "Worldwide",
+        },
+        serviceType: opts.name,
+    };
+}
+
+/* ── Schema.org CollectionPage (blog listing) ─────────────── */
+export function collectionPageSchema(opts: {
+    name: string;
+    description: string;
+    url: string;
+}) {
+    return {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        name: opts.name,
+        description: opts.description,
+        url: opts.url,
+        isPartOf: {
+            "@type": "WebSite",
+            name: SITE.name,
+            url: SITE.url,
+        },
+        publisher: orgSnippet(),
+    };
+}
+
+/* ── Schema.org Article (individual blog post — CMS ready) ── */
+export function articleSchema(opts: {
+    title: string;
+    description: string;
+    url: string;
+    datePublished: string;
+    dateModified?: string;
+    image?: string;
+    authorName?: string;
+}) {
+    return {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        headline: opts.title,
+        description: opts.description,
+        url: opts.url,
+        datePublished: opts.datePublished,
+        dateModified: opts.dateModified ?? opts.datePublished,
+        image: opts.image ?? `${SITE.url}${SITE.ogImage}`,
+        author: {
+            "@type": "Organization",
+            name: opts.authorName ?? SITE.name,
+            url: SITE.url,
+        },
+        publisher: {
+            ...orgSnippet(),
+            logo: {
+                "@type": "ImageObject",
+                url: `${SITE.url}${SITE.logo}`,
+            },
+        },
+        mainEntityOfPage: {
+            "@type": "WebPage",
+            "@id": opts.url,
+        },
+    };
+}
+
+/* ── Schema.org BreadcrumbList ─────────────────────────────── */
 export function breadcrumbSchema(items: { name: string; url: string }[]) {
     return {
         "@context": "https://schema.org",

@@ -1,0 +1,21 @@
+{
+    "name": "Dodera Software",
+    "short_name": "Dodera",
+    "description": "Mission-critical software and AI development from Romania, serving clients internationally.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0f0f0f",
+    "theme_color": "#e1432b",
+    "icons": [
+        {
+            "src": "/favicon.ico",
+            "sizes": "48x48",
+            "type": "image/x-icon"
+        },
+        {
+            "src": "/apple-touch-icon.png",
+            "sizes": "180x180",
+            "type": "image/png"
+        }
+    ]
+}
