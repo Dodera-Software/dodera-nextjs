@@ -8,7 +8,7 @@
  */
 export const PROTECTED_API_ROUTES: string[] = [
     "/api/ping",
-    // "/api/some-future-route",
+    "/api/blog",
 ];
 
 /**
