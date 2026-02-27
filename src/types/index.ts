@@ -13,6 +13,8 @@ export interface Service {
     subtitle: string;
     description: string;
     tags: string[];
+    /** Optional cover image path (relative to /public) shown on the homepage card instead of the icon. */
+    image?: string;
     /** Short bullet points shown in the navbar mega-menu. */
     highlights: ServiceHighlight[];
     /** URL path for the service page */

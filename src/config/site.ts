@@ -50,6 +50,7 @@ export const SERVICES: Service[] = [
         description:
             "Automate repetitive tasks and workflows with custom AI agents. We build intelligent systems that handle daily operations, data processing, and decision-making at scale.",
         tags: ["Workflow Automation", "AI Agents", "Process Optimization"],
+        image: "/ai-development.jpg",
         highlights: [
             { label: "Custom AI Agents", href: "/services/ai-development/custom-ai-agents" },
             { label: "AI Powered Automations", href: "/services/ai-development/ai-powered-automations" },
@@ -63,6 +64,7 @@ export const SERVICES: Service[] = [
         description:
             "Launch your digital product with confidence. We handle everything from MVP development to enterprise-grade platforms using proven tech stacks.",
         tags: ["Laravel", "Nuxt", "Full-Stack"],
+        image: "/software-development.jpg",
         highlights: [
             { label: "MVP to Market", href: "/services/software-development/mvp-to-market" },
             { label: "Enterprise Platforms", href: "/services/software-development/enterprise-platforms" },
@@ -77,6 +79,7 @@ export const SERVICES: Service[] = [
         description:
             "Transform your codebase and internal docs into AI-ready knowledge bases. Make your team's expertise searchable, accessible, and actionable.",
         tags: ["Knowledge Indexing", "AI Context", "Documentation"],
+        image: "/technical-documentation.png",
         highlights: [
             { label: "Documentation Systems", href: "/services/technical-documentation/documentation-systems" },
         ],
