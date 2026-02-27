@@ -1,7 +1,44 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Users, Key, LayoutDashboard, Wand2, Loader2, CheckCircle2, XCircle, ExternalLink, ChevronDown, ChevronUp } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Users, Key, LayoutDashboard, Wand2, Loader2, CheckCircle2, XCircle, ExternalLink, ChevronDown, ChevronUp, BarChart2, GitBranch, Database } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
+const QUICK_LINKS = [
+    {
+        label: "Vercel",
+        description: "Deployments & settings",
+        icon: ExternalLink,
+        color: "text-sky-400",
+        bg: "bg-sky-400/10",
+        url: process.env.NEXT_PUBLIC_ADMIN_LINK_VERCEL,
+    },
+    {
+        label: "Vercel Analytics",
+        description: "Traffic & performance",
+        icon: BarChart2,
+        color: "text-violet-400",
+        bg: "bg-violet-400/10",
+        url: process.env.NEXT_PUBLIC_ADMIN_LINK_VERCEL_ANALYTICS,
+    },
+    {
+        label: "Prismic Migration",
+        description: "Drafts waiting to publish",
+        icon: GitBranch,
+        color: "text-rose-400",
+        bg: "bg-rose-400/10",
+        url: process.env.NEXT_PUBLIC_ADMIN_LINK_PRISMIC_MIGRATION,
+    },
+    {
+        label: "Supabase",
+        description: "Database & auth",
+        icon: Database,
+        color: "text-emerald-400",
+        bg: "bg-emerald-400/10",
+        url: process.env.NEXT_PUBLIC_ADMIN_LINK_SUPABASE,
+    },
+].filter((l) => !!l.url) as { label: string; description: string; icon: React.ElementType; color: string; bg: string; url: string }[];
 
 interface Stats {
     subscribers: number;
@@ -138,6 +175,24 @@ export default function AdminDashboardPage() {
                 ))}
             </div>
 
+            {/* Quick Links */}
+            {QUICK_LINKS.length > 0 && (
+                <div className="rounded-xl border border-border bg-card p-5 space-y-3">
+                    <p className="text-sm font-medium">Quick Links</p>
+                    <div className="flex flex-wrap gap-2">
+                        {QUICK_LINKS.map((link) => (
+                            <Button key={link.label} variant="outline" size="sm" asChild>
+                                <a href={link.url} target="_blank" rel="noopener noreferrer">
+                                    <link.icon className={`w-3.5 h-3.5 ${link.color}`} />
+                                    {link.label}
+                                    <ExternalLink className="w-3 h-3 opacity-40" />
+                                </a>
+                            </Button>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {/* Auto Post */}
             <div className="rounded-xl border border-border bg-card p-5 space-y-4">
                 <div className="flex items-start justify-between gap-4">
@@ -152,11 +207,7 @@ export default function AdminDashboardPage() {
                             </p>
                         </div>
                     </div>
-                    <button
-                        onClick={handleAutoPost}
-                        disabled={posting}
-                        className="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
+                    <Button onClick={handleAutoPost} disabled={posting}>
                         {posting ? (
                             <>
                                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -168,7 +219,7 @@ export default function AdminDashboardPage() {
                                 Trigger
                             </>
                         )}
-                    </button>
+                    </Button>
                 </div>
 
                 {/* Options toggle */}
@@ -195,11 +246,11 @@ export default function AdminDashboardPage() {
                             </label>
                             <label className="flex items-center gap-2 text-sm">
                                 Author name
-                                <input
+                                <Input
                                     type="text"
                                     value={authorName}
                                     onChange={(e) => setAuthorName(e.target.value)}
-                                    className="rounded-md border border-input bg-background px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-ring w-40"
+                                    className="w-40 h-8"
                                 />
                             </label>
                         </div>
@@ -209,8 +260,8 @@ export default function AdminDashboardPage() {
                 {/* Result */}
                 {postResult && (
                     <div className={`rounded-lg border px-4 py-3 text-sm space-y-2 ${postResult.status === "success"
-                            ? "bg-emerald-500/10 border-emerald-500/20"
-                            : "bg-destructive/10 border-destructive/20"
+                        ? "bg-emerald-500/10 border-emerald-500/20"
+                        : "bg-destructive/10 border-destructive/20"
                         }`}>
                         <div className="flex items-center gap-2 font-medium">
                             {postResult.status === "success" ? (

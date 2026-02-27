@@ -17,6 +17,17 @@ import {
     Pencil,
     MoreHorizontal,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+} from "@/components/ui/dialog";
 
 interface Token {
     id: number;
@@ -250,20 +261,14 @@ export default function TokensPage() {
                     </p>
                 </div>
                 <div className="flex gap-2">
-                    <button
-                        onClick={fetchTokens}
-                        className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-                    >
+                    <Button variant="outline" size="sm" onClick={fetchTokens}>
                         <RefreshCw className="w-4 h-4" />
                         Refresh
-                    </button>
-                    <button
-                        onClick={() => setShowCreateModal(true)}
-                        className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
-                    >
+                    </Button>
+                    <Button size="sm" onClick={() => setShowCreateModal(true)}>
                         <Plus className="w-4 h-4" />
                         Generate Token
-                    </button>
+                    </Button>
                 </div>
             </div>
 
@@ -334,41 +339,36 @@ export default function TokensPage() {
                                                         }}
                                                         className="flex items-center gap-1.5"
                                                     >
-                                                        <input
+                                                        <Input
                                                             autoFocus
                                                             type="text"
                                                             value={renameValue}
-                                                            onChange={(e) =>
-                                                                setRenameValue(
-                                                                    e.target.value,
-                                                                )
-                                                            }
-                                                            onKeyDown={(e) =>
-                                                                e.key === "Escape" &&
-                                                                cancelRename()
-                                                            }
-                                                            className="w-40 rounded-md border border-input bg-background px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                                                            onChange={(e) => setRenameValue(e.target.value)}
+                                                            onKeyDown={(e) => e.key === "Escape" && cancelRename()}
+                                                            className="w-40 h-8"
                                                         />
-                                                        <button
+                                                        <Button
                                                             type="submit"
+                                                            size="icon"
+                                                            variant="ghost"
                                                             disabled={renameSaving}
-                                                            className="p-1.5 rounded-md text-emerald-500 hover:bg-emerald-500/10 disabled:opacity-50 transition-colors"
-                                                            title="Save"
+                                                            className="h-8 w-8 text-emerald-500 hover:text-emerald-500 hover:bg-emerald-500/10"
                                                         >
                                                             {renameSaving ? (
                                                                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
                                                             ) : (
                                                                 <Check className="w-3.5 h-3.5" />
                                                             )}
-                                                        </button>
-                                                        <button
+                                                        </Button>
+                                                        <Button
                                                             type="button"
+                                                            size="icon"
+                                                            variant="ghost"
                                                             onClick={cancelRename}
-                                                            className="p-1.5 rounded-md text-muted-foreground hover:bg-accent transition-colors"
-                                                            title="Cancel"
+                                                            className="h-8 w-8"
                                                         >
                                                             <X className="w-3.5 h-3.5" />
-                                                        </button>
+                                                        </Button>
                                                     </form>
                                                 ) : (
                                                     token.name
@@ -397,13 +397,14 @@ export default function TokensPage() {
                                                         <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
                                                     </span>
                                                 ) : (
-                                                    <button
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8"
                                                         onClick={(e) => toggleMenu(e, token.id)}
-                                                        className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-                                                        title="Actions"
                                                     >
                                                         <MoreHorizontal className="w-4 h-4" />
-                                                    </button>
+                                                    </Button>
                                                 )}
                                             </td>
                                         </tr>
@@ -415,141 +416,114 @@ export default function TokensPage() {
                 </div>
             </div>
 
-            {/* Create Token Modal */}
-            {showCreateModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-                    <div className="w-full max-w-md mx-4 rounded-xl border border-border bg-card p-6 shadow-2xl space-y-4">
-                        <div className="flex items-center justify-between">
-                            <h2 className="text-lg font-semibold">
-                                Generate New Token
-                            </h2>
-                            <button
-                                onClick={() => setShowCreateModal(false)}
-                                className="text-muted-foreground hover:text-foreground transition-colors"
-                            >
-                                <X className="w-5 h-5" />
-                            </button>
+            {/* Create Token Dialog */}
+            <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
+                <DialogContent className="max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Generate New Token</DialogTitle>
+                        <DialogDescription>
+                            Tokens allow external services to authenticate with your API.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <form onSubmit={handleCreate} className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="tokenName">Token Name</Label>
+                            <Input
+                                id="tokenName"
+                                type="text"
+                                value={newTokenName}
+                                onChange={(e) => setNewTokenName(e.target.value)}
+                                required
+                                placeholder='e.g. "CI pipeline", "Mobile app"'
+                            />
                         </div>
 
-                        <form onSubmit={handleCreate} className="space-y-4">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">
-                                    Token Name
-                                </label>
-                                <input
-                                    type="text"
-                                    value={newTokenName}
-                                    onChange={(e) =>
-                                        setNewTokenName(e.target.value)
-                                    }
-                                    required
-                                    placeholder='e.g. "CI pipeline", "Mobile app"'
-                                    className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                                />
-                            </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="tokenExpiry">Expires in (days)</Label>
+                            <Input
+                                id="tokenExpiry"
+                                type="number"
+                                value={newTokenExpiry}
+                                onChange={(e) => setNewTokenExpiry(e.target.value)}
+                                min={1}
+                                placeholder="Leave blank for never"
+                            />
+                            <p className="text-xs text-muted-foreground flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                Optional — leave empty for a non-expiring token
+                            </p>
+                        </div>
 
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">
-                                    Expires in (days)
-                                </label>
-                                <input
-                                    type="number"
-                                    value={newTokenExpiry}
-                                    onChange={(e) =>
-                                        setNewTokenExpiry(e.target.value)
-                                    }
-                                    min={1}
-                                    placeholder="Leave blank for never"
-                                    className="w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                                />
-                                <p className="text-xs text-muted-foreground flex items-center gap-1">
-                                    <Clock className="w-3 h-3" />
-                                    Optional — leave empty for a non-expiring token
-                                </p>
-                            </div>
+                        <DialogFooter className="gap-2 sm:gap-0">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setShowCreateModal(false)}
+                            >
+                                Cancel
+                            </Button>
+                            <Button type="submit" disabled={creating}>
+                                {creating && <Loader2 className="w-4 h-4 animate-spin" />}
+                                {creating ? "Generating…" : "Generate"}
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
 
-                            <div className="flex gap-2 pt-2">
-                                <button
-                                    type="button"
-                                    onClick={() => setShowCreateModal(false)}
-                                    className="flex-1 px-4 py-2.5 rounded-lg border border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    disabled={creating}
-                                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 disabled:opacity-50 transition-colors"
-                                >
-                                    {creating ? (
-                                        <>
-                                            <Loader2 className="w-4 h-4 animate-spin" />
-                                            Generating...
-                                        </>
-                                    ) : (
-                                        "Generate"
-                                    )}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-
-            {/* Generated Token Modal */}
-            {generatedToken && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-                    <div className="w-full max-w-lg mx-4 rounded-xl border border-border bg-card p-6 shadow-2xl space-y-4">
+            {/* Generated Token Dialog */}
+            <Dialog open={!!generatedToken} onOpenChange={(open) => { if (!open) { setGeneratedToken(null); setCopied(false); } }}>
+                <DialogContent className="max-w-lg">
+                    <DialogHeader>
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                            <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
                                 <Key className="w-5 h-5 text-emerald-500" />
                             </div>
                             <div>
-                                <h2 className="text-lg font-semibold">
-                                    Token Generated
-                                </h2>
-                                <p className="text-sm text-muted-foreground">
+                                <DialogTitle>Token Generated</DialogTitle>
+                                <DialogDescription>
                                     Copy it now — it won&apos;t be shown again.
-                                </p>
+                                </DialogDescription>
                             </div>
                         </div>
+                    </DialogHeader>
 
-                        <div className="relative">
-                            <code className="block w-full px-4 py-3 rounded-lg bg-background border border-border text-xs font-mono break-all select-all">
-                                {generatedToken}
-                            </code>
-                            <button
-                                onClick={copyToken}
-                                className="absolute top-2 right-2 p-1.5 rounded-md bg-card border border-border hover:bg-accent transition-colors"
-                            >
-                                {copied ? (
-                                    <Check className="w-4 h-4 text-emerald-500" />
-                                ) : (
-                                    <Copy className="w-4 h-4 text-muted-foreground" />
-                                )}
-                            </button>
-                        </div>
+                    <div className="relative">
+                        <code className="block w-full px-4 py-3 rounded-lg bg-background border border-border text-xs font-mono break-all select-all">
+                            {generatedToken}
+                        </code>
+                        <Button
+                            size="icon"
+                            variant="outline"
+                            className="absolute top-2 right-2 h-7 w-7"
+                            onClick={copyToken}
+                        >
+                            {copied ? (
+                                <Check className="w-4 h-4 text-emerald-500" />
+                            ) : (
+                                <Copy className="w-4 h-4" />
+                            )}
+                        </Button>
+                    </div>
 
-                        <div className="rounded-lg bg-amber-500/10 border border-amber-500/20 px-4 py-3 text-sm text-amber-500 flex items-start gap-2">
-                            <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                            <span>
-                                Make sure to copy this token. For security
-                                reasons, you will not be able to see it again.
-                            </span>
-                        </div>
+                    <div className="rounded-lg bg-amber-500/10 border border-amber-500/20 px-4 py-3 text-sm text-amber-500 flex items-start gap-2">
+                        <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                        <span>
+                            Make sure to copy this token. For security reasons, you will not be able to see it again.
+                        </span>
+                    </div>
 
-                        <button
-                            onClick={() => {
-                                setGeneratedToken(null);
-                                setCopied(false);
-                            }}
-                            className="w-full px-4 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+                    <DialogFooter>
+                        <Button
+                            className="w-full"
+                            onClick={() => { setGeneratedToken(null); setCopied(false); }}
                         >
                             Done
-                        </button>
-                    </div>
-                </div>
-            )}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
 
             {/* Fixed dropdown — renders outside table overflow context */}
             {openMenuId !== null && (() => {
