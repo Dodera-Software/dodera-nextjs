@@ -11,7 +11,7 @@ import { createClient } from "@supabase/supabase-js";
 import bcrypt from "bcryptjs";
 
 const ADMIN_EMAIL = "office@doderasoft.com";
-const ADMIN_PASSWORD = "ParolaPulii2023@";
+const ADMIN_PASSWORD = "...change-me-to-a-secure-password...";
 const ADMIN_NAME = "Dodera";
 
 async function main() {

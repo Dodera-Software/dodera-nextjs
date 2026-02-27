@@ -11,6 +11,7 @@ import {
     X,
     LayoutDashboard,
     Loader2,
+    ImageIcon,
 } from "lucide-react";
 
 interface AdminSession {
@@ -23,6 +24,7 @@ const NAV_ITEMS = [
     { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
     { href: "/admin/subscribers", label: "Subscribers", icon: Users },
     { href: "/admin/tokens", label: "API Tokens", icon: Key },
+    { href: "/admin/generate-image", label: "Generate Image", icon: ImageIcon },
 ];
 
 export default function AdminDashboardLayout({
@@ -113,8 +115,8 @@ export default function AdminDashboardLayout({
                                 href={item.href}
                                 onClick={() => setSidebarOpen(false)}
                                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${isActive
-                                        ? "bg-primary/10 text-primary"
-                                        : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                                    ? "bg-primary/10 text-primary"
+                                    : "text-muted-foreground hover:text-foreground hover:bg-accent"
                                     }`}
                             >
                                 <item.icon className="w-4 h-4" />

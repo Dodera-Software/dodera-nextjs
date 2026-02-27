@@ -140,3 +140,46 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ status: "success", message: "Token deleted." });
 }
+
+export async function PATCH(request: NextRequest) {
+    const session = await verifyAdminSession();
+    if (!session) {
+        return NextResponse.json(
+            { status: "error", message: "Not authenticated." },
+            { status: 401 },
+        );
+    }
+
+    const { id, name } = await request.json();
+
+    if (!id) {
+        return NextResponse.json(
+            { status: "error", message: "Token ID is required." },
+            { status: 400 },
+        );
+    }
+
+    if (!name || typeof name !== "string" || name.trim().length === 0) {
+        return NextResponse.json(
+            { status: "error", message: "Token name is required." },
+            { status: 400 },
+        );
+    }
+
+    const { data, error } = await supabase
+        .from("api_tokens")
+        .update({ name: name.trim() })
+        .eq("id", id)
+        .select("id, name")
+        .single();
+
+    if (error) {
+        console.error("Error renaming token:", error);
+        return NextResponse.json(
+            { status: "error", message: "Failed to rename token." },
+            { status: 500 },
+        );
+    }
+
+    return NextResponse.json({ status: "success", message: "Token renamed.", data });
+}

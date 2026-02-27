@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import {
     Key,
     Plus,
@@ -14,6 +14,8 @@ import {
     Clock,
     Shield,
     AlertTriangle,
+    Pencil,
+    MoreHorizontal,
 } from "lucide-react";
 
 interface Token {
@@ -35,6 +37,40 @@ export default function TokensPage() {
     const [newTokenName, setNewTokenName] = useState("");
     const [newTokenExpiry, setNewTokenExpiry] = useState("");
     const [creating, setCreating] = useState(false);
+
+    // Dropdown menu state
+    const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+    const [menuPos, setMenuPos] = useState({ top: 0, right: 0 });
+    const menuRef = useRef<HTMLDivElement>(null);
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        function handleClickOutside(e: MouseEvent) {
+            if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+                setOpenMenuId(null);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    function toggleMenu(e: React.MouseEvent<HTMLButtonElement>, id: number) {
+        if (openMenuId === id) {
+            setOpenMenuId(null);
+            return;
+        }
+        const rect = e.currentTarget.getBoundingClientRect();
+        setMenuPos({
+            top: rect.bottom + window.scrollY + 4,
+            right: window.innerWidth - rect.right,
+        });
+        setOpenMenuId(id);
+    }
+
+    // Rename state
+    const [renamingId, setRenamingId] = useState<number | null>(null);
+    const [renameValue, setRenameValue] = useState("");
+    const [renameSaving, setRenameSaving] = useState(false);
 
     // Show token modal
     const [generatedToken, setGeneratedToken] = useState<string | null>(null);
@@ -86,6 +122,40 @@ export default function TokensPage() {
             console.error("Failed to create token");
         } finally {
             setCreating(false);
+        }
+    }
+
+    function startRename(token: Token) {
+        setRenamingId(token.id);
+        setRenameValue(token.name);
+    }
+
+    function cancelRename() {
+        setRenamingId(null);
+        setRenameValue("");
+    }
+
+    async function saveRename(id: number) {
+        if (!renameValue.trim()) return;
+        setRenameSaving(true);
+        try {
+            const res = await fetch("/api/admin/tokens", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id, name: renameValue }),
+            });
+            if (res.ok) {
+                setTokens((prev) =>
+                    prev.map((t) =>
+                        t.id === id ? { ...t, name: renameValue.trim() } : t,
+                    ),
+                );
+                cancelRename();
+            }
+        } catch {
+            console.error("Failed to rename token");
+        } finally {
+            setRenameSaving(false);
         }
     }
 
@@ -256,7 +326,53 @@ export default function TokensPage() {
                                                 {token.id}
                                             </td>
                                             <td className="px-4 py-3 font-medium">
-                                                {token.name}
+                                                {renamingId === token.id ? (
+                                                    <form
+                                                        onSubmit={(e) => {
+                                                            e.preventDefault();
+                                                            saveRename(token.id);
+                                                        }}
+                                                        className="flex items-center gap-1.5"
+                                                    >
+                                                        <input
+                                                            autoFocus
+                                                            type="text"
+                                                            value={renameValue}
+                                                            onChange={(e) =>
+                                                                setRenameValue(
+                                                                    e.target.value,
+                                                                )
+                                                            }
+                                                            onKeyDown={(e) =>
+                                                                e.key === "Escape" &&
+                                                                cancelRename()
+                                                            }
+                                                            className="w-40 rounded-md border border-input bg-background px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                                                        />
+                                                        <button
+                                                            type="submit"
+                                                            disabled={renameSaving}
+                                                            className="p-1.5 rounded-md text-emerald-500 hover:bg-emerald-500/10 disabled:opacity-50 transition-colors"
+                                                            title="Save"
+                                                        >
+                                                            {renameSaving ? (
+                                                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                                            ) : (
+                                                                <Check className="w-3.5 h-3.5" />
+                                                            )}
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={cancelRename}
+                                                            className="p-1.5 rounded-md text-muted-foreground hover:bg-accent transition-colors"
+                                                            title="Cancel"
+                                                        >
+                                                            <X className="w-3.5 h-3.5" />
+                                                        </button>
+                                                    </form>
+                                                ) : (
+                                                    token.name
+                                                )}
                                             </td>
                                             <td className="px-4 py-3">
                                                 <span
@@ -276,52 +392,19 @@ export default function TokensPage() {
                                                 {formatDate(token.last_used_at)}
                                             </td>
                                             <td className="px-4 py-3 text-right">
-                                                <div className="flex items-center justify-end gap-1">
-                                                    {!token.revoked_at && (
-                                                        <button
-                                                            onClick={() =>
-                                                                handleRevoke(
-                                                                    token.id,
-                                                                    token.name,
-                                                                )
-                                                            }
-                                                            disabled={
-                                                                actionLoading ===
-                                                                token.id
-                                                            }
-                                                            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium text-amber-500 hover:bg-amber-500/10 disabled:opacity-50 transition-colors"
-                                                            title="Revoke token"
-                                                        >
-                                                            {actionLoading ===
-                                                                token.id ? (
-                                                                <Loader2 className="w-3 h-3 animate-spin" />
-                                                            ) : (
-                                                                <Ban className="w-3 h-3" />
-                                                            )}
-                                                            Revoke
-                                                        </button>
-                                                    )}
+                                                {actionLoading === token.id ? (
+                                                    <span className="inline-flex justify-end w-full">
+                                                        <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                                                    </span>
+                                                ) : (
                                                     <button
-                                                        onClick={() =>
-                                                            handleDelete(
-                                                                token.id,
-                                                                token.name,
-                                                            )
-                                                        }
-                                                        disabled={
-                                                            actionLoading === token.id
-                                                        }
-                                                        className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium text-destructive hover:bg-destructive/10 disabled:opacity-50 transition-colors"
-                                                        title="Delete token"
+                                                        onClick={(e) => toggleMenu(e, token.id)}
+                                                        className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                                                        title="Actions"
                                                     >
-                                                        {actionLoading === token.id ? (
-                                                            <Loader2 className="w-3 h-3 animate-spin" />
-                                                        ) : (
-                                                            <Trash2 className="w-3 h-3" />
-                                                        )}
-                                                        Delete
+                                                        <MoreHorizontal className="w-4 h-4" />
                                                     </button>
-                                                </div>
+                                                )}
                                             </td>
                                         </tr>
                                     );
@@ -467,6 +550,47 @@ export default function TokensPage() {
                     </div>
                 </div>
             )}
+
+            {/* Fixed dropdown — renders outside table overflow context */}
+            {openMenuId !== null && (() => {
+                const token = tokens.find((t) => t.id === openMenuId);
+                if (!token) return null;
+                return (
+                    <div
+                        ref={menuRef}
+                        style={{ position: "fixed", top: menuPos.top, right: menuPos.right }}
+                        className="z-[9999] w-44 rounded-lg border border-border bg-card shadow-xl py-1"
+                    >
+                        <button
+                            onClick={() => { setOpenMenuId(null); startRename(token); }}
+                            className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors"
+                        >
+                            <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+                            Rename
+                        </button>
+
+                        {!token.revoked_at && (
+                            <button
+                                onClick={() => { setOpenMenuId(null); handleRevoke(token.id, token.name); }}
+                                className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-amber-500 hover:bg-amber-500/10 transition-colors"
+                            >
+                                <Ban className="w-3.5 h-3.5" />
+                                Revoke
+                            </button>
+                        )}
+
+                        <div className="my-1 border-t border-border" />
+
+                        <button
+                            onClick={() => { setOpenMenuId(null); handleDelete(token.id, token.name); }}
+                            className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors"
+                        >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            Delete
+                        </button>
+                    </div>
+                );
+            })()}
         </div>
     );
 }
