@@ -1,9 +1,6 @@
 /**
  * Netlify Scheduled Function — auto-post cron
  *
- * Equivalent of the Vercel Cron job defined in vercel.json:
- *   { "path": "/api/cron/auto-post", "schedule": "0 9 * * *" }
- *
  * Runs daily at 09:00 UTC and hits the app's /api/cron/auto-post route,
  * passing the CRON_SECRET for authentication (same mechanism as Vercel).
  *
