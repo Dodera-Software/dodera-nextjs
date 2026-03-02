@@ -1,0 +1,11 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+# ── Next.js plugin (handles SSR, ISR, middleware, etc.) ──
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# ── Scheduled function: auto-post cron (daily at 09:00 UTC) ──
+# Netlify equivalent of Vercel's cron in vercel.json
+# The actual function lives at: netlify/functions/cron-auto-post.mts

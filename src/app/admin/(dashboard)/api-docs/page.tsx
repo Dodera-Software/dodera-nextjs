@@ -134,7 +134,7 @@ const API_ENDPOINTS: ApiEndpoint[] = [
         auth: "cron-secret",
         description: "Scheduled auto-post cron job",
         details:
-            "Vercel Cron job handler that runs daily at 09:00 UTC. Verifies the request via Vercel's CRON_SECRET, picks a random author, then forwards the request to /api/auto-post using the AUTO_POST_API_TOKEN environment variable.",
+            "Cron job handler that runs daily at 09:00 UTC. On Netlify, triggered by the scheduled function in netlify/functions/cron-auto-post.mts. Verifies the request via CRON_SECRET, picks a random author, then forwards the request to /api/auto-post using the AUTO_POST_API_TOKEN environment variable.",
         response: '{ "status": "success", "post": { ... } }',
     },
     {
@@ -178,7 +178,7 @@ const AUTH_CONFIG = {
         color: "text-violet-400",
         bg: "bg-violet-400/10",
         border: "border-violet-400/20",
-        description: "Vercel CRON_SECRET (auto-injected by Vercel)",
+        description: "CRON_SECRET (set manually in Netlify env vars; was auto-injected on Vercel)",
     },
     "webhook-secret": {
         label: "Webhook Secret",

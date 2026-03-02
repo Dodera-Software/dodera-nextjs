@@ -5,23 +5,50 @@ import { Users, Key, LayoutDashboard, Wand2, Loader2, CheckCircle2, XCircle, Ext
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
+/* ── Platform-aware quick links ─────────────────────────────── */
+const PLATFORM = process.env.NEXT_PUBLIC_DEPLOY_PLATFORM ?? "netlify";
+
+const PLATFORM_LINKS: Record<string, { label: string; description: string; icon: React.ElementType; color: string; bg: string; url?: string }[]> = {
+    netlify: [
+        {
+            label: "Netlify",
+            description: "Deployments & settings",
+            icon: ExternalLink,
+            color: "text-sky-400",
+            bg: "bg-sky-400/10",
+            url: process.env.NEXT_PUBLIC_ADMIN_LINK_NETLIFY,
+        },
+        {
+            label: "Netlify Analytics",
+            description: "Traffic & performance",
+            icon: BarChart2,
+            color: "text-violet-400",
+            bg: "bg-violet-400/10",
+            url: process.env.NEXT_PUBLIC_ADMIN_LINK_NETLIFY_ANALYTICS,
+        },
+    ],
+    vercel: [
+        {
+            label: "Vercel",
+            description: "Deployments & settings",
+            icon: ExternalLink,
+            color: "text-sky-400",
+            bg: "bg-sky-400/10",
+            url: process.env.NEXT_PUBLIC_ADMIN_LINK_VERCEL,
+        },
+        {
+            label: "Vercel Analytics",
+            description: "Traffic & performance",
+            icon: BarChart2,
+            color: "text-violet-400",
+            bg: "bg-violet-400/10",
+            url: process.env.NEXT_PUBLIC_ADMIN_LINK_VERCEL_ANALYTICS,
+        },
+    ],
+};
+
 const QUICK_LINKS = [
-    {
-        label: "Vercel",
-        description: "Deployments & settings",
-        icon: ExternalLink,
-        color: "text-sky-400",
-        bg: "bg-sky-400/10",
-        url: process.env.NEXT_PUBLIC_ADMIN_LINK_VERCEL,
-    },
-    {
-        label: "Vercel Analytics",
-        description: "Traffic & performance",
-        icon: BarChart2,
-        color: "text-violet-400",
-        bg: "bg-violet-400/10",
-        url: process.env.NEXT_PUBLIC_ADMIN_LINK_VERCEL_ANALYTICS,
-    },
+    ...(PLATFORM_LINKS[PLATFORM] ?? []),
     {
         label: "Prismic Migration",
         description: "Drafts waiting to publish",
@@ -268,7 +295,7 @@ export default function AdminDashboardPage() {
                         )}
                         {postResult.uid && (
                             <a
-                                href="https://dodera-blog.prismic.io/builder/migration"
+                                href="https://dodera-nextjs.prismic.io/builder/migration"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline pl-6"

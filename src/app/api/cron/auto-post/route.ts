@@ -14,17 +14,20 @@ function pickRandomAuthor(): string {
 /**
  * GET /api/cron/auto-post
  *
- * Invoked automatically by Vercel Cron at 09:00 UTC every day.
+ * Invoked daily at 09:00 UTC.
+ *  - Netlify: via the scheduled function in netlify/functions/cron-auto-post.mts
+ *  - Vercel:  (previously) via vercel.json cron config
+ *
  * Picks a random author and forwards the request to /api/auto-post.
  *
  * Required env vars:
- *   CRON_SECRET        — set automatically by Vercel; used to validate the
- *                        incoming request is genuinely from Vercel Cron.
+ *   CRON_SECRET         — shared secret to authenticate the cron caller.
+ *                         Vercel auto-injects this; for Netlify set it manually.
  *   AUTO_POST_API_TOKEN — a valid Supabase-backed API token used to
  *                         authenticate the forwarded /api/auto-post call.
  */
 export async function GET(request: NextRequest) {
-    /* ── 1. Verify the request comes from Vercel Cron ────────── */
+    /* ── 1. Verify the request comes from the cron caller ────── */
     const cronSecret = process.env.CRON_SECRET;
     if (!cronSecret) {
         console.error("[cron/auto-post] CRON_SECRET env var is not set.");

@@ -94,7 +94,7 @@ export default function RootLayout({
           />
         </TooltipProvider>
         <PrismicPreviewBar />
-        <Analytics />
+        {process.env.NEXT_PUBLIC_DEPLOY_PLATFORM === "vercel" && <Analytics />}
       </body>
     </html>
   );
