@@ -34,13 +34,15 @@ const contactSchema = z.object({
 });
 
 /* ── Slack notification ────────────────────────────────────── */
-async function notifySlack(data: {
+interface SlackLeadData {
     name: string;
     email: string;
     company: string;
     phone: string;
     message: string;
-}) {
+}
+
+async function notifySlack(data: SlackLeadData) {
     const webhookUrl = process.env.SLACK_LEADS_WEBHOOK_URL;
     if (!webhookUrl || webhookUrl.includes("XXXX")) return;
 
