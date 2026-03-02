@@ -2,7 +2,7 @@ import "server-only";
 import OpenAI from "openai";
 import { supabase } from "@/lib/supabase";
 import { FOLLOWUP_SYSTEM_PROMPT } from "@/app/api/contact/prompts";
-import { getContactFollowupModel, getContactFollowupDailyLimit } from "@/lib/app-config";
+import { getContactFollowupModel, getContactFollowupDailyLimit, getContactFollowupEnabled } from "@/lib/app-config";
 
 /* ── Static limits (not user-configurable) ───────────────── */
 
@@ -74,8 +74,11 @@ export async function generateFollowUp(data: LeadData): Promise<string | undefin
     if (!apiKey) return undefined;
     if (data.message.length < MIN_MSG_LENGTH) return undefined;
 
-    const model = await getContactFollowupModel();
-    if (!model) return undefined; // disabled via DB config
+    const [enabled, model] = await Promise.all([
+        getContactFollowupEnabled(),
+        getContactFollowupModel(),
+    ]);
+    if (!enabled || !model) return undefined;
 
     if (await isDailyLimitReached()) {
         console.log("[contact-followup] Daily limit reached — skipping AI follow-up.");

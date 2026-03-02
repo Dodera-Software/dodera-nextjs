@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { z } from "zod";
 import { generateFollowUp, type LeadData } from "@/lib/contact-followup-service";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+
+/* ── Honeypot field name (must match ContactForm) ─────────── */
+const HONEYPOT_FIELD = "website_url";
 
 /* ── Validation schema (mirrors client-side rules) ────────── */
 const contactSchema = z.object({
@@ -32,6 +36,8 @@ const contactSchema = z.object({
         .trim()
         .min(10, "Message must be at least 10 characters.")
         .max(2000, "Message must be at most 2000 characters."),
+    // Honeypot — must be empty; bots fill this, humans don't
+    [HONEYPOT_FIELD]: z.string().optional().default(""),
 });
 
 /* ── Slack notification ────────────────────────────────────── */
@@ -81,6 +87,21 @@ export async function POST(request: NextRequest) {
             return NextResponse.json(
                 { status: "error", errors: parsed.error.flatten().fieldErrors },
                 { status: 400 },
+            );
+        }
+
+        /* Honeypot — silent success so bots don't know they were blocked */
+        if (parsed.data[HONEYPOT_FIELD]) {
+            return NextResponse.json({ status: "success", message: "Message received!" });
+        }
+
+        /* IP rate limit */
+        const ip = getClientIp(request);
+        const { limited } = await checkRateLimit("contact", ip);
+        if (limited) {
+            return NextResponse.json(
+                { status: "error", message: "Too many requests. Please try again later." },
+                { status: 429 },
             );
         }
 

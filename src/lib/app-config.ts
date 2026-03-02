@@ -94,6 +94,11 @@ export async function getContactFollowupModel(): Promise<string> {
     return getConfig("contact_followup_model", "gpt-4o-mini");
 }
 
+export async function getContactFollowupEnabled(): Promise<boolean> {
+    const raw = await getConfig("contact_followup_enabled", "true");
+    return raw.trim().toLowerCase() !== "false";
+}
+
 export async function getContactFollowupDailyLimit(): Promise<number> {
     const raw = await getConfig("contact_followup_daily_limit", "10");
     return Math.max(0, parseInt(raw, 10) || 0);

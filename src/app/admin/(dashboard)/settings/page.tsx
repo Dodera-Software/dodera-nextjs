@@ -165,8 +165,11 @@ export default function SettingsPage() {
             <div className="rounded-xl border border-border bg-card p-5 flex items-start gap-3">
                 <Settings className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
                 <div className="space-y-1 text-xs text-muted-foreground">
+                    <p><span className="font-medium text-foreground">contact_followup_enabled</span> — Whether to generate AI follow-up suggestions (<code className="bg-muted px-1 rounded">true</code> / <code className="bg-muted px-1 rounded">false</code>).</p>
                     <p><span className="font-medium text-foreground">contact_followup_model</span> — OpenAI model for AI lead follow-ups. Use <code className="bg-muted px-1 rounded">gpt-4o-mini</code> (cheap) or <code className="bg-muted px-1 rounded">gpt-4o</code> (best quality). Empty string disables the feature.</p>
-                    <p><span className="font-medium text-foreground">contact_followup_daily_limit</span> — Max AI calls per day (UTC). <code className="bg-muted px-1 rounded">0</code> = unlimited. Counts all contact submissions for the day.</p>
+                    <p><span className="font-medium text-foreground">contact_followup_daily_limit</span> — Max AI calls per day (UTC). <code className="bg-muted px-1 rounded">0</code> = unlimited.</p>
+                    <p><span className="font-medium text-foreground">contact_rate_limit_max</span> — Max contact form submissions allowed per IP within the time window.</p>
+                    <p><span className="font-medium text-foreground">contact_rate_limit_window_minutes</span> — Rolling window in minutes for the contact form IP rate limit.</p>
                 </div>
             </div>
         </div>

@@ -95,7 +95,6 @@ export function ContactForm() {
 
         const raw: Record<string, string> = {};
         for (const [key, val] of fd.entries()) {
-            if (key === HONEYPOT_FIELD) continue;
             raw[key] = typeof val === "string" ? val : "";
         }
 
