@@ -14,6 +14,7 @@ import {
     ImageIcon,
     MessageSquare,
     FileText,
+    Settings,
 } from "lucide-react";
 
 interface AdminSession {
@@ -29,6 +30,7 @@ const NAV_ITEMS = [
     { href: "/admin/tokens", label: "API Tokens", icon: Key },
     { href: "/admin/generate-image", label: "Generate Image", icon: ImageIcon },
     { href: "/admin/api-docs", label: "API Docs", icon: FileText },
+    { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
 export default function AdminDashboardLayout({

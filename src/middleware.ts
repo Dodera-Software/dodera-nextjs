@@ -39,6 +39,18 @@ function isProtectedRoute(pathname: string): boolean {
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
+    // --- Origin check for public contact endpoint ---
+    // Browsers always send Origin on cross-site POSTs; reject anything that
+    // isn't the site itself so scrapers/bots can't call the API directly.
+    if (pathname === "/api/contact" && request.method === "POST") {
+        const origin = request.headers.get("origin");
+        const siteUrl = (process.env.SITE_URL ?? "").replace(/\/$/, "");
+        const isLocalhost = origin?.startsWith("http://localhost") || origin?.startsWith("http://127.0.0.1");
+        if (origin && siteUrl && !isLocalhost && !origin.startsWith(siteUrl)) {
+            return jsonError("Forbidden.", 403);
+        }
+    }
+
     // Only intercept protected API routes
     if (!isProtectedRoute(pathname)) {
         return NextResponse.next();
