@@ -33,6 +33,36 @@ const contactSchema = z.object({
         .max(2000, "Message must be at most 2000 characters."),
 });
 
+/* ── Slack notification ────────────────────────────────────── */
+interface SlackLeadData {
+    name: string;
+    email: string;
+    company: string;
+    phone: string;
+    message: string;
+}
+
+async function notifySlack(data: SlackLeadData) {
+    const webhookUrl = process.env.SLACK_LEADS_WEBHOOK_URL;
+    if (!webhookUrl || webhookUrl.includes("XXXX")) return;
+
+    const lines: string[] = [
+        `*New lead from the website* 🎉`,
+        ``,
+        `*Name:* ${data.name}`,
+        `*Email:* ${data.email}`,
+    ];
+    if (data.company) lines.push(`*Company:* ${data.company}`);
+    if (data.phone) lines.push(`*Phone:* ${data.phone}`);
+    lines.push(``, `*Message:*`, `>${data.message.replace(/\n/g, "\n>")}`);
+
+    await fetch(webhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: lines.join("\n") }),
+    }).catch((err) => console.error("Slack notification failed:", err));
+}
+
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
@@ -63,6 +93,15 @@ export async function POST(request: NextRequest) {
                 { status: 500 },
             );
         }
+
+        /* Notify Slack — fire and forget, never blocks the response */
+        void notifySlack({
+            name: parsed.data.name,
+            email: parsed.data.email,
+            company: parsed.data.company ?? "",
+            phone: parsed.data.phone ?? "",
+            message: parsed.data.message,
+        });
 
         return NextResponse.json({ status: "success", message: "Message received!" });
     } catch {
