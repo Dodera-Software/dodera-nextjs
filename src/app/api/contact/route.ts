@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { z } from "zod";
+import { generateFollowUp, type LeadData } from "@/lib/contact-followup-service";
 
 /* ── Validation schema (mirrors client-side rules) ────────── */
 const contactSchema = z.object({
@@ -34,12 +35,9 @@ const contactSchema = z.object({
 });
 
 /* ── Slack notification ────────────────────────────────────── */
-interface SlackLeadData {
-    name: string;
-    email: string;
-    company: string;
-    phone: string;
-    message: string;
+
+interface SlackLeadData extends LeadData {
+    followUp?: string;
 }
 
 async function notifySlack(data: SlackLeadData) {
@@ -56,12 +54,22 @@ async function notifySlack(data: SlackLeadData) {
     if (data.phone) lines.push(`*Phone:* ${data.phone}`);
     lines.push(``, `*Message:*`, `>${data.message.replace(/\n/g, "\n>")}`);
 
+    if (data.followUp) {
+        lines.push(
+            ``,
+            `*💡 Suggested follow-up:*`,
+            `>${data.followUp.replace(/\n/g, "\n>")}`,
+        );
+    }
+
     await fetch(webhookUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: lines.join("\n") }),
     }).catch((err) => console.error("Slack notification failed:", err));
 }
+
+/* ── Route handler ────────────────────────────────────────── */
 
 export async function POST(request: NextRequest) {
     try {
@@ -70,14 +78,13 @@ export async function POST(request: NextRequest) {
         /* Validate */
         const parsed = contactSchema.safeParse(body);
         if (!parsed.success) {
-            const fieldErrors = parsed.error.flatten().fieldErrors;
             return NextResponse.json(
-                { status: "error", errors: fieldErrors },
+                { status: "error", errors: parsed.error.flatten().fieldErrors },
                 { status: 400 },
             );
         }
 
-        /* Insert into Supabase */
+        /* Persist */
         const { error } = await supabase.from("contacts").insert({
             name: parsed.data.name,
             email: parsed.data.email,
@@ -94,14 +101,18 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        /* Notify Slack — fire and forget, never blocks the response */
-        void notifySlack({
-            name: parsed.data.name,
-            email: parsed.data.email,
-            company: parsed.data.company ?? "",
-            phone: parsed.data.phone ?? "",
-            message: parsed.data.message,
-        });
+        /* Notify Slack + AI follow-up — fire and forget, never blocks the response */
+        void (async () => {
+            const lead: LeadData = {
+                name: parsed.data.name,
+                email: parsed.data.email,
+                company: parsed.data.company ?? "",
+                phone: parsed.data.phone ?? "",
+                message: parsed.data.message,
+            };
+            const followUp = await generateFollowUp(lead);
+            await notifySlack({ ...lead, followUp });
+        })();
 
         return NextResponse.json({ status: "success", message: "Message received!" });
     } catch {
@@ -111,3 +122,4 @@ export async function POST(request: NextRequest) {
         );
     }
 }
+
