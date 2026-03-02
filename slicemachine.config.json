@@ -1,5 +1,5 @@
 {
-    "repositoryName": "dodera-blog",
+    "repositoryName": "dodera-nextjs",
     "adapter": "@slicemachine/adapter-next",
     "libraries": [
         "./src/slices"
