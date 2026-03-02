@@ -5,7 +5,7 @@ import { Users, Key, LayoutDashboard, Wand2, Loader2, CheckCircle2, XCircle, Ext
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-/* ── Platform-aware quick links ─────────────────────────────── */
+/* ── Platform-aware quick links ────────────────────────────── */
 const PLATFORM = process.env.NEXT_PUBLIC_DEPLOY_PLATFORM ?? "netlify";
 
 const PLATFORM_LINKS: Record<string, { label: string; description: string; icon: React.ElementType; color: string; bg: string; url?: string }[]> = {
