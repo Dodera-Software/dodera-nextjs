@@ -55,6 +55,40 @@
   }
 }
 
+/* Tiptap editor — forced light theme regardless of OS dark mode */
+.tiptap-editor,
+.tiptap-editor p,
+.tiptap-editor li,
+.tiptap-editor blockquote {
+  color: #111827;
+}
+
+.tiptap-editor h1,
+.tiptap-editor h2,
+.tiptap-editor h3,
+.tiptap-editor h4,
+.tiptap-editor h5,
+.tiptap-editor h6 {
+  color: #111827;
+}
+
+.tiptap-editor strong {
+  color: inherit;
+}
+
+.tiptap-editor a {
+  color: hsl(var(--primary));
+}
+
+/* Tiptap placeholder */
+.tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: hsl(var(--muted-foreground));
+  pointer-events: none;
+  height: 0;
+}
+
 @layer components {
   .grid-bg {
     background-image:
