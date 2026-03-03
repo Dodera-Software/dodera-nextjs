@@ -28,18 +28,12 @@ export const SYSTEM_PROMPT: string = fs
 /* ── Topic diversity helper ─────────────────────────────────── */
 
 const TOPIC_DOMAINS = [
-    "AI & Machine Learning",
     "Workflow & Business Automation",
     "Web Development & Frontend",
-    "Cloud & Infrastructure",
-    "Cybersecurity & Privacy",
-    "DevOps & Platform Engineering",
-    "Data Engineering & Analytics",
     "Mobile & Cross-Platform",
     "SaaS & Product Strategy",
     "Startup & MVP Development",
     "Enterprise Software",
-    "Emerging Tech (quantum, AR/VR, IoT)",
     "Tech Leadership & Culture",
 ];
 
@@ -56,24 +50,11 @@ export function getRandomTopicHint(): string {
 /* ── Response parser ────────────────────────────────────────── */
 
 export function parseGeneratedPost(raw: string): GeneratedPost {
-    const cleaned = raw
-        .trim()
-        .replace(/^```(?:json)?\s*/i, "")
-        .replace(/\s*```$/, "")
-        .trim();
-
-    const parsed = JSON.parse(cleaned) as Record<string, unknown>;
-
-    const required: (keyof GeneratedPost)[] = [
-        "uid", "title", "excerpt", "body", "tags",
-        "category", "read_time", "meta_title", "meta_description",
-    ];
-
-    for (const key of required) {
-        if (!(key in parsed)) {
-            throw new Error(`OpenAI response is missing required field: "${key}"`);
-        }
-    }
+    // With Structured Outputs (json_schema + strict:true) the model is
+    // guaranteed to return a valid object matching the schema — no fencing,
+    // no missing fields.  We still parse defensively and coerce tags just in
+    // case the caller ever switches back to a non-strict model.
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
 
     if (!Array.isArray(parsed.tags)) {
         parsed.tags = [];

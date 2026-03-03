@@ -85,13 +85,35 @@ export async function GET(request: NextRequest) {
 
         const completion = await openai.chat.completions.create({
             model: OPENAI_MODEL,
-            response_format: { type: "json_object" },
+            response_format: {
+                type: "json_schema",
+                json_schema: {
+                    name: "blog_post",
+                    strict: true,
+                    schema: {
+                        type: "object",
+                        properties: {
+                            uid: { type: "string", description: "URL-safe slug, e.g. my-post-title" },
+                            title: { type: "string", description: "Human-readable post title" },
+                            excerpt: { type: "string", description: "1-2 sentence summary shown in listings" },
+                            body: { type: "string", description: "Full post body in Markdown" },
+                            tags: { type: "array", items: { type: "string" }, description: "3-6 lowercase tags" },
+                            category: { type: "string", description: "Single category label" },
+                            read_time: { type: "string", description: "Estimated read time, e.g. '5 min read'" },
+                            meta_title: { type: "string", description: "SEO title, max 60 chars" },
+                            meta_description: { type: "string", description: "SEO description, max 160 chars" },
+                        },
+                        required: ["uid", "title", "excerpt", "body", "tags", "category", "read_time", "meta_title", "meta_description"],
+                        additionalProperties: false,
+                    },
+                },
+            },
             temperature: 0.9,
             messages: [
                 { role: "system", content: SYSTEM_PROMPT },
                 {
                     role: "user",
-                    content: `${getRandomTopicHint()}\n\nPick the single most trending, share-worthy topic in the technology space right now and write the full blog post. Output only the JSON object.${recentPostsContext}`,
+                    content: `${getRandomTopicHint()}\n\nPick the single most trending, share-worthy topic in the technology space right now and write the full blog post.${recentPostsContext}`,
                 },
             ],
         });
