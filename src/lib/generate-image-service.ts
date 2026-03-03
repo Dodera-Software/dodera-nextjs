@@ -46,17 +46,54 @@ export async function generateImageUrl(
 
     console.log(`[generate-image-service] Model: ${requestedModel} | Size: ${requestedSize} — prompt: "${imagePrompt.slice(0, 100)}…"`);
 
-    const response = await openai.images.generate({
-        model: requestedModel,
-        prompt: imagePrompt,
-        n: 1,
-        size: requestedSize,
-        quality: "standard",
-        response_format: "url",
-    });
+    // Each model has different supported parameters:
+    // - dall-e-3: supports quality + response_format
+    // - dall-e-2: no quality param, supports response_format url
+    // - gpt-image-1: no quality/response_format params, always returns b64_json
+    let url: string | undefined;
 
-    const url = response.data?.[0]?.url;
-    if (!url) throw new Error("OpenAI returned no image URL.");
+    if (requestedModel === "gpt-image-1") {
+        // gpt-image-1 supports: 1024x1024, 1024x1536, 1536x1024, auto
+        const gptSizeMap: Record<ImageSize, "1024x1024" | "1024x1536" | "1536x1024"> = {
+            "1792x1024": "1536x1024",
+            "1024x1024": "1024x1024",
+            "1024x1792": "1024x1536",
+        };
+        const gptSize = gptSizeMap[requestedSize] ?? "1536x1024";
+        const response = await openai.images.generate({
+            model: requestedModel,
+            prompt: imagePrompt,
+            n: 1,
+            size: gptSize,
+        });
+        const b64 = response.data?.[0]?.b64_json;
+        if (!b64) throw new Error("OpenAI returned no image data.");
+        url = `data:image/png;base64,${b64}`;
+    } else if (requestedModel === "dall-e-2") {
+        // dall-e-2 only supports up to 1024x1024; all our sizes fall back to 1024x1024 except the square
+        const dall2Size: "1024x1024" = "1024x1024";
+        const response = await openai.images.generate({
+            model: requestedModel,
+            prompt: imagePrompt,
+            n: 1,
+            size: dall2Size,
+            response_format: "url",
+        });
+        url = response.data?.[0]?.url;
+        if (!url) throw new Error("OpenAI returned no image URL.");
+    } else {
+        // dall-e-3
+        const response = await openai.images.generate({
+            model: requestedModel,
+            prompt: imagePrompt,
+            n: 1,
+            size: requestedSize,
+            quality: "standard",
+            response_format: "url",
+        });
+        url = response.data?.[0]?.url;
+        if (!url) throw new Error("OpenAI returned no image URL.");
+    }
 
     return { url, prompt: imagePrompt, size: requestedSize, model: requestedModel };
 }
