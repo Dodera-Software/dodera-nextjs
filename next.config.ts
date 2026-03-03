@@ -47,6 +47,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "*.cdn.prismic.io",
       },
+      {
+        protocol: "https",
+        hostname: "i.pravatar.cc",
+      },
     ],
   },
 
