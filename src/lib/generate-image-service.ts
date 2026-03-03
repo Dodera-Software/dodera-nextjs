@@ -7,6 +7,9 @@ const OPENAI_IMAGE_MODEL = process.env.OPENAI_IMAGE_MODEL ?? "dall-e-3";
 
 const VALID_SIZES = IMAGE_SIZES.map((s) => s.value);
 
+const VALID_MODELS = ["dall-e-3", "dall-e-2", "gpt-image-1"] as const;
+type ImageModel = (typeof VALID_MODELS)[number];
+
 /**
  * Generate an image via DALL-E and return its temporary CDN URL.
  * Can accept either a raw `prompt` string or blog post fields —
@@ -16,7 +19,7 @@ const VALID_SIZES = IMAGE_SIZES.map((s) => s.value);
  */
 export async function generateImageUrl(
     body: Record<string, unknown>,
-): Promise<{ url: string; prompt: string; size: string }> {
+): Promise<{ url: string; prompt: string; size: string; model: string }> {
     const imagePrompt = buildImagePrompt(body);
     if (!imagePrompt) {
         throw new Error(
@@ -34,12 +37,17 @@ export async function generateImageUrl(
             ? (body.size as ImageSize)
             : "1792x1024";
 
+    const requestedModel: ImageModel =
+        typeof body.model === "string" && VALID_MODELS.includes(body.model as ImageModel)
+            ? (body.model as ImageModel)
+            : (OPENAI_IMAGE_MODEL as ImageModel);
+
     const openai = new OpenAI({ apiKey: openaiKey });
 
-    console.log(`[generate-image-service] Generating ${requestedSize} — prompt: "${imagePrompt.slice(0, 100)}…"`);
+    console.log(`[generate-image-service] Model: ${requestedModel} | Size: ${requestedSize} — prompt: "${imagePrompt.slice(0, 100)}…"`);
 
     const response = await openai.images.generate({
-        model: OPENAI_IMAGE_MODEL,
+        model: requestedModel,
         prompt: imagePrompt,
         n: 1,
         size: requestedSize,
@@ -50,5 +58,5 @@ export async function generateImageUrl(
     const url = response.data?.[0]?.url;
     if (!url) throw new Error("OpenAI returned no image URL.");
 
-    return { url, prompt: imagePrompt, size: requestedSize };
+    return { url, prompt: imagePrompt, size: requestedSize, model: requestedModel };
 }
