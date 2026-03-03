@@ -7,54 +7,8 @@ import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { fadeIn, viewportOnce } from "@/lib/animations";
+import { TESTIMONIALS } from "@/config/testimonials";
 
-const TESTIMONIALS = [
-    {
-        name: "Mark Sullivan",
-        role: "CTO",
-        company: "TechFlow Inc.",
-        avatar: "https://i.pravatar.cc/100?img=11",
-        rating: 5,
-        review:
-            "Working with Dodera was a relief after two failed vendor attempts. They built our internal ops dashboard in 6 weeks, integrated it with Salesforce without any data loss, and the team actually responded same-day. No fluff, just delivery.",
-    },
-    {
-        name: "Sara Kimani",
-        role: "Founder",
-        company: "Olive & Thread",
-        avatar: "https://i.pravatar.cc/100?img=47",
-        rating: 5,
-        review:
-            "I needed a custom e-commerce site with a complex inventory system. Dodera handled both the design handoff and the tech stack without constant back-and-forth. Launched on time, no surprises on the invoice.",
-    },
-    {
-        name: "James Patterson",
-        role: "Product Lead",
-        company: "Nexora",
-        avatar: "https://i.pravatar.cc/100?img=53",
-        rating: 5,
-        review:
-            "Our automation project was a mess when we brought it in. Three months later our order processing is 80% hands-free. The flows they built are solid and the documentation they left behind is actually readable.",
-    },
-    {
-        name: "Claudia Ferreira",
-        role: "Operations Manager",
-        company: "Bright Horizons",
-        avatar: "https://i.pravatar.cc/100?img=25",
-        rating: 5,
-        review:
-            "Dodera rebuilt our appointment booking system from scratch. The old one broke constantly — the new one hasn't had a single outage in eight months. That kind of reliability speaks for itself.",
-    },
-    {
-        name: "Tomáš Novák",
-        role: "Head of Engineering",
-        company: "VineLabs",
-        avatar: "https://i.pravatar.cc/100?img=60",
-        rating: 4,
-        review:
-            "Good-quality code, honest timelines, and they pushed back when our feature requests would have created technical debt down the line. That kind of candour is rare in an agency relationship.",
-    },
-];
 
 function StarRating({ rating }: { rating: number }) {
     return (
@@ -63,8 +17,8 @@ function StarRating({ rating }: { rating: number }) {
                 <Star
                     key={i}
                     className={`size-4 ${i < rating
-                            ? "fill-primary text-primary"
-                            : "fill-muted text-muted"
+                        ? "fill-primary text-primary"
+                        : "fill-muted text-muted"
                         }`}
                 />
             ))}
@@ -159,15 +113,15 @@ export function TestimonialsSection() {
                                 >
                                     <div
                                         className={`flex h-full flex-col rounded-xl border p-6 transition-all duration-300 ${isCenter
-                                                ? "border-border bg-card shadow-lg"
-                                                : "border-transparent bg-card/30 opacity-50 blur-[0.5px]"
+                                            ? "border-border bg-card shadow-lg"
+                                            : "border-transparent bg-card/30 opacity-50 blur-[0.5px]"
                                             }`}
                                     >
                                         {/* Quote mark */}
                                         <span
                                             className={`mb-4 font-serif text-5xl leading-none ${isCenter
-                                                    ? "text-primary"
-                                                    : "text-muted-foreground/30"
+                                                ? "text-primary"
+                                                : "text-muted-foreground/30"
                                                 }`}
                                             aria-hidden="true"
                                         >
@@ -183,8 +137,8 @@ export function TestimonialsSection() {
                                                     width={64}
                                                     height={64}
                                                     className={`size-full object-cover transition-all duration-300 ${isCenter
-                                                            ? ""
-                                                            : "grayscale"
+                                                        ? ""
+                                                        : "grayscale"
                                                         }`}
                                                     unoptimized
                                                 />
@@ -194,8 +148,8 @@ export function TestimonialsSection() {
                                         {/* Review text */}
                                         <p
                                             className={`mb-5 flex-1 text-center text-sm leading-relaxed ${isCenter
-                                                    ? "text-foreground/80"
-                                                    : "text-muted-foreground"
+                                                ? "text-foreground/80"
+                                                : "text-muted-foreground"
                                                 }`}
                                         >
                                             {t.review}
@@ -210,8 +164,8 @@ export function TestimonialsSection() {
                                         <div className="text-center">
                                             <p
                                                 className={`text-sm font-semibold ${isCenter
-                                                        ? "text-foreground"
-                                                        : "text-muted-foreground"
+                                                    ? "text-foreground"
+                                                    : "text-muted-foreground"
                                                     }`}
                                             >
                                                 {t.name}
@@ -248,8 +202,8 @@ export function TestimonialsSection() {
                         onClick={() => scrollTo(index)}
                         aria-label={`Go to testimonial ${index + 1}`}
                         className={`size-2 rounded-full transition-all duration-200 ${index === selectedIndex
-                                ? "w-5 bg-primary"
-                                : "bg-muted-foreground/30 hover:bg-muted-foreground/60"
+                            ? "w-5 bg-primary"
+                            : "bg-muted-foreground/30 hover:bg-muted-foreground/60"
                             }`}
                     />
                 ))}
