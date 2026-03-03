@@ -26,12 +26,25 @@ import {
     CheckCircle2,
     AlertCircle,
     WifiIcon,
+    BookOpen,
+    Search,
+    ChevronDown,
+    ChevronUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
+
+interface BlogPostSummary {
+    slug: string;
+    title: string;
+    excerpt: string;
+    date: string;
+    category: string;
+    image: string | null;
+}
 
 interface AttachedFile {
     file: File;
@@ -191,6 +204,13 @@ export default function SendEmailPage() {
     const [smtpError, setSmtpError] = useState<string | null>(null);
     const fileRef = useRef<HTMLInputElement>(null);
 
+    // ── Blog post picker ───────────────────────────────────
+    const [showBlogPicker, setShowBlogPicker] = useState(false);
+    const [blogPosts, setBlogPosts] = useState<BlogPostSummary[]>([]);
+    const [blogPostsLoading, setBlogPostsLoading] = useState(false);
+    const [blogSearch, setBlogSearch] = useState("");
+    const [blogPostsError, setBlogPostsError] = useState<string | null>(null);
+
     const editor = useEditor({
         immediatelyRender: false,
         extensions: [
@@ -207,6 +227,50 @@ export default function SendEmailPage() {
             },
         },
     });
+
+    // ── Blog posts fetch ────────────────────────────────────
+    const fetchBlogPosts = useCallback(async () => {
+        if (blogPosts.length > 0) return; // already loaded
+        setBlogPostsLoading(true);
+        setBlogPostsError(null);
+        try {
+            const res = await fetch("/api/admin/blog-posts");
+            const data = await res.json();
+            if (data.status === "success") {
+                setBlogPosts(data.posts);
+            } else {
+                setBlogPostsError(data.message ?? "Failed to load posts.");
+            }
+        } catch {
+            setBlogPostsError("Network error.");
+        } finally {
+            setBlogPostsLoading(false);
+        }
+    }, [blogPosts.length]);
+
+    function toggleBlogPicker() {
+        const next = !showBlogPicker;
+        setShowBlogPicker(next);
+        if (next) fetchBlogPosts();
+    }
+
+    function applyBlogPost(post: BlogPostSummary) {
+        if (!editor) return;
+        setSubject(`New Post: ${post.title}`);
+        const siteOrigin = "https://doderasoft.com";
+        const readMoreUrl = `${siteOrigin}/blog/${post.slug}`;
+        const html = [
+            `<p>Hey there,</p>`,
+            `<p>We just published a new article and we think you'll find it really valuable:</p>`,
+            `<h2>${post.title}</h2>`,
+            `<p>${post.excerpt}</p>`,
+            `<p><a href="${readMoreUrl}">Read the full article →</a></p>`,
+            `<p>Happy reading!<br/>The Dodera Team</p>`,
+        ].join("\n");
+        editor.commands.setContent(html);
+        setShowBlogPicker(false);
+        setBlogSearch("");
+    }
 
     // ── SMTP verify ────────────────────────────────────────
     const checkSmtp = useCallback(async () => {
@@ -434,7 +498,93 @@ export default function SendEmailPage() {
 
                 {/* Rich editor */}
                 <div className="space-y-2">
-                    <Label>Body</Label>
+                    <div className="flex items-center justify-between">
+                        <Label>Body</Label>
+                        <button
+                            type="button"
+                            onClick={toggleBlogPicker}
+                            className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md border border-rose-500/50 bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:border-rose-500 hover:text-white transition-colors font-medium"
+                        >
+                            <BookOpen className="w-3.5 h-3.5" />
+                            Load from Blog Post
+                            {showBlogPicker ? (
+                                <ChevronUp className="w-3 h-3 ml-0.5" />
+                            ) : (
+                                <ChevronDown className="w-3 h-3 ml-0.5" />
+                            )}
+                        </button>
+                    </div>
+
+                    {/* Blog post picker panel */}
+                    {showBlogPicker && (
+                        <div className="border border-border rounded-lg bg-background overflow-hidden">
+                            <div className="p-3 border-b border-border bg-muted/30">
+                                <div className="relative">
+                                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                                    <input
+                                        type="text"
+                                        placeholder="Search blog posts…"
+                                        value={blogSearch}
+                                        onChange={(e) => setBlogSearch(e.target.value)}
+                                        className="w-full pl-8 pr-3 py-1.5 text-sm bg-background border border-border rounded-md focus:outline-none focus:ring-1 focus:ring-ring"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="max-h-64 overflow-y-auto divide-y divide-border">
+                                {blogPostsLoading && (
+                                    <div className="flex items-center justify-center gap-2 py-8 text-sm text-muted-foreground">
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                        Loading posts…
+                                    </div>
+                                )}
+
+                                {blogPostsError && (
+                                    <div className="flex items-center gap-2 p-4 text-sm text-destructive">
+                                        <AlertCircle className="w-4 h-4" />
+                                        {blogPostsError}
+                                    </div>
+                                )}
+
+                                {!blogPostsLoading && !blogPostsError && blogPosts.length === 0 && (
+                                    <p className="text-sm text-muted-foreground text-center py-8">
+                                        No blog posts found.
+                                    </p>
+                                )}
+
+                                {!blogPostsLoading &&
+                                    blogPosts
+                                        .filter((p) =>
+                                            blogSearch.trim() === "" ||
+                                            p.title.toLowerCase().includes(blogSearch.toLowerCase()) ||
+                                            p.category.toLowerCase().includes(blogSearch.toLowerCase())
+                                        )
+                                        .map((post) => (
+                                            <button
+                                                key={post.slug}
+                                                type="button"
+                                                onClick={() => applyBlogPost(post)}
+                                                className="w-full text-left px-4 py-3 hover:bg-accent transition-colors group"
+                                            >
+                                                <div className="flex items-start justify-between gap-3">
+                                                    <div className="min-w-0">
+                                                        <p className="text-sm font-medium truncate group-hover:text-foreground">
+                                                            {post.title}
+                                                        </p>
+                                                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                                                            {post.excerpt}
+                                                        </p>
+                                                    </div>
+                                                    <span className="shrink-0 text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full whitespace-nowrap">
+                                                        {post.category}
+                                                    </span>
+                                                </div>
+                                            </button>
+                                        ))}
+                            </div>
+                        </div>
+                    )}
+
                     <div className="border border-border rounded-lg overflow-hidden bg-background">
                         <EditorToolbar editor={editor} />
                         <EditorContent editor={editor} />
