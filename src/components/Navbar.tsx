@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Menu, X } from "lucide-react";
 import Link from "next/link";
@@ -11,6 +11,22 @@ import { SERVICES, NAV_LINKS, SOCIAL_LINKS } from "@/config/site";
 export function Navbar() {
     const [megaOpen, setMegaOpen] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
+    const navRef = useRef<HTMLElement>(null);
+
+    useEffect(() => {
+        if (!mobileOpen) return;
+        function handleOutsideTouch(e: TouchEvent | MouseEvent) {
+            if (navRef.current && !navRef.current.contains(e.target as Node)) {
+                setMobileOpen(false);
+            }
+        }
+        document.addEventListener("touchstart", handleOutsideTouch);
+        document.addEventListener("mousedown", handleOutsideTouch);
+        return () => {
+            document.removeEventListener("touchstart", handleOutsideTouch);
+            document.removeEventListener("mousedown", handleOutsideTouch);
+        };
+    }, [mobileOpen]);
 
     useEffect(() => {
         document.body.style.overflow = mobileOpen ? "hidden" : "";
@@ -20,7 +36,7 @@ export function Navbar() {
     }, [mobileOpen]);
 
     return (
-        <nav aria-label="Main navigation" className="fixed inset-x-0 top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
+        <nav ref={navRef} aria-label="Main navigation" className="fixed inset-x-0 top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
             <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
                 {/* Logo */}
                 <Logo />
