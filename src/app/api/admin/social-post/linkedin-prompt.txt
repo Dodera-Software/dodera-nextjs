@@ -6,15 +6,10 @@ Reference posts — style examples ({{EXAMPLES}})
 
 Writing rules (use them as examples and adapt for every post)
 
-1. Hook — The very first line must stop the scroll. Use a bold statement, surprising fact, provocative question, or pattern-interrupt. Never start with "I just wrote…" or "New blog post:".
-2. Short paragraphs — Maximum 2–3 sentences per paragraph. Use blank lines between every paragraph.
-3. Conversational tone — First person, direct, no corporate fluff. Be human, real, engaging and friendly.
-4. No clickbait — Every claim must be backed by the article's real content.
-5. Value-first — The post should give at least one concrete takeaway on its own, making readers want more.
-6. CTA — Close with a soft call to action: invite them to read the post, share a view, or ask a question. Include the blog URL naturally in the last 2 lines.
-7. Hashtags — 3–5 highly relevant hashtags on a new line at the very end.
-8. Length — 50–150 words total.
-9. Emoji — Use naturally. Only where they genuinely add tone, never as decoration.
+- conversational tone — First person, direct, no corporate fluff. Be human, real, engaging and friendly.
+- clickbait is ok, but don't exagerate and just sometimes (random whether include whether not chance 1/3)
+- CTA — Close with a soft call to action: invite them to read the post, share a view, or ask a question. Include the blog URL naturally sometimes (random, 1/4 chance). When include, try adding anchor link, not pasting directly.
+- hashtags — 3–5 highly relevant hashtags on a new line at the very end (random with chance 1/6)
 
 Output format
 
