@@ -401,7 +401,7 @@ export default function ApiDocsPage() {
     ].filter((s) => s.endpoints.length > 0);
 
     return (
-        <div className="max-w-4xl space-y-8">
+        <div className="space-y-8">
             {/* Header */}
             <div>
                 <h1 className="text-2xl font-bold tracking-tight">API Documentation</h1>
