@@ -39,5 +39,10 @@ insert into public.app_config (key, value, description) values
     'contact_rate_limit_window_minutes',
     '60',
     'Rolling time window in minutes for the contact form rate limit.'
+  ),
+  (
+    'image_generation_model',
+    'dall-e-3',
+    'OpenAI model used for image generation. Valid values: dall-e-3, dall-e-2, gpt-image-1.'
   )
 on conflict (key) do nothing;

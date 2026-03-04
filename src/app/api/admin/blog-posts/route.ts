@@ -36,7 +36,7 @@ export async function GET() {
         const posts = await getAllPosts();
 
         const summaries = posts.map((post) => ({
-            uid: post.slug,
+            slug: post.slug,
             title: post.title,
             excerpt: post.excerpt ?? "",
             category: post.category ?? "",

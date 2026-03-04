@@ -14,15 +14,29 @@ import {
 import { IMAGE_SIZES, type ImageSize } from "@/lib/image-sizes";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 
 interface HistoryItem {
     id: number;
     prompt: string;
     size: string;
+    model: string;
     url?: string;
     error?: string;
     loading: boolean;
 }
+
+const AI_MODELS: { value: string; label: string }[] = [
+    { value: "dall-e-3", label: "DALL·E 3" },
+    { value: "dall-e-2", label: "DALL·E 2" },
+    { value: "gpt-image-1", label: "GPT Image 1" },
+];
 
 const SIZE_META: Record<string, { icon: React.ElementType; short: string }> = {
     "1792x1024": { icon: RectangleHorizontal, short: "Landscape" },
@@ -42,6 +56,7 @@ let nextId = 1;
 export default function GenerateImagePage() {
     const [prompt, setPrompt] = useState("");
     const [size, setSize] = useState<ImageSize>("1792x1024");
+    const [model, setModel] = useState("dall-e-3");
     const [history, setHistory] = useState<HistoryItem[]>([]);
     const [submitting, setSubmitting] = useState(false);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -58,10 +73,11 @@ export default function GenerateImagePage() {
         const id = nextId++;
         const userPrompt = prompt.trim();
         const userSize = size;
+        const userModel = model;
 
         setHistory((prev) => [
             ...prev,
-            { id, prompt: userPrompt, size: userSize, loading: true },
+            { id, prompt: userPrompt, size: userSize, model: userModel, loading: true },
         ]);
         setPrompt("");
         setSubmitting(true);
@@ -70,7 +86,7 @@ export default function GenerateImagePage() {
             const res = await fetch("/api/admin/generate-image", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ prompt: userPrompt, size: userSize }),
+                body: JSON.stringify({ prompt: userPrompt, size: userSize, model: userModel }),
             });
 
             const data = await res.json();
@@ -89,7 +105,7 @@ export default function GenerateImagePage() {
             setHistory((prev) =>
                 prev.map((item) =>
                     item.id === id
-                        ? { ...item, loading: false, url: data.url, prompt: data.prompt || userPrompt, size: data.size || userSize }
+                        ? { ...item, loading: false, url: data.url, prompt: data.prompt || userPrompt, size: data.size || userSize, model: data.model || userModel }
                         : item,
                 ),
             );
@@ -120,7 +136,7 @@ export default function GenerateImagePage() {
             <div>
                 <h1 className="text-2xl font-bold tracking-tight">Generate Image</h1>
                 <p className="text-sm text-muted-foreground mt-1">
-                    Use DALL·E 3 to generate images from a text prompt
+                    Generate images from a text prompt using OpenAI image models
                 </p>
             </div>
 
@@ -209,7 +225,7 @@ export default function GenerateImagePage() {
                         <div className="space-y-1">
                             <p className="text-base font-semibold tracking-tight">Describe your image</p>
                             <p className="text-sm text-muted-foreground max-w-xs mx-auto">
-                                Pick a size, write a prompt, and let DALL·E 3 bring it to life.
+                                Pick a model &amp; size, write a prompt, and generate.
                             </p>
                         </div>
 
@@ -271,7 +287,19 @@ export default function GenerateImagePage() {
                             disabled={submitting}
                             className="w-full resize-none text-sm"
                         />
-                        <div className="flex items-center justify-end">
+                        <div className="flex items-center gap-2 justify-between">
+                            <Select value={model} onValueChange={setModel} disabled={submitting}>
+                                <SelectTrigger className="h-8 w-auto text-xs gap-1.5 rounded-full px-3 border-border">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {AI_MODELS.map((m) => (
+                                        <SelectItem key={m.value} value={m.value} className="text-xs">
+                                            {m.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                             <Button
                                 type="submit"
                                 size="sm"

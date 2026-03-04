@@ -1,6 +1,7 @@
 import { Navbar } from "@/components/Navbar";
 import { HeroSection } from "@/components/HeroSection";
 import { TrustedBy } from "@/components/TrustedBy";
+import { TestimonialsSection } from "@/components/TestimonialsSection";
 import { ServicesSection } from "@/components/ServicesSection";
 import { ProcessSection } from "@/components/ProcessSection";
 import { CTASection } from "@/components/CTASection";
@@ -31,6 +32,7 @@ export default function HomePage() {
       <main>
         <HeroSection />
         <TrustedBy />
+        <TestimonialsSection />
         <ServicesSection />
         <ProcessSection />
         <CTASection />

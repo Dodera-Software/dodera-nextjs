@@ -22,8 +22,8 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-        const { url, prompt, size } = await generateImageUrl(body);
-        return NextResponse.json({ status: "success", url, prompt, size });
+        const { url, prompt, size, model } = await generateImageUrl(body);
+        return NextResponse.json({ status: "success", url, prompt, size, model });
     } catch (err) {
         const message = err instanceof Error ? err.message : "Image generation failed.";
         return NextResponse.json({ status: "error", message }, { status: 502 });
