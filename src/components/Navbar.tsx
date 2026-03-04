@@ -62,10 +62,10 @@ export function Navbar() {
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: 8 }}
                                     transition={{ duration: 0.15 }}
-                                    className="absolute right-0 top-full z-50 mt-2 w-[640px]"
+                                    className="absolute right-0 top-full z-50 mt-2 w-[820px]"
                                 >
                                     <div className="rounded-lg border border-border bg-background/95 p-6 shadow-xl backdrop-blur-xl">
-                                        <div className="grid grid-cols-3 gap-6">
+                                        <div className="grid grid-cols-4 gap-6">
                                             {SERVICES.map((s) => (
                                                 <div key={s.title}>
                                                     <Link

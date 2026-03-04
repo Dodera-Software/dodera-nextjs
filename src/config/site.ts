@@ -10,6 +10,7 @@ import {
     Cpu,
     Code2,
     FileText,
+    Monitor,
     Search,
     Layers,
     Zap,
@@ -44,20 +45,6 @@ export const COMPANY = {
 
 export const SERVICES: Service[] = [
     {
-        icon: Cpu,
-        title: "AI Development",
-        subtitle: "Intelligent Workflows & Agents",
-        description:
-            "Automate repetitive tasks and workflows with custom AI agents. We build intelligent systems that handle daily operations, data processing, and decision-making at scale.",
-        tags: ["Workflow Automation", "AI Agents", "Process Optimization"],
-        image: "/ai-development.jpg",
-        highlights: [
-            { label: "Custom AI Agents", href: "/services/ai-development/custom-ai-agents" },
-            { label: "AI Powered Automations", href: "/services/ai-development/ai-powered-automations" },
-        ],
-        href: "/services/ai-development",
-    },
-    {
         icon: Code2,
         title: "Software Development",
         subtitle: "From Idea to Launch",
@@ -71,6 +58,33 @@ export const SERVICES: Service[] = [
             { label: "SaaS Products", href: "/services/software-development/saas-products" },
         ],
         href: "/services/software-development",
+    },
+    {
+        icon: Monitor,
+        title: "Presentation Websites",
+        subtitle: "Stunning Sites That Convert",
+        description:
+            "Make a lasting first impression. We design and build polished, fast-loading presentation websites that showcase your brand and turn visitors into leads.",
+        tags: ["Brand Design", "Landing Pages", "Conversion"],
+        image: "/presentation-website.png",
+        highlights: [
+            { label: "Business Showcase Sites", href: "/services/presentation-websites/business-showcase-sites" },
+        ],
+        href: "/services/presentation-websites",
+    },
+    {
+        icon: Cpu,
+        title: "AI Development",
+        subtitle: "Intelligent Workflows & Agents",
+        description:
+            "Automate repetitive tasks and workflows with custom AI agents. We build intelligent systems that handle daily operations, data processing, and decision-making at scale.",
+        tags: ["Workflow Automation", "AI Agents", "Process Optimization"],
+        image: "/ai-development.jpg",
+        highlights: [
+            { label: "Custom AI Agents", href: "/services/ai-development/custom-ai-agents" },
+            { label: "AI Powered Automations", href: "/services/ai-development/ai-powered-automations" },
+        ],
+        href: "/services/ai-development",
     },
     {
         icon: FileText,
@@ -138,8 +152,9 @@ export const FOOTER_LINK_GROUPS: FooterLinkGroup[] = [
     {
         heading: "Services",
         links: [
-            { label: "AI Development", href: "/services/ai-development" },
             { label: "Software Development", href: "/services/software-development" },
+            { label: "Presentation Websites", href: "/services/presentation-websites" },
+            { label: "AI Development", href: "/services/ai-development" },
             { label: "Technical Documentation", href: "/services/technical-documentation" },
         ],
     },

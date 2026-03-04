@@ -612,6 +612,195 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
         ],
     },
 
+    /* ──────────────────────────────────────────────────────
+     * Presentation Websites (parent)
+     * ────────────────────────────────────────────────────── */
+    "presentation-websites": {
+        slug: "presentation-websites",
+        metaTitle: "Presentation Website Design & Development - Stunning Sites That Convert",
+        metaDescription:
+            "We design and build high-performance presentation websites that make a lasting first impression. Fast, SEO-optimised, and crafted to convert visitors into leads.",
+        keywords: [
+            "presentation website",
+            "business website design",
+            "landing page development",
+            "brand website",
+            "company website",
+            "conversion website",
+            "web design Romania",
+        ],
+        canonical: "/services/presentation-websites",
+        heroLabel: "Presentation Websites",
+        heroTitle: "Websites That Make You",
+        heroHighlight: "Stand Out.",
+        heroDescription:
+            "Your website is your most powerful sales tool. We design and build polished, fast-loading presentation websites that showcase your brand with precision and convert visitors into qualified leads.",
+        sections: [
+            {
+                title: "Why Your Presentation Website Matters",
+                content:
+                    "In a competitive digital landscape, your website is often the first - and most critical - touchpoint with potential clients. A generic template site signals mediocrity; a custom, strategically designed presentation website signals credibility, expertise, and attention to detail. We build websites that reinforce your brand narrative and guide visitors toward the action you want them to take.",
+                bullets: [
+                    "First impressions formed in under 50 milliseconds",
+                    "Professional design increases trust and conversion rates by 38%",
+                    "Mobile-first experience reaching users on every device",
+                    "SEO-optimised structure driving organic discovery",
+                ],
+            },
+            {
+                title: "Our Design & Development Process",
+                content:
+                    "We combine strategic thinking with meticulous craftsmanship. Every presentation website we build starts with a brand and audience discovery phase - understanding who you're talking to, what they need to hear, and what action you want them to take. We then craft a visual identity and information architecture that serves those goals before writing a single line of code.",
+                bullets: [
+                    "Brand discovery and messaging strategy sessions",
+                    "Custom wireframes and high-fidelity design mockups",
+                    "Pixel-perfect development with smooth animations",
+                    "Performance optimisation for Core Web Vitals",
+                    "Analytics and conversion tracking setup",
+                ],
+            },
+            {
+                title: "Built for Speed, Built to Last",
+                content:
+                    "Beautiful design means nothing if the site loads slowly or breaks on mobile. Every website we ship is built on modern frameworks (Next.js, Nuxt, or similar), optimised for perfect Core Web Vitals scores, and deployed on edge infrastructure for sub-second load times anywhere in the world.",
+                bullets: [
+                    "Next.js / Nuxt for blazing-fast performance",
+                    "Image optimisation and lazy loading",
+                    "Semantic HTML for accessibility and SEO",
+                    "SSL, security headers, and best practices baked in",
+                    "CMS integration (Prismic, Sanity, or WordPress) for easy updates",
+                ],
+            },
+            {
+                title: "SEO & Lead Generation Built In",
+                content:
+                    "We don't just build beautiful websites - we build websites that rank and convert. Our development process bakes in SEO best practices from the start: structured data markup, semantic heading hierarchy, fast page speeds, and keyword-optimised content architecture. We also integrate contact forms, lead capture flows, and analytics dashboards so you can measure ROI from day one.",
+            },
+        ],
+        childServices: [
+            {
+                iconName: "Globe",
+                label: "Business Showcase Sites",
+                description: "We craft bespoke, high-impact business showcase websites that position your brand as the authority in your market - beautifully designed, conversion-optimised, and built to impress.",
+                href: "/services/presentation-websites/business-showcase-sites",
+            },
+        ],
+        faqs: [
+            {
+                question: "How long does it take to build a presentation website?",
+                answer: "Most presentation websites are delivered in 3–6 weeks. A focused single-page or brochure site typically takes 2–3 weeks, while a larger multi-page site with custom animations and CMS integration takes 4–6 weeks. We provide a detailed timeline after the initial discovery session.",
+            },
+            {
+                question: "Do you provide copywriting as well?",
+                answer: "Yes. We offer content strategy and copywriting as part of our full-service packages. Our team understands how to craft messaging that resonates with your target audience and drives the desired action - enquiry, sign-up, or purchase.",
+            },
+            {
+                question: "Will I be able to update the website myself?",
+                answer: "Absolutely. We integrate a user-friendly CMS (Prismic, Sanity, or headless WordPress) so you can update text, images, and pages without touching code. We also provide a handover session and documentation so your team feels confident managing the site.",
+            },
+            {
+                question: "Is SEO included?",
+                answer: "Yes. On-page SEO is built into every project as standard: semantic HTML, structured data, optimised meta tags, image alt text, and Core Web Vitals compliance. For ongoing SEO content and link-building, we offer separate retainer packages.",
+            },
+            {
+                question: "What makes your websites different from a template?",
+                answer: "Everything. Template sites look like template sites - visitors can tell instantly. Our websites are custom-designed from scratch around your brand, audience, and conversion goals. The result is a site that feels uniquely yours and performs significantly better than any off-the-shelf solution.",
+            },
+        ],
+        relatedServices: [
+            { label: "Business Showcase Sites", href: "/services/presentation-websites/business-showcase-sites" },
+            { label: "Software Development", href: "/services/software-development" },
+            { label: "AI Development", href: "/services/ai-development" },
+        ],
+    },
+
+    "presentation-websites/business-showcase-sites": {
+        slug: "business-showcase-sites",
+        parentSlug: "presentation-websites",
+        metaTitle: "Business Showcase Sites - Custom Brand Websites That Convert",
+        metaDescription:
+            "We design and build bespoke business showcase websites that establish authority, communicate your value, and generate qualified leads. Premium design backed by performance engineering.",
+        keywords: [
+            "business showcase website",
+            "brand website design",
+            "company website development",
+            "corporate website",
+            "professional website design",
+            "custom business site",
+        ],
+        canonical: "/services/presentation-websites/business-showcase-sites",
+        heroLabel: "Business Showcase Sites",
+        heroTitle: "Your Brand, Presented",
+        heroHighlight: "Flawlessly.",
+        heroDescription:
+            "We craft bespoke business showcase websites built to position your brand as the authority in your market - combining premium visual design, sharp messaging, and conversion-focused architecture.",
+        sections: [
+            {
+                title: "What Is a Business Showcase Site?",
+                content:
+                    "A business showcase site is your brand's digital headquarters - a carefully crafted, multi-page website that communicates who you are, what you do, why clients should choose you, and what it's like to work with you. Unlike a landing page or a blog, a showcase site tells your complete brand story with visual depth, case studies, team profiles, service overviews, and social proof.",
+                bullets: [
+                    "Homepage with a compelling hero and value proposition",
+                    "Services or product overview pages",
+                    "About page with team, story, and values",
+                    "Case studies and social proof sections",
+                    "Contact and lead capture flows",
+                ],
+            },
+            {
+                title: "Our Approach to Brand Presentation",
+                content:
+                    "We don't just replicate what you describe - we help you think more clearly about your positioning and audience. Our discovery process uncovers the gap between how you currently present yourself and how you should, then closes that gap with design and copy that earns immediate trust from your ideal clients.",
+                bullets: [
+                    "Brand and positioning strategy workshops",
+                    "Audience analysis and messaging hierarchy",
+                    "Custom visual identity direction",
+                    "Competitor landscape review",
+                ],
+            },
+            {
+                title: "Performance & Quality Assurance",
+                content:
+                    "Every showcase site we ship passes our rigorous quality benchmark: Lighthouse scores of 95+ across performance, accessibility, and SEO; cross-browser and cross-device testing; sub-2-second load times on mobile; and full WCAG 2.1 accessibility compliance. Premium presentation demands premium engineering.",
+                bullets: [
+                    "Lighthouse performance score 95+",
+                    "Core Web Vitals: LCP < 2.5s, CLS < 0.1, INP < 200ms",
+                    "Mobile, tablet, and desktop testing across major browsers",
+                    "Accessibility-first semantic HTML and ARIA attributes",
+                    "Automated deployment pipeline with staging environment",
+                ],
+            },
+            {
+                title: "Post-Launch Support",
+                content:
+                    "Launch is the beginning, not the end. We offer ongoing maintenance retainers to keep your site updated, secure, and performing optimally as your business evolves. Whether it's adding a new service page, refreshing copy, or integrating a new tool, we're your long-term web partner.",
+            },
+        ],
+        faqs: [
+            {
+                question: "How involved do I need to be in the design process?",
+                answer: "As involved as you want to be. At minimum, we need a brand discovery session at the start and your feedback at two key review milestones (design mockup and staging launch). If you want more input throughout, we welcome it - we tailor our collaboration style to what works best for you.",
+            },
+            {
+                question: "Do you design the logo and brand identity too?",
+                answer: "We can assist with brand identity direction, but dedicated logo design and full brand identity systems are a separate engagement. If you already have brand assets, we'll use them with precision. If you need a full brand identity, we'll recommend our trusted design partners.",
+            },
+            {
+                question: "Can you integrate third-party tools like CRM or live chat?",
+                answer: "Absolutely. We commonly integrate HubSpot, Intercom, Crisp, Calendly, Mailchimp, and custom webhooks. If the tool has an API or embed code, we can integrate it cleanly without impacting performance.",
+            },
+            {
+                question: "What if I need changes after launch?",
+                answer: "We offer flexible post-launch support packages. Minor updates (copy changes, image swaps) are typically handled within 24-48 hours. Feature additions and new pages are scoped and quoted separately. Most clients opt for a monthly retainer for ongoing peace of mind.",
+            },
+        ],
+        relatedServices: [
+            { label: "Presentation Websites", href: "/services/presentation-websites" },
+            { label: "Software Development", href: "/services/software-development" },
+            { label: "Technical Documentation", href: "/services/technical-documentation" },
+        ],
+    },
+
     "technical-documentation": {
         slug: "technical-documentation",
         metaTitle: "Technical Documentation Services - Knowledge Systems & AI-Ready Docs",

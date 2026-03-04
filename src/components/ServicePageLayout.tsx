@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, ChevronRight, Bot, Workflow, Rocket, Building2, Cloud, BookOpen } from "lucide-react";
+import { ArrowRight, ChevronRight, Bot, Workflow, Rocket, Building2, Cloud, BookOpen, Globe } from "lucide-react";
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,7 @@ const ICON_MAP: Record<string, LucideIcon | React.ComponentType<{ className?: st
     Building2,
     Cloud,
     BookOpen,
+    Globe,
     N8nIcon,
 };
 
