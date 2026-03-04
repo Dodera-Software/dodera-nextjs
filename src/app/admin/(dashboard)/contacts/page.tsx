@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { useConfirm } from "@/hooks/use-confirm";
 import { toast } from "sonner";
 
 interface Contact {
@@ -48,7 +48,7 @@ export default function ContactsPage() {
     const [deleting, setDeleting] = useState<number | null>(null);
     const [expanded, setExpanded] = useState<number | null>(null);
     const [exporting, setExporting] = useState(false);
-    const [deleteTarget, setDeleteTarget] = useState<{ id: number; name: string } | null>(null);
+    const confirm = useConfirm();
 
     const fetchContacts = useCallback(
         async (page = 1, searchQuery = search) => {
@@ -81,8 +81,15 @@ export default function ContactsPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    function handleDelete(id: number, name: string) {
-        setDeleteTarget({ id, name });
+    async function handleDelete(id: number, name: string) {
+        const ok = await confirm({
+            title: "Delete contact",
+            description: `Delete contact from "${name}"? This cannot be undone.`,
+            confirmLabel: "Delete",
+        });
+        if (!ok) return;
+
+        doDelete(id);
     }
 
     async function doDelete(id: number) {
@@ -376,14 +383,6 @@ export default function ContactsPage() {
                 </div>
             )}
 
-            <ConfirmDialog
-                open={!!deleteTarget}
-                onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}
-                title="Delete contact"
-                description={deleteTarget ? `Delete contact from "${deleteTarget.name}"? This cannot be undone.` : ""}
-                confirmLabel="Delete"
-                onConfirm={() => deleteTarget && doDelete(deleteTarget.id)}
-            />
         </div>
     );
 }

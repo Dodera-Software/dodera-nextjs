@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Users, Key, LayoutDashboard, Wand2, Loader2, CheckCircle2, XCircle, ExternalLink, ChevronDown, ChevronUp, BarChart2, GitBranch, Database } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { useConfirm } from "@/hooks/use-confirm";
 import { toast } from "sonner";
 
 /* ── Platform-aware quick links ────────────────────────────── */
@@ -91,7 +91,7 @@ export default function AdminDashboardPage() {
     const [postResult, setPostResult] = useState<AutoPostResult | null>(null);
     const [showOptions, setShowOptions] = useState(false);
     const [authorName, setAuthorName] = useState("Dodera Team");
-    const [showAutoPostConfirm, setShowAutoPostConfirm] = useState(false);
+    const confirm = useConfirm();
 
     useEffect(() => {
         async function fetchStats() {
@@ -242,7 +242,15 @@ export default function AdminDashboardPage() {
                             </p>
                         </div>
                     </div>
-                    <Button onClick={() => setShowAutoPostConfirm(true)} disabled={posting}>
+                    <Button onClick={async () => {
+                        const ok = await confirm({
+                            title: "Generate blog post",
+                            description: "AI will generate a trending blog post and save it as a draft in Prismic. Continue?",
+                            confirmLabel: "Generate",
+                            variant: "default",
+                        });
+                        if (ok) handleAutoPost();
+                    }} disabled={posting}>
                         {posting ? (
                             <>
                                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -317,15 +325,6 @@ export default function AdminDashboardPage() {
                 )}
             </div>
 
-            <ConfirmDialog
-                open={showAutoPostConfirm}
-                onOpenChange={setShowAutoPostConfirm}
-                title="Generate blog post"
-                description="AI will generate a trending blog post and save it as a draft in Prismic. Continue?"
-                confirmLabel="Generate"
-                variant="default"
-                onConfirm={handleAutoPost}
-            />
         </div>
     );
 }
