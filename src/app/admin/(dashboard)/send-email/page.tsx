@@ -33,7 +33,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { useConfirm } from "@/hooks/use-confirm";
 import { toast } from "sonner";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -198,8 +198,8 @@ export default function SendEmailPage() {
     const [customEmails, setCustomEmails] = useState("");
     const [subject, setSubject] = useState("");
     const [attachments, setAttachments] = useState<AttachedFile[]>([]);
+    const confirm = useConfirm();
     const [sending, setSending] = useState(false);
-    const [showSendConfirm, setShowSendConfirm] = useState(false);
     const [smtpStatus, setSmtpStatus] = useState<"idle" | "checking" | "ok" | "fail">("idle");
     const [smtpError, setSmtpError] = useState<string | null>(null);
     const fileRef = useRef<HTMLInputElement>(null);
@@ -310,7 +310,7 @@ export default function SendEmailPage() {
     }
 
     // ── Send ───────────────────────────────────────────────
-    function handleSend(e: React.FormEvent) {
+    async function handleSend(e: React.FormEvent) {
         e.preventDefault();
         if (!editor) return;
 
@@ -330,7 +330,16 @@ export default function SendEmailPage() {
             return;
         }
 
-        setShowSendConfirm(true);
+        const ok = await confirm({
+            title: "Send email",
+            description:
+                recipientMode === "all"
+                    ? `Send "${subject}" to all subscribers? This cannot be undone.`
+                    : `Send "${subject}" to ${customEmails.trim()}? This cannot be undone.`,
+            confirmLabel: "Send",
+            variant: "default",
+        });
+        if (ok) doSend();
     }
 
     async function doSend() {
@@ -638,19 +647,7 @@ export default function SendEmailPage() {
                 </div>
             </form>
 
-            <ConfirmDialog
-                open={showSendConfirm}
-                onOpenChange={setShowSendConfirm}
-                title="Send email"
-                description={
-                    recipientMode === "all"
-                        ? `Send "${subject}" to all subscribers? This cannot be undone.`
-                        : `Send "${subject}" to ${customEmails.trim()}? This cannot be undone.`
-                }
-                confirmLabel="Send"
-                variant="default"
-                onConfirm={doSend}
-            />
+
         </div>
     );
 }

@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { useConfirm } from "@/hooks/use-confirm";
 import { toast } from "sonner";
 
 interface Subscriber {
@@ -38,8 +38,8 @@ export default function SubscribersPage() {
     });
     const [search, setSearch] = useState("");
     const [loading, setLoading] = useState(true);
+    const confirm = useConfirm();
     const [deleting, setDeleting] = useState<number | null>(null);
-    const [deleteTarget, setDeleteTarget] = useState<{ id: number; email: string } | null>(null);
 
     const fetchSubscribers = useCallback(
         async (page = 1, searchQuery = search) => {
@@ -72,8 +72,13 @@ export default function SubscribersPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    function handleDelete(id: number, email: string) {
-        setDeleteTarget({ id, email });
+    async function handleDelete(id: number, email: string) {
+        const ok = await confirm({
+            title: "Delete subscriber",
+            description: `Remove "${email}" from your newsletter list? This cannot be undone.`,
+            confirmLabel: "Delete",
+        });
+        if (ok) doDelete(id);
     }
 
     async function doDelete(id: number) {
@@ -249,14 +254,6 @@ export default function SubscribersPage() {
                 </div>
             )}
 
-            <ConfirmDialog
-                open={!!deleteTarget}
-                onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}
-                title="Delete subscriber"
-                description={deleteTarget ? `Remove "${deleteTarget.email}" from your newsletter list? This cannot be undone.` : ""}
-                confirmLabel="Delete"
-                onConfirm={() => deleteTarget && doDelete(deleteTarget.id)}
-            />
         </div>
     );
 }

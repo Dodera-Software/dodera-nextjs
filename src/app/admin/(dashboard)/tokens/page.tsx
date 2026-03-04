@@ -30,7 +30,7 @@ import {
     DialogDescription,
     DialogFooter,
 } from "@/components/ui/dialog";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { useConfirm } from "@/hooks/use-confirm";
 import { toast } from "sonner";
 
 interface Token {
@@ -95,6 +95,8 @@ export default function TokensPage() {
         setOpenMenuId(id);
     }
 
+    const confirm = useConfirm();
+
     // Rename state
     const [renamingId, setRenamingId] = useState<number | null>(null);
     const [renameValue, setRenameValue] = useState("");
@@ -103,14 +105,6 @@ export default function TokensPage() {
     // Show token modal
     const [generatedToken, setGeneratedToken] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
-
-    // Confirm dialog
-    const [confirmDialog, setConfirmDialog] = useState<{
-        open: boolean;
-        action: "revoke" | "delete";
-        id: number;
-        name: string;
-    } | null>(null);
 
     const fetchTokens = useCallback(async (page = pagination.page) => {
         setLoading(true);
@@ -207,8 +201,13 @@ export default function TokensPage() {
         }
     }
 
-    function handleRevoke(id: number, name: string) {
-        setConfirmDialog({ open: true, action: "revoke", id, name });
+    async function handleRevoke(id: number, name: string) {
+        const ok = await confirm({
+            title: "Revoke token",
+            description: `Revoke "${name}"? It will no longer be usable.`,
+            confirmLabel: "Revoke",
+        });
+        if (ok) doRevoke(id);
     }
 
     async function doRevoke(id: number) {
@@ -232,8 +231,13 @@ export default function TokensPage() {
         }
     }
 
-    function handleDelete(id: number, name: string) {
-        setConfirmDialog({ open: true, action: "delete", id, name });
+    async function handleDelete(id: number, name: string) {
+        const ok = await confirm({
+            title: "Delete token",
+            description: `Permanently delete "${name}"? This cannot be undone.`,
+            confirmLabel: "Delete",
+        });
+        if (ok) doDelete(id);
     }
 
     async function doDelete(id: number) {
@@ -603,24 +607,6 @@ export default function TokensPage() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-
-            {/* Confirm dialog for revoke / delete */}
-            <ConfirmDialog
-                open={!!confirmDialog?.open}
-                onOpenChange={(open) => { if (!open) setConfirmDialog(null); }}
-                title={confirmDialog?.action === "revoke" ? "Revoke token" : "Delete token"}
-                description={
-                    confirmDialog?.action === "revoke"
-                        ? `Revoke "${confirmDialog.name}"? It will no longer be usable.`
-                        : `Permanently delete "${confirmDialog?.name}"? This cannot be undone.`
-                }
-                confirmLabel={confirmDialog?.action === "revoke" ? "Revoke" : "Delete"}
-                onConfirm={() => {
-                    if (!confirmDialog) return;
-                    if (confirmDialog.action === "revoke") doRevoke(confirmDialog.id);
-                    else doDelete(confirmDialog.id);
-                }}
-            />
 
             {/* Fixed dropdown — renders outside table overflow context */}
             {openMenuId !== null && (() => {
