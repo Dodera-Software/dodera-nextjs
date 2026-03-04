@@ -2,8 +2,7 @@ import "server-only";
 import OpenAI from "openai";
 import { buildImagePrompt } from "@/app/api/generate-image/prompts";
 import { IMAGE_SIZES, type ImageSize } from "@/lib/image-sizes";
-
-const OPENAI_IMAGE_MODEL = process.env.OPENAI_IMAGE_MODEL ?? "dall-e-3";
+import { getImageGenerationModel } from "@/lib/app-config";
 
 const VALID_SIZES = IMAGE_SIZES.map((s) => s.value);
 
@@ -37,10 +36,13 @@ export async function generateImageUrl(
             ? (body.size as ImageSize)
             : "1792x1024";
 
+    const configModel = await getImageGenerationModel();
     const requestedModel: ImageModel =
         typeof body.model === "string" && VALID_MODELS.includes(body.model as ImageModel)
             ? (body.model as ImageModel)
-            : (OPENAI_IMAGE_MODEL as ImageModel);
+            : VALID_MODELS.includes(configModel as ImageModel)
+                ? (configModel as ImageModel)
+                : "dall-e-3";
 
     const openai = new OpenAI({ apiKey: openaiKey });
 
