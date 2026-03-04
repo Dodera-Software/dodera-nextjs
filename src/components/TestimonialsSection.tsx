@@ -4,7 +4,6 @@ import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import { useCallback, useEffect, useState, useRef } from "react";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
-import Image from "next/image";
 import { motion } from "framer-motion";
 import { fadeIn, viewportOnce } from "@/lib/animations";
 import { TESTIMONIALS } from "@/config/testimonials";
@@ -102,7 +101,12 @@ export function TestimonialsSection() {
                 </button>
 
                 {/* Embla viewport */}
-                <div className="overflow-hidden" ref={emblaRef}>
+                <div
+                    className="overflow-hidden"
+                    ref={emblaRef}
+                    onMouseEnter={() => autoplayRef.current.stop()}
+                    onMouseLeave={() => autoplayRef.current.play()}
+                >
                     <div className="flex">
                         {TESTIMONIALS.map((t, index) => {
                             const isCenter = index === selectedIndex;
@@ -127,23 +131,6 @@ export function TestimonialsSection() {
                                         >
                                             &ldquo;
                                         </span>
-
-                                        {/* Avatar */}
-                                        <div className="mb-4 flex justify-center">
-                                            <div className="size-16 overflow-hidden rounded-full border-2 border-border">
-                                                <Image
-                                                    src={t.avatar}
-                                                    alt={t.name}
-                                                    width={64}
-                                                    height={64}
-                                                    className={`size-full object-cover transition-all duration-300 ${isCenter
-                                                        ? ""
-                                                        : "grayscale"
-                                                        }`}
-                                                    unoptimized
-                                                />
-                                            </div>
-                                        </div>
 
                                         {/* Review text */}
                                         <p
@@ -172,9 +159,6 @@ export function TestimonialsSection() {
                                             </p>
                                             <p className="text-xs text-muted-foreground">
                                                 {t.role}
-                                                {t.company
-                                                    ? ` · ${t.company}`
-                                                    : ""}
                                             </p>
                                         </div>
                                     </div>
