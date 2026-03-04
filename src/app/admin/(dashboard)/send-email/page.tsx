@@ -23,7 +23,6 @@ import {
     Link as LinkIcon,
     Undo,
     Redo,
-    CheckCircle2,
     AlertCircle,
     WifiIcon,
     BookOpen,
@@ -34,6 +33,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useConfirm } from "@/hooks/use-confirm";
+import { toast } from "sonner";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -197,9 +198,8 @@ export default function SendEmailPage() {
     const [customEmails, setCustomEmails] = useState("");
     const [subject, setSubject] = useState("");
     const [attachments, setAttachments] = useState<AttachedFile[]>([]);
+    const confirm = useConfirm();
     const [sending, setSending] = useState(false);
-    const [result, setResult] = useState<SendResult | null>(null);
-    const [error, setError] = useState<string | null>(null);
     const [smtpStatus, setSmtpStatus] = useState<"idle" | "checking" | "ok" | "fail">("idle");
     const [smtpError, setSmtpError] = useState<string | null>(null);
     const fileRef = useRef<HTMLInputElement>(null);
@@ -316,22 +316,36 @@ export default function SendEmailPage() {
 
         const html = editor.getHTML();
         if (!html || html === "<p></p>") {
-            setError("Email body is empty.");
+            toast.error("Email body is empty.");
             return;
         }
 
         const to = recipientMode === "all" ? "all" : customEmails.trim();
         if (!to) {
-            setError("Please enter at least one recipient email.");
+            toast.error("Please enter at least one recipient email.");
             return;
         }
         if (!subject.trim()) {
-            setError("Subject is required.");
+            toast.error("Subject is required.");
             return;
         }
 
-        setError(null);
-        setResult(null);
+        const ok = await confirm({
+            title: "Send email",
+            description:
+                recipientMode === "all"
+                    ? `Send "${subject}" to all subscribers? This cannot be undone.`
+                    : `Send "${subject}" to ${customEmails.trim()}? This cannot be undone.`,
+            confirmLabel: "Send",
+            variant: "default",
+        });
+        if (ok) doSend();
+    }
+
+    async function doSend() {
+        if (!editor) return;
+        const html = editor.getHTML();
+        const to = recipientMode === "all" ? "all" : customEmails.trim();
         setSending(true);
 
         try {
@@ -349,17 +363,20 @@ export default function SendEmailPage() {
             const data = await res.json();
 
             if (data.status === "success") {
-                setResult(data.data as SendResult);
+                const r = data.data as SendResult;
+                const description = `${r.accepted} / ${r.totalRecipients} delivered${r.rejected > 0 ? `, ${r.rejected} rejected` : ""
+                    }`;
+                toast.success("Email sent!", { description });
                 // Reset editor
                 editor.commands.setContent("");
                 setSubject("");
                 setAttachments([]);
                 if (recipientMode === "custom") setCustomEmails("");
             } else {
-                setError(data.message ?? "Failed to send.");
+                toast.error(data.message ?? "Failed to send.");
             }
         } catch {
-            setError("Network error. Please try again.");
+            toast.error("Network error. Please try again.");
         } finally {
             setSending(false);
         }
@@ -409,35 +426,6 @@ export default function SendEmailPage() {
                     )}
                 </div>
             </div>
-
-            {/* Result banner */}
-            {result && (
-                <div className="flex items-start gap-3 p-4 rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-400">
-                    <CheckCircle2 className="w-5 h-5 mt-0.5 shrink-0" />
-                    <div>
-                        <p className="font-medium">Email sent!</p>
-                        <p className="text-sm text-emerald-300 mt-0.5">
-                            {result.accepted} / {result.totalRecipients} delivered
-                            {result.rejected > 0 && `, ${result.rejected} rejected`}
-                        </p>
-                        {result.errors.length > 0 && (
-                            <ul className="mt-1 space-y-0.5 text-xs text-emerald-400/70">
-                                {result.errors.map((e, i) => (
-                                    <li key={i}>• {e}</li>
-                                ))}
-                            </ul>
-                        )}
-                    </div>
-                </div>
-            )}
-
-            {/* Error banner */}
-            {error && (
-                <div className="flex items-start gap-3 p-4 rounded-lg border border-destructive/30 bg-destructive/10 text-destructive">
-                    <AlertCircle className="w-5 h-5 mt-0.5 shrink-0" />
-                    <p className="text-sm">{error}</p>
-                </div>
-            )}
 
             {/* Compose form */}
             <form onSubmit={handleSend} className="space-y-5">
@@ -658,6 +646,8 @@ export default function SendEmailPage() {
                     </Button>
                 </div>
             </form>
+
+
         </div>
     );
 }

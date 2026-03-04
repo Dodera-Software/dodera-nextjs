@@ -30,6 +30,8 @@ import {
     DialogDescription,
     DialogFooter,
 } from "@/components/ui/dialog";
+import { useConfirm } from "@/hooks/use-confirm";
+import { toast } from "sonner";
 
 interface Token {
     id: number;
@@ -93,6 +95,8 @@ export default function TokensPage() {
         setOpenMenuId(id);
     }
 
+    const confirm = useConfirm();
+
     // Rename state
     const [renamingId, setRenamingId] = useState<number | null>(null);
     const [renameValue, setRenameValue] = useState("");
@@ -149,9 +153,12 @@ export default function TokensPage() {
                 setNewTokenName("");
                 setNewTokenExpiry("");
                 fetchTokens(1);
+                toast.success("Token generated");
+            } else {
+                toast.error("Failed to generate token");
             }
         } catch {
-            console.error("Failed to create token");
+            toast.error("Failed to generate token");
         } finally {
             setCreating(false);
         }
@@ -183,16 +190,27 @@ export default function TokensPage() {
                     ),
                 );
                 cancelRename();
+                toast.success("Token renamed");
+            } else {
+                toast.error("Failed to rename token");
             }
         } catch {
-            console.error("Failed to rename token");
+            toast.error("Failed to rename token");
         } finally {
             setRenameSaving(false);
         }
     }
 
     async function handleRevoke(id: number, name: string) {
-        if (!confirm(`Revoke token "${name}"? It will no longer be usable.`)) return;
+        const ok = await confirm({
+            title: "Revoke token",
+            description: `Revoke "${name}"? It will no longer be usable.`,
+            confirmLabel: "Revoke",
+        });
+        if (ok) doRevoke(id);
+    }
+
+    async function doRevoke(id: number) {
         setActionLoading(id);
         try {
             const res = await fetch("/api/admin/tokens", {
@@ -200,17 +218,29 @@ export default function TokensPage() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ id, action: "revoke" }),
             });
-            if (res.ok) fetchTokens(pagination.page);
+            if (res.ok) {
+                fetchTokens(pagination.page);
+                toast.success("Token revoked");
+            } else {
+                toast.error("Failed to revoke token");
+            }
         } catch {
-            console.error("Failed to revoke token");
+            toast.error("Failed to revoke token");
         } finally {
             setActionLoading(null);
         }
     }
 
     async function handleDelete(id: number, name: string) {
-        if (!confirm(`Permanently delete token "${name}"? This cannot be undone.`))
-            return;
+        const ok = await confirm({
+            title: "Delete token",
+            description: `Permanently delete "${name}"? This cannot be undone.`,
+            confirmLabel: "Delete",
+        });
+        if (ok) doDelete(id);
+    }
+
+    async function doDelete(id: number) {
         setActionLoading(id);
         try {
             const res = await fetch("/api/admin/tokens", {
@@ -220,9 +250,12 @@ export default function TokensPage() {
             });
             if (res.ok) {
                 setTokens((prev) => prev.filter((t) => t.id !== id));
+                toast.success("Token deleted");
+            } else {
+                toast.error("Failed to delete token");
             }
         } catch {
-            console.error("Failed to delete token");
+            toast.error("Failed to delete token");
         } finally {
             setActionLoading(null);
         }

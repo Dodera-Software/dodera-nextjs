@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useConfirm } from "@/hooks/use-confirm";
+import { toast } from "sonner";
 
 interface Subscriber {
     id: number;
@@ -36,6 +38,7 @@ export default function SubscribersPage() {
     });
     const [search, setSearch] = useState("");
     const [loading, setLoading] = useState(true);
+    const confirm = useConfirm();
     const [deleting, setDeleting] = useState<number | null>(null);
 
     const fetchSubscribers = useCallback(
@@ -70,8 +73,15 @@ export default function SubscribersPage() {
     }, []);
 
     async function handleDelete(id: number, email: string) {
-        if (!confirm(`Delete subscriber "${email}"? This cannot be undone.`)) return;
+        const ok = await confirm({
+            title: "Delete subscriber",
+            description: `Remove "${email}" from your newsletter list? This cannot be undone.`,
+            confirmLabel: "Delete",
+        });
+        if (ok) doDelete(id);
+    }
 
+    async function doDelete(id: number) {
         setDeleting(id);
         try {
             const res = await fetch("/api/admin/subscribers", {
@@ -83,9 +93,12 @@ export default function SubscribersPage() {
             if (res.ok) {
                 setSubscribers((prev) => prev.filter((s) => s.id !== id));
                 setPagination((prev) => ({ ...prev, total: prev.total - 1 }));
+                toast.success("Subscriber deleted");
+            } else {
+                toast.error("Failed to delete subscriber");
             }
         } catch {
-            console.error("Failed to delete subscriber");
+            toast.error("Failed to delete subscriber");
         } finally {
             setDeleting(null);
         }
@@ -240,6 +253,7 @@ export default function SubscribersPage() {
                     </div>
                 </div>
             )}
+
         </div>
     );
 }
