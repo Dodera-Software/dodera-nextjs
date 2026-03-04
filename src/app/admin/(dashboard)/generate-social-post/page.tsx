@@ -14,6 +14,11 @@ import {
     CalendarDays,
     Tag,
     Send,
+    BookOpen,
+    Plus,
+    Trash2,
+    ChevronDown,
+    ChevronUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,6 +47,11 @@ interface GeneratedItem {
     error?: string;
 }
 
+interface ExampleItem {
+    id: number;
+    content: string;
+}
+
 /* ── Component ──────────────────────────────────────────────── */
 
 export default function GenerateSocialPostPage() {
@@ -64,6 +74,15 @@ export default function GenerateSocialPostPage() {
     const [shared, setShared] = useState(false);
     const outputRef = useRef<HTMLDivElement>(null);
 
+    /* examples */
+    const [examples, setExamples] = useState<Partial<Record<SocialPlatform, ExampleItem[]>>>({});
+    const [examplesLoading, setExamplesLoading] = useState<Partial<Record<SocialPlatform, boolean>>>({});
+    const [examplesOpen, setExamplesOpen] = useState(false);
+    const [newExampleText, setNewExampleText] = useState("");
+    const [addingExample, setAddingExample] = useState(false);
+    const [deletingExampleId, setDeletingExampleId] = useState<number | null>(null);
+    const [expandedExampleIds, setExpandedExampleIds] = useState<Set<number>>(new Set());
+
     /* ── Fetch posts ─────────────────────────────────────────── */
     useEffect(() => {
         setPostsLoading(true);
@@ -78,6 +97,58 @@ export default function GenerateSocialPostPage() {
             })
             .catch(() => setPostsError("Network error — could not load blog posts."))
             .finally(() => setPostsLoading(false));
+    }, []);
+
+    /* ── Fetch examples for a platform ──────────────────────── */
+    const fetchExamples = useCallback(async (platform: SocialPlatform) => {
+        if (examples[platform] !== undefined) return; // already loaded
+        setExamplesLoading((prev) => ({ ...prev, [platform]: true }));
+        try {
+            const res = await fetch(`/api/admin/social-post-examples?platform=${platform}`);
+            const data = await res.json();
+            if (data.status === "success") {
+                setExamples((prev) => ({ ...prev, [platform]: data.examples }));
+            }
+        } finally {
+            setExamplesLoading((prev) => ({ ...prev, [platform]: false }));
+        }
+    }, [examples]);
+
+    /* ── Add example ─────────────────────────────────────────── */
+    const handleAddExample = useCallback(async () => {
+        if (!activePlatform || !newExampleText.trim() || addingExample) return;
+        setAddingExample(true);
+        try {
+            const res = await fetch("/api/admin/social-post-examples", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ platform: activePlatform, content: newExampleText.trim() }),
+            });
+            const data = await res.json();
+            if (data.status === "success") {
+                setExamples((prev) => ({
+                    ...prev,
+                    [activePlatform]: [...(prev[activePlatform] ?? []), data.example],
+                }));
+                setNewExampleText("");
+            }
+        } finally {
+            setAddingExample(false);
+        }
+    }, [activePlatform, newExampleText, addingExample]);
+
+    /* ── Delete example ──────────────────────────────────────── */
+    const handleDeleteExample = useCallback(async (platform: SocialPlatform, id: number) => {
+        setDeletingExampleId(id);
+        try {
+            await fetch(`/api/admin/social-post-examples/${id}`, { method: "DELETE" });
+            setExamples((prev) => ({
+                ...prev,
+                [platform]: (prev[platform] ?? []).filter((e) => e.id !== id),
+            }));
+        } finally {
+            setDeletingExampleId(null);
+        }
     }, []);
 
     /* ── Filter posts by search ──────────────────────────────── */
@@ -397,6 +468,7 @@ export default function GenerateSocialPostPage() {
                                                     setActivePlatform(p.id);
                                                     setShared(false);
                                                     setCopied(false);
+                                                    fetchExamples(p.id);
                                                     if (!generated[p.id]?.post) {
                                                         generate(p.id);
                                                     }
@@ -431,6 +503,125 @@ export default function GenerateSocialPostPage() {
                                     })}
                                 </div>
                             </div>
+
+                            {/* Examples manager */}
+                            {activePlatform && (
+                                <div className="rounded-xl border border-border bg-card overflow-hidden">
+                                    <button
+                                        type="button"
+                                        onClick={() => setExamplesOpen((v) => !v)}
+                                        className="w-full flex items-center justify-between gap-3 px-4 py-3 hover:bg-muted/30 transition-colors"
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <BookOpen className="w-3.5 h-3.5 text-muted-foreground" />
+                                            <span className="text-sm font-semibold">Style Examples</span>
+                                            {(() => {
+                                                const count = examples[activePlatform]?.length ?? 0;
+                                                return count > 0 ? (
+                                                    <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full font-medium">
+                                                        {count}
+                                                    </span>
+                                                ) : null;
+                                            })()}
+                                        </div>
+                                        <div className="flex items-center gap-1.5">
+                                            <span className="text-[11px] text-muted-foreground">
+                                                {examplesOpen ? "Hide" : "Manage AI style references"}
+                                            </span>
+                                            {examplesOpen
+                                                ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground" />
+                                                : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />}
+                                        </div>
+                                    </button>
+
+                                    {examplesOpen && (
+                                        <div className="border-t border-border p-4 space-y-4">
+                                            <p className="text-xs text-muted-foreground leading-relaxed">
+                                                Paste real {PLATFORMS.find(p => p.id === activePlatform)?.label} posts that performed well.
+                                                The AI will mirror their hook style, rhythm and CTA structure — it will never copy content.
+                                            </p>
+
+                                            {/* Add new example */}
+                                            <div className="space-y-2">
+                                                <textarea
+                                                    value={newExampleText}
+                                                    onChange={(e) => setNewExampleText(e.target.value)}
+                                                    placeholder={`Paste a ${PLATFORMS.find(p => p.id === activePlatform)?.label} post here…`}
+                                                    rows={5}
+                                                    className="w-full text-sm px-3 py-2 rounded-lg border border-border bg-background resize-none focus:outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground"
+                                                />
+                                                <Button
+                                                    size="sm"
+                                                    className="gap-1.5"
+                                                    disabled={!newExampleText.trim() || addingExample}
+                                                    onClick={handleAddExample}
+                                                >
+                                                    {addingExample
+                                                        ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                                        : <Plus className="w-3.5 h-3.5" />}
+                                                    Add Example
+                                                </Button>
+                                            </div>
+
+                                            {/* Existing examples */}
+                                            {examplesLoading[activePlatform] ? (
+                                                <div className="flex items-center gap-2 py-4 text-muted-foreground">
+                                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                                    <span className="text-xs">Loading examples…</span>
+                                                </div>
+                                            ) : (
+                                                <div className="space-y-2">
+                                                    {(examples[activePlatform] ?? []).length === 0 ? (
+                                                        <p className="text-xs text-muted-foreground italic py-2">
+                                                            No examples yet — add your first one above.
+                                                        </p>
+                                                    ) : (
+                                                        (examples[activePlatform] ?? []).map((ex) => {
+                                                            const isExpanded = expandedExampleIds.has(ex.id);
+                                                            return (
+                                                                <div
+                                                                    key={ex.id}
+                                                                    className="group relative rounded-lg border border-border bg-muted/20 px-3 py-2.5 pr-9"
+                                                                >
+                                                                    <pre className={`text-xs leading-relaxed whitespace-pre-wrap font-sans text-foreground/80 ${isExpanded ? "" : "line-clamp-4"}`}>
+                                                                        {ex.content}
+                                                                    </pre>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() =>
+                                                                            setExpandedExampleIds((prev) => {
+                                                                                const next = new Set(prev);
+                                                                                isExpanded ? next.delete(ex.id) : next.add(ex.id);
+                                                                                return next;
+                                                                            })
+                                                                        }
+                                                                        className="mt-1.5 flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+                                                                    >
+                                                                        {isExpanded
+                                                                            ? <><ChevronUp className="w-3 h-3" /> Collapse</>
+                                                                            : <><ChevronDown className="w-3 h-3" /> Expand</>}
+                                                                    </button>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => handleDeleteExample(activePlatform, ex.id)}
+                                                                        disabled={deletingExampleId === ex.id}
+                                                                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive disabled:opacity-40"
+                                                                        title="Delete example"
+                                                                    >
+                                                                        {deletingExampleId === ex.id
+                                                                            ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                                                            : <Trash2 className="w-3.5 h-3.5" />}
+                                                                    </button>
+                                                                </div>
+                                                            );
+                                                        })
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
 
                             {/* Generated output */}
                             {activePlatform && (
