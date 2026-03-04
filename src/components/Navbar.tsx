@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Menu, X } from "lucide-react";
 import Link from "next/link";
@@ -12,6 +12,20 @@ export function Navbar() {
     const [megaOpen, setMegaOpen] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
     const navRef = useRef<HTMLElement>(null);
+    const megaCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const openMega = useCallback(() => {
+        if (megaCloseTimer.current) clearTimeout(megaCloseTimer.current);
+        setMegaOpen(true);
+    }, []);
+
+    const closeMega = useCallback(() => {
+        megaCloseTimer.current = setTimeout(() => setMegaOpen(false), 120);
+    }, []);
+
+    useEffect(() => () => {
+        if (megaCloseTimer.current) clearTimeout(megaCloseTimer.current);
+    }, []);
 
     useEffect(() => {
         if (!mobileOpen) return;
@@ -43,64 +57,13 @@ export function Navbar() {
 
                 {/* Desktop Nav */}
                 <div className="hidden items-center gap-8 md:flex">
-                    <div
-                        className="relative"
-                        onMouseEnter={() => setMegaOpen(true)}
-                        onMouseLeave={() => setMegaOpen(false)}
-                    >
+                    <div onMouseEnter={openMega} onMouseLeave={closeMega}>
                         <button className="flex items-center gap-1 text-sm font-medium text-foreground/70 transition-colors hover:text-foreground">
                             Services
                             <ChevronDown
                                 className={`size-3.5 transition-transform ${megaOpen ? "rotate-180" : ""}`}
                             />
                         </button>
-
-                        <AnimatePresence>
-                            {megaOpen && (
-                                <motion.div
-                                    initial={{ opacity: 0, y: 8 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: 8 }}
-                                    transition={{ duration: 0.15 }}
-                                    className="absolute right-0 top-full z-50 mt-2 w-[820px] max-w-[calc(100vw_-_3rem)]"
-                                >
-                                    <div className="rounded-lg border border-border bg-background/95 p-6 shadow-xl backdrop-blur-xl">
-                                        <div className="grid grid-cols-2 items-start gap-6 lg:grid-cols-4">
-                                            {SERVICES.map((s) => (
-                                                <div key={s.title} className="flex flex-col items-start">
-                                                    <Link
-                                                        href={s.href}
-                                                        className="mb-3 flex items-start gap-2.5 group"
-                                                        onClick={() => setMegaOpen(false)}
-                                                    >
-                                                        <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                                                            <s.icon className="size-4 text-primary" />
-                                                        </div>
-                                                        <div className="text-left">
-                                                            <p className="text-sm font-semibold group-hover:text-primary transition-colors">{s.title}</p>
-                                                            <p className="text-[11px] text-muted-foreground">{s.subtitle}</p>
-                                                        </div>
-                                                    </Link>
-                                                    <ul className="w-full space-y-1.5 pl-[42px]">
-                                                        {s.highlights.map((item) => (
-                                                            <li key={item.label}>
-                                                                <Link
-                                                                    href={item.href}
-                                                                    onClick={() => setMegaOpen(false)}
-                                                                    className="text-xs text-muted-foreground transition-colors hover:text-foreground"
-                                                                >
-                                                                    {item.label}
-                                                                </Link>
-                                                            </li>
-                                                        ))}
-                                                    </ul>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
                     </div>
 
                     {NAV_LINKS.map((link) => (
@@ -146,6 +109,56 @@ export function Navbar() {
                     {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
                 </Button>
             </div>
+
+            {/* Mega menu — full-width, anchored to bottom of nav bar */}
+            <AnimatePresence>
+                {megaOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -4 }}
+                        transition={{ duration: 0.15 }}
+                        onMouseEnter={openMega}
+                        onMouseLeave={closeMega}
+                        className="absolute inset-x-0 top-full z-40 hidden border-b border-border bg-background/95 shadow-xl backdrop-blur-xl md:block"
+                    >
+                        <div className="mx-auto max-w-7xl px-6 py-6">
+                            <div className="grid grid-cols-2 items-start gap-x-8 gap-y-6 lg:grid-cols-4">
+                                {SERVICES.map((s) => (
+                                    <div key={s.title} className="flex flex-col items-start">
+                                        <Link
+                                            href={s.href}
+                                            className="mb-3 flex items-start gap-2.5 group"
+                                            onClick={() => setMegaOpen(false)}
+                                        >
+                                            <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                                                <s.icon className="size-4 text-primary" />
+                                            </div>
+                                            <div className="text-left">
+                                                <p className="text-sm font-semibold group-hover:text-primary transition-colors">{s.title}</p>
+                                                <p className="text-[11px] text-muted-foreground">{s.subtitle}</p>
+                                            </div>
+                                        </Link>
+                                        <ul className="w-full space-y-1.5 pl-[42px]">
+                                            {s.highlights.map((item) => (
+                                                <li key={item.label}>
+                                                    <Link
+                                                        href={item.href}
+                                                        onClick={() => setMegaOpen(false)}
+                                                        className="text-xs text-muted-foreground transition-colors hover:text-foreground"
+                                                    >
+                                                        {item.label}
+                                                    </Link>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Mobile menu */}
             <AnimatePresence>
