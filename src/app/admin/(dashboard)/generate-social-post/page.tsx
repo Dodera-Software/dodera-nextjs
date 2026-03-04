@@ -406,11 +406,11 @@ export default function GenerateSocialPostPage() {
                                                     ${isActive ? p.activeColor : p.color}
                                                     disabled:opacity-50 disabled:cursor-not-allowed`}
                                             >
-                                                <span className="w-7 h-7 rounded-full bg-current/10 ring-1 ring-current/20 flex items-center justify-center text-xs font-bold shrink-0 select-none" aria-hidden>
+                                                <span className="w-7 h-7 rounded-full bg-current/10 ring-1 ring-current/20 flex items-center justify-center shrink-0 select-none" aria-hidden>
                                                     {isLoading ? (
                                                         <Loader2 className="w-3 h-3 animate-spin" />
                                                     ) : (
-                                                        p.icon
+                                                        <p.Icon className="w-3.5 h-3.5" />
                                                     )}
                                                 </span>
                                                 <div className="min-w-0">

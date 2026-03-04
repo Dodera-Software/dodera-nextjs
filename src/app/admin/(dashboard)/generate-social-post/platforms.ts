@@ -1,5 +1,8 @@
 /* ── Platform types & metadata ───────────────────────────────── */
 
+import { Linkedin, Facebook, Instagram } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+
 export type SocialPlatform = "linkedin" | "facebook" | "instagram";
 
 export const PLATFORMS: {
@@ -8,14 +11,14 @@ export const PLATFORMS: {
     color: string;
     activeColor: string;
     shareColor: string;
-    icon: string;
+    Icon: LucideIcon;
     description: string;
     showImage: boolean;
 }[] = [
         {
             id: "linkedin",
             label: "LinkedIn",
-            icon: "in",
+            Icon: Linkedin,
             color: "border-[#0A66C2]/30 text-[#0A66C2] bg-[#0A66C2]/5 hover:bg-[#0A66C2]/10",
             activeColor: "border-[#0A66C2] bg-[#0A66C2] text-white hover:bg-[#0A66C2]/90",
             shareColor: "bg-[#0A66C2] hover:bg-[#004182] text-white",
@@ -25,7 +28,7 @@ export const PLATFORMS: {
         {
             id: "facebook",
             label: "Facebook",
-            icon: "f",
+            Icon: Facebook,
             color: "border-[#1877F2]/30 text-[#1877F2] bg-[#1877F2]/5 hover:bg-[#1877F2]/10",
             activeColor: "border-[#1877F2] bg-[#1877F2] text-white hover:bg-[#1877F2]/90",
             shareColor: "bg-[#1877F2] hover:bg-[#0d65d9] text-white",
@@ -35,7 +38,7 @@ export const PLATFORMS: {
         {
             id: "instagram",
             label: "Instagram",
-            icon: "◉",
+            Icon: Instagram,
             color: "border-[#E1306C]/30 text-[#E1306C] bg-[#E1306C]/5 hover:bg-[#E1306C]/10",
             activeColor: "border-[#E1306C] bg-[#E1306C] text-white hover:bg-[#E1306C]/90",
             shareColor: "bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] hover:opacity-90 text-white",
