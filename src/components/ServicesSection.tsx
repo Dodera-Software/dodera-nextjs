@@ -89,7 +89,7 @@ export function ServicesSection() {
                 >
                     <Button size="lg" asChild>
                         <Link href="/#contact">
-                            Get a Quote
+                            Let's Discuss
                             <ArrowRight className="ml-1 size-4" />
                         </Link>
                     </Button>
