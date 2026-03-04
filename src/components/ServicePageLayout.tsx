@@ -128,7 +128,7 @@ export function ServicePageLayout({ data }: ServicePageLayoutProps) {
                     >
                         <Button size="lg" asChild>
                             <Link href="/#contact">
-                                Get a Quote
+                                Let's Discuss
                                 <ArrowRight className="ml-1 size-4" />
                             </Link>
                         </Button>
@@ -202,10 +202,10 @@ export function ServicePageLayout({ data }: ServicePageLayoutProps) {
 
                         <div
                             className={`grid gap-6 ${data.childServices.length === 1
-                                    ? "max-w-lg mx-auto"
-                                    : data.childServices.length === 2
-                                        ? "sm:grid-cols-2"
-                                        : "sm:grid-cols-3"
+                                ? "max-w-lg mx-auto"
+                                : data.childServices.length === 2
+                                    ? "sm:grid-cols-2"
+                                    : "sm:grid-cols-3"
                                 }`}
                         >
                             {data.childServices.map((child, i) => {
