@@ -20,7 +20,7 @@ export function ServicesSection() {
                     Engineering that <span className="text-primary">ships</span>
                 </SectionHeading>
 
-                <div className="grid gap-6 md:grid-cols-3">
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                     {SERVICES.map((s, i) => (
                         <motion.div
                             key={s.title}
@@ -37,8 +37,8 @@ export function ServicesSection() {
                                         src={s.image}
                                         alt={s.title}
                                         fill
-                                        className="object-cover transition-transform duration-500 group-hover:scale-105"
-                                        sizes="(max-width: 768px) 100vw, 33vw"
+                                        className="object-cover transform-gpu transition-transform duration-500 group-hover:scale-105"
+                                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                                 </div>
