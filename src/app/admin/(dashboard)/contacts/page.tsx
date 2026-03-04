@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { toast } from "sonner";
 
 interface Contact {
     id: number;
@@ -46,6 +48,7 @@ export default function ContactsPage() {
     const [deleting, setDeleting] = useState<number | null>(null);
     const [expanded, setExpanded] = useState<number | null>(null);
     const [exporting, setExporting] = useState(false);
+    const [deleteTarget, setDeleteTarget] = useState<{ id: number; name: string } | null>(null);
 
     const fetchContacts = useCallback(
         async (page = 1, searchQuery = search) => {
@@ -78,9 +81,11 @@ export default function ContactsPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    async function handleDelete(id: number, name: string) {
-        if (!confirm(`Delete contact from "${name}"? This cannot be undone.`)) return;
+    function handleDelete(id: number, name: string) {
+        setDeleteTarget({ id, name });
+    }
 
+    async function doDelete(id: number) {
         setDeleting(id);
         try {
             const res = await fetch("/api/admin/contacts", {
@@ -93,9 +98,12 @@ export default function ContactsPage() {
                 setContacts((prev) => prev.filter((c) => c.id !== id));
                 setPagination((prev) => ({ ...prev, total: prev.total - 1 }));
                 if (expanded === id) setExpanded(null);
+                toast.success("Contact deleted");
+            } else {
+                toast.error("Failed to delete contact");
             }
         } catch {
-            console.error("Failed to delete contact");
+            toast.error("Failed to delete contact");
         } finally {
             setDeleting(null);
         }
@@ -143,8 +151,9 @@ export default function ContactsPage() {
             a.download = `contacts-${new Date().toISOString().slice(0, 10)}.csv`;
             a.click();
             URL.revokeObjectURL(url);
+            toast.success(`Exported ${rows.length} contact${rows.length !== 1 ? "s" : ""}`);
         } catch {
-            console.error("Failed to export contacts");
+            toast.error("Failed to export contacts");
         } finally {
             setExporting(false);
         }
@@ -366,6 +375,15 @@ export default function ContactsPage() {
                     </div>
                 </div>
             )}
+
+            <ConfirmDialog
+                open={!!deleteTarget}
+                onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}
+                title="Delete contact"
+                description={deleteTarget ? `Delete contact from "${deleteTarget.name}"? This cannot be undone.` : ""}
+                confirmLabel="Delete"
+                onConfirm={() => deleteTarget && doDelete(deleteTarget.id)}
+            />
         </div>
     );
 }

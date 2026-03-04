@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Settings, Loader2, Save, RefreshCw, CheckCircle2, XCircle } from "lucide-react";
+import { Settings, Loader2, Save, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 
 interface ConfigRow {
     key: string;
@@ -12,16 +13,11 @@ interface ConfigRow {
     updated_at: string;
 }
 
-interface SaveState {
-    key: string;
-    status: "saving" | "success" | "error";
-}
-
 export default function SettingsPage() {
     const [rows, setRows] = useState<ConfigRow[]>([]);
     const [edits, setEdits] = useState<Record<string, string>>({});
     const [loading, setLoading] = useState(true);
-    const [saveState, setSaveState] = useState<SaveState | null>(null);
+    const [savingKey, setSavingKey] = useState<string | null>(null);
 
     const fetchConfig = useCallback(async () => {
         setLoading(true);
@@ -42,7 +38,7 @@ export default function SettingsPage() {
     useEffect(() => { fetchConfig(); }, [fetchConfig]);
 
     async function handleSave(key: string) {
-        setSaveState({ key, status: "saving" });
+        setSavingKey(key);
         try {
             const res = await fetch("/api/admin/config", {
                 method: "PATCH",
@@ -51,7 +47,7 @@ export default function SettingsPage() {
             });
             const data = await res.json();
             if (data.status === "success") {
-                setSaveState({ key, status: "success" });
+                toast.success(`"${key}" saved`);
                 setRows((prev) =>
                     prev.map((r) =>
                         r.key === key
@@ -60,12 +56,12 @@ export default function SettingsPage() {
                     ),
                 );
             } else {
-                setSaveState({ key, status: "error" });
+                toast.error(`Failed to save "${key}"`);
             }
         } catch {
-            setSaveState({ key, status: "error" });
+            toast.error(`Failed to save "${key}"`);
         } finally {
-            setTimeout(() => setSaveState(null), 2500);
+            setSavingKey(null);
         }
     }
 
@@ -99,9 +95,7 @@ export default function SettingsPage() {
             ) : (
                 <div className="rounded-xl border border-border bg-card divide-y divide-border">
                     {rows.map((row) => {
-                        const saving = saveState?.key === row.key && saveState.status === "saving";
-                        const saved = saveState?.key === row.key && saveState.status === "success";
-                        const errored = saveState?.key === row.key && saveState.status === "error";
+                        const saving = savingKey === row.key;
                         const dirty = isDirty(row.key);
 
                         return (
@@ -144,17 +138,6 @@ export default function SettingsPage() {
                                         )}
                                         Save
                                     </Button>
-
-                                    {saved && (
-                                        <span className="inline-flex items-center gap-1 text-xs text-emerald-500">
-                                            <CheckCircle2 className="w-3.5 h-3.5" /> Saved
-                                        </span>
-                                    )}
-                                    {errored && (
-                                        <span className="inline-flex items-center gap-1 text-xs text-destructive">
-                                            <XCircle className="w-3.5 h-3.5" /> Failed
-                                        </span>
-                                    )}
                                 </div>
                             </div>
                         );

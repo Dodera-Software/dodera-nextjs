@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { toast } from "sonner";
 
 interface Subscriber {
     id: number;
@@ -37,6 +39,7 @@ export default function SubscribersPage() {
     const [search, setSearch] = useState("");
     const [loading, setLoading] = useState(true);
     const [deleting, setDeleting] = useState<number | null>(null);
+    const [deleteTarget, setDeleteTarget] = useState<{ id: number; email: string } | null>(null);
 
     const fetchSubscribers = useCallback(
         async (page = 1, searchQuery = search) => {
@@ -69,9 +72,11 @@ export default function SubscribersPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    async function handleDelete(id: number, email: string) {
-        if (!confirm(`Delete subscriber "${email}"? This cannot be undone.`)) return;
+    function handleDelete(id: number, email: string) {
+        setDeleteTarget({ id, email });
+    }
 
+    async function doDelete(id: number) {
         setDeleting(id);
         try {
             const res = await fetch("/api/admin/subscribers", {
@@ -83,9 +88,12 @@ export default function SubscribersPage() {
             if (res.ok) {
                 setSubscribers((prev) => prev.filter((s) => s.id !== id));
                 setPagination((prev) => ({ ...prev, total: prev.total - 1 }));
+                toast.success("Subscriber deleted");
+            } else {
+                toast.error("Failed to delete subscriber");
             }
         } catch {
-            console.error("Failed to delete subscriber");
+            toast.error("Failed to delete subscriber");
         } finally {
             setDeleting(null);
         }
@@ -240,6 +248,15 @@ export default function SubscribersPage() {
                     </div>
                 </div>
             )}
+
+            <ConfirmDialog
+                open={!!deleteTarget}
+                onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}
+                title="Delete subscriber"
+                description={deleteTarget ? `Remove "${deleteTarget.email}" from your newsletter list? This cannot be undone.` : ""}
+                confirmLabel="Delete"
+                onConfirm={() => deleteTarget && doDelete(deleteTarget.id)}
+            />
         </div>
     );
 }
