@@ -62,26 +62,26 @@ export function Navbar() {
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: 8 }}
                                     transition={{ duration: 0.15 }}
-                                    className="absolute right-0 top-full z-50 mt-2 w-[820px]"
+                                    className="absolute right-0 top-full z-50 mt-2 w-[820px] max-w-[calc(100vw_-_3rem)]"
                                 >
                                     <div className="rounded-lg border border-border bg-background/95 p-6 shadow-xl backdrop-blur-xl">
-                                        <div className="grid grid-cols-4 gap-6">
+                                        <div className="grid grid-cols-2 items-start gap-6 lg:grid-cols-4">
                                             {SERVICES.map((s) => (
-                                                <div key={s.title}>
+                                                <div key={s.title} className="flex flex-col items-start">
                                                     <Link
                                                         href={s.href}
-                                                        className="mb-3 flex items-center gap-2 group"
+                                                        className="mb-3 flex items-start gap-2.5 group"
                                                         onClick={() => setMegaOpen(false)}
                                                     >
-                                                        <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10">
+                                                        <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10">
                                                             <s.icon className="size-4 text-primary" />
                                                         </div>
-                                                        <div>
+                                                        <div className="text-left">
                                                             <p className="text-sm font-semibold group-hover:text-primary transition-colors">{s.title}</p>
                                                             <p className="text-[11px] text-muted-foreground">{s.subtitle}</p>
                                                         </div>
                                                     </Link>
-                                                    <ul className="space-y-1.5">
+                                                    <ul className="w-full space-y-1.5 pl-[42px]">
                                                         {s.highlights.map((item) => (
                                                             <li key={item.label}>
                                                                 <Link
