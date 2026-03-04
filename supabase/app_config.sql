@@ -44,5 +44,10 @@ insert into public.app_config (key, value, description) values
     'image_generation_model',
     'dall-e-3',
     'OpenAI model used for image generation. Valid values: dall-e-3, dall-e-2, gpt-image-1.'
+  ),
+  (
+    'social_post_model',
+    'gpt-4o',
+    'OpenAI model used for social post generation. E.g. gpt-4o, gpt-4o-mini, gpt-4-turbo.'
   )
 on conflict (key) do nothing;

@@ -7,8 +7,7 @@ import {
     type BlogContext,
 } from "@/app/api/admin/social-post/prompts";
 import { supabase } from "@/lib/supabase";
-
-const OPENAI_MODEL = process.env.SOCIAL_POST_OPENAI_MODEL ?? "gpt-4o";
+import { getSocialPostModel } from "@/lib/app-config";
 
 export interface GenerateSocialPostOptions {
     platform: SocialPlatform;
@@ -45,16 +44,16 @@ export async function generateSocialPost(
     }
 
     const openai = new OpenAI({ apiKey: openaiKey });
-    const examples = await getExamples(platform);
+    const [examples, model] = await Promise.all([getExamples(platform), getSocialPostModel()]);
     const systemPrompt = buildSystemPrompt(platform, examples);
     const userMessage = buildUserMessage(platform, blog);
 
     console.log(
-        `[social-post-service] Generating ${platform} post for: "${blog.title.slice(0, 60)}" (${examples.length} examples)`,
+        `[social-post-service] Generating ${platform} post for: "${blog.title.slice(0, 60)}" (${examples.length} examples) model: ${model}`,
     );
 
     const response = await openai.chat.completions.create({
-        model: OPENAI_MODEL,
+        model,
         messages: [
             { role: "system", content: systemPrompt },
             { role: "user", content: userMessage },
