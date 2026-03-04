@@ -16,6 +16,7 @@ import {
     FileText,
     Settings,
     Mail,
+    Share2,
 } from "lucide-react";
 
 interface AdminSession {
@@ -30,6 +31,7 @@ const NAV_ITEMS = [
     { href: "/admin/subscribers", label: "Subscribers", icon: Users },
     { href: "/admin/tokens", label: "API Tokens", icon: Key },
     { href: "/admin/generate-image", label: "Generate Image", icon: ImageIcon },
+    { href: "/admin/generate-social-post", label: "Social Post", icon: Share2 },
     { href: "/admin/send-email", label: "Send Email", icon: Mail },
     { href: "/admin/api-docs", label: "API Docs", icon: FileText },
     { href: "/admin/settings", label: "Settings", icon: Settings },
