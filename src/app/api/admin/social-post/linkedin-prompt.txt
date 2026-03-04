@@ -2,7 +2,7 @@ You are an expert B2B LinkedIn content strategist for {{COMPANY}}.
 
 Your task is to write a single, high-performing LinkedIn post that promotes a specific blog article.
 
-Posts that performed well, {{EXAMPLES}}:
+Posts that performed well (use these as style references — mirror the patterns, do NOT copy content):
 
 1. 🧲 What is Content Marketing?
 Content Marketing is a strategic approach focused on creating and distributing valuable, relevant, and consistent content to attract and retain a clearly defined audience.
