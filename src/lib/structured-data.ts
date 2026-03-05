@@ -211,6 +211,81 @@ export function breadcrumbSchema(items: { name: string; url: string }[]) {
     };
 }
 
+/* ── Schema.org AboutPage + Team (Person) ─────────────────── */
+export function aboutPageSchema() {
+    const team = [
+        { name: "Andrei Marin", jobTitle: "Co-founder & Solutions Architect" },
+        { name: "Radu Constantin", jobTitle: "Senior Full-Stack Engineer" },
+        { name: "Elena Popa", jobTitle: "Frontend Engineer" },
+        { name: "Mihai Ionescu", jobTitle: "Backend Engineer" },
+        { name: "Ana Dumitrescu", jobTitle: "AI & Automation Engineer" },
+        { name: "Bogdan Stanescu", jobTitle: "DevOps & CI/CD Engineer" },
+    ];
+
+    return {
+        "@context": "https://schema.org",
+        "@type": "AboutPage",
+        name: `About Us - ${SITE.name}`,
+        description:
+            "Learn about Dodera Software - who we are, what we build, our team of senior engineers, and how we engage with clients across web, mobile, AI, and automation projects.",
+        url: `${SITE.url}/about`,
+        isPartOf: {
+            "@type": "WebSite",
+            name: SITE.name,
+            url: SITE.url,
+        },
+        publisher: orgSnippet(),
+        about: {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: SITE.name,
+            legalName: SITE.legalName,
+            url: SITE.url,
+            logo: `${SITE.url}${SITE.logo}`,
+            email: SITE.email,
+            foundingDate: "2024",
+            description:
+                "Dodera Software is a Romanian software engineering company specialising in custom web applications, mobile apps, AI systems, and workflow automations. We serve startups and enterprises internationally, working per hour, per task, or per project.",
+            address: {
+                "@type": "PostalAddress",
+                addressCountry: "RO",
+                addressRegion: "Romania",
+            },
+            knowsAbout: [
+                "Software Development",
+                "AI Development",
+                "Web Applications",
+                "Mobile Development",
+                "CI/CD Pipelines",
+                "Cloud Infrastructure",
+                "Workflow Automation",
+                "SaaS Development",
+                "React",
+                "Next.js",
+                "Vue.js",
+                "Nuxt",
+                "Laravel",
+                ".NET",
+                "Node.js",
+                "TypeScript",
+                "Python",
+                "Docker",
+                "Kubernetes",
+            ],
+            employee: team.map((p) => ({
+                "@type": "Person",
+                name: p.name,
+                jobTitle: p.jobTitle,
+                worksFor: {
+                    "@type": "Organization",
+                    name: SITE.name,
+                    url: SITE.url,
+                },
+            })),
+        },
+    };
+}
+
 /** Schema.org FAQPage */
 export function faqSchema(questions: { question: string; answer: string }[]) {
     return {
