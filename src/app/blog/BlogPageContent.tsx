@@ -38,7 +38,8 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
                         className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl"
                     >
                         Engineering{" "}
-                        <span className="text-primary">Insights</span>
+                        <span className="text-primary">Insights</span>{" "}
+                        &amp; AI Development
                     </motion.h1>
                     <motion.p
                         variants={fadeInUp}
@@ -55,8 +56,14 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
             </section>
 
             {/* ── Posts Grid ───────────────────────────────── */}
-            <section aria-label="Blog posts" className="relative py-16">
+            <section aria-labelledby="posts-heading" className="relative py-16">
                 <div className="mx-auto max-w-6xl px-6">
+                    <h2
+                        id="posts-heading"
+                        className="mb-10 text-center text-2xl font-bold tracking-tight sm:text-3xl"
+                    >
+                        Latest Articles
+                    </h2>
                     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {posts.map((post, i) => (
                             <Link
@@ -98,9 +105,9 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
                                             </span>
                                         </div>
 
-                                        <h2 className="mb-3 text-lg font-bold leading-tight transition-colors group-hover:text-primary">
+                                        <h3 className="mb-3 text-lg font-bold leading-tight transition-colors group-hover:text-primary">
                                             {post.title}
-                                        </h2>
+                                        </h3>
 
                                         <p className="mb-4 flex-1 text-sm leading-relaxed text-muted-foreground">
                                             {post.excerpt}

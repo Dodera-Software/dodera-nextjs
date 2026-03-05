@@ -84,7 +84,7 @@ export function TestimonialsSection() {
                         id="testimonials-heading"
                         className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl"
                     >
-                        Testimonials
+                        What Our Clients Say
                     </h2>
                 </motion.div>
             </div>
