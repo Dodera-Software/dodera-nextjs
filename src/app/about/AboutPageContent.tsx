@@ -8,8 +8,8 @@ import {
     useTransform,
     useInView,
 } from "framer-motion";
-import { ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { Breadcrumb } from "@/components/Breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { SectionHeading } from "@/components/SectionHeading";
 import { ContactForm } from "@/components/ContactForm";
@@ -89,19 +89,7 @@ export function AboutPageContent() {
     return (
         <>
             {/* ── Breadcrumb ──────────────────────────────────────────────── */}
-            <nav aria-label="Breadcrumb" className="mx-auto max-w-7xl px-6 pt-24 pb-4">
-                <ol className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                    <li>
-                        <Link href="/" className="transition-colors hover:text-foreground">
-                            Home
-                        </Link>
-                    </li>
-                    <li aria-hidden="true"><ChevronRight className="size-3.5" /></li>
-                    <li aria-current="page" className="font-medium text-foreground">
-                        About Us
-                    </li>
-                </ol>
-            </nav>
+            <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "About Us" }]} />
 
             {/* ── Hero ────────────────────────────────────────────────────── */}
             <section aria-labelledby="about-hero-heading" className="relative pb-24 pt-8">

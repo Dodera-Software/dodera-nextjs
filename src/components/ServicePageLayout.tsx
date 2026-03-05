@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, ChevronRight, Bot, Workflow, Rocket, Building2, Cloud, BookOpen, Globe } from "lucide-react";
+import { ArrowRight, Bot, Workflow, Rocket, Building2, Cloud, BookOpen, Globe } from "lucide-react";
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import { fadeInUp, fadeInUpLg, viewportOnce, stagger } from "@/lib/animations";
 import type { ServicePageData } from "@/types";
 import { SERVICE_PAGES } from "@/config/services";
 import { N8nIcon } from "@/components/icons/N8nIcon";
+import { Breadcrumb, BreadcrumbItem } from "@/components/Breadcrumb";
 
 /** Map string names → icon components to keep config serialisable */
 const ICON_MAP: Record<string, LucideIcon | React.ComponentType<{ className?: string }>> = {
@@ -50,42 +51,20 @@ export function ServicePageLayout({ data }: ServicePageLayoutProps) {
     return (
         <>
             {/* ── Breadcrumb ──────────────────────────────────── */}
-            <nav aria-label="Breadcrumb" className="mx-auto max-w-7xl px-6 pt-24 pb-4">
-                <ol className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                    <li>
-                        <Link href="/" className="transition-colors hover:text-foreground">
-                            Home
-                        </Link>
-                    </li>
-                    <ChevronRight className="size-3.5" />
-                    <li>
-                        <Link href="/#services" className="transition-colors hover:text-foreground">
-                            Services
-                        </Link>
-                    </li>
-                    {data.parentSlug &&
-                        (() => {
-                            const parent = SERVICE_PAGES[data.parentSlug!];
-                            return parent ? (
-                                <>
-                                    <ChevronRight className="size-3.5" />
-                                    <li>
-                                        <Link
-                                            href={`/services/${data.parentSlug}`}
-                                            className="transition-colors hover:text-foreground"
-                                        >
-                                            {parent.heroLabel}
-                                        </Link>
-                                    </li>
-                                </>
-                            ) : null;
-                        })()}
-                    <ChevronRight className="size-3.5" />
-                    <li aria-current="page" className="font-medium text-foreground">
-                        {data.heroLabel}
-                    </li>
-                </ol>
-            </nav>
+            {(() => {
+                const crumbs: BreadcrumbItem[] = [
+                    { label: "Home", href: "/" },
+                    { label: "Services", href: "/#services" },
+                ];
+                if (data.parentSlug) {
+                    const parent = SERVICE_PAGES[data.parentSlug];
+                    if (parent) {
+                        crumbs.push({ label: parent.heroLabel, href: `/services/${data.parentSlug}` });
+                    }
+                }
+                crumbs.push({ label: data.heroLabel });
+                return <Breadcrumb items={crumbs} />;
+            })()}
 
             {/* ── Hero ────────────────────────────────────────── */}
             <section aria-label="Service overview" className="relative pb-20 pt-8">
