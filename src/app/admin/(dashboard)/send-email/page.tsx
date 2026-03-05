@@ -364,14 +364,20 @@ export default function SendEmailPage() {
 
             if (data.status === "success") {
                 const r = data.data as SendResult;
-                const description = `${r.accepted} / ${r.totalRecipients} delivered${r.rejected > 0 ? `, ${r.rejected} rejected` : ""
-                    }`;
-                toast.success("Email sent!", { description });
-                // Reset editor
-                editor.commands.setContent("");
-                setSubject("");
-                setAttachments([]);
-                if (recipientMode === "custom") setCustomEmails("");
+                if (r.accepted === 0) {
+                    // All emails failed — surface the SMTP error
+                    const detail = r.errors[0] ?? "SMTP rejected all recipients.";
+                    toast.error("Failed to send email.", { description: detail });
+                } else {
+                    const description = `${r.accepted} / ${r.totalRecipients} delivered${r.rejected > 0 ? `, ${r.rejected} rejected` : ""
+                        }`;
+                    toast.success("Email sent!", { description });
+                    // Reset editor
+                    editor.commands.setContent("");
+                    setSubject("");
+                    setAttachments([]);
+                    if (recipientMode === "custom") setCustomEmails("");
+                }
             } else {
                 toast.error(data.message ?? "Failed to send.");
             }
