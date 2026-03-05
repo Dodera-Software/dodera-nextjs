@@ -59,7 +59,7 @@ export async function generateSocialPost(
             { role: "user", content: userMessage },
         ],
         temperature: 0.8,
-        max_tokens: 1200,
+        max_completion_tokens: 1200,
     });
 
     const post = response.choices?.[0]?.message?.content?.trim();

@@ -5,13 +5,7 @@ import { Settings, Loader2, Save, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-
-interface ConfigRow {
-    key: string;
-    value: string;
-    description: string | null;
-    updated_at: string;
-}
+import type { ConfigRow } from "@/types/admin";
 
 export default function SettingsPage() {
     const [rows, setRows] = useState<ConfigRow[]>([]);

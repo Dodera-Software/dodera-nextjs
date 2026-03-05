@@ -21,16 +21,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-
-interface HistoryItem {
-    id: number;
-    prompt: string;
-    size: string;
-    model: string;
-    url?: string;
-    error?: string;
-    loading: boolean;
-}
+import type { ImageHistoryItem as HistoryItem } from "@/types/admin";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 
 const AI_MODELS: { value: string; label: string }[] = [
     { value: "dall-e-3", label: "DALL·E 3" },
@@ -132,13 +124,10 @@ export default function GenerateImagePage() {
 
     return (
         <div className="flex flex-col gap-6">
-            {/* Header */}
-            <div>
-                <h1 className="text-2xl font-bold tracking-tight">Generate Image</h1>
-                <p className="text-sm text-muted-foreground mt-1">
-                    Generate images from a text prompt using OpenAI image models
-                </p>
-            </div>
+            <AdminPageHeader
+                title="Generate Image"
+                subtitle="Generate images from a text prompt using OpenAI image models"
+            />
 
             {/* Main card */}
             <div className={`rounded-xl border border-border bg-card overflow-hidden flex flex-col ${history.length > 0 ? "min-h-[calc(100vh-12rem)]" : ""}`}>

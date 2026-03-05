@@ -14,15 +14,6 @@ import {
     X,
     Users,
     UserCheck,
-    AlignLeft,
-    AlignCenter,
-    AlignRight,
-    AlignJustify,
-    List,
-    ListOrdered,
-    Link as LinkIcon,
-    Undo,
-    Redo,
     AlertCircle,
     WifiIcon,
     BookOpen,
@@ -35,163 +26,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useConfirm } from "@/hooks/use-confirm";
 import { toast } from "sonner";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-interface BlogPostSummary {
-    slug: string;
-    title: string;
-    excerpt: string;
-    date: string;
-    category: string;
-    image: string | null;
-}
-
-interface AttachedFile {
-    file: File;
-    id: string;
-}
-
-interface SendResult {
-    totalRecipients: number;
-    accepted: number;
-    rejected: number;
-    errors: string[];
-}
-
-// ─── Toolbar ──────────────────────────────────────────────────────────────────
-
-function ToolbarButton({
-    active,
-    disabled,
-    onClick,
-    title,
-    children,
-}: {
-    active?: boolean;
-    disabled?: boolean;
-    onClick: () => void;
-    title: string;
-    children: React.ReactNode;
-}) {
-    return (
-        <button
-            type="button"
-            title={title}
-            disabled={disabled}
-            onClick={onClick}
-            className={`w-8 h-8 flex items-center justify-center rounded transition-colors disabled:opacity-40 ${active
-                ? "bg-accent text-foreground font-semibold"
-                : "text-muted-foreground hover:text-foreground hover:bg-accent"
-                }`}
-        >
-            {children}
-        </button>
-    );
-}
-
-function ToolbarDivider() {
-    return <div className="w-px h-6 bg-border mx-1" />;
-}
-
-function EditorToolbar({ editor }: { editor: Editor | null }) {
-    const setLink = useCallback(() => {
-        if (!editor) return;
-        const prev = editor.getAttributes("link").href as string | undefined;
-        const url = window.prompt("URL", prev ?? "https://");
-        if (url === null) return;
-        if (!url) {
-            editor.chain().focus().extendMarkRange("link").unsetLink().run();
-            return;
-        }
-        editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
-    }, [editor]);
-
-    if (!editor) return null;
-
-    return (
-        <div className="flex flex-wrap items-center gap-0.5 p-2 border-b border-border bg-muted/40">
-            {/* History */}
-            <ToolbarButton title="Undo" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()}>
-                <Undo className="w-[18px] h-[18px]" />
-            </ToolbarButton>
-            <ToolbarButton title="Redo" onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()}>
-                <Redo className="w-[18px] h-[18px]" />
-            </ToolbarButton>
-
-            <ToolbarDivider />
-
-            {/* Headings + paragraph */}
-            <ToolbarButton title="Paragraph" active={editor.isActive("paragraph")} onClick={() => editor.chain().focus().setParagraph().run()}>
-                <span className="text-sm font-semibold leading-none">P</span>
-            </ToolbarButton>
-            <ToolbarButton title="Heading 1" active={editor.isActive("heading", { level: 1 })} onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}>
-                <span className="text-sm font-semibold leading-none">H1</span>
-            </ToolbarButton>
-            <ToolbarButton title="Heading 2" active={editor.isActive("heading", { level: 2 })} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}>
-                <span className="text-sm font-semibold leading-none">H2</span>
-            </ToolbarButton>
-            <ToolbarButton title="Heading 3" active={editor.isActive("heading", { level: 3 })} onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}>
-                <span className="text-sm font-semibold leading-none">H3</span>
-            </ToolbarButton>
-
-            <ToolbarDivider />
-
-            {/* Inline marks */}
-            <ToolbarButton title="Bold" active={editor.isActive("bold")} onClick={() => editor.chain().focus().toggleBold().run()}>
-                <span className="text-sm font-bold leading-none">B</span>
-            </ToolbarButton>
-            <ToolbarButton title="Italic" active={editor.isActive("italic")} onClick={() => editor.chain().focus().toggleItalic().run()}>
-                <span className="text-sm italic leading-none">I</span>
-            </ToolbarButton>
-            <ToolbarButton title="Underline" active={editor.isActive("underline")} onClick={() => editor.chain().focus().toggleUnderline().run()}>
-                <span className="text-sm underline leading-none">U</span>
-            </ToolbarButton>
-            <ToolbarButton title="Strikethrough" active={editor.isActive("strike")} onClick={() => editor.chain().focus().toggleStrike().run()}>
-                <span className="text-sm line-through leading-none">S</span>
-            </ToolbarButton>
-            <ToolbarButton title="Inline code" active={editor.isActive("code")} onClick={() => editor.chain().focus().toggleCode().run()}>
-                <span className="text-sm font-mono leading-none">&lt;/&gt;</span>
-            </ToolbarButton>
-
-            <ToolbarDivider />
-
-            {/* Alignment */}
-            <ToolbarButton title="Align left" active={editor.isActive({ textAlign: "left" })} onClick={() => editor.chain().focus().setTextAlign("left").run()}>
-                <AlignLeft className="w-[18px] h-[18px]" />
-            </ToolbarButton>
-            <ToolbarButton title="Align center" active={editor.isActive({ textAlign: "center" })} onClick={() => editor.chain().focus().setTextAlign("center").run()}>
-                <AlignCenter className="w-[18px] h-[18px]" />
-            </ToolbarButton>
-            <ToolbarButton title="Align right" active={editor.isActive({ textAlign: "right" })} onClick={() => editor.chain().focus().setTextAlign("right").run()}>
-                <AlignRight className="w-[18px] h-[18px]" />
-            </ToolbarButton>
-            <ToolbarButton title="Justify" active={editor.isActive({ textAlign: "justify" })} onClick={() => editor.chain().focus().setTextAlign("justify").run()}>
-                <AlignJustify className="w-[18px] h-[18px]" />
-            </ToolbarButton>
-
-            <ToolbarDivider />
-
-            {/* Lists */}
-            <ToolbarButton title="Bullet list" active={editor.isActive("bulletList")} onClick={() => editor.chain().focus().toggleBulletList().run()}>
-                <List className="w-[18px] h-[18px]" />
-            </ToolbarButton>
-            <ToolbarButton title="Ordered list" active={editor.isActive("orderedList")} onClick={() => editor.chain().focus().toggleOrderedList().run()}>
-                <ListOrdered className="w-[18px] h-[18px]" />
-            </ToolbarButton>
-
-            <ToolbarDivider />
-
-            {/* Link */}
-            <ToolbarButton title="Set link" active={editor.isActive("link")} onClick={setLink}>
-                <LinkIcon className="w-[18px] h-[18px]" />
-            </ToolbarButton>
-
-        </div>
-    );
-}
-
-// ─── Main Page ────────────────────────────────────────────────────────────────
+import type { BlogPostSummary, AttachedFile, BulkSendResult } from "@/types/admin";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { EditorToolbar } from "./EditorToolbar";
 
 export default function SendEmailPage() {
     const [recipientMode, setRecipientMode] = useState<"all" | "custom">("all");
@@ -363,7 +200,7 @@ export default function SendEmailPage() {
             const data = await res.json();
 
             if (data.status === "success") {
-                const r = data.data as SendResult;
+                const r = data.data as BulkSendResult;
                 const description = `${r.accepted} / ${r.totalRecipients} delivered${r.rejected > 0 ? `, ${r.rejected} rejected` : ""
                     }`;
                 toast.success("Email sent!", { description });
@@ -391,41 +228,36 @@ export default function SendEmailPage() {
 
     return (
         <div className="space-y-6">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold">Send Email</h1>
-                    <p className="text-muted-foreground text-sm mt-1">
-                        Compose and send rich HTML emails to subscribers
-                    </p>
-                </div>
-
-                {/* SMTP Status */}
-                <div className="flex items-center gap-2">
-                    {smtpStatus === "checking" && (
-                        <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                            Checking SMTP…
-                        </span>
-                    )}
-                    {smtpStatus === "ok" && (
-                        <span className="flex items-center gap-1.5 text-xs text-emerald-500">
-                            <WifiIcon className="w-3.5 h-3.5" />
-                            SMTP connected
-                        </span>
-                    )}
-                    {smtpStatus === "fail" && (
-                        <span
-                            className="flex items-center gap-1.5 text-xs text-destructive cursor-pointer"
-                            title={smtpError ?? ""}
-                            onClick={checkSmtp}
-                        >
-                            <AlertCircle className="w-3.5 h-3.5" />
-                            SMTP error – retry
-                        </span>
-                    )}
-                </div>
-            </div>
+            <AdminPageHeader
+                title="Send Email"
+                subtitle="Compose and send rich HTML emails to subscribers"
+                actions={
+                    <div className="flex items-center gap-2">
+                        {smtpStatus === "checking" && (
+                            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                Checking SMTP…
+                            </span>
+                        )}
+                        {smtpStatus === "ok" && (
+                            <span className="flex items-center gap-1.5 text-xs text-emerald-500">
+                                <WifiIcon className="w-3.5 h-3.5" />
+                                SMTP connected
+                            </span>
+                        )}
+                        {smtpStatus === "fail" && (
+                            <span
+                                className="flex items-center gap-1.5 text-xs text-destructive cursor-pointer"
+                                title={smtpError ?? ""}
+                                onClick={checkSmtp}
+                            >
+                                <AlertCircle className="w-3.5 h-3.5" />
+                                SMTP error – retry
+                            </span>
+                        )}
+                    </div>
+                }
+            />
 
             {/* Compose form */}
             <form onSubmit={handleSend} className="space-y-5">

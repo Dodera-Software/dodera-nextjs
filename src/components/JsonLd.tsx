@@ -3,7 +3,7 @@
  * Can be used in Server Components (no "use client" needed).
  */
 
-interface JsonLdProps {
+export interface JsonLdProps {
     data: Record<string, unknown> | Record<string, unknown>[];
 }
 

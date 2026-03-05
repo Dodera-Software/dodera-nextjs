@@ -19,14 +19,9 @@ import {
     Mail,
     Share2,
 } from "lucide-react";
+import type { AdminSession, AdminNavItem } from "@/types/admin";
 
-interface AdminSession {
-    id: number;
-    email: string;
-    name: string;
-}
-
-const NAV_ITEMS = [
+const NAV_ITEMS: AdminNavItem[] = [
     { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
     { href: "/admin/contacts", label: "Contacts", icon: MessageSquare },
     { href: "/admin/subscribers", label: "Subscribers", icon: Users },

@@ -6,7 +6,8 @@ import { ChevronDown, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
-import { SERVICES, NAV_LINKS, SOCIAL_LINKS } from "@/config/site";
+import { SocialIconList } from "@/components/SocialIconList";
+import { SERVICES, NAV_LINKS } from "@/config/site";
 
 export function Navbar() {
     const [megaOpen, setMegaOpen] = useState(false);
@@ -76,21 +77,7 @@ export function Navbar() {
                         </Link>
                     ))}
 
-                    {/* Social Media Icons */}
-                    <div className="flex items-center gap-2">
-                        {SOCIAL_LINKS.map((social) => (
-                            <a
-                                key={social.label}
-                                href={social.href}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                aria-label={social.label}
-                                className="flex size-8 items-center justify-center rounded-md border border-border bg-muted/50 transition-all hover:border-border hover:bg-muted"
-                            >
-                                <social.icon className="size-4 text-muted-foreground transition-colors hover:text-foreground" />
-                            </a>
-                        ))}
-                    </div>
+                    <SocialIconList size="sm" />
 
                     <Button size="sm" asChild>
                         <Link href="/#contact">Get Started</Link>
@@ -210,19 +197,8 @@ export function Navbar() {
                             </div>
 
                             {/* Social Media Icons - Mobile */}
-                            <div className="flex justify-center gap-3 pt-4">
-                                {SOCIAL_LINKS.map((social) => (
-                                    <a
-                                        key={social.label}
-                                        href={social.href}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        aria-label={social.label}
-                                        className="flex size-9 items-center justify-center rounded-md border border-border bg-muted/50 transition-all hover:bg-muted"
-                                    >
-                                        <social.icon className="size-4 text-muted-foreground" />
-                                    </a>
-                                ))}
+                            <div className="flex justify-center pt-4">
+                                <SocialIconList />
                             </div>
                         </div>
                     </motion.div>

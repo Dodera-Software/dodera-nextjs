@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-interface LogoProps {
+export interface LogoProps {
     className?: string;
 }
 

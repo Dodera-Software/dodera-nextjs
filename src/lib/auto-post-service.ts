@@ -21,7 +21,7 @@ export interface AutoPostOptions {
     saveToPrismic?: boolean;
 }
 
-export interface AutoPostResult {
+export interface AutoPostServiceResult {
     status: "success" | "error";
     message: string;
     uid?: string;
@@ -72,7 +72,7 @@ function textToRichText(text: string): prismic.RichTextField {
 
 /* ── Main service function ───────────────────────────────────── */
 
-export async function autoPost(options: AutoPostOptions = {}): Promise<AutoPostResult> {
+export async function autoPost(options: AutoPostOptions = {}): Promise<AutoPostServiceResult> {
     const {
         publish = false,
         authorName = "Dodera Team",
