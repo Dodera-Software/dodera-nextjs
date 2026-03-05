@@ -3,13 +3,16 @@
 export const SITE = {
     name: "Dodera Software",
     legalName: "Dodera Software S.R.L.",
-    tagline: "Mission-Critical Software & AI Development",
+    tagline: "Reliable Software & AI Development",
     url: "https://doderasoft.com",
     locale: "en_US",
     themeColor: "#e1432b",
     email: "office@doderasoft.com",
-    phone: "",
+    phone: "0748 650 469",
     address: {
+        street: "Strada Banat 1",
+        city: "Satu Mare",
+        postalCode: "440043",
         country: "Romania",
         region: "International",
     },
@@ -28,7 +31,7 @@ export const SITE = {
 export const DEFAULT_META = {
     title: `${SITE.name} - ${SITE.tagline}`,
     description:
-        "We build mission-critical applications, AI agents, and scalable infrastructure for companies that can't afford downtime. Based in Romania, serving clients internationally.",
+        "We build web applications, presentation websites, AI systems and workflow automations for companies of all sizes. Based in Romania, serving clients globally.",
     keywords: [
         "software development",
         "AI development",
