@@ -33,7 +33,7 @@ function resolveIcon(name: string) {
     return ICON_MAP[name] ?? Bot;
 }
 
-interface ServicePageLayoutProps {
+export interface ServicePageLayoutProps {
     data: ServicePageData;
 }
 

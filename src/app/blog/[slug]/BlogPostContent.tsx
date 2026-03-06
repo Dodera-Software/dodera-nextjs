@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import type { BlogPost } from "@/types";
 import { fadeInUp, fadeInUpLg } from "@/lib/animations";
 
-interface BlogPostContentProps {
+export interface BlogPostContentProps {
     post: BlogPost;
 }
 

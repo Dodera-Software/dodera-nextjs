@@ -5,8 +5,6 @@ import {
     Search,
     Trash2,
     Loader2,
-    ChevronLeft,
-    ChevronRight,
     MessageSquare,
     RefreshCw,
     ChevronDown,
@@ -17,23 +15,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useConfirm } from "@/hooks/use-confirm";
 import { toast } from "sonner";
-
-interface Contact {
-    id: number;
-    name: string;
-    email: string;
-    company: string | null;
-    phone: string | null;
-    message: string;
-    created_at: string;
-}
-
-interface Pagination {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-}
+import type { Contact, Pagination } from "@/types/admin";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { AdminPagination } from "@/components/admin/AdminPagination";
+import { formatDateShort, formatDateISO } from "@/lib/format";
 
 export default function ContactsPage() {
     const [contacts, setContacts] = useState<Contact[]>([]);
@@ -146,7 +131,7 @@ export default function ContactsPage() {
                         escape(c.company),
                         escape(c.phone),
                         escape(c.message),
-                        new Date(c.created_at).toISOString(),
+                        formatDateISO(c.created_at),
                     ].join(","),
                 ),
             ].join("\n");
@@ -168,38 +153,35 @@ export default function ContactsPage() {
 
     return (
         <div className="space-y-6">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight">Contacts</h1>
-                    <p className="text-sm text-muted-foreground mt-1">
-                        {pagination.total} total contact submission{pagination.total !== 1 ? "s" : ""}
-                    </p>
-                </div>
-                <div className="flex gap-2">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleExportCSV}
-                        disabled={exporting || pagination.total === 0}
-                    >
-                        {exporting ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                            <Download className="w-4 h-4" />
-                        )}
-                        Export CSV
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => fetchContacts(pagination.page)}
-                    >
-                        <RefreshCw className="w-4 h-4" />
-                        Refresh
-                    </Button>
-                </div>
-            </div>
+            <AdminPageHeader
+                title="Contacts"
+                subtitle={`${pagination.total} total contact submission${pagination.total !== 1 ? "s" : ""}`}
+                actions={
+                    <>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleExportCSV}
+                            disabled={exporting || pagination.total === 0}
+                        >
+                            {exporting ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                                <Download className="w-4 h-4" />
+                            )}
+                            Export CSV
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => fetchContacts(pagination.page)}
+                        >
+                            <RefreshCw className="w-4 h-4" />
+                            Refresh
+                        </Button>
+                    </>
+                }
+            />
 
             {/* Search */}
             <form onSubmit={handleSearch} className="flex gap-2">
@@ -301,14 +283,7 @@ export default function ContactsPage() {
                                                 )}
                                             </td>
                                             <td className="px-4 py-3 text-muted-foreground hidden sm:table-cell whitespace-nowrap">
-                                                {new Date(contact.created_at).toLocaleDateString(
-                                                    "en-US",
-                                                    {
-                                                        year: "numeric",
-                                                        month: "short",
-                                                        day: "numeric",
-                                                    },
-                                                )}
+                                                {formatDateShort(contact.created_at)}
                                             </td>
                                             <td
                                                 className="px-4 py-3 text-right"
@@ -354,34 +329,10 @@ export default function ContactsPage() {
                 </div>
             </div>
 
-            {/* Pagination */}
-            {pagination.totalPages > 1 && (
-                <div className="flex items-center justify-between">
-                    <p className="text-sm text-muted-foreground">
-                        Page {pagination.page} of {pagination.totalPages}
-                    </p>
-                    <div className="flex gap-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => fetchContacts(pagination.page - 1)}
-                            disabled={pagination.page <= 1 || loading}
-                        >
-                            <ChevronLeft className="w-4 h-4" />
-                            Previous
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => fetchContacts(pagination.page + 1)}
-                            disabled={pagination.page >= pagination.totalPages || loading}
-                        >
-                            Next
-                            <ChevronRight className="w-4 h-4" />
-                        </Button>
-                    </div>
-                </div>
-            )}
+            <AdminPagination
+                pagination={pagination}
+                onPageChange={(page) => fetchContacts(page)}
+            />
 
         </div>
     );

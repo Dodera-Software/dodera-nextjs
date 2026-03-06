@@ -1,5 +1,6 @@
 import "server-only";
 import { supabase } from "@/lib/supabase";
+import type { ConfigRow } from "@/types/admin";
 
 /* ── In-memory cache (best-effort on serverless) ─────────── */
 
@@ -59,13 +60,6 @@ export async function getAllConfig(): Promise<Record<string, string>> {
 /**
  * Read all config rows with metadata (for the admin UI).
  */
-export interface ConfigRow {
-    key: string;
-    value: string;
-    description: string | null;
-    updated_at: string;
-}
-
 export async function getAllConfigRows(): Promise<ConfigRow[]> {
     const { data, error } = await supabase
         .from("app_config")

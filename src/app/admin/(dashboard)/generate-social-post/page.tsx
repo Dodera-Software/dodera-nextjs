@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import {
@@ -24,30 +24,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { PLATFORMS, getPlatformShareUrl, type SocialPlatform } from "./platforms";
+import type { SocialBlogPost } from "@/types/admin";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 
 /* ── Types ─────────────────────────────────────────────────── */
 
-interface BlogPost {
-    slug: string;
-    title: string;
-    excerpt: string;
-    category: string;
-    date: string | null;
-    read_time: string;
-    tags: string[];
-    url: string;
-    image: string | null;
-    body_plain: string;
-}
-
-interface GeneratedItem {
+export interface GeneratedItem {
     platform: SocialPlatform;
     post: string;
     loading: boolean;
     error?: string;
 }
 
-interface ExampleItem {
+export interface ExampleItem {
     id: number;
     content: string;
 }
@@ -56,13 +45,13 @@ interface ExampleItem {
 
 export default function GenerateSocialPostPage() {
     /* posts */
-    const [posts, setPosts] = useState<BlogPost[]>([]);
+    const [posts, setPosts] = useState<SocialBlogPost[]>([]);
     const [postsLoading, setPostsLoading] = useState(true);
     const [postsError, setPostsError] = useState<string | null>(null);
     const [search, setSearch] = useState("");
 
     /* selection */
-    const [selected, setSelected] = useState<BlogPost | null>(null);
+    const [selected, setSelected] = useState<SocialBlogPost | null>(null);
 
     /* generation */
     const [activePlatform, setActivePlatform] = useState<SocialPlatform | null>(null);
@@ -285,13 +274,10 @@ export default function GenerateSocialPostPage() {
 
     return (
         <div className="flex flex-col gap-6">
-            {/* Header */}
-            <div>
-                <h1 className="text-2xl font-bold tracking-tight">Generate Social Post</h1>
-                <p className="text-sm text-muted-foreground mt-1">
-                    Select a published blog post and generate platform-ready social content with AI
-                </p>
-            </div>
+            <AdminPageHeader
+                title="Generate Social Post"
+                subtitle="Select a published blog post and generate platform-ready social content with AI"
+            />
 
             <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-6 items-start">
 

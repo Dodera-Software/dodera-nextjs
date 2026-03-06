@@ -8,8 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { BlogPost } from "@/types";
 import { fadeInUp, fadeInUpLg, viewportOnce, stagger } from "@/lib/animations";
+import { formatDateShort } from "@/lib/format";
 
-interface BlogPageContentProps {
+export interface BlogPageContentProps {
     posts: BlogPost[];
 }
 
@@ -131,11 +132,7 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
                                                 className="flex items-center gap-1.5 text-xs text-muted-foreground"
                                             >
                                                 <Calendar className="size-3" />
-                                                {new Date(post.date).toLocaleDateString("en-US", {
-                                                    year: "numeric",
-                                                    month: "short",
-                                                    day: "numeric",
-                                                })}
+                                                {formatDateShort(post.date)}
                                             </time>
                                             <span className="inline-flex items-center gap-1 text-xs font-medium text-primary transition-colors">
                                                 Read More

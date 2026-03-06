@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import {
@@ -16,8 +16,6 @@ import {
     AlertTriangle,
     Pencil,
     MoreHorizontal,
-    ChevronLeft,
-    ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,22 +30,10 @@ import {
 } from "@/components/ui/dialog";
 import { useConfirm } from "@/hooks/use-confirm";
 import { toast } from "sonner";
-
-interface Token {
-    id: number;
-    name: string;
-    created_at: string;
-    expires_at: string | null;
-    revoked_at: string | null;
-    last_used_at: string | null;
-}
-
-interface Pagination {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-}
+import type { ApiToken as Token, Pagination } from "@/types/admin";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { AdminPagination } from "@/components/admin/AdminPagination";
+import { formatDateTime } from "@/lib/format";
 
 export default function TokensPage() {
     const [tokens, setTokens] = useState<Token[]>([]);
@@ -291,40 +277,46 @@ export default function TokensPage() {
         };
     }
 
-    function formatDate(dateStr: string | null) {
-        if (!dateStr) return "—";
-        return new Date(dateStr).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-        });
+    function getTokenStatus(token: Token) {
+        if (token.revoked_at) {
+            return {
+                label: "Revoked",
+                className: "bg-destructive/10 text-destructive",
+                icon: Ban,
+            };
+        }
+        if (token.expires_at && new Date(token.expires_at) < new Date()) {
+            return {
+                label: "Expired",
+                className: "bg-amber-500/10 text-amber-500",
+                icon: AlertTriangle,
+            };
+        }
+        return {
+            label: "Active",
+            className: "bg-emerald-500/10 text-emerald-500",
+            icon: Shield,
+        };
     }
 
     return (
         <div className="space-y-6">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight">
-                        API Tokens
-                    </h1>
-                    <p className="text-sm text-muted-foreground mt-1">
-                        {pagination.total} token{pagination.total !== 1 ? "s" : ""} &mdash; manage bearer tokens for API access
-                    </p>
-                </div>
-                <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => fetchTokens(pagination.page)}>
-                        <RefreshCw className="w-4 h-4" />
-                        Refresh
-                    </Button>
-                    <Button size="sm" onClick={() => setShowCreateModal(true)}>
-                        <Plus className="w-4 h-4" />
-                        Generate Token
-                    </Button>
-                </div>
-            </div>
+            <AdminPageHeader
+                title="API Tokens"
+                subtitle={`${pagination.total} token${pagination.total !== 1 ? "s" : ""} \u2014 manage bearer tokens for API access`}
+                actions={
+                    <>
+                        <Button variant="outline" size="sm" onClick={() => fetchTokens(pagination.page)}>
+                            <RefreshCw className="w-4 h-4" />
+                            Refresh
+                        </Button>
+                        <Button size="sm" onClick={() => setShowCreateModal(true)}>
+                            <Plus className="w-4 h-4" />
+                            Generate Token
+                        </Button>
+                    </>
+                }
+            />
 
             {/* Tokens Table */}
             <div className="rounded-xl border border-border overflow-hidden">
@@ -437,13 +429,13 @@ export default function TokensPage() {
                                                 </span>
                                             </td>
                                             <td className="px-4 py-3 text-muted-foreground text-xs">
-                                                {formatDate(token.created_at)}
+                                                {formatDateTime(token.created_at)}
                                             </td>
                                             <td className="px-4 py-3 text-muted-foreground text-xs">
-                                                {formatDate(token.expires_at)}
+                                                {formatDateTime(token.expires_at)}
                                             </td>
                                             <td className="px-4 py-3 text-muted-foreground text-xs">
-                                                {formatDate(token.last_used_at)}
+                                                {formatDateTime(token.last_used_at)}
                                             </td>
                                             <td className="px-4 py-3 text-right">
                                                 {actionLoading === token.id ? (
@@ -470,34 +462,10 @@ export default function TokensPage() {
                 </div>
             </div>
 
-            {/* Pagination */}
-            {pagination.totalPages > 1 && (
-                <div className="flex items-center justify-between">
-                    <p className="text-sm text-muted-foreground">
-                        Page {pagination.page} of {pagination.totalPages}
-                    </p>
-                    <div className="flex gap-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => fetchTokens(pagination.page - 1)}
-                            disabled={pagination.page <= 1 || loading}
-                        >
-                            <ChevronLeft className="w-4 h-4" />
-                            Previous
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => fetchTokens(pagination.page + 1)}
-                            disabled={pagination.page >= pagination.totalPages || loading}
-                        >
-                            Next
-                            <ChevronRight className="w-4 h-4" />
-                        </Button>
-                    </div>
-                </div>
-            )}
+            <AdminPagination
+                pagination={pagination}
+                onPageChange={(page) => fetchTokens(page)}
+            />
 
             {/* Create Token Dialog */}
             <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>

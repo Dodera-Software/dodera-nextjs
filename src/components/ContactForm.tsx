@@ -5,20 +5,10 @@ import { Send, User, Mail, MessageSquare, Building, Phone, AlertCircle } from "l
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { FieldError } from "@/components/ui/field-error";
+import { EMAIL_RE, NAME_RE, PHONE_RE, DANGEROUS_RE, CONTACT_LIMITS } from "@/lib/validation";
 
-/* ── Validation constants ─────────────────────────────────── */
-const LIMITS = {
-    name: { min: 2, max: 80 },
-    email: { max: 254 },
-    company: { max: 120 },
-    phone: { max: 20 },
-    message: { min: 10, max: 2000 },
-} as const;
-
-const EMAIL_RE = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
-const NAME_RE = /^[\p{L}\s'\-]+$/u;
-const PHONE_RE = /^[+]?[\d\s()-]{7,20}$/;
-const DANGEROUS_RE = /<[^>]*>|javascript:|on\w+\s*=|<script|<\/script|&#|%3C|%3E/i;
+const LIMITS = CONTACT_LIMITS;
 
 /* ── Sanitiser ────────────────────────────────────────────── */
 function sanitise(value: string): string {
@@ -32,7 +22,7 @@ function sanitise(value: string): string {
 }
 
 /* ── Per-field validation ─────────────────────────────────── */
-interface FieldErrors {
+export interface FieldErrors {
     name?: string;
     email?: string;
     company?: string;
@@ -155,13 +145,6 @@ export function ContactForm() {
         );
     }
 
-    const fieldErr = (msg?: string) =>
-        msg ? (
-            <p className="flex items-center gap-1 text-xs text-red-600 mt-1">
-                <AlertCircle className="size-3 shrink-0" /> {msg}
-            </p>
-        ) : null;
-
     return (
         <form
             onSubmit={handleSubmit}
@@ -192,7 +175,7 @@ export function ContactForm() {
                         aria-invalid={!!errors.name}
                         className="border-input"
                     />
-                    {fieldErr(errors.name)}
+                    <FieldError message={errors.name} />
                 </div>
                 <div className="space-y-2">
                     <label htmlFor="contact-email" className="flex items-center gap-2 text-sm font-medium">
@@ -210,7 +193,7 @@ export function ContactForm() {
                         aria-invalid={!!errors.email}
                         className="border-input"
                     />
-                    {fieldErr(errors.email)}
+                    <FieldError message={errors.email} />
                 </div>
             </div>
 
@@ -229,7 +212,7 @@ export function ContactForm() {
                         aria-invalid={!!errors.company}
                         className="border-input"
                     />
-                    {fieldErr(errors.company)}
+                    <FieldError message={errors.company} />
                 </div>
                 <div className="space-y-2">
                     <label htmlFor="contact-phone" className="flex items-center gap-2 text-sm font-medium">
@@ -247,7 +230,7 @@ export function ContactForm() {
                         aria-invalid={!!errors.phone}
                         className="border-input"
                     />
-                    {fieldErr(errors.phone)}
+                    <FieldError message={errors.phone} />
                 </div>
             </div>
 
@@ -274,7 +257,7 @@ export function ContactForm() {
                     aria-invalid={!!errors.message}
                     className="resize-none border-input"
                 />
-                {fieldErr(errors.message)}
+                <FieldError message={errors.message} />
             </div>
 
             <Button type="submit" size="lg" className="w-full" disabled={submitting}>
