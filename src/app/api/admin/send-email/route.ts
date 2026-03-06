@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAdminSession } from "@/lib/admin-auth";
 import { supabase } from "@/lib/supabase";
-import { sendEmail, verifySmtp } from "@/lib/email-service";
+import { sendEmail, verifySmtp, buildSubscriberEmail } from "@/lib/email-service";
 
 // ── POST /api/admin/send-email ─────────────────────────────
 // Body: multipart/form-data
@@ -96,16 +96,25 @@ export async function POST(request: NextRequest) {
 
         const results = await Promise.allSettled(
             batch.map((email) =>
-                sendEmail({ to: email, subject, html, attachments }),
+                sendEmail({
+                    to: email,
+                    subject,
+                    // Wrap in full email template with personalised unsubscribe footer
+                    html: buildSubscriberEmail(html, email),
+                    attachments,
+                }),
             ),
         );
 
         for (const result of results) {
             if (result.status === "fulfilled") {
                 totalAccepted += result.value.accepted.length;
-                totalRejected += result.value.rejected.length;
                 if (result.value.error) {
+                    // sendEmail caught an SMTP error — count it as rejected
+                    totalRejected++;
                     errors.push(result.value.error);
+                } else {
+                    totalRejected += result.value.rejected.length;
                 }
             } else {
                 totalRejected++;
