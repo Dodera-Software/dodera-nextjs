@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
-import { Globe, Mail, MapPin, Heart, Send, AlertCircle, Phone, Clock } from "lucide-react";
+import { Globe, Mail, MapPin, Heart, Send, AlertCircle, Clock } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -93,14 +93,6 @@ export function Footer() {
                                 {COMPANY.email}
                             </a>
                             <a
-                                href={`tel:${COMPANY.phone.replace(/\s/g, "")}`}
-                                aria-label={`Call us at ${COMPANY.phone}`}
-                                className="flex items-center gap-2 text-foreground/70 transition-colors hover:text-foreground"
-                            >
-                                <Phone className="size-4" />
-                                {COMPANY.phone}
-                            </a>
-                            <a
                                 href={COMPANY.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -110,9 +102,9 @@ export function Footer() {
                                 <Globe className="size-4" />
                                 {COMPANY.url.replace("https://", "")}
                             </a>
-                            <div className="flex items-start gap-2 text-foreground/70">
-                                <MapPin className="mt-0.5 size-4 shrink-0" />
-                                <span>{COMPANY.address}<br />{COMPANY.location}</span>
+                            <div className="flex items-center gap-2 text-foreground/70">
+                                <MapPin className="size-4 shrink-0" />
+                                {COMPANY.location}
                             </div>
                             <div className="flex items-center gap-2 text-foreground/70">
                                 <Clock className="size-4" />
