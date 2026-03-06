@@ -44,10 +44,7 @@ export function ConfirmDialog({
                     </Button>
                     <Button
                         variant={variant}
-                        onClick={() => {
-                            onOpenChange(false);
-                            onConfirm();
-                        }}
+                        onClick={onConfirm}
                     >
                         {confirmLabel}
                     </Button>

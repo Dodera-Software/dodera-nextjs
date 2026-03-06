@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export interface LogoProps {
     className?: string;
@@ -8,15 +9,7 @@ export interface LogoProps {
 export function Logo({ className }: LogoProps) {
     return (
         <Link href="/" aria-label="Dodera Software - Home" className={className}>
-            <span className="flex items-center gap-2">
-                <span className="flex size-8 items-center justify-center rounded-lg bg-primary">
-                    <span className="text-sm font-black text-primary-foreground">D</span>
-                </span>
-                <span className="text-lg font-bold tracking-tight">
-                    DODERA
-                    <span className="ml-1 font-light text-muted-foreground">SOFTWARE</span>
-                </span>
-            </span>
+            <Image src="/logo-icon.png" alt="Dodera Software" width={140} height={40} className="h-10 w-auto" priority />
         </Link>
     );
 }
