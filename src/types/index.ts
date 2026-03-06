@@ -1,5 +1,23 @@
 import type { LucideIcon } from "lucide-react";
 
+// ── Team ────────────────────────────────────────────────
+
+export interface TeamMember {
+    name: string;
+    role: string;
+    bio: string;
+    expertise: string[];
+    avatar?: string;
+}
+
+export interface EngagementModel {
+    title: string;
+    tagline: string;
+    description: string;
+    bestFor: string[];
+    icon: LucideIcon;
+}
+
 // ── Services ────────────────────────────────────────────
 
 export interface ServiceHighlight {

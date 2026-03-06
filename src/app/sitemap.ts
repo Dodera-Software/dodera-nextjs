@@ -37,6 +37,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             changeFrequency: "yearly",
             priority: 0.3,
         },
+        {
+            url: `${SITE.url}/about`,
+            lastModified: now,
+            changeFrequency: "monthly",
+            priority: 0.9,
+        },
     ];
 
     /* ── Service pages ─────────────────────────────────────── */
