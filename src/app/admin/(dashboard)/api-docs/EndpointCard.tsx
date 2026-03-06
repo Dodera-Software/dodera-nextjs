@@ -21,6 +21,14 @@ const AUTH_CONFIG = {
         border: "border-amber-400/20",
         description: "Requires Authorization: Bearer <token> header",
     },
+    "admin-session": {
+        label: "Admin Session",
+        icon: Shield,
+        color: "text-blue-400",
+        bg: "bg-blue-400/10",
+        border: "border-blue-400/20",
+        description: "Requires an active admin session cookie (login via /admin/login)",
+    },
     "cron-secret": {
         label: "Cron Secret",
         icon: Clock,

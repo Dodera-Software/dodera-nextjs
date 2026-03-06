@@ -126,7 +126,7 @@ export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 export interface ApiEndpoint {
     path: string;
     methods: HttpMethod[];
-    auth: "api-token" | "cron-secret" | "webhook-secret" | "none";
+    auth: "api-token" | "admin-session" | "cron-secret" | "webhook-secret" | "none";
     description: string;
     details: string;
     params?: {
