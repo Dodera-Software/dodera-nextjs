@@ -226,7 +226,7 @@ export const ENGAGEMENT_MODELS: EngagementModel[] = [
 // ── Navigation ───────────────────────────────────────────────
 
 export const NAV_LINKS: NavLink[] = [
-    { label: "About", href: "/about" },
+    { label: "About Us", href: "/about" },
     { label: "Process", href: "/#process" },
     { label: "Blog", href: "/blog" },
     { label: "Contact", href: "/#contact" },
