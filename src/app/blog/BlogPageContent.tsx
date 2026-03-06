@@ -127,13 +127,43 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
                                         </div>
 
                                         <div className="flex items-center justify-between border-t border-border pt-4">
-                                            <time
-                                                dateTime={post.date}
-                                                className="flex items-center gap-1.5 text-xs text-muted-foreground"
-                                            >
-                                                <Calendar className="size-3" />
-                                                {formatDateShort(post.date)}
-                                            </time>
+                                            {post.author ? (
+                                                <div className="flex items-center gap-2">
+                                                    {post.author.avatar ? (
+                                                        <Image
+                                                            src={post.author.avatar}
+                                                            alt={post.author.name}
+                                                            width={28}
+                                                            height={28}
+                                                            className="rounded-full object-cover ring-1 ring-border"
+                                                        />
+                                                    ) : (
+                                                        <div className="flex size-7 items-center justify-center rounded-full bg-primary/10 text-[11px] font-semibold text-primary ring-1 ring-border">
+                                                            {post.author.name.charAt(0)}
+                                                        </div>
+                                                    )}
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[12px] font-medium leading-tight text-foreground">
+                                                            {post.author.name}
+                                                        </span>
+                                                        <time
+                                                            dateTime={post.date}
+                                                            className="flex items-center gap-1 text-[10px] text-muted-foreground"
+                                                        >
+                                                            <Calendar className="size-2.5" />
+                                                            {formatDateShort(post.date)}
+                                                        </time>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <time
+                                                    dateTime={post.date}
+                                                    className="flex items-center gap-1.5 text-xs text-muted-foreground"
+                                                >
+                                                    <Calendar className="size-3" />
+                                                    {formatDateShort(post.date)}
+                                                </time>
+                                            )}
                                             <span className="inline-flex items-center gap-1 text-xs font-medium text-primary transition-colors">
                                                 Read More
                                                 <ArrowRight className="size-3 transition-transform group-hover:translate-x-1" />
