@@ -191,6 +191,8 @@ export default function GenerateImagePage() {
                                                     <img
                                                         src={item.url}
                                                         alt={item.prompt}
+                                                        loading="lazy"
+                                                        decoding="async"
                                                         className="w-full h-auto object-contain"
                                                     />
                                                 </div>

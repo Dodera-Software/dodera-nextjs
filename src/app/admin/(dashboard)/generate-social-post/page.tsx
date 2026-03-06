@@ -715,6 +715,8 @@ export default function GenerateSocialPostPage() {
                                                             <img
                                                                 src={selected.image}
                                                                 alt={selected.title}
+                                                                loading="lazy"
+                                                                decoding="async"
                                                                 className="w-full h-auto object-cover"
                                                             />
                                                             <div className="px-3 py-2 bg-muted/40 border-t border-border flex items-center gap-1.5">

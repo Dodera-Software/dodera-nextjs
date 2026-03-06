@@ -41,7 +41,10 @@ export const COMPANY = {
     legalName: "Dodera Software S.R.L.",
     email: "office@doderasoft.com",
     url: "https://doderasoft.com",
+    phone: "0748 650 469",
+    address: "Strada Banat 1, 440043 Satu Mare",
     location: "Romania · International",
+    hours: "Open 24 hours",
     tagline:
         "Premium software and AI development from Romania, serving clients internationally.",
 } as const;
@@ -261,8 +264,7 @@ export const FOOTER_LINK_GROUPS: FooterLinkGroup[] = [
     {
         heading: "Legal",
         links: [
-            { label: "Privacy Policy", href: "#" },
-            { label: "Terms of Service", href: "#" },
+            { label: "Privacy Policy", href: "/privacy-policy" },
         ],
     },
 ];
