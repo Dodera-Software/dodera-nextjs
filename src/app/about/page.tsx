@@ -37,11 +37,11 @@ export const metadata: Metadata = {
         description:
             "Senior software engineers specialising in web, mobile, AI, and automation. Based in Romania, serving clients internationally — per hour, per task, or end-to-end project.",
         url: `${SITE.url}/about`,
-        type: "profile",
+        type: "website",
         siteName: SITE.name,
         images: [
             {
-                url: `${SITE.url}/og-image.png`,
+                url: SITE.ogImage,
                 width: 1200,
                 height: 630,
                 alt: "Dodera Software — About Us",
@@ -53,6 +53,7 @@ export const metadata: Metadata = {
         title: "About Us - Dodera Software Engineering Team",
         description:
             "Senior engineers across frontend, backend, AI, mobile, and DevOps. Romania-based, serving clients worldwide.",
+        images: [SITE.ogImage],
     },
 };
 

@@ -29,7 +29,7 @@ export const SITE = {
 
 /** Default meta used when a page doesn't override values. */
 export const DEFAULT_META = {
-    title: `${SITE.name} - ${SITE.tagline}`,
+    title: `${SITE.name} - Premium software and AI development`,
     description:
         "We build web applications, presentation websites, AI systems and workflow automations for companies of all sizes. Based in Romania, serving clients globally.",
     keywords: [
@@ -40,11 +40,9 @@ export const DEFAULT_META = {
         "custom software",
         "SaaS development",
         "enterprise applications",
-        ".NET development",
         "Laravel development",
         "Nuxt development",
         "Romania software company",
-        "mission-critical applications",
         "scalable infrastructure",
         "smart documentation",
         "codebase indexing",
