@@ -33,6 +33,11 @@ async function getExamples(platform: SocialPlatform): Promise<string[]> {
 /**
  * Generate a social media post for the given platform based on blog context.
  */
+/** o-series reasoning models do not accept a temperature parameter. */
+function isReasoningModel(model: string): boolean {
+    return /^o[1-9]/.test(model);
+}
+
 export async function generateSocialPost(
     options: GenerateSocialPostOptions,
 ): Promise<GenerateSocialPostResult> {
@@ -58,7 +63,7 @@ export async function generateSocialPost(
             { role: "system", content: systemPrompt },
             { role: "user", content: userMessage },
         ],
-        temperature: 0.8,
+        ...(!isReasoningModel(model) && { temperature: 0.8 }),
         max_completion_tokens: 1200,
     });
 

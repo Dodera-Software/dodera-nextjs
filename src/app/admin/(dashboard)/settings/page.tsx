@@ -20,6 +20,40 @@ function isBooleanKey(key: string) {
     return BOOLEAN_KEYS.has(key);
 }
 
+/** Keys that should render as a select with predefined options. */
+const OPENAI_TEXT_MODELS = [
+    { value: "gpt-4", label: "GPT-4" },
+    { value: "gpt-4-turbo", label: "GPT-4 Turbo" },
+    { value: "gpt-4o", label: "GPT-4o" },
+    { value: "gpt-4o-mini", label: "GPT-4o Mini" },
+    { value: "gpt-4o-nano", label: "GPT-4o Nano" },
+    { value: "gpt-4.5-preview", label: "GPT-4.5 Preview" },
+    { value: "gpt-5", label: "GPT-5" },
+    { value: "gpt-5-mini", label: "GPT-5 Mini" },
+    { value: "gpt-5.2", label: "GPT-5.2" },
+    { value: "o1", label: "o1" },
+    { value: "o1-mini", label: "o1 Mini" },
+    { value: "o3", label: "o3" },
+    { value: "o3-mini", label: "o3 Mini" },
+    { value: "o4-mini", label: "o4 Mini" },
+];
+
+const IMAGE_MODELS = [
+    { value: "dall-e-2", label: "DALL-E 2" },
+    { value: "dall-e-3", label: "DALL-E 3" },
+    { value: "gpt-image-1", label: "GPT Image 1" },
+];
+
+const SELECT_OPTIONS: Record<string, { value: string; label: string }[]> = {
+    contact_followup_model: OPENAI_TEXT_MODELS,
+    social_post_model: OPENAI_TEXT_MODELS,
+    image_generation_model: IMAGE_MODELS,
+};
+
+function getSelectOptions(key: string) {
+    return SELECT_OPTIONS[key] ?? null;
+}
+
 export default function SettingsPage() {
     const [rows, setRows] = useState<ConfigRow[]>([]);
     const [edits, setEdits] = useState<Record<string, string>>({});
@@ -113,6 +147,7 @@ export default function SettingsPage() {
                         const saving = savingKey === row.key;
                         const dirty = isDirty(row.key);
                         const isBoolean = isBooleanKey(row.key);
+                        const selectOptions = getSelectOptions(row.key);
 
                         return (
                             <div key={row.key} className="grid grid-cols-[2fr_1fr_3fr_auto] items-center gap-3 px-4 py-3">
@@ -145,6 +180,24 @@ export default function SettingsPage() {
                                         <SelectContent>
                                             <SelectItem value="true">true</SelectItem>
                                             <SelectItem value="false">false</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                ) : selectOptions ? (
+                                    <Select
+                                        value={edits[row.key] ?? ""}
+                                        onValueChange={(val) =>
+                                            setEdits((prev) => ({ ...prev, [row.key]: val }))
+                                        }
+                                    >
+                                        <SelectTrigger className="h-8 text-sm font-mono">
+                                            <SelectValue placeholder="Select a model…" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {selectOptions.map((opt) => (
+                                                <SelectItem key={opt.value} value={opt.value} className="font-mono text-sm">
+                                                    {opt.label}
+                                                </SelectItem>
+                                            ))}
                                         </SelectContent>
                                     </Select>
                                 ) : (
@@ -186,7 +239,9 @@ export default function SettingsPage() {
                 <Settings className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
                 <div className="space-y-1 text-xs text-muted-foreground">
                     <p><span className="font-medium text-foreground">contact_followup_enabled</span> — Whether to generate AI follow-up suggestions (<code className="bg-muted px-1 rounded">true</code> / <code className="bg-muted px-1 rounded">false</code>).</p>
-                    <p><span className="font-medium text-foreground">contact_followup_model</span> — OpenAI model for AI lead follow-ups. Use <code className="bg-muted px-1 rounded">gpt-4o-mini</code> (cheap) or <code className="bg-muted px-1 rounded">gpt-4o</code> (best quality). Empty string disables the feature.</p>
+                    <p><span className="font-medium text-foreground">contact_followup_model</span> — OpenAI model for AI lead follow-ups. Choose from the dropdown (e.g. <code className="bg-muted px-1 rounded">gpt-4o-mini</code> for cost efficiency, <code className="bg-muted px-1 rounded">gpt-4o</code> or <code className="bg-muted px-1 rounded">gpt-5</code> for best quality).</p>
+                    <p><span className="font-medium text-foreground">social_post_model</span> — OpenAI model used when generating social posts.</p>
+                    <p><span className="font-medium text-foreground">image_generation_model</span> — Model used for AI image generation (e.g. <code className="bg-muted px-1 rounded">dall-e-3</code> or <code className="bg-muted px-1 rounded">gpt-image-1</code>).</p>
                     <p><span className="font-medium text-foreground">contact_followup_daily_limit</span> — Max AI calls per day (UTC). <code className="bg-muted px-1 rounded">0</code> = unlimited.</p>
                     <p><span className="font-medium text-foreground">contact_rate_limit_max</span> — Max contact form submissions allowed per IP within the time window.</p>
                     <p><span className="font-medium text-foreground">contact_rate_limit_window_minutes</span> — Rolling window in minutes for the contact form IP rate limit.</p>

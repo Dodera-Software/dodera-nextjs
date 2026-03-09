@@ -54,6 +54,22 @@ export default function GenerateImagePage() {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const bottomRef = useRef<HTMLDivElement>(null);
 
+    // Initialise the model selector from the saved config value.
+    useEffect(() => {
+        fetch("/api/admin/config")
+            .then((r) => r.json())
+            .then((data) => {
+                if (data.status === "success") {
+                    const saved = (data.data as { key: string; value: string }[]).find(
+                        (r) => r.key === "image_generation_model",
+                    )?.value;
+                    const valid = AI_MODELS.some((m) => m.value === saved);
+                    if (saved && valid) setModel(saved);
+                }
+            })
+            .catch(() => {/* keep default */ });
+    }, []);
+
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [history]);
