@@ -4,8 +4,21 @@ import { useEffect, useState, useCallback } from "react";
 import { Settings, Loader2, Save, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import type { ConfigRow } from "@/types/admin";
+
+const BOOLEAN_KEYS = new Set(["contact_followup_enabled"]);
+
+function isBooleanKey(key: string) {
+    return BOOLEAN_KEYS.has(key);
+}
 
 export default function SettingsPage() {
     const [rows, setRows] = useState<ConfigRow[]>([]);
@@ -88,58 +101,88 @@ export default function SettingsPage() {
                 <p className="text-sm text-muted-foreground">No config rows found. Run the app_config.sql migration first.</p>
             ) : (
                 <div className="rounded-xl border border-border bg-card divide-y divide-border">
+                    {/* Header */}
+                    <div className="grid grid-cols-[2fr_1fr_3fr_auto] gap-3 px-4 py-2 bg-muted/30">
+                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Key</span>
+                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Updated</span>
+                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Value</span>
+                        <span className="sr-only">Actions</span>
+                    </div>
+
                     {rows.map((row) => {
                         const saving = savingKey === row.key;
                         const dirty = isDirty(row.key);
+                        const isBoolean = isBooleanKey(row.key);
 
                         return (
-                            <div key={row.key} className="p-5 space-y-3">
-                                <div className="flex items-start justify-between gap-4">
-                                    <div className="space-y-0.5 min-w-0">
-                                        <p className="font-mono text-sm font-medium">{row.key}</p>
-                                        {row.description && (
-                                            <p className="text-xs text-muted-foreground">{row.description}</p>
-                                        )}
-                                    </div>
-                                    <p className="text-xs text-muted-foreground shrink-0 pt-0.5">
-                                        Updated {new Date(row.updated_at).toLocaleDateString()}
-                                    </p>
+                            <div key={row.key} className="grid grid-cols-[2fr_1fr_3fr_auto] items-center gap-3 px-4 py-3">
+                                {/* Key + description */}
+                                <div className="min-w-0">
+                                    <p className="font-mono text-sm font-medium truncate">{row.key}</p>
+                                    {row.description && (
+                                        <p className="text-xs text-muted-foreground leading-tight mt-0.5 line-clamp-2">
+                                            {row.description}
+                                        </p>
+                                    )}
                                 </div>
 
-                                <div className="flex items-center gap-2">
+                                {/* Updated date */}
+                                <p className="text-xs text-muted-foreground">
+                                    {new Date(row.updated_at).toLocaleDateString()}
+                                </p>
+
+                                {/* Value input */}
+                                {isBoolean ? (
+                                    <Select
+                                        value={edits[row.key] ?? ""}
+                                        onValueChange={(val) =>
+                                            setEdits((prev) => ({ ...prev, [row.key]: val }))
+                                        }
+                                    >
+                                        <SelectTrigger className="h-8 text-sm font-mono w-32">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="true">true</SelectItem>
+                                            <SelectItem value="false">false</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                ) : (
                                     <Input
                                         value={edits[row.key] ?? ""}
                                         onChange={(e) =>
                                             setEdits((prev) => ({ ...prev, [row.key]: e.target.value }))
                                         }
-                                        className="font-mono text-sm h-9 max-w-sm"
+                                        className="font-mono text-sm h-8"
                                         placeholder="(empty = disabled)"
                                         onKeyDown={(e) => {
                                             if (e.key === "Enter" && dirty) handleSave(row.key);
                                         }}
                                     />
+                                )}
 
-                                    <Button
-                                        size="sm"
-                                        onClick={() => handleSave(row.key)}
-                                        disabled={!dirty || saving}
-                                        variant={dirty ? "default" : "outline"}
-                                    >
-                                        {saving ? (
-                                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                        ) : (
-                                            <Save className="w-3.5 h-3.5" />
-                                        )}
-                                        Save
-                                    </Button>
-                                </div>
+                                {/* Save button */}
+                                <Button
+                                    size="sm"
+                                    onClick={() => handleSave(row.key)}
+                                    disabled={!dirty || saving}
+                                    variant={dirty ? "default" : "outline"}
+                                    className="h-8 px-3"
+                                >
+                                    {saving ? (
+                                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                    ) : (
+                                        <Save className="w-3.5 h-3.5" />
+                                    )}
+                                    <span className="sr-only">Save</span>
+                                </Button>
                             </div>
                         );
                     })}
                 </div>
             )}
 
-            <div className="rounded-xl border border-border bg-card p-5 flex items-start gap-3">
+            <div className="rounded-xl border border-border bg-card p-4 flex items-start gap-3">
                 <Settings className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
                 <div className="space-y-1 text-xs text-muted-foreground">
                     <p><span className="font-medium text-foreground">contact_followup_enabled</span> — Whether to generate AI follow-up suggestions (<code className="bg-muted px-1 rounded">true</code> / <code className="bg-muted px-1 rounded">false</code>).</p>
