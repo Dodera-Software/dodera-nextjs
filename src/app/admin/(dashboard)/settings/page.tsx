@@ -31,11 +31,6 @@ const OPENAI_TEXT_MODELS = [
     { value: "gpt-5", label: "GPT-5" },
     { value: "gpt-5-mini", label: "GPT-5 Mini" },
     { value: "gpt-5.2", label: "GPT-5.2" },
-    { value: "o1", label: "o1" },
-    { value: "o1-mini", label: "o1 Mini" },
-    { value: "o3", label: "o3" },
-    { value: "o3-mini", label: "o3 Mini" },
-    { value: "o4-mini", label: "o4 Mini" },
 ];
 
 const IMAGE_MODELS = [
