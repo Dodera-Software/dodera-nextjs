@@ -14,6 +14,7 @@ import {
 import { fadeInUp, fadeInUpLg, viewportOnce, stagger } from "@/lib/animations";
 import type { ServicePageData } from "@/types";
 import { SERVICE_PAGES } from "@/config/services";
+import { CTA } from "@/config/copy";
 import { N8nIcon } from "@/components/icons/N8nIcon";
 import { Breadcrumb, BreadcrumbItem } from "@/components/Breadcrumb";
 
@@ -332,8 +333,7 @@ export function ServicePageLayout({ data }: ServicePageLayoutProps) {
                             Ready to get started?
                         </h2>
                         <p className="mx-auto mb-8 max-w-xl text-lg leading-relaxed text-muted-foreground">
-                            Book a free 30-minute architecture call. We&apos;ll audit your project
-                            and tell you exactly what it takes to ship.
+                            {CTA.descriptionPre}{" "}<strong className="font-semibold text-primary">free</strong>{" "}{CTA.descriptionPost}
                         </p>
                         <Button size="lg" asChild>
                             <Link href="/#contact">

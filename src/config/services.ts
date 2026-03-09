@@ -24,6 +24,7 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
             "machine learning",
             "AI consulting",
             "Romania AI company",
+            "n8n automation",
         ],
         canonical: "/services/ai-development",
         heroLabel: "AI Development",
@@ -271,6 +272,10 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
         ],
     },
 
+    /* ──────────────────────────────────────────────────────
+     * Software Development (parent)
+     * ────────────────────────────────────────────────────── */
+
     "software-development": {
         slug: "software-development",
         metaTitle: "Software Development Services - From Idea to Production",
@@ -280,10 +285,10 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
             "software development",
             "custom software",
             "full-stack development",
-            ".NET development",
             "Laravel development",
             "Nuxt development",
             "React development",
+            "Next.js development",
             "Romania software company",
         ],
         canonical: "/services/software-development",

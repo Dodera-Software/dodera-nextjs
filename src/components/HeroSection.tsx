@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Terminal } from "@/components/Terminal";
 import { fadeInUp, fadeInUpLg } from "@/lib/animations";
+import { HERO } from "@/config/copy";
 
 export function HeroSection() {
     return (
@@ -24,8 +25,9 @@ export function HeroSection() {
                             transition={{ duration: 0.4, delay: 0.08 }}
                             className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl"
                         >
-                            Software that{" "}
-                            <span className="text-primary">Means&nbsp;Business.</span>
+                            {HERO.headline}
+                            <br />
+                            <span className="text-primary">{HERO.headlineHighlight}</span>
                         </motion.h1>
 
                         <motion.p
@@ -35,9 +37,7 @@ export function HeroSection() {
                             transition={{ duration: 0.4, delay: 0.16 }}
                             className="max-w-lg text-base sm:text-lg leading-relaxed text-muted-foreground"
                         >
-                            We offer premium IT consultancy specializing in high-performance AI
-                            infrastructure, custom SaaS launches, and smart technical
-                            documentation for visionary enterprises.
+                            {HERO.description}
                         </motion.p>
 
                         <motion.div
@@ -49,12 +49,12 @@ export function HeroSection() {
                         >
                             <Button size="lg" asChild>
                                 <Link href="/#contact">
-                                    Start a Project
+                                    {HERO.cta1}
                                     <ArrowRight className="ml-1 size-4" />
                                 </Link>
                             </Button>
                             <Button variant="outline" size="lg" asChild>
-                                <Link href="/#services">View Services</Link>
+                                <Link href="/#services">{HERO.cta2}</Link>
                             </Button>
                         </motion.div>
                     </div>

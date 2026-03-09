@@ -14,7 +14,16 @@ import { Badge } from "@/components/ui/badge";
 import { SectionHeading } from "@/components/SectionHeading";
 import { ContactForm } from "@/components/ContactForm";
 import { ENGAGEMENT_MODELS } from "@/config/site";
-import { CAPABILITIES, FAQ } from "./data";
+import {
+    CAPABILITIES,
+    FAQ,
+    ABOUT_HERO,
+    ABOUT_STATS,
+    ABOUT_STORY,
+    ABOUT_VALUES,
+    ABOUT_MID_CTA,
+    ABOUT_BOTTOM_CTA,
+} from "@/config/copy";
 import { CapabilityCard } from "./CapabilityCard";
 import { fadeInUp, fadeInUpLg, viewportOnce, stagger } from "@/lib/animations";
 
@@ -45,11 +54,7 @@ function AnimatedCounter({
 
 // ── Stats Row ───────────────────────────────────────────────────────────
 
-const STATS = [
-    { label: "Specialists", to: 4, from: 0, suffix: "+" },
-    { label: "Projects", to: 20, from: 0, suffix: "+" },
-    { label: "Client Satisfaction", to: 99, from: 0, suffix: "%" },
-] as const;
+const STATS = ABOUT_STATS;
 
 function StatsRow() {
     const ref = useRef<HTMLDivElement>(null);
@@ -103,7 +108,7 @@ export function AboutPageContent() {
                         transition={{ duration: 0.4 }}
                         className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground"
                     >
-                        About Dodera Software
+                        {ABOUT_HERO.eyebrow}
                     </motion.p>
 
                     <motion.h1
@@ -114,8 +119,8 @@ export function AboutPageContent() {
                         transition={{ duration: 0.4, delay: 0.08 }}
                         className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl"
                     >
-                        The engineering team{" "}
-                        <span className="text-primary">behind your&nbsp;product.</span>
+                        {ABOUT_HERO.headline}{" "}
+                        <span className="text-primary">{ABOUT_HERO.headlineHighlight}</span>
                     </motion.h1>
 
                     <motion.p
@@ -125,10 +130,7 @@ export function AboutPageContent() {
                         transition={{ duration: 0.4, delay: 0.16 }}
                         className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-muted-foreground"
                     >
-                        Dodera Software is a software engineering company founded in 2023. We build
-                        web applications, presentation websites, AI systems and workflow automations
-                        for companies of all sizes. We work per hour, per task, or per project, so
-                        you always get the engagement model that fits best for your needs.
+                        {ABOUT_HERO.description}
                     </motion.p>
 
                     {/* Animated stat counters */}
@@ -154,33 +156,19 @@ export function AboutPageContent() {
                             transition={{ duration: 0.5 }}
                         >
                             <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                                Who We Are
+                                {ABOUT_STORY.eyebrow}
                             </p>
                             <h2
                                 id="our-story-heading"
                                 className="mb-6 text-3xl font-bold tracking-tight sm:text-4xl"
                             >
-                                A team of builders who{" "}
-                                <span className="text-primary">care about craft.</span>
+                                {ABOUT_STORY.headline}{" "}
+                                <span className="text-primary">{ABOUT_STORY.headlineHighlight}</span>
                             </h2>
                             <div className="space-y-4 text-base leading-relaxed text-muted-foreground">
-                                <p>
-                                    Dodera Software was founded by engineers who were tired of watching
-                                    great ideas fail because of poor technical execution. We built the
-                                    company around a simple belief: software should be reliable, clear,
-                                    and genuinely useful.
-                                </p>
-                                <p>
-                                    Our team spans frontend, backend, AI and infrastructure
-                                    disciplines. Every engineer on our roster is senior level, no
-                                    juniors learning on your budget. We take ownership from the
-                                    first line of architecture to the last deploy.
-                                </p>
-                                <p>
-                                    Whether you need a long-term engineering partner or a specialist
-                                    team to ship a single critical feature, we adapt our engagement to
-                                    match your pace and goals.
-                                </p>
+                                {ABOUT_STORY.paragraphs.map((p) => (
+                                    <p key={p}>{p}</p>
+                                ))}
                             </div>
                         </motion.div>
 
@@ -194,24 +182,7 @@ export function AboutPageContent() {
                             className="space-y-5"
                             aria-label="Our values"
                         >
-                            {[
-                                {
-                                    title: "Quality Without Compromise",
-                                    body: "We write tested, reviewed, and documented code. Every pull request goes through rigorous review before it reaches production.",
-                                },
-                                {
-                                    title: "Speed That Scales",
-                                    body: "Our CI/CD pipelines and modular architecture let us move fast without breaking things. Iterative sprints with visible progress every week.",
-                                },
-                                {
-                                    title: "Transparent Partnership",
-                                    body: "No black boxes. You get clear communication, weekly updates, and direct access to the engineers working on your product.",
-                                },
-                                {
-                                    title: "International Reach",
-                                    body: "Based in Romania, we operate fully async across time zones. English-first communication, competitive European rates.",
-                                },
-                            ].map((v, i) => (
+                            {ABOUT_VALUES.map((v, i) => (
                                 <li
                                     key={v.title}
                                     className="flex gap-4 rounded-xl border border-border bg-card p-5"
@@ -270,21 +241,20 @@ export function AboutPageContent() {
                     className="relative z-10 mx-auto max-w-3xl px-6 text-center"
                 >
                     <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                        Ready to ship?
+                        {ABOUT_MID_CTA.eyebrow}
                     </p>
                     <h2 id="mid-cta-heading" className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">
-                        Got a project in mind?{" "}
-                        <span className="text-primary">Let&apos;s talk.</span>
+                        {ABOUT_MID_CTA.headline}{" "}
+                        <span className="text-primary">{ABOUT_MID_CTA.headlineHighlight}</span>
                     </h2>
                     <p className="mb-8 text-base leading-relaxed text-muted-foreground">
-                        Book a free 30-minute call. We will review your idea and tell you exactly
-                        how we can help, no commitment required.
+                        {ABOUT_MID_CTA.descriptionPre}{" "}<strong className="font-semibold text-primary">free</strong>{" "}{ABOUT_MID_CTA.descriptionPost}
                     </p>
                     <Link
                         href="#contact"
                         className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
                     >
-                        Start a Project
+                        {ABOUT_MID_CTA.cta}
                     </Link>
                 </motion.div>
             </section>
@@ -403,19 +373,18 @@ export function AboutPageContent() {
                         className="mb-12 text-center"
                     >
                         <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                            Ready to Build?
+                            {ABOUT_BOTTOM_CTA.eyebrow}
                         </p>
                         <h2
                             id="about-cta-heading"
                             className="mb-6 text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl"
                         >
-                            Let&apos;s talk about
+                            {ABOUT_BOTTOM_CTA.headline}
                             <br />
-                            <span className="text-primary">your project.</span>
+                            <span className="text-primary">{ABOUT_BOTTOM_CTA.headlineHighlight}</span>
                         </h2>
                         <p className="mx-auto max-w-xl text-lg leading-relaxed text-muted-foreground">
-                            Book a free 30-minute architecture call. We&apos;ll review your stack,
-                            your goals, and tell you exactly how we can help.
+                            {ABOUT_BOTTOM_CTA.descriptionPre}{" "}<strong className="font-semibold text-primary">free</strong>{" "}{ABOUT_BOTTOM_CTA.descriptionPost}
                         </p>
                     </motion.div>
 

@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { ContactForm } from "@/components/ContactForm";
 import { fadeInUpLg, viewportOnce } from "@/lib/animations";
+import { CTA } from "@/config/copy";
 
 export function CTASection() {
     return (
@@ -18,16 +19,15 @@ export function CTASection() {
                     className="mb-12 text-center"
                 >
                     <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                        Ready to Build?
+                        {CTA.eyebrow}
                     </p>
                     <h2 id="contact-heading" className="mb-6 text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
-                        Stop searching for talent.
+                        {CTA.headline}
                         <br />
-                        <span className="text-primary">Start shipping code.</span>
+                        <span className="text-primary">{CTA.headlineHighlight}</span>
                     </h2>
                     <p className="mx-auto max-w-xl text-lg leading-relaxed text-muted-foreground">
-                        Book a free 30-minute architecture call. We&apos;ll audit your project and
-                        tell you exactly what it takes to ship.
+                        {CTA.descriptionPre}{" "}<strong className="font-semibold text-primary">free</strong>{" "}{CTA.descriptionPost}
                     </p>
                 </motion.div>
 
