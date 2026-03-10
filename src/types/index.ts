@@ -45,6 +45,8 @@ export interface ServicePageSection {
     title: string;
     content: string;
     bullets?: string[];
+    /** Keywords to visually highlight in the content paragraph. */
+    highlights?: string[];
 }
 
 export interface ServicePageFAQ {
