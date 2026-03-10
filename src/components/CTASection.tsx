@@ -4,17 +4,6 @@ import { motion } from "framer-motion";
 import { ContactForm } from "@/components/ContactForm";
 import { fadeInUpLg, viewportOnce } from "@/lib/animations";
 
-export const CTA = {
-    eyebrow: "Ready to Build?",
-    headline: "Stop searching for talent.",
-    headlineHighlight: "Start shipping code.",
-    /** Text that comes before the highlighted word "free". */
-    descriptionPre: "Book a",
-    /** Text that comes after the highlighted word "free". */
-    descriptionPost:
-        "30-minute architecture call. We'll audit your project and tell you exactly what it takes to ship.",
-} as const;
-
 export function CTASection() {
     return (
         <section id="contact" aria-labelledby="contact-heading" className="relative py-32">
@@ -29,15 +18,15 @@ export function CTASection() {
                     className="mb-12 text-center"
                 >
                     <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                        {CTA.eyebrow}
+                        Ready to Build?
                     </p>
                     <h2 id="contact-heading" className="mb-6 text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
-                        {CTA.headline}
+                        Stop searching for talent.
                         <br />
-                        <span className="text-primary">{CTA.headlineHighlight}</span>
+                        <span className="text-primary">Start shipping code.</span>
                     </h2>
                     <p className="mx-auto max-w-xl text-lg leading-relaxed text-muted-foreground">
-                        {CTA.descriptionPre}{" "}<strong className="font-semibold text-primary">free</strong>{" "}{CTA.descriptionPost}
+                        Book a{" "}<strong className="font-semibold text-primary">free</strong>{" "}30-minute architecture call. We&apos;ll audit your project and tell you exactly what it takes to ship.
                     </p>
                 </motion.div>
 

@@ -10,20 +10,6 @@ import type { BlogPost } from "@/types";
 import { fadeInUp, fadeInUpLg, viewportOnce, stagger } from "@/lib/animations";
 import { formatDateShort } from "@/lib/format";
 
-const BLOG_HERO = {
-    eyebrow: "Blog",
-    headlinePre: "Engineering",
-    headlineHighlight: "Insights",
-    headlinePost: "& AI Development",
-    description:
-        "Deep dives into AI development, software architecture, SaaS best practices, and technical documentation \u2013 from the team that builds production systems every day.",
-} as const;
-
-const BLOG_POSTS_SECTION = {
-    heading: "Latest Articles",
-    readMore: "Read More",
-} as const;
-
 export interface BlogPageContentProps {
     posts: BlogPost[];
 }
@@ -43,7 +29,7 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
                         transition={{ duration: 0.4 }}
                         className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground"
                     >
-                        {BLOG_HERO.eyebrow}
+                        Blog
                     </motion.p>
                     <motion.h1
                         variants={fadeInUpLg}
@@ -52,9 +38,9 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
                         transition={{ duration: 0.4, delay: 0.06 }}
                         className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl"
                     >
-                        {BLOG_HERO.headlinePre}{" "}
-                        <span className="text-primary">{BLOG_HERO.headlineHighlight}</span>{" "}
-                        {BLOG_HERO.headlinePost}
+                        Engineering{" "}
+                        <span className="text-primary">Insights</span>{" "}
+                        & AI Development
                     </motion.h1>
                     <motion.p
                         variants={fadeInUp}
@@ -63,7 +49,7 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
                         transition={{ duration: 0.4, delay: 0.12 }}
                         className="mx-auto max-w-2xl text-lg leading-relaxed text-muted-foreground"
                     >
-                        {BLOG_HERO.description}
+                        Deep dives into AI development, software architecture, SaaS best practices, and technical documentation &ndash; from the team that builds production systems every day.
                     </motion.p>
                 </div>
             </section>
@@ -75,7 +61,7 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
                         id="posts-heading"
                         className="mb-10 text-center text-2xl font-bold tracking-tight sm:text-3xl"
                     >
-                        {BLOG_POSTS_SECTION.heading}
+                        Latest Articles
                     </h2>
                     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {posts.map((post, i) => (

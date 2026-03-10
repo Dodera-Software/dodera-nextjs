@@ -19,30 +19,11 @@ import { fadeInUp, fadeInUpLg, viewportOnce, stagger } from "@/lib/animations";
 
 // ── About page copy ───────────────────────────────────────────────────────────
 
-const ABOUT_HERO = {
-    eyebrow: "About Dodera Software",
-    headline: "The engineering team",
-    headlineHighlight: "behind your product.",
-    description:
-        "Dodera Software is a software engineering company founded in 2023. We build web applications, presentation websites, AI systems and workflow automations for companies of all sizes. We work per hour, per task, or per project, so you always get the engagement model that fits best for your needs.",
-} as const;
-
 const ABOUT_STATS: { label: string; to: number; from: number; suffix: string }[] = [
     { label: "Specialists", to: 4, from: 0, suffix: "+" },
     { label: "Projects", to: 20, from: 0, suffix: "+" },
     { label: "Client Satisfaction", to: 99, from: 0, suffix: "%" },
 ];
-
-const ABOUT_STORY = {
-    eyebrow: "Who We Are",
-    headline: "A team of builders who",
-    headlineHighlight: "care about craft.",
-    paragraphs: [
-        "Dodera Software was founded by engineers who were tired of watching great ideas fail because of poor technical execution. We built the company around a simple belief: software should be reliable, clear, and genuinely useful.",
-        "Our team spans frontend, backend, AI and infrastructure disciplines. Every engineer on our roster is senior level, no juniors learning on your budget. We take ownership from the first line of architecture to the last deploy.",
-        "Whether you need a long-term engineering partner or a specialist team to ship a single critical feature, we adapt our engagement to match your pace and goals.",
-    ],
-} as const;
 
 const ABOUT_VALUES = [
     {
@@ -62,25 +43,6 @@ const ABOUT_VALUES = [
         body: "Based in Romania, we operate fully async across time zones. English-first communication, competitive European rates.",
     },
 ] as const;
-
-const ABOUT_MID_CTA = {
-    eyebrow: "Ready to ship?",
-    headline: "Got a project in mind?",
-    headlineHighlight: "Let's talk.",
-    descriptionPre: "Book a",
-    descriptionPost:
-        "30-minute call. We will review your idea and tell you exactly how we can help, no commitment required.",
-    cta: "Start a Project",
-} as const;
-
-const ABOUT_BOTTOM_CTA = {
-    eyebrow: "Ready to Build?",
-    headline: "We want to",
-    headlineHighlight: "meet you!",
-    descriptionPre: "Book a",
-    descriptionPost:
-        "30-minute architecture call. We'll review your stack, your goals, and tell you exactly how we can help.",
-} as const;
 
 export const FAQ = [
     {
@@ -188,7 +150,7 @@ export function AboutPageContent() {
                         transition={{ duration: 0.4 }}
                         className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground"
                     >
-                        {ABOUT_HERO.eyebrow}
+                        About Dodera Software
                     </motion.p>
 
                     <motion.h1
@@ -199,8 +161,8 @@ export function AboutPageContent() {
                         transition={{ duration: 0.4, delay: 0.08 }}
                         className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl"
                     >
-                        {ABOUT_HERO.headline}{" "}
-                        <span className="text-primary">{ABOUT_HERO.headlineHighlight}</span>
+                        The engineering team{" "}
+                        <span className="text-primary">behind your product.</span>
                     </motion.h1>
 
                     <motion.p
@@ -210,7 +172,7 @@ export function AboutPageContent() {
                         transition={{ duration: 0.4, delay: 0.16 }}
                         className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-muted-foreground"
                     >
-                        {ABOUT_HERO.description}
+                        Dodera Software is a software engineering company founded in 2023. We build web applications, presentation websites, AI systems and workflow automations for companies of all sizes. We work per hour, per task, or per project, so you always get the engagement model that fits best for your needs.
                     </motion.p>
 
                     {/* Animated stat counters */}
@@ -236,19 +198,19 @@ export function AboutPageContent() {
                             transition={{ duration: 0.5 }}
                         >
                             <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                                {ABOUT_STORY.eyebrow}
+                                Who We Are
                             </p>
                             <h2
                                 id="our-story-heading"
                                 className="mb-6 text-3xl font-bold tracking-tight sm:text-4xl"
                             >
-                                {ABOUT_STORY.headline}{" "}
-                                <span className="text-primary">{ABOUT_STORY.headlineHighlight}</span>
+                                A team of builders who{" "}
+                                <span className="text-primary">care about craft.</span>
                             </h2>
                             <div className="space-y-4 text-base leading-relaxed text-muted-foreground">
-                                {ABOUT_STORY.paragraphs.map((p) => (
-                                    <p key={p}>{p}</p>
-                                ))}
+                                <p>Dodera Software was founded by engineers who were tired of watching great ideas fail because of poor technical execution. We built the company around a simple belief: software should be reliable, clear, and genuinely useful.</p>
+                                <p>Our team spans frontend, backend, AI and infrastructure disciplines. Every engineer on our roster is senior level, no juniors learning on your budget. We take ownership from the first line of architecture to the last deploy.</p>
+                                <p>Whether you need a long-term engineering partner or a specialist team to ship a single critical feature, we adapt our engagement to match your pace and goals.</p>
                             </div>
                         </motion.div>
 
@@ -321,20 +283,20 @@ export function AboutPageContent() {
                     className="relative z-10 mx-auto max-w-3xl px-6 text-center"
                 >
                     <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                        {ABOUT_MID_CTA.eyebrow}
+                        Ready to ship?
                     </p>
                     <h2 id="mid-cta-heading" className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">
-                        {ABOUT_MID_CTA.headline}{" "}
-                        <span className="text-primary">{ABOUT_MID_CTA.headlineHighlight}</span>
+                        Got a project in mind?{" "}
+                        <span className="text-primary">Let&apos;s talk.</span>
                     </h2>
                     <p className="mb-8 text-base leading-relaxed text-muted-foreground">
-                        {ABOUT_MID_CTA.descriptionPre}{" "}<strong className="font-semibold text-primary">free</strong>{" "}{ABOUT_MID_CTA.descriptionPost}
+                        Book a{" "}<strong className="font-semibold text-primary">free</strong>{" "}30-minute call. We will review your idea and tell you exactly how we can help, no commitment required.
                     </p>
                     <Link
                         href="#contact"
                         className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
                     >
-                        {ABOUT_MID_CTA.cta}
+                        Start a Project
                     </Link>
                 </motion.div>
             </section>
@@ -453,18 +415,18 @@ export function AboutPageContent() {
                         className="mb-12 text-center"
                     >
                         <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                            {ABOUT_BOTTOM_CTA.eyebrow}
+                            Ready to Build?
                         </p>
                         <h2
                             id="about-cta-heading"
                             className="mb-6 text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl"
                         >
-                            {ABOUT_BOTTOM_CTA.headline}
+                            We want to
                             <br />
-                            <span className="text-primary">{ABOUT_BOTTOM_CTA.headlineHighlight}</span>
+                            <span className="text-primary">meet you!</span>
                         </h2>
                         <p className="mx-auto max-w-xl text-lg leading-relaxed text-muted-foreground">
-                            {ABOUT_BOTTOM_CTA.descriptionPre}{" "}<strong className="font-semibold text-primary">free</strong>{" "}{ABOUT_BOTTOM_CTA.descriptionPost}
+                            Book a{" "}<strong className="font-semibold text-primary">free</strong>{" "}30-minute architecture call. We&apos;ll review your stack, your goals, and tell you exactly how we can help.
                         </p>
                     </motion.div>
 
