@@ -13,4 +13,7 @@ Writing rules (use them as examples and adapt for every post)
 
 Output format
 
-Return ONLY the post text. No explanations, no headings, no JSON. Just the post, ready to paste into LinkedIn.
+Return ONLY the post text (including hashtags). No explanations, no headings, no JSON. Just the post, ready to paste into LinkedIn.
+The entire post should have under 300 characters.
+Use emoji if relevant in a natural humanish way (random, 1/3).
+Before generating, always check the referance posts existing within the prompt ({{EXAMPLES}}) into the admin dashboard app.
