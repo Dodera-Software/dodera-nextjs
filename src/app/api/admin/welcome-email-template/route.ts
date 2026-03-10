@@ -6,6 +6,7 @@ import { z } from "zod";
 
 const SUBJECT_KEY = "welcome_email_subject";
 const HTML_KEY = "welcome_email_html";
+const DESIGN_KEY = "welcome_email_design";
 
 /* ── GET /api/admin/welcome-email-template ───────────────── */
 export async function GET() {
@@ -17,7 +18,7 @@ export async function GET() {
     const { data, error } = await supabase
         .from("app_config")
         .select("key, value")
-        .in("key", [SUBJECT_KEY, HTML_KEY]);
+        .in("key", [SUBJECT_KEY, HTML_KEY, DESIGN_KEY]);
 
     if (error) {
         console.error("[welcome-email-template] Supabase read error:", error);
@@ -27,14 +28,16 @@ export async function GET() {
     const rows = data ?? [];
     const subject = rows.find((r) => r.key === SUBJECT_KEY)?.value ?? "";
     const html = rows.find((r) => r.key === HTML_KEY)?.value ?? "";
+    const design = rows.find((r) => r.key === DESIGN_KEY)?.value ?? null;
 
-    return NextResponse.json({ status: "success", subject, html });
+    return NextResponse.json({ status: "success", subject, html, design });
 }
 
 /* ── PUT /api/admin/welcome-email-template ───────────────── */
 const putSchema = z.object({
     subject: z.string().min(1, "Subject is required."),
     html: z.string().min(1, "HTML body is required."),
+    design: z.string().optional(),
 });
 
 export async function PUT(request: NextRequest) {
@@ -53,11 +56,14 @@ export async function PUT(request: NextRequest) {
     }
 
     try {
-        // Save both keys atomically via setConfig (also keeps the in-memory cache coherent)
-        await Promise.all([
+        const saves = [
             setConfig(SUBJECT_KEY, parsed.data.subject),
             setConfig(HTML_KEY, parsed.data.html),
-        ]);
+        ];
+        if (parsed.data.design !== undefined) {
+            saves.push(setConfig(DESIGN_KEY, parsed.data.design));
+        }
+        await Promise.all(saves);
         return NextResponse.json({ status: "success" });
     } catch (err) {
         console.error("[welcome-email-template] Save error:", err);

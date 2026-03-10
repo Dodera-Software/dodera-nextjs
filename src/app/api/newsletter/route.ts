@@ -3,7 +3,7 @@ import { supabase } from "@/lib/supabase";
 import { z } from "zod";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { getConfig } from "@/lib/app-config";
-import { sendEmail, buildSubscriberEmail } from "@/lib/email-service";
+import { sendEmail, buildSubscriberEmail, injectUnsubscribeFooter } from "@/lib/email-service";
 
 /* ── Validation schema ────────────────────────────────── */
 const subscriberSchema = z.object({
@@ -83,7 +83,10 @@ export async function POST(request: NextRequest) {
                 ]);
 
                 if (subject && bodyHtml) {
-                    const html = buildSubscriberEmail(bodyHtml, email);
+                    const isFullDoc = /^\s*<!doctype/i.test(bodyHtml) || /^\s*<html/i.test(bodyHtml);
+                    const html = isFullDoc
+                        ? injectUnsubscribeFooter(bodyHtml, email)
+                        : buildSubscriberEmail(bodyHtml, email);
                     await sendEmail({ to: email, subject, html });
                 }
             } catch (err) {
