@@ -15,6 +15,11 @@ const MAX_INPUT_CHARS = 600;
 /** Hard timeout in ms — AI slowness never delays the Slack notification. */
 const TIMEOUT_MS = 8_000;
 
+/** o-series reasoning models do not accept a temperature parameter. */
+function isReasoningModel(model: string): boolean {
+    return /^o[1-9]/.test(model);
+}
+
 /* ── Types ────────────────────────────────────────────────── */
 
 export interface LeadData {
@@ -105,7 +110,7 @@ export async function generateFollowUp(data: LeadData): Promise<string | undefin
             {
                 model,
                 max_completion_tokens: 220,
-                temperature: 0.7,
+                ...(!isReasoningModel(model) && { temperature: 0.7 }),
                 messages: [
                     { role: "system", content: FOLLOWUP_SYSTEM_PROMPT },
                     { role: "user", content: context },

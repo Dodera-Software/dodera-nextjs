@@ -18,6 +18,23 @@ import { CTA } from "@/app/data";
 import { N8nIcon } from "@/components/icons/N8nIcon";
 import { Breadcrumb, BreadcrumbItem } from "@/components/Breadcrumb";
 
+/** Wraps matched keywords in a red/primary span for visual emphasis. */
+function highlightContent(content: string, highlights?: string[]) {
+    if (!highlights?.length) return content;
+    const escaped = highlights.map((h) => h.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+    const splitPattern = new RegExp(`(${escaped.join("|")})`, "gi");
+    const testPattern = new RegExp(`^(?:${escaped.join("|")})$`, "i");
+    return content.split(splitPattern).map((part, i) =>
+        testPattern.test(part) ? (
+            <span key={i} className="text-primary font-semibold">
+                {part}
+            </span>
+        ) : (
+            part
+        )
+    );
+}
+
 /** Map string names → icon components to keep config serialisable */
 const ICON_MAP: Record<string, LucideIcon | React.ComponentType<{ className?: string }>> = {
     Bot,
@@ -142,7 +159,7 @@ export function ServicePageLayout({ data }: ServicePageLayoutProps) {
                                 {section.title}
                             </h2>
                             <p className="mb-6 text-base leading-relaxed text-muted-foreground">
-                                {section.content}
+                                {highlightContent(section.content, section.highlights)}
                             </p>
                             {section.bullets && (
                                 <ul className="space-y-3">

@@ -1,4 +1,4 @@
-import { format, parseISO, isValid } from "date-fns";
+import { format, formatDistanceToNow, parseISO, isValid } from "date-fns";
 
 /**
  * Format an ISO date string for display.
@@ -32,6 +32,19 @@ export function formatDateShort(dateStr: string): string {
 export function formatDateTime(dateStr: string | null, pattern = "MMM d, yyyy HH:mm"): string {
     if (!dateStr) return "\u2014";
     return formatDate(dateStr, pattern);
+}
+
+/**
+ * Format a date as a relative time string (e.g. "3 days ago").
+ */
+export function formatTimeAgo(dateStr: string): string {
+    try {
+        const date = parseISO(dateStr);
+        if (!isValid(date)) return dateStr;
+        return formatDistanceToNow(date, { addSuffix: true });
+    } catch {
+        return dateStr;
+    }
 }
 
 /**
