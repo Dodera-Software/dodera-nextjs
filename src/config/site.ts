@@ -30,7 +30,6 @@ import type {
     FooterLinkGroup,
     TerminalLine,
     SocialLink,
-    TeamMember,
     EngagementModel,
 } from "@/types";
 
@@ -46,7 +45,7 @@ export const COMPANY = {
     location: "Romania · International",
     hours: "Open 24 hours",
     tagline:
-        "Premium software and AI development from Romania, serving clients internationally.",
+        "Custom software and AI development from Romania, serving clients internationally.",
 } as const;
 
 // ── Services ────────────────────────────────────────────
@@ -135,47 +134,6 @@ export const PROCESS_STEPS: ProcessStep[] = [
         title: "Ship & Support",
         description:
             "We deliver production-ready code, full documentation, and stay with you long after launch.",
-    },
-];
-
-// ── Team Members ────────────────────────────────────────────
-
-export const TEAM_MEMBERS: TeamMember[] = [
-    {
-        name: "Andrei Marin",
-        role: "Co-founder & Solutions Architect",
-        bio: "Andrei leads system design and technical strategy. With a decade of experience building distributed systems, he ensures every solution is scalable, maintainable, and production-ready from day one.",
-        expertise: [".NET", "Azure", "Microservices", "System Design", "C#"],
-    },
-    {
-        name: "Radu Constantin",
-        role: "Senior Full-Stack Engineer",
-        bio: "Radu specialises in high-performance web applications. He bridges frontend and backend with clean architecture, building SaaS products and enterprise platforms that scale to millions of users.",
-        expertise: ["React", "Next.js", "TypeScript", "Node.js", "PostgreSQL"],
-    },
-    {
-        name: "Elena Popa",
-        role: "Frontend Engineer",
-        bio: "Elena crafts pixel-perfect, accessible interfaces. She brings designs to life with smooth animations, responsive layouts, and best-in-class Lighthouse scores across all devices.",
-        expertise: ["Vue.js", "Nuxt", "TailwindCSS", "Framer Motion", "Accessibility"],
-    },
-    {
-        name: "Mihai Ionescu",
-        role: "Backend Engineer",
-        bio: "Mihai architects robust server-side systems. From complex database schemas to high-throughput APIs, he ensures the backbone of every application is fast, secure, and resilient.",
-        expertise: ["Laravel", "PHP", "PostgreSQL", "Redis", "REST & GraphQL"],
-    },
-    {
-        name: "Ana Dumitrescu",
-        role: "AI & Automation Engineer",
-        bio: "Ana builds the intelligent layer of our products. She designs LLM pipelines, RAG systems, and autonomous agents that turn complex workflows into seamless automated experiences.",
-        expertise: ["Python", "LangChain", "OpenAI", "RAG", "n8n"],
-    },
-    {
-        name: "Bogdan Stanescu",
-        role: "DevOps & CI/CD Engineer",
-        bio: "Bogdan keeps the build pipeline green and deployments fearless. He architects cloud infrastructure and automation pipelines that give every team member confidence to ship fast.",
-        expertise: ["Docker", "Kubernetes", "GitHub Actions", "AWS", "Terraform"],
     },
 ];
 

@@ -349,8 +349,7 @@ export function ServicePageLayout({ data }: ServicePageLayoutProps) {
                             Ready to get started?
                         </h2>
                         <p className="mx-auto mb-8 max-w-xl text-lg leading-relaxed text-muted-foreground">
-                            Book a free 30-minute architecture call. We&apos;ll audit your project
-                            and tell you exactly what it takes to ship.
+                            Book a{" "}<strong className="font-semibold text-primary">free</strong>{" "}30-minute architecture call. We&apos;ll audit your project and tell you exactly what it takes to ship.
                         </p>
                         <Button size="lg" asChild>
                             <Link href="/#contact">

@@ -15,20 +15,21 @@ import {
   professionalServiceSchema,
   breadcrumbSchema,
 } from "@/lib/structured-data";
-import { SITE, DEFAULT_META } from "@/config/seo";
+import { SITE } from "@/config/seo";
+import { HOME_META } from "./seo";
 
 export const metadata: Metadata = {
   title: {
-    absolute: DEFAULT_META.title,
+    absolute: HOME_META.title,
   },
-  description: DEFAULT_META.description,
-  keywords: [...DEFAULT_META.keywords],
+  description: HOME_META.description,
+  keywords: [...HOME_META.keywords],
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: DEFAULT_META.title,
-    description: DEFAULT_META.description,
+    title: HOME_META.title,
+    description: HOME_META.description,
     url: SITE.url,
     type: "website",
     siteName: SITE.name,
@@ -36,8 +37,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: DEFAULT_META.title,
-    description: DEFAULT_META.description,
+    title: HOME_META.title,
+    description: HOME_META.description,
     images: [SITE.ogImage],
   },
 };

@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { PRIVACY_META } from "./seo";
 import { COMPANY } from "@/config/site";
-import { SITE } from "@/config/seo";
 
 export const metadata: Metadata = {
-    title: `Privacy Policy | ${SITE.name}`,
-    description: `Learn how ${COMPANY.name} collects, uses, and protects your personal data.`,
-    alternates: { canonical: `${SITE.url}/privacy-policy` },
+    title: PRIVACY_META.title,
+    description: PRIVACY_META.description,
+    alternates: { canonical: PRIVACY_META.canonical },
     robots: { index: true, follow: true },
 };
 

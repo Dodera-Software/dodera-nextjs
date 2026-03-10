@@ -1,9 +1,9 @@
-/** Central SEO configuration – single source of truth for all meta / structured-data values. */
+﻿/** Central SEO configuration – shared site identity and layout fallback. */
 
 export const SITE = {
     name: "Dodera Software",
     legalName: "Dodera Software S.R.L.",
-    tagline: "Reliable Software & AI Development",
+    tagline: "Custom Software & AI Development",
     url: "https://doderasoft.com",
     locale: "en_US",
     themeColor: "#e1432b",
@@ -27,9 +27,9 @@ export const SITE = {
     favicon: "/favicon.svg",
 } as const;
 
-/** Default meta used when a page doesn't override values. */
+/** Default meta used when a page doesn't override values (also the layout fallback). */
 export const DEFAULT_META = {
-    title: `${SITE.name} - Premium software and AI development`,
+    title: `${SITE.name} - Custom Software & AI Development`,
     description:
         "We build web applications, presentation websites, AI systems and workflow automations for companies of all sizes. Based in Romania, serving clients globally.",
     keywords: [

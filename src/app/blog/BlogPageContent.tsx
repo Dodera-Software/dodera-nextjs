@@ -40,7 +40,7 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
                     >
                         Engineering{" "}
                         <span className="text-primary">Insights</span>{" "}
-                        &amp; AI Development
+                        & AI Development
                     </motion.h1>
                     <motion.p
                         variants={fadeInUp}
@@ -49,9 +49,7 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
                         transition={{ duration: 0.4, delay: 0.12 }}
                         className="mx-auto max-w-2xl text-lg leading-relaxed text-muted-foreground"
                     >
-                        Deep dives into AI development, software architecture, SaaS best
-                        practices, and technical documentation – from the team that builds
-                        production systems every day.
+                        Deep dives into AI development, software architecture, SaaS best practices, and technical documentation &ndash; from the team that builds production systems every day.
                     </motion.p>
                 </div>
             </section>

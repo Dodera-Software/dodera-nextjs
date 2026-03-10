@@ -5,6 +5,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { ScrollManager } from "@/components/ScrollManager";
 import { AboutPageContent } from "./AboutPageContent";
 import { SITE } from "@/config/seo";
+import { ABOUT_META } from "./seo";
 import {
     aboutPageSchema,
     breadcrumbSchema,
@@ -14,28 +15,15 @@ import {
 /* ── SEO Metadata ────────────────────────────────────────────────────────── */
 
 export const metadata: Metadata = {
-    title: "About Us - Meet the Dodera Software Team",
-    description:
-        "Dodera Software is a boutique software engineering company based in Romania. We build web apps, mobile apps, AI systems, and automations for ambitious companies worldwide — per hour, per task, or per project.",
-    keywords: [
-        "about Dodera Software",
-        "software engineering team",
-        "Romanian software company",
-        "senior engineers",
-        "web development team",
-        "AI development team",
-        "mobile app developers",
-        "full-stack developers Romania",
-        "software company Romania",
-        "engineering consultancy",
-    ],
+    title: ABOUT_META.title,
+    description: ABOUT_META.description,
+    keywords: [...ABOUT_META.keywords],
     alternates: {
         canonical: "/about",
     },
     openGraph: {
-        title: "About Us - Meet the Dodera Software Team",
-        description:
-            "Senior software engineers specialising in web, mobile, AI, and automation. Based in Romania, serving clients internationally — per hour, per task, or end-to-end project.",
+        title: ABOUT_META.openGraph.title,
+        description: ABOUT_META.openGraph.description,
         url: `${SITE.url}/about`,
         type: "website",
         siteName: SITE.name,
@@ -50,9 +38,8 @@ export const metadata: Metadata = {
     },
     twitter: {
         card: "summary_large_image",
-        title: "About Us - Dodera Software Engineering Team",
-        description:
-            "Senior engineers across frontend, backend, AI, mobile, and DevOps. Romania-based, serving clients worldwide.",
+        title: ABOUT_META.twitter.title,
+        description: ABOUT_META.twitter.description,
         images: [SITE.ogImage],
     },
 };

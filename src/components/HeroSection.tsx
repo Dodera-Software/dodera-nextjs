@@ -24,8 +24,9 @@ export function HeroSection() {
                             transition={{ duration: 0.4, delay: 0.08 }}
                             className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl"
                         >
-                            Software that{" "}
-                            <span className="text-primary">Means&nbsp;Business.</span>
+                            Software that
+                            <br />
+                            <span className="text-primary">Means Business.</span>
                         </motion.h1>
 
                         <motion.p
@@ -35,9 +36,7 @@ export function HeroSection() {
                             transition={{ duration: 0.4, delay: 0.16 }}
                             className="max-w-lg text-base sm:text-lg leading-relaxed text-muted-foreground"
                         >
-                            We offer premium IT consultancy specializing in high-performance AI
-                            infrastructure, custom SaaS launches, and smart technical
-                            documentation for visionary enterprises.
+                            We offer premium IT consultancy specializing in high-performance AI infrastructure, custom SaaS launches, and smart technical documentation for visionary enterprises.
                         </motion.p>
 
                         <motion.div
