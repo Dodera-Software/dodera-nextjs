@@ -243,7 +243,7 @@ export default function GenerateSocialPostPage() {
     }, []);
 
     /* ── Select a post ───────────────────────────────────────── */
-    const handleSelect = (post: BlogPost) => {
+    const handleSelect = (post: SocialBlogPost) => {
         setSelected(post);
         setGenerated({});
         setActivePlatform(null);

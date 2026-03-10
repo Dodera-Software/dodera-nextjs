@@ -277,28 +277,6 @@ export default function TokensPage() {
         };
     }
 
-    function getTokenStatus(token: Token) {
-        if (token.revoked_at) {
-            return {
-                label: "Revoked",
-                className: "bg-destructive/10 text-destructive",
-                icon: Ban,
-            };
-        }
-        if (token.expires_at && new Date(token.expires_at) < new Date()) {
-            return {
-                label: "Expired",
-                className: "bg-amber-500/10 text-amber-500",
-                icon: AlertTriangle,
-            };
-        }
-        return {
-            label: "Active",
-            className: "bg-emerald-500/10 text-emerald-500",
-            icon: Shield,
-        };
-    }
-
     return (
         <div className="space-y-6">
             <AdminPageHeader
