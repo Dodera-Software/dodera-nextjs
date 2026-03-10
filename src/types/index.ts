@@ -1,5 +1,23 @@
 import type { LucideIcon } from "lucide-react";
 
+// ── Team ────────────────────────────────────────────────
+
+export interface TeamMember {
+    name: string;
+    role: string;
+    bio: string;
+    expertise: string[];
+    avatar?: string;
+}
+
+export interface EngagementModel {
+    title: string;
+    tagline: string;
+    description: string;
+    bestFor: string[];
+    icon: LucideIcon;
+}
+
 // ── Services ────────────────────────────────────────────
 
 export interface ServiceHighlight {
@@ -27,6 +45,8 @@ export interface ServicePageSection {
     title: string;
     content: string;
     bullets?: string[];
+    /** Keywords to visually highlight in the content paragraph. */
+    highlights?: string[];
 }
 
 export interface ServicePageFAQ {

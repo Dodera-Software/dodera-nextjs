@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { fadeInUp, viewportOnce } from "@/lib/animations";
 
-interface SectionHeadingProps {
+export interface SectionHeadingProps {
     /** Small uppercase label above the heading. */
     label: string;
     /** Main heading content - can include JSX (e.g. a <span> for colour). */

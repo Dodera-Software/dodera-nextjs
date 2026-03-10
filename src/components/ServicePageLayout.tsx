@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, ChevronRight, Bot, Workflow, Rocket, Building2, Cloud, BookOpen } from "lucide-react";
+import { ArrowRight, Bot, Workflow, Rocket, Building2, Cloud, BookOpen, Globe } from "lucide-react";
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,24 @@ import { fadeInUp, fadeInUpLg, viewportOnce, stagger } from "@/lib/animations";
 import type { ServicePageData } from "@/types";
 import { SERVICE_PAGES } from "@/config/services";
 import { N8nIcon } from "@/components/icons/N8nIcon";
+import { Breadcrumb, BreadcrumbItem } from "@/components/Breadcrumb";
+
+/** Wraps matched keywords in a red/primary span for visual emphasis. */
+function highlightContent(content: string, highlights?: string[]) {
+    if (!highlights?.length) return content;
+    const escaped = highlights.map((h) => h.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+    const splitPattern = new RegExp(`(${escaped.join("|")})`, "gi");
+    const testPattern = new RegExp(`^(?:${escaped.join("|")})$`, "i");
+    return content.split(splitPattern).map((part, i) =>
+        testPattern.test(part) ? (
+            <span key={i} className="text-primary font-semibold">
+                {part}
+            </span>
+        ) : (
+            part
+        )
+    );
+}
 
 /** Map string names → icon components to keep config serialisable */
 const ICON_MAP: Record<string, LucideIcon | React.ComponentType<{ className?: string }>> = {
@@ -24,6 +42,7 @@ const ICON_MAP: Record<string, LucideIcon | React.ComponentType<{ className?: st
     Building2,
     Cloud,
     BookOpen,
+    Globe,
     N8nIcon,
 };
 
@@ -31,7 +50,7 @@ function resolveIcon(name: string) {
     return ICON_MAP[name] ?? Bot;
 }
 
-interface ServicePageLayoutProps {
+export interface ServicePageLayoutProps {
     data: ServicePageData;
 }
 
@@ -49,42 +68,20 @@ export function ServicePageLayout({ data }: ServicePageLayoutProps) {
     return (
         <>
             {/* ── Breadcrumb ──────────────────────────────────── */}
-            <nav aria-label="Breadcrumb" className="mx-auto max-w-7xl px-6 pt-24 pb-4">
-                <ol className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                    <li>
-                        <Link href="/" className="transition-colors hover:text-foreground">
-                            Home
-                        </Link>
-                    </li>
-                    <ChevronRight className="size-3.5" />
-                    <li>
-                        <Link href="/#services" className="transition-colors hover:text-foreground">
-                            Services
-                        </Link>
-                    </li>
-                    {data.parentSlug &&
-                        (() => {
-                            const parent = SERVICE_PAGES[data.parentSlug!];
-                            return parent ? (
-                                <>
-                                    <ChevronRight className="size-3.5" />
-                                    <li>
-                                        <Link
-                                            href={`/services/${data.parentSlug}`}
-                                            className="transition-colors hover:text-foreground"
-                                        >
-                                            {parent.heroLabel}
-                                        </Link>
-                                    </li>
-                                </>
-                            ) : null;
-                        })()}
-                    <ChevronRight className="size-3.5" />
-                    <li aria-current="page" className="font-medium text-foreground">
-                        {data.heroLabel}
-                    </li>
-                </ol>
-            </nav>
+            {(() => {
+                const crumbs: BreadcrumbItem[] = [
+                    { label: "Home", href: "/" },
+                    { label: "Services", href: "/#services" },
+                ];
+                if (data.parentSlug) {
+                    const parent = SERVICE_PAGES[data.parentSlug];
+                    if (parent) {
+                        crumbs.push({ label: parent.heroLabel, href: `/services/${data.parentSlug}` });
+                    }
+                }
+                crumbs.push({ label: data.heroLabel });
+                return <Breadcrumb items={crumbs} />;
+            })()}
 
             {/* ── Hero ────────────────────────────────────────── */}
             <section aria-label="Service overview" className="relative pb-20 pt-8">
@@ -128,7 +125,7 @@ export function ServicePageLayout({ data }: ServicePageLayoutProps) {
                     >
                         <Button size="lg" asChild>
                             <Link href="/#contact">
-                                Get a Quote
+                                Let's Discuss
                                 <ArrowRight className="ml-1 size-4" />
                             </Link>
                         </Button>
@@ -161,7 +158,7 @@ export function ServicePageLayout({ data }: ServicePageLayoutProps) {
                                 {section.title}
                             </h2>
                             <p className="mb-6 text-base leading-relaxed text-muted-foreground">
-                                {section.content}
+                                {highlightContent(section.content, section.highlights)}
                             </p>
                             {section.bullets && (
                                 <ul className="space-y-3">
@@ -202,10 +199,10 @@ export function ServicePageLayout({ data }: ServicePageLayoutProps) {
 
                         <div
                             className={`grid gap-6 ${data.childServices.length === 1
-                                    ? "max-w-lg mx-auto"
-                                    : data.childServices.length === 2
-                                        ? "sm:grid-cols-2"
-                                        : "sm:grid-cols-3"
+                                ? "max-w-lg mx-auto"
+                                : data.childServices.length === 2
+                                    ? "sm:grid-cols-2"
+                                    : "sm:grid-cols-3"
                                 }`}
                         >
                             {data.childServices.map((child, i) => {

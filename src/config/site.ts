@@ -10,6 +10,7 @@ import {
     Cpu,
     Code2,
     FileText,
+    Monitor,
     Search,
     Layers,
     Zap,
@@ -17,6 +18,9 @@ import {
     Linkedin,
     Instagram,
     Facebook,
+    Clock,
+    CheckSquare,
+    Briefcase,
 } from "lucide-react";
 
 import type {
@@ -26,6 +30,8 @@ import type {
     FooterLinkGroup,
     TerminalLine,
     SocialLink,
+    TeamMember,
+    EngagementModel,
 } from "@/types";
 
 // ── Company ─────────────────────────────────────────────
@@ -35,7 +41,10 @@ export const COMPANY = {
     legalName: "Dodera Software S.R.L.",
     email: "office@doderasoft.com",
     url: "https://doderasoft.com",
+    phone: "0748 650 469",
+    address: "Strada Banat 1, 440043 Satu Mare",
     location: "Romania · International",
+    hours: "Open 24 hours",
     tagline:
         "Premium software and AI development from Romania, serving clients internationally.",
 } as const;
@@ -43,20 +52,6 @@ export const COMPANY = {
 // ── Services ────────────────────────────────────────────
 
 export const SERVICES: Service[] = [
-    {
-        icon: Cpu,
-        title: "AI Development",
-        subtitle: "Intelligent Workflows & Agents",
-        description:
-            "Automate repetitive tasks and workflows with custom AI agents. We build intelligent systems that handle daily operations, data processing, and decision-making at scale.",
-        tags: ["Workflow Automation", "AI Agents", "Process Optimization"],
-        image: "/ai-development.jpg",
-        highlights: [
-            { label: "Custom AI Agents", href: "/services/ai-development/custom-ai-agents" },
-            { label: "AI Powered Automations", href: "/services/ai-development/ai-powered-automations" },
-        ],
-        href: "/services/ai-development",
-    },
     {
         icon: Code2,
         title: "Software Development",
@@ -71,6 +66,33 @@ export const SERVICES: Service[] = [
             { label: "SaaS Products", href: "/services/software-development/saas-products" },
         ],
         href: "/services/software-development",
+    },
+    {
+        icon: Monitor,
+        title: "Presentation Websites",
+        subtitle: "Stunning Sites That Convert",
+        description:
+            "Make a lasting first impression. We design and build polished, fast-loading presentation websites that showcase your brand and turn visitors into leads.",
+        tags: ["Brand Design", "Landing Pages", "Conversion"],
+        image: "/presentation-website.png",
+        highlights: [
+            { label: "Business Showcase Sites", href: "/services/presentation-websites/business-showcase-sites" },
+        ],
+        href: "/services/presentation-websites",
+    },
+    {
+        icon: Cpu,
+        title: "AI Development",
+        subtitle: "Intelligent Workflows & Agents",
+        description:
+            "Automate repetitive tasks and workflows with custom AI agents. We build intelligent systems that handle daily operations, data processing, and decision-making at scale.",
+        tags: ["Workflow Automation", "AI Agents", "Process Optimization"],
+        image: "/ai-development.jpg",
+        highlights: [
+            { label: "Custom AI Agents", href: "/services/ai-development/custom-ai-agents" },
+            { label: "AI Powered Automations", href: "/services/ai-development/ai-powered-automations" },
+        ],
+        href: "/services/ai-development",
     },
     {
         icon: FileText,
@@ -116,9 +138,95 @@ export const PROCESS_STEPS: ProcessStep[] = [
     },
 ];
 
-// ── Navigation ──────────────────────────────────────────
+// ── Team Members ────────────────────────────────────────────
+
+export const TEAM_MEMBERS: TeamMember[] = [
+    {
+        name: "Andrei Marin",
+        role: "Co-founder & Solutions Architect",
+        bio: "Andrei leads system design and technical strategy. With a decade of experience building distributed systems, he ensures every solution is scalable, maintainable, and production-ready from day one.",
+        expertise: [".NET", "Azure", "Microservices", "System Design", "C#"],
+    },
+    {
+        name: "Radu Constantin",
+        role: "Senior Full-Stack Engineer",
+        bio: "Radu specialises in high-performance web applications. He bridges frontend and backend with clean architecture, building SaaS products and enterprise platforms that scale to millions of users.",
+        expertise: ["React", "Next.js", "TypeScript", "Node.js", "PostgreSQL"],
+    },
+    {
+        name: "Elena Popa",
+        role: "Frontend Engineer",
+        bio: "Elena crafts pixel-perfect, accessible interfaces. She brings designs to life with smooth animations, responsive layouts, and best-in-class Lighthouse scores across all devices.",
+        expertise: ["Vue.js", "Nuxt", "TailwindCSS", "Framer Motion", "Accessibility"],
+    },
+    {
+        name: "Mihai Ionescu",
+        role: "Backend Engineer",
+        bio: "Mihai architects robust server-side systems. From complex database schemas to high-throughput APIs, he ensures the backbone of every application is fast, secure, and resilient.",
+        expertise: ["Laravel", "PHP", "PostgreSQL", "Redis", "REST & GraphQL"],
+    },
+    {
+        name: "Ana Dumitrescu",
+        role: "AI & Automation Engineer",
+        bio: "Ana builds the intelligent layer of our products. She designs LLM pipelines, RAG systems, and autonomous agents that turn complex workflows into seamless automated experiences.",
+        expertise: ["Python", "LangChain", "OpenAI", "RAG", "n8n"],
+    },
+    {
+        name: "Bogdan Stanescu",
+        role: "DevOps & CI/CD Engineer",
+        bio: "Bogdan keeps the build pipeline green and deployments fearless. He architects cloud infrastructure and automation pipelines that give every team member confidence to ship fast.",
+        expertise: ["Docker", "Kubernetes", "GitHub Actions", "AWS", "Terraform"],
+    },
+];
+
+// ── Engagement Models ────────────────────────────────────────
+
+export const ENGAGEMENT_MODELS: EngagementModel[] = [
+    {
+        icon: Clock,
+        title: "Per Hour",
+        tagline: "Flexible & On-Demand",
+        description:
+            "Tap into senior engineering capacity exactly when you need it. Perfect for ongoing support, code reviews, technical audits, and iterative feature development.",
+        bestFor: [
+            "Ongoing maintenance & bug fixes",
+            "Technical audits & architecture reviews",
+            "Staff augmentation for existing teams",
+            "Ad-hoc feature work or integrations",
+        ],
+    },
+    {
+        icon: CheckSquare,
+        title: "Per Task",
+        tagline: "Scoped & Predictable",
+        description:
+            "Defined deliverable, fixed price. You specify what you need, we give you a clear estimate and timeline. No surprises, no scope creep - just results.",
+        bestFor: [
+            "Individual features or components",
+            "API integrations & third-party connections",
+            "Performance optimisations",
+            "One-off automation or AI workflows",
+        ],
+    },
+    {
+        icon: Briefcase,
+        title: "Per Project",
+        tagline: "End-to-End Ownership",
+        description:
+            "We own the entire journey from discovery to deployment. Ideal for greenfield builds and complete product launches where you want a dedicated engineering partner.",
+        bestFor: [
+            "New product or SaaS builds from scratch",
+            "Complete website or platform redesigns",
+            "Mobile app development (iOS, Android, PWA)",
+            "Full AI system implementation",
+        ],
+    },
+];
+
+// ── Navigation ───────────────────────────────────────────────
 
 export const NAV_LINKS: NavLink[] = [
+    { label: "About Us", href: "/about" },
     { label: "Process", href: "/#process" },
     { label: "Blog", href: "/blog" },
     { label: "Contact", href: "/#contact" },
@@ -138,14 +246,16 @@ export const FOOTER_LINK_GROUPS: FooterLinkGroup[] = [
     {
         heading: "Services",
         links: [
-            { label: "AI Development", href: "/services/ai-development" },
             { label: "Software Development", href: "/services/software-development" },
+            { label: "Presentation Websites", href: "/services/presentation-websites" },
+            { label: "AI Development", href: "/services/ai-development" },
             { label: "Technical Documentation", href: "/services/technical-documentation" },
         ],
     },
     {
         heading: "Company",
         links: [
+            { label: "About Us", href: "/about" },
             { label: "Process", href: "/#process" },
             { label: "Blog", href: "/blog" },
             { label: "Contact", href: "/#contact" },
@@ -154,8 +264,7 @@ export const FOOTER_LINK_GROUPS: FooterLinkGroup[] = [
     {
         heading: "Legal",
         links: [
-            { label: "Privacy Policy", href: "#" },
-            { label: "Terms of Service", href: "#" },
+            { label: "Privacy Policy", href: "/privacy-policy" },
         ],
     },
 ];

@@ -1,19 +1,22 @@
 import "server-only";
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
+import type { AdminSession } from "@/types/admin";
+
+const rawAdminSecret = process.env.ADMIN_JWT_SECRET;
+if (process.env.NODE_ENV === "production" && !rawAdminSecret) {
+    throw new Error(
+        "[admin-auth] ADMIN_JWT_SECRET environment variable is not set. " +
+        "This is required in production to secure admin sessions."
+    );
+}
 
 const JWT_SECRET = new TextEncoder().encode(
-    process.env.ADMIN_JWT_SECRET || "fallback-secret-change-me",
+    rawAdminSecret ?? "fallback-secret-change-me",
 );
 
 const COOKIE_NAME = "admin_session";
 const COOKIE_MAX_AGE = 60 * 60 * 24; // 24 hours
-
-export interface AdminSession {
-    id: number;
-    email: string;
-    name: string;
-}
 
 /**
  * Create a signed JWT and set it as an httpOnly cookie.

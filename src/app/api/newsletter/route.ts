@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { z } from "zod";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 /* ── Validation schema ────────────────────────────────── */
 const subscriberSchema = z.object({
@@ -26,6 +27,16 @@ export async function POST(request: NextRequest) {
         }
 
         const email = parsed.data.email.toLowerCase();
+
+        /* IP rate limit */
+        const ip = getClientIp(request);
+        const { limited } = await checkRateLimit("newsletter", ip);
+        if (limited) {
+            return NextResponse.json(
+                { status: "error", message: "Too many requests. Please try again later." },
+                { status: 429 },
+            );
+        }
 
         /* Check if already subscribed */
         const { data: existing, error: selectError } = await supabase

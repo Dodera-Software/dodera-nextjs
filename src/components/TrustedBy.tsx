@@ -1,7 +1,8 @@
 ﻿"use client";
 
 import { motion } from "framer-motion";
-import { TRUSTED_LOGOS, SOCIAL_LINKS } from "@/config/site";
+import { TRUSTED_LOGOS } from "@/config/site";
+import { SocialIconList } from "@/components/SocialIconList";
 import { fadeIn, viewportOnce } from "@/lib/animations";
 
 export function TrustedBy() {
@@ -12,25 +13,12 @@ export function TrustedBy() {
                     Using globally trusted technologies like
                 </p>
 
-                {/* Social Media Icons - Absolutely positioned */}
+                {/* Social icons — desktop, absolute right */}
                 <div className="absolute right-6 top-1/2 hidden -translate-y-1/2 flex-col items-end gap-2 lg:flex">
                     <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/50">
                         Find us on:
                     </p>
-                    <div className="flex gap-3">
-                        {SOCIAL_LINKS.map((social) => (
-                            <a
-                                key={social.label}
-                                href={social.href}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                aria-label={social.label}
-                                className="flex size-9 items-center justify-center rounded-md border border-border bg-muted/50 transition-all hover:bg-muted"
-                            >
-                                <social.icon className="size-4 text-muted-foreground transition-colors hover:text-foreground" />
-                            </a>
-                        ))}
-                    </div>
+                    <SocialIconList />
                 </div>
 
                 <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-6">
@@ -49,25 +37,12 @@ export function TrustedBy() {
                     ))}
                 </div>
 
-                {/* Social Media Icons - Mobile/Tablet */}
+                {/* Social icons — mobile/tablet */}
                 <div className="mt-10 flex flex-col items-center gap-3 lg:hidden">
                     <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/50">
                         Find us on:
                     </p>
-                    <div className="flex gap-3">
-                        {SOCIAL_LINKS.map((social) => (
-                            <a
-                                key={social.label}
-                                href={social.href}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                aria-label={social.label}
-                                className="flex size-9 items-center justify-center rounded-md border border-border bg-muted/50 transition-all hover:bg-muted"
-                            >
-                                <social.icon className="size-4 text-muted-foreground transition-colors hover:text-foreground" />
-                            </a>
-                        ))}
-                    </div>
+                    <SocialIconList />
                 </div>
             </div>
         </section>

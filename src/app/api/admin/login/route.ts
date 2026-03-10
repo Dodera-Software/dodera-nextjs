@@ -2,9 +2,20 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { supabase } from "@/lib/supabase";
 import { createAdminSession } from "@/lib/admin-auth";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
     try {
+        /* IP rate limit — prevent brute-force attacks */
+        const ip = getClientIp(request);
+        const { limited } = await checkRateLimit("admin_login", ip);
+        if (limited) {
+            return NextResponse.json(
+                { status: "error", message: "Too many login attempts. Please try again later." },
+                { status: 429 },
+            );
+        }
+
         const body = await request.json();
         const { email, password } = body;
 

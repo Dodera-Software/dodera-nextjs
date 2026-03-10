@@ -4,6 +4,12 @@ import React, { useEffect, useState } from "react";
 import { Users, Key, LayoutDashboard, Wand2, Loader2, CheckCircle2, XCircle, ExternalLink, ChevronDown, ChevronUp, BarChart2, GitBranch, Database } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useConfirm } from "@/hooks/use-confirm";
+import { toast } from "sonner";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { AdminStatCard } from "@/components/admin/AdminStatCard";
+import { isTokenActive } from "@/lib/utils";
+import type { DashboardStats, AutoPostResult } from "@/types/admin";
 
 /* ── Platform-aware quick links ────────────────────────────── */
 const PLATFORM = process.env.NEXT_PUBLIC_DEPLOY_PLATFORM ?? "netlify";
@@ -67,21 +73,8 @@ const QUICK_LINKS = [
     },
 ].filter((l) => !!l.url) as { label: string; description: string; icon: React.ElementType; color: string; bg: string; url: string }[];
 
-interface Stats {
-    subscribers: number;
-    tokens: number;
-    activeTokens: number;
-}
-
-interface AutoPostResult {
-    status: "success" | "error";
-    message: string;
-    uid?: string;
-    generated_post?: { title: string; excerpt: string; category: string };
-}
-
 export default function AdminDashboardPage() {
-    const [stats, setStats] = useState<Stats | null>(null);
+    const [stats, setStats] = useState<DashboardStats | null>(null);
     const [loading, setLoading] = useState(true);
 
     // Auto-post
@@ -89,6 +82,7 @@ export default function AdminDashboardPage() {
     const [postResult, setPostResult] = useState<AutoPostResult | null>(null);
     const [showOptions, setShowOptions] = useState(false);
     const [authorName, setAuthorName] = useState("Dodera Team");
+    const confirm = useConfirm();
 
     useEffect(() => {
         async function fetchStats() {
@@ -102,11 +96,7 @@ export default function AdminDashboardPage() {
                 const tokensData = await tokensRes.json();
 
                 const tokens = tokensData.data || [];
-                const activeTokens = tokens.filter(
-                    (t: { revoked_at: string | null; expires_at: string | null }) =>
-                        !t.revoked_at &&
-                        (!t.expires_at || new Date(t.expires_at) > new Date()),
-                );
+                const activeTokens = tokens.filter(isTokenActive);
 
                 setStats({
                     subscribers: subsData.pagination?.total || 0,
@@ -124,7 +114,6 @@ export default function AdminDashboardPage() {
     }, []);
 
     async function handleAutoPost() {
-        if (!confirm("Generate and save as draft a new blog post?")) return;
         setPosting(true);
         setPostResult(null);
         try {
@@ -135,8 +124,15 @@ export default function AdminDashboardPage() {
             });
             const data = await res.json();
             setPostResult(data);
+            if (data.status === "success") {
+                toast.success(data.message ?? "Blog post generated");
+            } else {
+                toast.error(data.message ?? "Auto post failed");
+            }
         } catch {
-            setPostResult({ status: "error", message: "Request failed. Check the server logs." });
+            const errResult = { status: "error" as const, message: "Request failed. Check the server logs." };
+            setPostResult(errResult);
+            toast.error(errResult.message);
         } finally {
             setPosting(false);
         }
@@ -168,36 +164,20 @@ export default function AdminDashboardPage() {
 
     return (
         <div className="space-y-6">
-            <div>
-                <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-                <p className="text-sm text-muted-foreground mt-1">
-                    Overview of your website data
-                </p>
-            </div>
+            <AdminPageHeader title="Dashboard" subtitle="Overview of your website data" />
 
             {/* Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {cards.map((card) => (
-                    <div
+                    <AdminStatCard
                         key={card.label}
-                        className="rounded-xl border border-border bg-card p-5 space-y-3"
-                    >
-                        <div className="flex items-center justify-between">
-                            <p className="text-sm text-muted-foreground">
-                                {card.label}
-                            </p>
-                            <div className={`w-9 h-9 rounded-lg ${card.bg} flex items-center justify-center`}>
-                                <card.icon className={`w-4 h-4 ${card.color}`} />
-                            </div>
-                        </div>
-                        <p className="text-3xl font-bold">
-                            {loading ? (
-                                <span className="inline-block w-12 h-8 rounded bg-muted animate-pulse" />
-                            ) : (
-                                card.value
-                            )}
-                        </p>
-                    </div>
+                        label={card.label}
+                        value={card.value as string | number}
+                        icon={card.icon}
+                        iconColor={card.color}
+                        iconBg={card.bg}
+                        isLoading={loading}
+                    />
                 ))}
             </div>
 
@@ -233,7 +213,15 @@ export default function AdminDashboardPage() {
                             </p>
                         </div>
                     </div>
-                    <Button onClick={handleAutoPost} disabled={posting}>
+                    <Button onClick={async () => {
+                        const ok = await confirm({
+                            title: "Generate blog post",
+                            description: "AI will generate a trending blog post and save it as a draft in Prismic. Continue?",
+                            confirmLabel: "Generate",
+                            variant: "default",
+                        });
+                        if (ok) handleAutoPost();
+                    }} disabled={posting}>
                         {posting ? (
                             <>
                                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -307,6 +295,7 @@ export default function AdminDashboardPage() {
                     </div>
                 )}
             </div>
+
         </div>
     );
 }

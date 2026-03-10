@@ -5,26 +5,17 @@ import {
     Search,
     Trash2,
     Loader2,
-    ChevronLeft,
-    ChevronRight,
     Users,
     RefreshCw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
-interface Subscriber {
-    id: number;
-    email: string;
-    created_at: string;
-}
-
-interface Pagination {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-}
+import { useConfirm } from "@/hooks/use-confirm";
+import { toast } from "sonner";
+import type { Subscriber, Pagination } from "@/types/admin";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { AdminPagination } from "@/components/admin/AdminPagination";
+import { formatDateShort } from "@/lib/format";
 
 export default function SubscribersPage() {
     const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
@@ -36,6 +27,7 @@ export default function SubscribersPage() {
     });
     const [search, setSearch] = useState("");
     const [loading, setLoading] = useState(true);
+    const confirm = useConfirm();
     const [deleting, setDeleting] = useState<number | null>(null);
 
     const fetchSubscribers = useCallback(
@@ -70,8 +62,15 @@ export default function SubscribersPage() {
     }, []);
 
     async function handleDelete(id: number, email: string) {
-        if (!confirm(`Delete subscriber "${email}"? This cannot be undone.`)) return;
+        const ok = await confirm({
+            title: "Delete subscriber",
+            description: `Remove "${email}" from your newsletter list? This cannot be undone.`,
+            confirmLabel: "Delete",
+        });
+        if (ok) doDelete(id);
+    }
 
+    async function doDelete(id: number) {
         setDeleting(id);
         try {
             const res = await fetch("/api/admin/subscribers", {
@@ -83,9 +82,12 @@ export default function SubscribersPage() {
             if (res.ok) {
                 setSubscribers((prev) => prev.filter((s) => s.id !== id));
                 setPagination((prev) => ({ ...prev, total: prev.total - 1 }));
+                toast.success("Subscriber deleted");
+            } else {
+                toast.error("Failed to delete subscriber");
             }
         } catch {
-            console.error("Failed to delete subscriber");
+            toast.error("Failed to delete subscriber");
         } finally {
             setDeleting(null);
         }
@@ -98,21 +100,16 @@ export default function SubscribersPage() {
 
     return (
         <div className="space-y-6">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight">
-                        Subscribers
-                    </h1>
-                    <p className="text-sm text-muted-foreground mt-1">
-                        {pagination.total} total newsletter subscriber{pagination.total !== 1 ? "s" : ""}
-                    </p>
-                </div>
-                <Button variant="outline" size="sm" onClick={() => fetchSubscribers(pagination.page)}>
-                    <RefreshCw className="w-4 h-4" />
-                    Refresh
-                </Button>
-            </div>
+            <AdminPageHeader
+                title="Subscribers"
+                subtitle={`${pagination.total} total newsletter subscriber${pagination.total !== 1 ? "s" : ""}`}
+                actions={
+                    <Button variant="outline" size="sm" onClick={() => fetchSubscribers(pagination.page)}>
+                        <RefreshCw className="w-4 h-4" />
+                        Refresh
+                    </Button>
+                }
+            />
 
             {/* Search */}
             <form onSubmit={handleSearch} className="flex gap-2">
@@ -179,14 +176,7 @@ export default function SubscribersPage() {
                                             {sub.email}
                                         </td>
                                         <td className="px-4 py-3 text-muted-foreground">
-                                            {new Date(sub.created_at).toLocaleDateString(
-                                                "en-US",
-                                                {
-                                                    year: "numeric",
-                                                    month: "short",
-                                                    day: "numeric",
-                                                },
-                                            )}
+                                            {formatDateShort(sub.created_at)}
                                         </td>
                                         <td className="px-4 py-3 text-right">
                                             <Button
@@ -212,34 +202,11 @@ export default function SubscribersPage() {
                 </div>
             </div>
 
-            {/* Pagination */}
-            {pagination.totalPages > 1 && (
-                <div className="flex items-center justify-between">
-                    <p className="text-sm text-muted-foreground">
-                        Page {pagination.page} of {pagination.totalPages}
-                    </p>
-                    <div className="flex gap-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => fetchSubscribers(pagination.page - 1)}
-                            disabled={pagination.page <= 1}
-                        >
-                            <ChevronLeft className="w-4 h-4" />
-                            Previous
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => fetchSubscribers(pagination.page + 1)}
-                            disabled={pagination.page >= pagination.totalPages}
-                        >
-                            Next
-                            <ChevronRight className="w-4 h-4" />
-                        </Button>
-                    </div>
-                </div>
-            )}
+            <AdminPagination
+                pagination={pagination}
+                onPageChange={(page) => fetchSubscribers(page)}
+            />
+
         </div>
     );
 }

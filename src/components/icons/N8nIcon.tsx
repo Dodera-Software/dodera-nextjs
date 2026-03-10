@@ -3,7 +3,7 @@
  */
 import Image from "next/image";
 
-interface N8nIconProps {
+export interface N8nIconProps {
     className?: string;
 }
 
