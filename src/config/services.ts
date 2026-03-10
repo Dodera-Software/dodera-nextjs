@@ -137,6 +137,7 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
                 title: "What Are Custom AI Agents?",
                 content:
                     "AI agents go beyond simple chatbots. They are autonomous systems that can reason about multi-step problems, call external tools and APIs, retrieve relevant context from your knowledge base, and take actions in the real world. Our custom agents are built on top of state-of-the-art language models and are fine-tuned for your specific domain and use cases.",
+                highlights: ["AI agents", "autonomous systems", "take actions in the real world"],
                 bullets: [
                     "Multi-step reasoning and planning capabilities",
                     "Tool-use and API integration (databases, CRMs, ERPs)",
@@ -215,6 +216,7 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
                 title: "What Is AI-Powered Automation?",
                 content:
                     "AI-powered automation goes beyond traditional rule-based workflows. By combining large language models with process orchestration, we create systems that can understand unstructured data, make nuanced decisions, and adapt to edge cases that would break conventional automation. The result: workflows that handle the messy, real-world complexity your business faces every day.",
+                highlights: ["AI-powered automation", "large language models", "unstructured data"],
                 bullets: [
                     "Process unstructured documents (PDFs, emails, images) with AI extraction",
                     "Make context-aware routing and approval decisions",
@@ -401,6 +403,18 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
             "We build lean, functional MVPs designed to validate your business hypothesis and attract early adopters. Ship in weeks instead of months with our battle-tested development process.",
         sections: [
             {
+                title: "What is an MVP?",
+                content:
+                    "An MVP (Minimum Viable Product) is the first working version of your product - focused enough to build quickly, but real enough for actual users to try. The goal is to validate whether people want what you're building before investing months into the full product. It's not a throwaway demo; it's a shippable product with just enough features to test your core assumption.",
+                highlights: ["MVP", "Minimum Viable Product", "first working version"],
+                bullets: [
+                    "Core feature set built around a single user problem",
+                    "Real users, real feedback - before major investment",
+                    "Production-ready code that grows into the full product",
+                    "Ships in weeks, not months",
+                ],
+            },
+            {
                 title: "Why Build an MVP?",
                 content:
                     "The biggest risk for any new product isn't technical failure - it's building something nobody wants. An MVP lets you test your core hypothesis with real users before investing months or years in full product development. We help you define the smallest feature set that delivers real value, build it fast, and get it into the hands of early adopters.",
@@ -471,6 +485,18 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
         heroDescription:
             "We architect and build enterprise platforms that handle millions of transactions, meet strict compliance requirements, and scale effortlessly with your growth.",
         sections: [
+            {
+                title: "What is an Enterprise Platform?",
+                content:
+                    "An enterprise platform is a large-scale software system built to power the core operations of a mid-to-large organisation. It connects departments, handles high volumes of data and transactions, and integrates with existing tools like ERP and CRM - all while meeting strict requirements around security, compliance, and uptime, and supporting hundreds or thousands of users at the same time.",
+                highlights: ["enterprise platform", "security, compliance, and uptime", "ERP and CRM"],
+                bullets: [
+                    "High-volume transaction processing and data management",
+                    "Integrations with ERP, CRM, HR, and legacy systems",
+                    "Role-based access control and full audit logging",
+                    "Built to compliance standards (SOC 2, GDPR, HIPAA)",
+                ],
+            },
             {
                 title: "Enterprise-Grade Engineering",
                 content:
@@ -550,6 +576,18 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
         heroDescription:
             "We build production-ready SaaS platforms with multi-tenant architecture, subscription billing, and the operational tooling you need to scale from first customer to thousands.",
         sections: [
+            {
+                title: "What is a SaaS Product?",
+                content:
+                    "A SaaS product (Software as a Service) is software delivered over the internet and billed by subscription - no installation required. Users access it from any browser, and the provider manages all infrastructure, updates, and security behind the scenes. It's the dominant model for modern software because it's easy to adopt, easy to scale, and creates predictable recurring revenue.",
+                highlights: ["SaaS", "Software as a Service", "no installation required"],
+                bullets: [
+                    "Multi-tenant architecture with isolated customer data",
+                    "Subscription billing with trial periods and plan tiers",
+                    "Self-service onboarding and user management",
+                    "Accessible from any browser, on any device",
+                ],
+            },
             {
                 title: "SaaS Architecture Done Right",
                 content:
@@ -739,6 +777,7 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
                 title: "What Is a Business Showcase Site?",
                 content:
                     "A business showcase site is your brand's digital headquarters - a carefully crafted, multi-page website that communicates who you are, what you do, why clients should choose you, and what it's like to work with you. Unlike a landing page or a blog, a showcase site tells your complete brand story with visual depth, case studies, team profiles, service overviews, and social proof.",
+                highlights: ["business showcase site", "digital headquarters", "brand story"],
                 bullets: [
                     "Homepage with a compelling hero and value proposition",
                     "Services or product overview pages",
@@ -915,6 +954,7 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
                 title: "What Are Documentation Systems?",
                 content:
                     "A documentation system is more than a collection of markdown files. It's the infrastructure - the tooling, workflows, search, navigation, and deployment pipeline - that makes documentation discoverable, maintainable, and useful at scale. We build systems that grow with your team and product complexity.",
+                highlights: ["documentation system", "discoverable, maintainable", "grow with your team"],
                 bullets: [
                     "Custom-designed developer portals and documentation sites",
                     "Full-text search with AI-powered semantic search",

@@ -502,7 +502,7 @@ export default function TokensPage() {
                             />
                             <p className="text-xs text-muted-foreground flex items-center gap-1">
                                 <Clock className="w-3 h-3" />
-                                Optional — leave empty for a non-expiring token
+                                Optional - leave empty for a non-expiring token
                             </p>
                         </div>
 
@@ -534,7 +534,7 @@ export default function TokensPage() {
                             <div>
                                 <DialogTitle>Token Generated</DialogTitle>
                                 <DialogDescription>
-                                    Copy it now — it won&apos;t be shown again.
+                                    Copy it now - it won&apos;t be shown again.
                                 </DialogDescription>
                             </div>
                         </div>

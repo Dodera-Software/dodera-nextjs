@@ -134,7 +134,7 @@ export default function AdminLoginPage() {
                 </div>
 
                 <p className="text-center text-xs text-muted-foreground">
-                    Dodera Software — Admin Panel
+                    Dodera Software - Admin Panel
                 </p>
             </div>
         </div>
