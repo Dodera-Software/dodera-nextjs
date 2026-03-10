@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Calendar, Clock } from "lucide-react";
+import { ArrowRight, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -93,18 +93,6 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
                                     )}
 
                                     <div className="flex flex-1 flex-col p-6">
-                                        <div className="mb-4 flex items-center gap-3">
-                                            <Badge
-                                                variant="outline"
-                                                className="border-primary/30 bg-primary/5 text-[11px] text-primary"
-                                            >
-                                                {post.category}
-                                            </Badge>
-                                            <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
-                                                <Clock className="size-3" />
-                                                {post.readTime}
-                                            </span>
-                                        </div>
 
                                         <h3 className="mb-3 text-lg font-bold leading-tight transition-colors group-hover:text-primary">
                                             {post.title}
@@ -115,7 +103,7 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
                                         </p>
 
                                         <div className="mb-4 flex flex-wrap gap-1.5">
-                                            {post.tags.map((tag) => (
+                                            {post.tags.slice(0, 3).map((tag) => (
                                                 <Badge
                                                     key={tag}
                                                     variant="outline"
@@ -127,13 +115,34 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
                                         </div>
 
                                         <div className="flex items-center justify-between border-t border-border pt-4">
-                                            <time
-                                                dateTime={post.date}
-                                                className="flex items-center gap-1.5 text-xs text-muted-foreground"
-                                            >
-                                                <Calendar className="size-3" />
-                                                {formatDateShort(post.date)}
-                                            </time>
+                                            <div className="flex items-center gap-2">
+                                                {post.author?.avatar ? (
+                                                    <Image
+                                                        src={post.author.avatar}
+                                                        alt={post.author.name}
+                                                        width={28}
+                                                        height={28}
+                                                        className="size-7 rounded-full object-cover ring-1 ring-border"
+                                                    />
+                                                ) : (
+                                                    <span className="flex size-7 items-center justify-center rounded-full bg-muted ring-1 ring-border">
+                                                        <User className="size-3.5 text-muted-foreground" />
+                                                    </span>
+                                                )}
+                                                <div className="flex flex-col">
+                                                    {post.author?.name && (
+                                                        <span className="text-[11px] font-semibold leading-tight text-foreground">
+                                                            {post.author.name}
+                                                        </span>
+                                                    )}
+                                                    <time
+                                                        dateTime={post.updatedAt ?? post.date}
+                                                        className="text-[10px] leading-tight text-muted-foreground"
+                                                    >
+                                                        {formatDateShort(post.updatedAt ?? post.date)}
+                                                    </time>
+                                                </div>
+                                            </div>
                                             <span className="inline-flex items-center gap-1 text-xs font-medium text-primary transition-colors">
                                                 Read More
                                                 <ArrowRight className="size-3 transition-transform group-hover:translate-x-1" />
