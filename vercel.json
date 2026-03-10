@@ -1,9 +1,1 @@
-// Not needed for now, but can be used to schedule the auto-posting of new content to Prismic every day at 9 AM
-// {
-//     "crons": [
-//         {
-//             "path": "/api/cron/auto-post",
-//             "schedule": "0 9 * * *"
-//         }
-//     ]
-// }
+{}
