@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { BlogPageContent } from "./BlogPageContent";
-import { SITE, BLOG_META } from "@/config/seo";
+import { SITE } from "@/config/seo";
+import { BLOG_META } from "./seo";
 import { JsonLd } from "@/components/JsonLd";
 import { breadcrumbSchema, collectionPageSchema } from "@/lib/structured-data";
 import { Navbar } from "@/components/Navbar";

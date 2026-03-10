@@ -3,7 +3,17 @@
 import { motion } from "framer-motion";
 import { ContactForm } from "@/components/ContactForm";
 import { fadeInUpLg, viewportOnce } from "@/lib/animations";
-import { CTA } from "@/app/data";
+
+export const CTA = {
+    eyebrow: "Ready to Build?",
+    headline: "Stop searching for talent.",
+    headlineHighlight: "Start shipping code.",
+    /** Text that comes before the highlighted word "free". */
+    descriptionPre: "Book a",
+    /** Text that comes after the highlighted word "free". */
+    descriptionPost:
+        "30-minute architecture call. We'll audit your project and tell you exactly what it takes to ship.",
+} as const;
 
 export function CTASection() {
     return (

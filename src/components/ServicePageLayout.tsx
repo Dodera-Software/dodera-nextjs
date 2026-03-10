@@ -14,7 +14,7 @@ import {
 import { fadeInUp, fadeInUpLg, viewportOnce, stagger } from "@/lib/animations";
 import type { ServicePageData } from "@/types";
 import { SERVICE_PAGES } from "@/config/services";
-import { CTA } from "@/app/data";
+import { CTA } from "@/components/CTASection";
 import { N8nIcon } from "@/components/icons/N8nIcon";
 import { Breadcrumb, BreadcrumbItem } from "@/components/Breadcrumb";
 

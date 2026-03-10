@@ -6,7 +6,15 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Terminal } from "@/components/Terminal";
 import { fadeInUp, fadeInUpLg } from "@/lib/animations";
-import { HERO } from "@/app/data";
+
+const HERO = {
+    headline: "Software that",
+    headlineHighlight: "Means Business.",
+    description:
+        "We offer premium IT consultancy specializing in high-performance AI infrastructure, custom SaaS launches, and smart technical documentation for visionary enterprises.",
+    cta1: "Start a Project",
+    cta2: "View Services",
+} as const;
 
 export function HeroSection() {
     return (

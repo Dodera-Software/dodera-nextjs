@@ -4,7 +4,8 @@ import { Footer } from "@/components/Footer";
 import { JsonLd } from "@/components/JsonLd";
 import { ScrollManager } from "@/components/ScrollManager";
 import { AboutPageContent } from "./AboutPageContent";
-import { SITE, ABOUT_META } from "@/config/seo";
+import { SITE } from "@/config/seo";
+import { ABOUT_META } from "./seo";
 import {
     aboutPageSchema,
     breadcrumbSchema,

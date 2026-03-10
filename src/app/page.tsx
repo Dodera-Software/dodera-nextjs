@@ -15,7 +15,8 @@ import {
   professionalServiceSchema,
   breadcrumbSchema,
 } from "@/lib/structured-data";
-import { SITE, HOME_META } from "@/config/seo";
+import { SITE } from "@/config/seo";
+import { HOME_META } from "./seo";
 
 export const metadata: Metadata = {
   title: {

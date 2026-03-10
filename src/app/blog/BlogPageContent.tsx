@@ -9,7 +9,20 @@ import { Button } from "@/components/ui/button";
 import type { BlogPost } from "@/types";
 import { fadeInUp, fadeInUpLg, viewportOnce, stagger } from "@/lib/animations";
 import { formatDateShort } from "@/lib/format";
-import { BLOG_HERO, BLOG_POSTS_SECTION } from "./data";
+
+const BLOG_HERO = {
+    eyebrow: "Blog",
+    headlinePre: "Engineering",
+    headlineHighlight: "Insights",
+    headlinePost: "& AI Development",
+    description:
+        "Deep dives into AI development, software architecture, SaaS best practices, and technical documentation \u2013 from the team that builds production systems every day.",
+} as const;
+
+const BLOG_POSTS_SECTION = {
+    heading: "Latest Articles",
+    readMore: "Read More",
+} as const;
 
 export interface BlogPageContentProps {
     posts: BlogPost[];
