@@ -17,6 +17,9 @@ import { OPENAI_TEXT_MODELS, IMAGE_MODELS } from "@/config/ai-models";
 
 const BOOLEAN_KEYS = new Set(["contact_followup_enabled"]);
 
+// Keys managed by their own dedicated admin pages — hide from generic settings list
+const HIDDEN_KEYS = new Set(["welcome_email_subject", "welcome_email_html"]);
+
 function isBooleanKey(key: string) {
     return BOOLEAN_KEYS.has(key);
 }
@@ -43,8 +46,9 @@ export default function SettingsPage() {
             const res = await fetch("/api/admin/config");
             const data = await res.json();
             if (data.status === "success") {
-                setRows(data.data);
-                setEdits(Object.fromEntries(data.data.map((r: ConfigRow) => [r.key, r.value])));
+                const filtered = data.data.filter((r: ConfigRow) => !HIDDEN_KEYS.has(r.key));
+                setRows(filtered);
+                setEdits(Object.fromEntries(filtered.map((r: ConfigRow) => [r.key, r.value])));
             }
         } catch {
             console.error("Failed to load config");

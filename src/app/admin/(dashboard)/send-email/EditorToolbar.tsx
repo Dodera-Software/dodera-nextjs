@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useRef } from "react";
-import { Editor } from "@tiptap/react";
+import { Editor, useEditorState } from "@tiptap/react";
 import {
     AlignLeft,
     AlignCenter,
@@ -56,6 +56,17 @@ export interface EditorToolbarProps {
 }
 
 export function EditorToolbar({ editor }: EditorToolbarProps) {
+    const editorState = useEditorState({
+        editor,
+        selector: (ctx) => ({
+            isImageActive: ctx.editor?.isActive("image") ?? false,
+            imageAttrs: ctx.editor?.getAttributes("image") ?? {},
+        }),
+    });
+
+    const isImageActive = editorState?.isImageActive ?? false;
+    const imageAttrs = editorState?.imageAttrs ?? {};
+
     const setLink = useCallback(() => {
         if (!editor) return;
         const prev = editor.getAttributes("link").href as string | undefined;
@@ -182,8 +193,31 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
             />
 
             {/* Image size controls — only visible when an image node is selected */}
-            {editor.isActive("image") && (
+            {isImageActive && (
                 <>
+                    <ToolbarDivider />
+                    <span className="text-[11px] text-muted-foreground px-1 select-none">Align:</span>
+                    <ToolbarButton
+                        title="Align left"
+                        active={(imageAttrs.align ?? "none") === "left" || (imageAttrs.align ?? "none") === "none"}
+                        onClick={() => editor.chain().focus().updateAttributes("image", { align: "left" }).run()}
+                    >
+                        <AlignLeft className="w-[16px] h-[16px]" />
+                    </ToolbarButton>
+                    <ToolbarButton
+                        title="Align center"
+                        active={imageAttrs.align === "center"}
+                        onClick={() => editor.chain().focus().updateAttributes("image", { align: "center" }).run()}
+                    >
+                        <AlignCenter className="w-[16px] h-[16px]" />
+                    </ToolbarButton>
+                    <ToolbarButton
+                        title="Align right"
+                        active={imageAttrs.align === "right"}
+                        onClick={() => editor.chain().focus().updateAttributes("image", { align: "right" }).run()}
+                    >
+                        <AlignRight className="w-[16px] h-[16px]" />
+                    </ToolbarButton>
                     <ToolbarDivider />
                     <span className="text-[11px] text-muted-foreground px-1 select-none">Size:</span>
                     {(
@@ -198,7 +232,7 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
                             key={label}
                             title={title}
                             active={
-                                (editor.getAttributes("image").width ?? null) ===
+                                (imageAttrs.width ?? null) ===
                                 (width ?? null)
                             }
                             onClick={() =>

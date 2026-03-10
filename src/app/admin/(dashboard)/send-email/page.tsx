@@ -2,12 +2,13 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useEditor, EditorContent, Editor } from "@tiptap/react";
+import { NodeSelection } from "@tiptap/pm/state";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import Link from "@tiptap/extension-link";
 import TextAlign from "@tiptap/extension-text-align";
 import Placeholder from "@tiptap/extension-placeholder";
-import Image from "@tiptap/extension-image";
+import { EmailImage } from "@/components/admin/email-image-extension";
 import {
     Send,
     Loader2,
@@ -57,12 +58,22 @@ export default function SendEmailPage() {
             Link.configure({ openOnClick: false, HTMLAttributes: { class: "text-primary underline" } }),
             TextAlign.configure({ types: ["heading", "paragraph"] }),
             Placeholder.configure({ placeholder: "Write your email message here…" }),
-            Image.configure({ inline: false, HTMLAttributes: { style: "max-width:100%;height:auto;" } }),
+            EmailImage,
         ],
         content: "",
         editorProps: {
             attributes: {
                 class: "tiptap-editor prose prose-sm max-w-none focus:outline-none min-h-[300px] p-4",
+            },
+            handleClickOn(view, _pos, node, nodePos) {
+                if (node.type.name === "image") {
+                    const tr = view.state.tr.setSelection(
+                        NodeSelection.create(view.state.doc, nodePos),
+                    );
+                    view.dispatch(tr);
+                    return true;
+                }
+                return false;
             },
         },
     });

@@ -2,12 +2,13 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
+import { NodeSelection } from "@tiptap/pm/state";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import Link from "@tiptap/extension-link";
 import TextAlign from "@tiptap/extension-text-align";
 import Placeholder from "@tiptap/extension-placeholder";
-import Image from "@tiptap/extension-image";
+import { EmailImage } from "@/components/admin/email-image-extension";
 import { Save, Loader2, Eye, EyeOff, Code2, Pencil, MailCheck, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,13 +16,6 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { EditorToolbar } from "@/app/admin/(dashboard)/send-email/EditorToolbar";
-
-/* ─── Default fallback (only shown if DB has no value yet) ─── */
-const DEFAULT_SUBJECT = "Welcome to the Dodera newsletter! 🎉";
-const DEFAULT_HTML =
-    '<h2 style="margin:0 0 16px;font-size:24px;font-weight:700;color:#111827;">Welcome aboard! 🎉</h2>' +
-    '<p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:#374151;">Thank you for subscribing to the <strong>Dodera Software</strong> newsletter. We\'re excited to have you!</p>' +
-    '<p style="margin:0;font-size:16px;line-height:1.6;color:#374151;">— The Dodera Team</p>';
 
 type EditorMode = "visual" | "html";
 
@@ -43,16 +37,23 @@ export default function WelcomeEmailPage() {
             Link.configure({ openOnClick: false, HTMLAttributes: { class: "text-primary underline" } }),
             TextAlign.configure({ types: ["heading", "paragraph"] }),
             Placeholder.configure({ placeholder: "Write your welcome email body here…" }),
-            Image.configure({ inline: false, HTMLAttributes: { style: "max-width:100%;height:auto;" } }),
+            EmailImage,
         ],
         content: "",
         editorProps: {
             attributes: {
                 class: "tiptap-editor prose prose-sm max-w-none focus:outline-none min-h-[320px] p-4",
             },
-        },
-        onUpdate: ({ editor }) => {
-            setRawHtml(editor.getHTML());
+            handleClickOn(view, _pos, node, nodePos) {
+                if (node.type.name === "image") {
+                    const tr = view.state.tr.setSelection(
+                        NodeSelection.create(view.state.doc, nodePos),
+                    );
+                    view.dispatch(tr);
+                    return true;
+                }
+                return false;
+            },
         },
     });
 
@@ -60,20 +61,13 @@ export default function WelcomeEmailPage() {
     const fetchTemplate = useCallback(async () => {
         setLoading(true);
         try {
-            const res = await fetch("/api/admin/config");
+            const res = await fetch("/api/admin/welcome-email-template");
             const data = await res.json();
-            if (data.status !== "success") throw new Error("Failed to load config");
+            if (data.status !== "success") throw new Error("Failed to load template");
 
-            const rows: { key: string; value: string }[] = data.data;
-            const subjRow = rows.find((r) => r.key === "welcome_email_subject");
-            const htmlRow = rows.find((r) => r.key === "welcome_email_html");
-
-            const subjectVal = subjRow?.value ?? DEFAULT_SUBJECT;
-            const htmlVal = htmlRow?.value ?? DEFAULT_HTML;
-
-            setSubject(subjectVal);
-            setRawHtml(htmlVal);
-            editor?.commands.setContent(htmlVal);
+            setSubject(data.subject);
+            setRawHtml(data.html);
+            editor?.commands.setContent(data.html);
         } catch {
             toast.error("Failed to load welcome email template.");
         } finally {
@@ -161,36 +155,26 @@ export default function WelcomeEmailPage() {
 
         setSaving(true);
         try {
-            const [subjectRes, htmlRes] = await Promise.all([
-                fetch("/api/admin/config", {
-                    method: "PATCH",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ key: "welcome_email_subject", value: subject.trim() }),
-                }),
-                fetch("/api/admin/config", {
-                    method: "PATCH",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ key: "welcome_email_html", value: html }),
-                }),
-            ]);
-
-            if (!subjectRes.ok || !htmlRes.ok) {
-                throw new Error("Save failed");
-            }
+            const res = await fetch("/api/admin/welcome-email-template", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ subject: subject.trim(), html }),
+            });
+            const data = await res.json();
+            if (data.status !== "success") throw new Error(data.message ?? "Save failed");
             toast.success("Welcome email template saved!");
-        } catch {
-            toast.error("Failed to save template. Please try again.");
+        } catch (err) {
+            const msg = err instanceof Error ? err.message : "Failed to save template.";
+            toast.error(msg);
         } finally {
             setSaving(false);
         }
     }
 
-    /* ── Reset to defaults ─────────────────────────────────────── */
-    function handleReset() {
-        setSubject(DEFAULT_SUBJECT);
-        setRawHtml(DEFAULT_HTML);
-        editor?.commands.setContent(DEFAULT_HTML);
-        toast.info("Reset to default template. Save to apply.");
+    /* ── Reset: reload from DB ─────────────────────────────────── */
+    async function handleReset() {
+        await fetchTemplate();
+        toast.info("Template reloaded from database.");
     }
 
     if (loading) {
@@ -240,8 +224,8 @@ export default function WelcomeEmailPage() {
             />
 
             {/* Info banner */}
-            <div className="flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950/40 px-4 py-3 text-sm text-blue-800 dark:text-blue-300">
-                <MailCheck className="w-4 h-4 mt-0.5 shrink-0" />
+            <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/50 px-4 py-3 text-sm text-muted-foreground">
+                <MailCheck className="w-4 h-4 mt-0.5 shrink-0 text-foreground/60" />
                 <p>
                     This email is automatically sent to new subscribers (only for first-time subscriptions).
                     An unsubscribe link is appended automatically.
