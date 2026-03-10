@@ -1,11 +1,8 @@
-// NOTE: Vercel cron config kept for reference.
-// Deployment moved to Netlify — see netlify.toml and netlify/functions/cron-auto-post.mts
-// {
-//     "crons": [
-//         {
-//             "path": "/api/cron/auto-post",
-//             "schedule": "0 9 * * *"
-//         }
-//     ]
-// }
-{}
+{
+    "crons": [
+        {
+            "path": "/api/cron/auto-post",
+            "schedule": "0 9 * * *"
+        }
+    ]
+}
