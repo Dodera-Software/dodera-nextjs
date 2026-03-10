@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { ContactForm } from "@/components/ContactForm";
 import { fadeInUpLg, viewportOnce } from "@/lib/animations";
-import { CTA } from "@/config/copy";
+import { CTA } from "@/app/data";
 
 export function CTASection() {
     return (

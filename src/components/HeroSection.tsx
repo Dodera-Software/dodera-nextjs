@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Terminal } from "@/components/Terminal";
 import { fadeInUp, fadeInUpLg } from "@/lib/animations";
-import { HERO } from "@/config/copy";
+import { HERO } from "@/app/data";
 
 export function HeroSection() {
     return (

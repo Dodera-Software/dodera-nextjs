@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import type { BlogPost } from "@/types";
 import { fadeInUp, fadeInUpLg, viewportOnce, stagger } from "@/lib/animations";
 import { formatDateShort } from "@/lib/format";
+import { BLOG_HERO, BLOG_POSTS_SECTION } from "./data";
 
 export interface BlogPageContentProps {
     posts: BlogPost[];
@@ -29,7 +30,7 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
                         transition={{ duration: 0.4 }}
                         className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground"
                     >
-                        Blog
+                        {BLOG_HERO.eyebrow}
                     </motion.p>
                     <motion.h1
                         variants={fadeInUpLg}
@@ -38,9 +39,9 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
                         transition={{ duration: 0.4, delay: 0.06 }}
                         className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl"
                     >
-                        Engineering{" "}
-                        <span className="text-primary">Insights</span>{" "}
-                        &amp; AI Development
+                        {BLOG_HERO.headlinePre}{" "}
+                        <span className="text-primary">{BLOG_HERO.headlineHighlight}</span>{" "}
+                        {BLOG_HERO.headlinePost}
                     </motion.h1>
                     <motion.p
                         variants={fadeInUp}
@@ -49,9 +50,7 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
                         transition={{ duration: 0.4, delay: 0.12 }}
                         className="mx-auto max-w-2xl text-lg leading-relaxed text-muted-foreground"
                     >
-                        Deep dives into AI development, software architecture, SaaS best
-                        practices, and technical documentation – from the team that builds
-                        production systems every day.
+                        {BLOG_HERO.description}
                     </motion.p>
                 </div>
             </section>
@@ -63,7 +62,7 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
                         id="posts-heading"
                         className="mb-10 text-center text-2xl font-bold tracking-tight sm:text-3xl"
                     >
-                        Latest Articles
+                        {BLOG_POSTS_SECTION.heading}
                     </h2>
                     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {posts.map((post, i) => (

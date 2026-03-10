@@ -23,7 +23,7 @@ import {
     ABOUT_VALUES,
     ABOUT_MID_CTA,
     ABOUT_BOTTOM_CTA,
-} from "@/config/copy";
+} from "./data";
 import { CapabilityCard } from "./CapabilityCard";
 import { fadeInUp, fadeInUpLg, viewportOnce, stagger } from "@/lib/animations";
 
