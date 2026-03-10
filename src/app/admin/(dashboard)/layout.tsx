@@ -17,6 +17,7 @@ import {
     FileText,
     Settings,
     Mail,
+    MailCheck,
     Share2,
 } from "lucide-react";
 import type { AdminSession, AdminNavItem } from "@/types/admin";
@@ -29,6 +30,7 @@ const NAV_ITEMS: AdminNavItem[] = [
     { href: "/admin/generate-image", label: "Generate Image", icon: ImageIcon },
     { href: "/admin/generate-social-post", label: "Social Post", icon: Share2 },
     { href: "/admin/send-email", label: "Send Email", icon: Mail },
+    { href: "/admin/welcome-email", label: "Welcome Email", icon: MailCheck },
     { href: "/admin/api-docs", label: "API Docs", icon: FileText },
     { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
