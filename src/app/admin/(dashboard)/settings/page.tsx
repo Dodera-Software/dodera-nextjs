@@ -13,11 +13,22 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import type { ConfigRow } from "@/types/admin";
+import { OPENAI_TEXT_MODELS, IMAGE_MODELS } from "@/config/ai-models";
 
 const BOOLEAN_KEYS = new Set(["contact_followup_enabled"]);
 
 function isBooleanKey(key: string) {
     return BOOLEAN_KEYS.has(key);
+}
+
+const SELECT_OPTIONS: Record<string, { value: string; label: string }[]> = {
+    contact_followup_model: OPENAI_TEXT_MODELS,
+    social_post_model: OPENAI_TEXT_MODELS,
+    image_generation_model: IMAGE_MODELS,
+};
+
+function getSelectOptions(key: string) {
+    return SELECT_OPTIONS[key] ?? null;
 }
 
 export default function SettingsPage() {
@@ -113,6 +124,7 @@ export default function SettingsPage() {
                         const saving = savingKey === row.key;
                         const dirty = isDirty(row.key);
                         const isBoolean = isBooleanKey(row.key);
+                        const selectOptions = getSelectOptions(row.key);
 
                         return (
                             <div key={row.key} className="grid grid-cols-[2fr_1fr_3fr_auto] items-center gap-3 px-4 py-3">
@@ -145,6 +157,24 @@ export default function SettingsPage() {
                                         <SelectContent>
                                             <SelectItem value="true">true</SelectItem>
                                             <SelectItem value="false">false</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                ) : selectOptions ? (
+                                    <Select
+                                        value={edits[row.key] ?? ""}
+                                        onValueChange={(val) =>
+                                            setEdits((prev) => ({ ...prev, [row.key]: val }))
+                                        }
+                                    >
+                                        <SelectTrigger className="h-8 text-sm font-mono">
+                                            <SelectValue placeholder="Select a model…" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {selectOptions.map((opt) => (
+                                                <SelectItem key={opt.value} value={opt.value} className="font-mono text-sm">
+                                                    {opt.label}
+                                                </SelectItem>
+                                            ))}
                                         </SelectContent>
                                     </Select>
                                 ) : (
@@ -186,7 +216,9 @@ export default function SettingsPage() {
                 <Settings className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
                 <div className="space-y-1 text-xs text-muted-foreground">
                     <p><span className="font-medium text-foreground">contact_followup_enabled</span> — Whether to generate AI follow-up suggestions (<code className="bg-muted px-1 rounded">true</code> / <code className="bg-muted px-1 rounded">false</code>).</p>
-                    <p><span className="font-medium text-foreground">contact_followup_model</span> — OpenAI model for AI lead follow-ups. Use <code className="bg-muted px-1 rounded">gpt-4o-mini</code> (cheap) or <code className="bg-muted px-1 rounded">gpt-4o</code> (best quality). Empty string disables the feature.</p>
+                    <p><span className="font-medium text-foreground">contact_followup_model</span> — OpenAI model for AI lead follow-ups. Choose from the dropdown (e.g. <code className="bg-muted px-1 rounded">gpt-4o-mini</code> for cost efficiency, <code className="bg-muted px-1 rounded">gpt-4o</code> or <code className="bg-muted px-1 rounded">gpt-5</code> for best quality).</p>
+                    <p><span className="font-medium text-foreground">social_post_model</span> — OpenAI model used when generating social posts.</p>
+                    <p><span className="font-medium text-foreground">image_generation_model</span> — Model used for AI image generation (e.g. <code className="bg-muted px-1 rounded">dall-e-3</code> or <code className="bg-muted px-1 rounded">gpt-image-1</code>).</p>
                     <p><span className="font-medium text-foreground">contact_followup_daily_limit</span> — Max AI calls per day (UTC). <code className="bg-muted px-1 rounded">0</code> = unlimited.</p>
                     <p><span className="font-medium text-foreground">contact_rate_limit_max</span> — Max contact form submissions allowed per IP within the time window.</p>
                     <p><span className="font-medium text-foreground">contact_rate_limit_window_minutes</span> — Rolling window in minutes for the contact form IP rate limit.</p>
