@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Calendar, Clock, Tag, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { BlogPost } from "@/types";
 import { fadeInUp, fadeInUpLg } from "@/lib/animations";
@@ -43,12 +42,6 @@ export function BlogPostContent({ post }: BlogPostContentProps) {
                         transition={{ duration: 0.4, delay: 0.06 }}
                         className="mb-6 flex flex-wrap items-center gap-3"
                     >
-                        <Badge
-                            variant="outline"
-                            className="border-primary/30 bg-primary/5 text-xs text-primary"
-                        >
-                            {post.category}
-                        </Badge>
                         <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
                             <Clock className="size-3" />
                             {post.readTime}
@@ -92,17 +85,17 @@ export function BlogPostContent({ post }: BlogPostContentProps) {
                             initial="hidden"
                             animate="visible"
                             transition={{ duration: 0.4, delay: 0.22 }}
-                            className="mt-6 flex flex-wrap gap-2"
+                            className="mt-6 flex flex-wrap gap-3"
                         >
                             {post.tags.map((tag) => (
-                                <Badge
+                                <Link
                                     key={tag}
-                                    variant="outline"
-                                    className="border-input text-xs text-muted-foreground"
+                                    href={`/blog?tag=${encodeURIComponent(tag)}`}
+                                    className="inline-flex items-center gap-1.5 rounded-full border border-input px-4 py-1.5 text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
                                 >
-                                    <Tag className="mr-1 size-3" />
+                                    <Tag className="size-3" />
                                     {tag}
-                                </Badge>
+                                </Link>
                             ))}
                         </motion.div>
                     )}

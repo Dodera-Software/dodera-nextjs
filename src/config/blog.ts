@@ -6,6 +6,66 @@
 
 import type { BlogPost } from "@/types";
 
+/**
+ * Maps specific/granular tags (from Prismic or anywhere else) to the
+ * canonical broad tag set used for filtering on the blog page.
+ * Any tag not listed here passes through unchanged.
+ */
+export const TAG_NORMALIZER: Record<string, string> = {
+    // AI & Machine Learning
+    "AI": "AI & Machine Learning",
+    "LLMs": "AI & Machine Learning",
+    "RAG": "AI & Machine Learning",
+    "Machine Learning": "AI & Machine Learning",
+    "Knowledge Base": "AI & Machine Learning",
+    "NLP": "AI & Machine Learning",
+    "Computer Vision": "AI & Machine Learning",
+    // AI Agents
+    "AI Agents": "AI Agents",
+    "Autonomous Agents": "AI Agents",
+    // Automation
+    "Automation": "Automation",
+    "Workflow Automation": "Automation",
+    "RPA": "Automation",
+    // Cloud & DevOps
+    "DevOps": "Cloud & DevOps",
+    "CI/CD": "Cloud & DevOps",
+    "AWS": "Cloud & DevOps",
+    "Azure": "Cloud & DevOps",
+    "GCP": "Cloud & DevOps",
+    "Cloud Cost Management": "Cloud & DevOps",
+    "Kubernetes": "Cloud & DevOps",
+    "Docker": "Cloud & DevOps",
+    "Infrastructure": "Cloud & DevOps",
+    // Web Development
+    "Tech Stack": "Web Development",
+    ".NET": "Web Development",
+    "Laravel": "Web Development",
+    "Next.js": "Web Development",
+    "React": "Web Development",
+    "Frontend": "Web Development",
+    "Backend": "Web Development",
+    "APIs": "Web Development",
+    "TypeScript": "Web Development",
+    // SaaS
+    "SaaS": "SaaS",
+    "Product": "SaaS",
+    // Engineering
+    "Technical Debt": "Engineering",
+    "Architecture": "Engineering",
+    "Best Practices": "Engineering",
+    "Performance": "Engineering",
+    "Security": "Engineering",
+    "Testing": "Engineering",
+    // Documentation
+    "Documentation": "Documentation",
+    "Technical Writing": "Documentation",
+    // Developer Experience
+    "DX": "Developer Experience",
+    "Developer Experience": "Developer Experience",
+    "Tooling": "Developer Experience",
+};
+
 export const BLOG_POSTS: BlogPost[] = [
     {
         slug: "why-ai-agents-are-the-future-of-business-automation",
@@ -15,7 +75,7 @@ export const BLOG_POSTS: BlogPost[] = [
         date: "2026-02-15",
         readTime: "8 min read",
         category: "AI",
-        tags: ["AI Agents", "Automation", "LLMs"],
+        tags: ["AI Agents", "Automation", "AI & Machine Learning"],
     },
     {
         slug: "choosing-the-right-tech-stack-for-your-saas",
@@ -25,7 +85,7 @@ export const BLOG_POSTS: BlogPost[] = [
         date: "2026-02-10",
         readTime: "12 min read",
         category: "Engineering",
-        tags: ["SaaS", "Tech Stack", ".NET", "Laravel"],
+        tags: ["Web Development", "SaaS"],
     },
     {
         slug: "how-we-cut-deploy-times-by-63-percent",
@@ -35,7 +95,7 @@ export const BLOG_POSTS: BlogPost[] = [
         date: "2026-02-05",
         readTime: "6 min read",
         category: "DevOps",
-        tags: ["CI/CD", "DevOps", "Performance"],
+        tags: ["Cloud & DevOps", "Engineering"],
     },
     {
         slug: "rag-pipelines-explained",
@@ -45,7 +105,7 @@ export const BLOG_POSTS: BlogPost[] = [
         date: "2026-01-28",
         readTime: "10 min read",
         category: "AI",
-        tags: ["RAG", "LLMs", "Knowledge Base", "AI"],
+        tags: ["AI & Machine Learning", "AI Agents"],
     },
     {
         slug: "documentation-as-code-why-and-how",
@@ -55,7 +115,7 @@ export const BLOG_POSTS: BlogPost[] = [
         date: "2026-01-20",
         readTime: "7 min read",
         category: "Documentation",
-        tags: ["Documentation", "DX", "Developer Experience"],
+        tags: ["Documentation", "Developer Experience"],
     },
     {
         slug: "the-real-cost-of-technical-debt",
@@ -65,6 +125,6 @@ export const BLOG_POSTS: BlogPost[] = [
         date: "2026-01-12",
         readTime: "9 min read",
         category: "Engineering",
-        tags: ["Technical Debt", "Architecture", "Best Practices"],
+        tags: ["Engineering", "SaaS"],
     },
 ];

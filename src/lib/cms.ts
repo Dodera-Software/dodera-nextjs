@@ -14,7 +14,7 @@ import * as prismic from "@prismicio/client";
 import { createClient } from "@/lib/prismic";
 import type { BlogPost } from "@/types";
 import type { BlogPostDocument } from "@/types/prismic";
-import { BLOG_POSTS } from "@/config/blog";
+import { BLOG_POSTS, TAG_NORMALIZER } from "@/config/blog";
 
 /* ── Helpers ───────────────────────────────────────────── */
 
@@ -40,7 +40,12 @@ function mapPrismicPost(doc: BlogPostDocument): BlogPost {
         updatedAt: d.updated_at ?? doc.last_publication_date ?? undefined,
         readTime: d.read_time ?? "5 min read",
         category: d.category ?? "Uncategorized",
-        tags: (d.tags ?? []).map((t) => t.tag ?? "").filter(Boolean),
+        tags: Array.from(new Set(
+            (d.tags ?? [])
+                .map((t) => t.tag ?? "")
+                .filter(Boolean)
+                .map((tag) => TAG_NORMALIZER[tag] ?? tag)
+        )),
         author: d.author_name
             ? {
                 name: d.author_name,

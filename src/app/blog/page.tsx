@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { BlogPageContent } from "./BlogPageContent";
 import { SITE } from "@/config/seo";
 import { BLOG_META } from "./seo";
@@ -52,7 +53,9 @@ export default async function BlogPage() {
             <ScrollManager />
             <Navbar />
             <main>
-                <BlogPageContent posts={posts} />
+                <Suspense>
+                    <BlogPageContent posts={posts} />
+                </Suspense>
             </main>
             <Footer />
         </div>

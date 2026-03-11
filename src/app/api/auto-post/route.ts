@@ -97,7 +97,7 @@ export async function GET(request: NextRequest) {
                             title: { type: "string", description: "Human-readable post title" },
                             excerpt: { type: "string", description: "1-2 sentence summary shown in listings" },
                             body: { type: "string", description: "Full post body in Markdown" },
-                            tags: { type: "array", items: { type: "string" }, description: "3-6 lowercase tags" },
+                            tags: { type: "array", items: { type: "string" }, description: "2-3 broad tags from the fixed allowed list in the system prompt" },
                             category: { type: "string", description: "Single category label" },
                             read_time: { type: "string", description: "Estimated read time, e.g. '5 min read'" },
                             meta_title: { type: "string", description: "SEO title, max 60 chars" },

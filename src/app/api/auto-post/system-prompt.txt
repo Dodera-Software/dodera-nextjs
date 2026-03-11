@@ -49,12 +49,19 @@ OUTPUT FORMAT — respond with ONLY a valid JSON object, no markdown fencing, no
   "title": "<see TITLE RULES below>",
   "excerpt": "<2-3 sentence summary, max 150 chars>",
   "body": "<full article body — see BODY RULES below>",
-  "tags": ["<tag1>", "<tag2>", "<tag3>", "<tag4>"],
+  "tags": ["<tag1>", "<tag2>"],
   "category": "<one of: Automation | Web Development | AI Agents | Business Tech | Industry Trends | Cybersecurity | Cloud & DevOps | Data & Analytics | SaaS & Product | Startup & MVP>",
   "read_time": "<e.g. '6 min read'>",
   "meta_title": "<SEO meta title, max 60 chars>",
   "meta_description": "<SEO meta description, 150 chars, includes primary keyword>"
 }
+
+TAGS RULES:
+- Choose 2 to 3 tags maximum. Never more than 3.
+- Tags examples:
+  Web Development, User Experience, Cloud & DevOps, AI & Machine Learning, Automation, SaaS, Project Management, Digital Marketing, Cybersecurity,
+  Data & Analytics, Startup & MVP
+- Pick the 2-3 that best describe the post topic. Prefer broader tags over specific ones.
 
 TITLE RULES:
 - Must be engaging and click-worthy.

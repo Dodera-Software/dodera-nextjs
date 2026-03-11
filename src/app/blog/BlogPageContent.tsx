@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { BlogPost } from "@/types";
@@ -15,6 +16,28 @@ export interface BlogPageContentProps {
 }
 
 export function BlogPageContent({ posts }: BlogPageContentProps) {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const activeTag = searchParams.get("tag") ?? "";
+
+    const allTags = Array.from(
+        new Set(posts.flatMap((p) => p.tags))
+    ).sort();
+
+    const filtered = activeTag
+        ? posts.filter((p) => p.tags.includes(activeTag))
+        : posts;
+
+    function selectTag(tag: string) {
+        const params = new URLSearchParams(searchParams.toString());
+        if (tag) {
+            params.set("tag", tag);
+        } else {
+            params.delete("tag");
+        }
+        router.push(`/blog?${params.toString()}`, { scroll: false });
+    }
+
     return (
         <>
             {/* ── Hero ────────────────────────────────────── */}
@@ -54,6 +77,37 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
                 </div>
             </section>
 
+            {/* ── Tag Filter Bar ───────────────────────────── */}
+            {allTags.length > 0 && (
+                <section aria-label="Filter by tag" className="py-8">
+                    <div className="mx-auto max-w-6xl px-6">
+                        <div className="flex flex-wrap items-center justify-center gap-3">
+                            <button
+                                onClick={() => selectTag("")}
+                                className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${!activeTag
+                                        ? "border-primary bg-primary text-primary-foreground"
+                                        : "border-input bg-transparent text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                                    }`}
+                            >
+                                All
+                            </button>
+                            {allTags.map((tag) => (
+                                <button
+                                    key={tag}
+                                    onClick={() => selectTag(tag)}
+                                    className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${activeTag === tag
+                                            ? "border-primary bg-primary text-primary-foreground"
+                                            : "border-input bg-transparent text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                                        }`}
+                                >
+                                    {tag}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
+
             {/* ── Posts Grid ───────────────────────────────── */}
             <section aria-labelledby="posts-heading" className="relative py-16">
                 <div className="mx-auto max-w-6xl px-6">
@@ -61,10 +115,15 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
                         id="posts-heading"
                         className="mb-10 text-center text-2xl font-bold tracking-tight sm:text-3xl"
                     >
-                        Latest Articles
+                        {activeTag ? `Articles tagged "${activeTag}"` : "Latest Articles"}
                     </h2>
+                    {filtered.length === 0 && (
+                        <p className="text-center text-muted-foreground">
+                            No articles found for this tag.
+                        </p>
+                    )}
                     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                        {posts.map((post, i) => (
+                        {filtered.map((post, i) => (
                             <Link
                                 key={post.slug}
                                 href={`/blog/${post.slug}`}
@@ -102,13 +161,16 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
 
                                         <div className="mb-4 flex flex-wrap gap-1.5">
                                             {post.tags.slice(0, 3).map((tag) => (
-                                                <Badge
+                                                <button
                                                     key={tag}
-                                                    variant="outline"
-                                                    className="border-input text-[10px] text-muted-foreground"
+                                                    onClick={(e) => { e.preventDefault(); selectTag(tag); }}
+                                                    className={`rounded-full border px-2.5 py-0.5 text-[10px] font-medium transition-colors ${activeTag === tag
+                                                            ? "border-primary bg-primary text-primary-foreground"
+                                                            : "border-input text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                                                        }`}
                                                 >
                                                     {tag}
-                                                </Badge>
+                                                </button>
                                             ))}
                                         </div>
 
