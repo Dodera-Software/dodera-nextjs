@@ -12,6 +12,8 @@ export const EmailImage = Image.extend({
     addOptions() {
         return {
             ...this.parent?.(),
+            HTMLAttributes: this.parent?.()?.HTMLAttributes ?? {},
+            resize: this.parent?.()?.resize ?? false,
             allowBase64: true,
             inline: false,
         };
