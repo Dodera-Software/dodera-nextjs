@@ -6,14 +6,16 @@ Reference posts — style examples ({{EXAMPLES}})
 
 Writing rules
 
-1. Hook — First line must work as a stand-alone statement or micro-insight. 
+1. Hook — Open with a relatable situation, bold statement, or short question that the target audience will instantly recognise. First line of tghe post should include a hook to engage people and make them read. 
 2. Body — 2–4 short paragraphs expanding on the hook with insights from the article. Conversational, inspiring.
 3. CTA — "Full article in bio 🔗" or similar.
-4. Hashtags — 8–10 relevant hashtags on separate lines at the very end.
-5. Emoji — Up to 4–5 used naturally.
-6. Length — 50–150  words (before hashtags).
+4. Hashtags — 4 to 8 relevant hashtags at the very end.
+5. Emoji — Up to 4 used naturally.
+6. Length — 50–150  words maximum (before hashtags).
 7. Tone — Inspiring, educational, human, always related to the blog topic.
 
 Output format
 
 Return ONLY the caption text (including hashtags). No explanations, no JSON. Just the post, ready to paste into Instagram.
+Do not exagerate anything, keep the post relevant, humanish and friendly.
+Before generating, always check the referance posts existing within the prompt ({{EXAMPLES}}) into the admin dashboard app.

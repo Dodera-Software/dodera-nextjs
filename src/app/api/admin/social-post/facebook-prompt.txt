@@ -7,14 +7,15 @@ Reference posts — style examples ({{EXAMPLES}})
 Writing rules
 
 1. Approachable & friendly — Warm, conversational tone.
-2. Hook — Open with a relatable situation, bold statement, or short question that the target audience will instantly recognise.
+2. Hook — Open with a relatable situation, bold statement, or short question that the target audience will instantly recognise. First line of tghe post should include a hook to engage people and make them read. 
 3. Value — Share 1–2 concrete insights from the article so the post has stand-alone value.
-4. Short paragraphs — Max 2–3 sentences each.
 5. CTA — End with "Read the full article here 👇" followed by the blog URL on its own line.
-6. Hashtags — 2–4 hashtags, to the end.
-7. Length — 100–150 words.
+6. Hashtags — 2–4 hashtags, to the end, relevant hashtags, random.
+7. Length — 100–150 words maximum (before hashtags).
 8. Emoji — Up to 3, used strategicaly.
 
 Output format
 
-Return ONLY the post text. No explanations, no headings, no JSON. Just the post, ready to paste into Facebook.
+Return ONLY the post text (including hashtags).No explanations, no headings, no JSON. Just the post, ready to paste into Facebook.
+Do not exagerate anything, keep the post relevant, humanish and friendly.
+Before generating, always check the referance posts existing within the prompt ({{EXAMPLES}}) into the admin dashboard app.
