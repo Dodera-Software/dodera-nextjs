@@ -80,6 +80,17 @@
   color: hsl(var(--primary));
 }
 
+/* Tiptap — image cursor + selection ring */
+.tiptap-editor img {
+  cursor: pointer;
+}
+
+.tiptap-editor .ProseMirror-selectednode {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
 /* Tiptap placeholder */
 .tiptap p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);

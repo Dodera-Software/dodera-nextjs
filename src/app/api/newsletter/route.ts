@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { z } from "zod";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { getConfig } from "@/lib/app-config";
+import { sendEmail, buildSubscriberEmail, injectUnsubscribeFooter } from "@/lib/email-service";
 
 /* ── Validation schema ────────────────────────────────── */
 const subscriberSchema = z.object({
@@ -72,10 +74,26 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // TODO: Send a greeting / welcome email to the new subscriber.
-        // This should be implemented later (e.g. via Resend, SendGrid, or
-        // Supabase Edge Functions) to confirm the subscription and welcome
-        // the user to the newsletter.
+        /* Send welcome email (fire-and-forget — don't block the response) */
+        (async () => {
+            try {
+                const [subject, bodyHtml] = await Promise.all([
+                    getConfig("welcome_email_subject", "Welcome to the Dodera newsletter! 🎉"),
+                    getConfig("welcome_email_html", "<p>Thank you for subscribing!</p>"),
+                ]);
+
+                if (subject && bodyHtml) {
+                    const isFullDoc = /^\s*<!doctype/i.test(bodyHtml) || /^\s*<html/i.test(bodyHtml);
+                    const html = isFullDoc
+                        ? injectUnsubscribeFooter(bodyHtml, email)
+                        : buildSubscriberEmail(bodyHtml, email);
+                    await sendEmail({ to: email, subject, html });
+                }
+            } catch (err) {
+                // Log but never let a failed welcome email break the subscription
+                console.error("[newsletter] Failed to send welcome email:", err);
+            }
+        })();
 
         return NextResponse.json(
             { status: "success", message: "Successfully subscribed!" },

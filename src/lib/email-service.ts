@@ -108,6 +108,21 @@ export function buildUnsubscribeFooter(subscriberEmail: string): string {
 }
 
 /**
+ * Inject the unsubscribe footer into a **complete** HTML email document
+ * (e.g., one exported by Unlayer / react-email-editor) by inserting it
+ * directly before the closing `</body>` tag.
+ *
+ * Use this when `html` is already a full document.  For a raw body fragment
+ * use `buildSubscriberEmail` instead.
+ */
+export function injectUnsubscribeFooter(html: string, subscriberEmail: string): string {
+    const footer = buildUnsubscribeFooter(subscriberEmail);
+    const closeBodyIdx = html.lastIndexOf("</body>");
+    if (closeBodyIdx === -1) return html + footer; // fallback
+    return html.slice(0, closeBodyIdx) + footer + "\n</body>" + html.slice(closeBodyIdx + 7);
+}
+
+/**
  * Wrap arbitrary email `bodyHtml` in a simple full-page wrapper and append
  * the unsubscribe footer.  Use this for any email sent to newsletter
  * subscribers.

@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback } from "react";
-import { Editor } from "@tiptap/react";
+import { useCallback, useRef } from "react";
+import { Editor, useEditorState } from "@tiptap/react";
 import {
     AlignLeft,
     AlignCenter,
@@ -10,6 +10,8 @@ import {
     List,
     ListOrdered,
     Link as LinkIcon,
+    ImageIcon,
+    Trash2,
     Undo,
     Redo,
 } from "lucide-react";
@@ -32,8 +34,8 @@ export function ToolbarButton({ active, disabled, onClick, title, children }: To
             disabled={disabled}
             onClick={onClick}
             className={`w-8 h-8 flex items-center justify-center rounded transition-colors disabled:opacity-40 ${active
-                    ? "bg-accent text-foreground font-semibold"
-                    : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                ? "bg-accent text-foreground font-semibold"
+                : "text-muted-foreground hover:text-foreground hover:bg-accent"
                 }`}
         >
             {children}
@@ -54,6 +56,17 @@ export interface EditorToolbarProps {
 }
 
 export function EditorToolbar({ editor }: EditorToolbarProps) {
+    const editorState = useEditorState({
+        editor,
+        selector: (ctx) => ({
+            isImageActive: ctx.editor?.isActive("image") ?? false,
+            imageAttrs: ctx.editor?.getAttributes("image") ?? {},
+        }),
+    });
+
+    const isImageActive = editorState?.isImageActive ?? false;
+    const imageAttrs = editorState?.imageAttrs ?? {};
+
     const setLink = useCallback(() => {
         if (!editor) return;
         const prev = editor.getAttributes("link").href as string | undefined;
@@ -64,6 +77,25 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
             return;
         }
         editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
+    }, [editor]);
+
+    const imageInputRef = useRef<HTMLInputElement>(null);
+
+    const insertImage = useCallback(() => {
+        imageInputRef.current?.click();
+    }, []);
+
+    const handleImageFile = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !editor) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+            const src = reader.result as string;
+            editor.chain().focus().setImage({ src }).run();
+        };
+        reader.readAsDataURL(file);
+        // reset so the same file can be selected again
+        e.target.value = "";
     }, [editor]);
 
     if (!editor) return null;
@@ -145,6 +177,84 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
             <ToolbarButton title="Set link" active={editor.isActive("link")} onClick={setLink}>
                 <LinkIcon className="w-[18px] h-[18px]" />
             </ToolbarButton>
+
+            <ToolbarDivider />
+
+            {/* Image */}
+            <ToolbarButton title="Insert image from file" onClick={insertImage}>
+                <ImageIcon className="w-[18px] h-[18px]" />
+            </ToolbarButton>
+            <input
+                ref={imageInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageFile}
+            />
+
+            {/* Image size controls — only visible when an image node is selected */}
+            {isImageActive && (
+                <>
+                    <ToolbarDivider />
+                    <span className="text-[11px] text-muted-foreground px-1 select-none">Align:</span>
+                    <ToolbarButton
+                        title="Align left"
+                        active={(imageAttrs.align ?? "none") === "left" || (imageAttrs.align ?? "none") === "none"}
+                        onClick={() => editor.chain().focus().updateAttributes("image", { align: "left" }).run()}
+                    >
+                        <AlignLeft className="w-[16px] h-[16px]" />
+                    </ToolbarButton>
+                    <ToolbarButton
+                        title="Align center"
+                        active={imageAttrs.align === "center"}
+                        onClick={() => editor.chain().focus().updateAttributes("image", { align: "center" }).run()}
+                    >
+                        <AlignCenter className="w-[16px] h-[16px]" />
+                    </ToolbarButton>
+                    <ToolbarButton
+                        title="Align right"
+                        active={imageAttrs.align === "right"}
+                        onClick={() => editor.chain().focus().updateAttributes("image", { align: "right" }).run()}
+                    >
+                        <AlignRight className="w-[16px] h-[16px]" />
+                    </ToolbarButton>
+                    <ToolbarDivider />
+                    <span className="text-[11px] text-muted-foreground px-1 select-none">Size:</span>
+                    {(
+                        [
+                            { label: "S", title: "Small (200 px)", width: "200" },
+                            { label: "M", title: "Medium (400 px)", width: "400" },
+                            { label: "L", title: "Large (600 px)", width: "600" },
+                            { label: "Full", title: "Full width", width: null },
+                        ] as { label: string; title: string; width: string | null }[]
+                    ).map(({ label, title, width }) => (
+                        <ToolbarButton
+                            key={label}
+                            title={title}
+                            active={
+                                (imageAttrs.width ?? null) ===
+                                (width ?? null)
+                            }
+                            onClick={() =>
+                                editor
+                                    .chain()
+                                    .focus()
+                                    .updateAttributes("image", { width, height: null })
+                                    .run()
+                            }
+                        >
+                            <span className="text-[11px] font-semibold leading-none">{label}</span>
+                        </ToolbarButton>
+                    ))}
+                    <ToolbarDivider />
+                    <ToolbarButton
+                        title="Remove image"
+                        onClick={() => editor.chain().focus().deleteSelection().run()}
+                    >
+                        <Trash2 className="w-[16px] h-[16px] text-destructive" />
+                    </ToolbarButton>
+                </>
+            )}
         </div>
     );
 }
