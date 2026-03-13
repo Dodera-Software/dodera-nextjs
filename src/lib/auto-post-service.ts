@@ -32,41 +32,89 @@ export interface AutoPostServiceResult {
 /* ── Prismic helpers (mirrors blog/route.ts) ─────────────────── */
 
 const SITE_ORIGIN = "https://doderasoft.com";
-const LINK_RE = /\[([^\]]+)\]\(((?:https?:\/\/|\/)[^)]+)\)/g;
+// Matches **bold** and [link](url) in a single pass
+const INLINE_RE = /\*\*([^*]+)\*\*|\[([^\]]+)\]\(((?:https?:\/\/|\/)[^)]+)\)/g;
 
-function extractHyperlinkSpans(raw: string) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function extractInlineSpans(raw: string): { plainText: string; spans: any[] } {
     let plainText = "";
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const spans: any[] = [];
     let lastIndex = 0;
-    LINK_RE.lastIndex = 0;
+    INLINE_RE.lastIndex = 0;
     let match: RegExpExecArray | null;
-    while ((match = LINK_RE.exec(raw)) !== null) {
-        const [fullMatch, anchorText, url] = match;
+    while ((match = INLINE_RE.exec(raw)) !== null) {
         plainText += raw.slice(lastIndex, match.index);
-        const spanStart = plainText.length;
-        plainText += anchorText;
-        const spanEnd = plainText.length;
-        const absoluteUrl = url.startsWith("/") ? `${SITE_ORIGIN}${url}` : url;
-        spans.push({ type: "hyperlink", start: spanStart, end: spanEnd, data: { link_type: "Web", url: absoluteUrl } });
-        lastIndex = match.index + fullMatch.length;
+        if (match[1] !== undefined) {
+            // **bold**
+            const start = plainText.length;
+            plainText += match[1];
+            spans.push({ type: "strong", start, end: plainText.length });
+        } else {
+            // [anchor](url)
+            const anchorText = match[2];
+            const url = match[3];
+            const start = plainText.length;
+            plainText += anchorText;
+            const absoluteUrl = url.startsWith("/") ? `${SITE_ORIGIN}${url}` : url;
+            spans.push({ type: "hyperlink", start, end: plainText.length, data: { link_type: "Web", url: absoluteUrl } });
+        }
+        lastIndex = match.index + match[0].length;
     }
     plainText += raw.slice(lastIndex);
     return { plainText, spans };
 }
 
+/**
+ * Convert a markdown body string to a Prismic RichTextField.
+ * Processes line-by-line so headings are never merged with paragraph content,
+ * even when the AI omits the blank line between a heading and the next paragraph.
+ * Also handles **bold**, [links](url), - list items, and 1. ordered lists.
+ */
 function textToRichText(text: string): prismic.RichTextField {
-    const blocks = text.split(/\n{2,}/);
-    const nodes = blocks
-        .filter((b) => b.trim().length > 0)
-        .map((block): prismic.RTNode => {
-            const trimmed = block.trim();
-            if (trimmed.startsWith("### ")) return { type: prismic.RichTextNodeType.heading3, text: trimmed.slice(4), spans: [] };
-            if (trimmed.startsWith("## ")) return { type: prismic.RichTextNodeType.heading2, text: trimmed.slice(3), spans: [] };
-            if (trimmed.startsWith("# ")) return { type: prismic.RichTextNodeType.heading1, text: trimmed.slice(2), spans: [] };
-            const { plainText, spans } = extractHyperlinkSpans(trimmed);
-            return { type: prismic.RichTextNodeType.paragraph, text: plainText, spans };
-        });
+    const lines = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n");
+    const nodes: prismic.RTNode[] = [];
+    let paragraphBuffer: string[] = [];
+
+    const flushParagraph = () => {
+        if (paragraphBuffer.length === 0) return;
+        const combined = paragraphBuffer.join(" ").trim();
+        if (combined) {
+            const { plainText, spans } = extractInlineSpans(combined);
+            nodes.push({ type: prismic.RichTextNodeType.paragraph, text: plainText, spans });
+        }
+        paragraphBuffer = [];
+    };
+
+    for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed) {
+            flushParagraph();
+            continue;
+        }
+        if (trimmed.startsWith("### ")) {
+            flushParagraph();
+            nodes.push({ type: prismic.RichTextNodeType.heading3, text: trimmed.slice(4), spans: [] });
+        } else if (trimmed.startsWith("## ")) {
+            flushParagraph();
+            nodes.push({ type: prismic.RichTextNodeType.heading2, text: trimmed.slice(3), spans: [] });
+        } else if (trimmed.startsWith("# ")) {
+            flushParagraph();
+            nodes.push({ type: prismic.RichTextNodeType.heading1, text: trimmed.slice(2), spans: [] });
+        } else if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
+            flushParagraph();
+            const { plainText, spans } = extractInlineSpans(trimmed.slice(2));
+            nodes.push({ type: prismic.RichTextNodeType.listItem, text: plainText, spans });
+        } else if (/^\d+\.\s+/.test(trimmed)) {
+            flushParagraph();
+            const { plainText, spans } = extractInlineSpans(trimmed.replace(/^\d+\.\s+/, ""));
+            nodes.push({ type: prismic.RichTextNodeType.oListItem, text: plainText, spans });
+        } else {
+            paragraphBuffer.push(trimmed);
+        }
+    }
+    flushParagraph();
+
     return nodes as prismic.RichTextField;
 }
 
@@ -110,6 +158,27 @@ export async function autoPost(options: AutoPostOptions = {}): Promise<AutoPostS
         console.warn("[auto-post-service] Could not fetch recent posts — proceeding without deduplication:", dbErr);
     }
 
+    /* 1c. Fetch blog post examples for style guidance */
+    let examplesContext = "";
+    try {
+        const { data: exampleRows, error: exErr } = await supabase
+            .from("blog_post_examples")
+            .select("content")
+            .order("created_at", { ascending: true });
+
+        if (exErr) {
+            console.warn("[auto-post-service] Could not fetch blog post examples:", exErr.message);
+        } else if (exampleRows && exampleRows.length > 0) {
+            const formatted = exampleRows
+                .map((e, i) => `--- EXAMPLE ${i + 1} ---\n${e.content}`)
+                .join("\n\n");
+            examplesContext = `\n\nSTYLE EXAMPLES — The following are blog posts whose structure, tone, length, word choices, and internal linking style you MUST closely mirror. Do NOT copy the topic or content — only replicate the writing style:\n\n${formatted}`;
+            console.log(`[auto-post-service] Loaded ${exampleRows.length} blog post example(s) for style guidance.`);
+        }
+    } catch (examplesErr) {
+        console.warn("[auto-post-service] Could not fetch blog post examples — proceeding without style guidance:", examplesErr);
+    }
+
     /* 2. Generate post content */
     let generatedPost: GeneratedPost;
     try {
@@ -123,7 +192,7 @@ export async function autoPost(options: AutoPostOptions = {}): Promise<AutoPostS
                 { role: "system", content: SYSTEM_PROMPT },
                 {
                     role: "user",
-                    content: `${getRandomTopicHint()}\n\nPick the single most trending, share-worthy topic in the technology space right now and write the full blog post. Output only the JSON object.${recentPostsContext}`,
+                    content: `${getRandomTopicHint()}\n\nPick the single most trending, share-worthy topic in the technology space right now and write the full blog post. Output only the JSON object.${recentPostsContext}${examplesContext}`,
                 },
             ],
         });

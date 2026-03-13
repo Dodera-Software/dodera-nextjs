@@ -44,7 +44,13 @@ function mapPrismicPost(doc: BlogPostDocument): BlogPost {
             (d.tags ?? [])
                 .map((t) => t.tag ?? "")
                 .filter(Boolean)
-                .map((tag) => TAG_NORMALIZER[tag] ?? tag)
+                .map((tag) => {
+                    // Case-insensitive lookup so "ai", "AI", "Ai" all resolve correctly
+                    const key = Object.keys(TAG_NORMALIZER).find(
+                        (k) => k.toLowerCase() === tag.toLowerCase()
+                    );
+                    return key ? TAG_NORMALIZER[key] : tag;
+                })
         )),
         author: d.author_name
             ? {
@@ -82,7 +88,16 @@ export async function getAllPosts(): Promise<BlogPost[]> {
 
         if (docs.length === 0) return BLOG_POSTS;
 
-        return docs.map(mapPrismicPost);
+        const mapped = docs.map(mapPrismicPost);
+
+        // Sort by the most recent activity: updatedAt takes priority over date
+        mapped.sort((a, b) => {
+            const aTime = new Date(a.updatedAt ?? a.date).getTime();
+            const bTime = new Date(b.updatedAt ?? b.date).getTime();
+            return bTime - aTime;
+        });
+
+        return mapped;
     } catch (err) {
         console.error("[cms] Failed to fetch posts from Prismic:", err);
         return BLOG_POSTS;

@@ -1,15 +1,22 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { Users, Key, LayoutDashboard, Wand2, Loader2, CheckCircle2, XCircle, ExternalLink, ChevronDown, ChevronUp, BarChart2, GitBranch, Database } from "lucide-react";
+import React, { useEffect, useState, useCallback } from "react";
+import { Users, Key, LayoutDashboard, Wand2, Loader2, CheckCircle2, XCircle, ExternalLink, ChevronDown, ChevronUp, BarChart2, GitBranch, Database, Plus, Trash2, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useConfirm } from "@/hooks/use-confirm";
 import { toast } from "sonner";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminStatCard } from "@/components/admin/AdminStatCard";
 import { isTokenActive } from "@/lib/utils";
 import type { DashboardStats, AutoPostResult } from "@/types/admin";
+
+interface BlogExampleItem {
+    id: number;
+    content: string;
+    created_at: string;
+}
 
 /* ── Platform-aware quick links ────────────────────────────── */
 const PLATFORM = process.env.NEXT_PUBLIC_DEPLOY_PLATFORM ?? "netlify";
@@ -84,6 +91,15 @@ export default function AdminDashboardPage() {
     const [authorName, setAuthorName] = useState("Dodera Team");
     const confirm = useConfirm();
 
+    // Blog post examples
+    const [examples, setExamples] = useState<BlogExampleItem[]>([]);
+    const [examplesLoaded, setExamplesLoaded] = useState(false);
+    const [examplesOpen, setExamplesOpen] = useState(false);
+    const [newExampleText, setNewExampleText] = useState("");
+    const [addingExample, setAddingExample] = useState(false);
+    const [deletingExampleId, setDeletingExampleId] = useState<number | null>(null);
+    const [expandedExampleIds, setExpandedExampleIds] = useState<Set<number>>(new Set());
+
     useEffect(() => {
         async function fetchStats() {
             try {
@@ -112,6 +128,68 @@ export default function AdminDashboardPage() {
 
         fetchStats();
     }, []);
+
+    /* ── Blog post examples ──────────────────────────────────── */
+    const fetchExamples = useCallback(async () => {
+        if (examplesLoaded) return;
+        try {
+            const res = await fetch("/api/admin/blog-post-examples");
+            const data = await res.json();
+            if (data.status === "success") {
+                setExamples(data.examples);
+                setExamplesLoaded(true);
+            }
+        } catch {
+            // non-blocking
+        }
+    }, [examplesLoaded]);
+
+    const handleToggleExamples = () => {
+        const next = !examplesOpen;
+        setExamplesOpen(next);
+        if (next) fetchExamples();
+    };
+
+    const handleAddExample = useCallback(async () => {
+        if (!newExampleText.trim() || addingExample) return;
+        setAddingExample(true);
+        try {
+            const res = await fetch("/api/admin/blog-post-examples", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ content: newExampleText.trim() }),
+            });
+            const data = await res.json();
+            if (data.status === "success") {
+                setExamples((prev) => [...prev, data.example]);
+                setNewExampleText("");
+                toast.success("Example added.");
+            } else {
+                toast.error(data.message ?? "Failed to add example.");
+            }
+        } finally {
+            setAddingExample(false);
+        }
+    }, [newExampleText, addingExample]);
+
+    const handleDeleteExample = useCallback(async (id: number) => {
+        setDeletingExampleId(id);
+        try {
+            await fetch(`/api/admin/blog-post-examples/${id}`, { method: "DELETE" });
+            setExamples((prev) => prev.filter((e) => e.id !== id));
+            toast.success("Example removed.");
+        } finally {
+            setDeletingExampleId(null);
+        }
+    }, []);
+
+    const toggleExpandExample = (id: number) => {
+        setExpandedExampleIds((prev) => {
+            const next = new Set(prev);
+            next.has(id) ? next.delete(id) : next.add(id);
+            return next;
+        });
+    };
 
     async function handleAutoPost() {
         setPosting(true);
@@ -257,6 +335,93 @@ export default function AdminDashboardPage() {
                                     className="w-40 h-8"
                                 />
                             </label>
+                        </div>
+                    )}
+                </div>
+
+                {/* Blog post examples */}
+                <div className="border-t border-border pt-4">
+                    <button
+                        onClick={handleToggleExamples}
+                        className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                        <BookOpen className="w-3.5 h-3.5" />
+                        Post Examples
+                        {examples.length > 0 && (
+                            <span className="ml-1 rounded-full bg-primary/10 text-primary px-1.5 py-0 text-[10px] font-medium">
+                                {examples.length}
+                            </span>
+                        )}
+                        {examplesOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                    </button>
+
+                    {examplesOpen && (
+                        <div className="mt-3 space-y-3">
+                            <p className="text-xs text-muted-foreground">
+                                Paste blog posts you like. The AI will mirror their structure, tone, length, and linking style.
+                            </p>
+
+                            {/* Existing examples */}
+                            {examples.length > 0 && (
+                                <div className="space-y-2">
+                                    {examples.map((ex) => {
+                                        const isExpanded = expandedExampleIds.has(ex.id);
+                                        const preview = ex.content.slice(0, 120);
+                                        return (
+                                            <div key={ex.id} className="rounded-lg border border-border bg-muted/30 p-3 text-xs">
+                                                <div className="flex items-start justify-between gap-2">
+                                                    <p className="leading-relaxed text-foreground whitespace-pre-wrap break-words flex-1">
+                                                        {isExpanded ? ex.content : preview}
+                                                        {!isExpanded && ex.content.length > 120 && "…"}
+                                                    </p>
+                                                    <div className="flex items-center gap-1 shrink-0">
+                                                        {ex.content.length > 120 && (
+                                                            <button
+                                                                onClick={() => toggleExpandExample(ex.id)}
+                                                                className="text-muted-foreground hover:text-foreground transition-colors p-1"
+                                                                title={isExpanded ? "Collapse" : "Expand"}
+                                                            >
+                                                                {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                                                            </button>
+                                                        )}
+                                                        <button
+                                                            onClick={() => handleDeleteExample(ex.id)}
+                                                            disabled={deletingExampleId === ex.id}
+                                                            className="text-muted-foreground hover:text-destructive transition-colors p-1"
+                                                            title="Delete example"
+                                                        >
+                                                            {deletingExampleId === ex.id
+                                                                ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                                                : <Trash2 className="w-3.5 h-3.5" />}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+
+                            {/* Add new example */}
+                            <div className="space-y-2">
+                                <Textarea
+                                    value={newExampleText}
+                                    onChange={(e) => setNewExampleText(e.target.value)}
+                                    placeholder="Paste a blog post example here…"
+                                    className="text-xs min-h-[100px] resize-y"
+                                />
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={handleAddExample}
+                                    disabled={addingExample || !newExampleText.trim()}
+                                    className="h-7 text-xs"
+                                >
+                                    {addingExample
+                                        ? <><Loader2 className="w-3 h-3 animate-spin" /> Adding…</>
+                                        : <><Plus className="w-3 h-3" /> Add Example</>}
+                                </Button>
+                            </div>
                         </div>
                     )}
                 </div>
