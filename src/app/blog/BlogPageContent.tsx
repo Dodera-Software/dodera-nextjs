@@ -1,7 +1,8 @@
 ﻿"use client";
 
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, User } from "lucide-react";
+import { ArrowRight, ChevronDown, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -19,13 +20,31 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
     const activeTag = searchParams.get("tag") ?? "";
+    const [moreOpen, setMoreOpen] = useState(false);
+    const moreRef = useRef<HTMLDivElement>(null);
 
+    // Pinned tags always shown first (in this order)
+    const PINNED_TAGS = ["Software Development", "Automation", "MVP Development", "User Experience"];
+
+    // Deduplicate case-insensitively, keeping the first-seen capitalisation
     const allTags = Array.from(
-        new Set(posts.flatMap((p) => p.tags))
-    ).sort();
+        new Map(
+            posts.flatMap((p) => p.tags).map((t) => [t.toLowerCase(), t])
+        ).values()
+    ).sort((a, b) => a.localeCompare(b));
+
+    // Tags actually present in posts
+    const presentPinned = PINNED_TAGS.filter((pt) =>
+        allTags.some((t) => t.toLowerCase() === pt.toLowerCase())
+    );
+    const overflowTags = allTags.filter(
+        (t) => !PINNED_TAGS.some((pt) => pt.toLowerCase() === t.toLowerCase())
+    );
 
     const filtered = activeTag
-        ? posts.filter((p) => p.tags.includes(activeTag))
+        ? posts.filter((p) =>
+            p.tags.some((t) => t.toLowerCase() === activeTag.toLowerCase())
+        )
         : posts;
 
     function selectTag(tag: string) {
@@ -35,8 +54,20 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
         } else {
             params.delete("tag");
         }
+        setMoreOpen(false);
         router.push(`/blog?${params.toString()}`, { scroll: false });
     }
+
+    // Close dropdown on outside click
+    useEffect(() => {
+        function handleOutside(e: MouseEvent) {
+            if (moreRef.current && !moreRef.current.contains(e.target as Node)) {
+                setMoreOpen(false);
+            }
+        }
+        document.addEventListener("mousedown", handleOutside);
+        return () => document.removeEventListener("mousedown", handleOutside);
+    }, []);
 
     return (
         <>
@@ -82,27 +113,63 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
                 <section aria-label="Filter by tag" className="py-8">
                     <div className="mx-auto max-w-6xl px-6">
                         <div className="flex flex-wrap items-center justify-center gap-3">
+                            {/* All */}
                             <button
                                 onClick={() => selectTag("")}
                                 className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${!activeTag
-                                        ? "border-primary bg-primary text-primary-foreground"
-                                        : "border-input bg-transparent text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                                    ? "border-primary bg-primary text-primary-foreground"
+                                    : "border-input bg-transparent text-muted-foreground hover:border-primary/40 hover:text-foreground"
                                     }`}
                             >
                                 All
                             </button>
-                            {allTags.map((tag) => (
+
+                            {/* Pinned tags */}
+                            {presentPinned.map((tag) => (
                                 <button
                                     key={tag}
                                     onClick={() => selectTag(tag)}
-                                    className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${activeTag === tag
-                                            ? "border-primary bg-primary text-primary-foreground"
-                                            : "border-input bg-transparent text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                                    className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${activeTag.toLowerCase() === tag.toLowerCase()
+                                        ? "border-primary bg-primary text-primary-foreground"
+                                        : "border-input bg-transparent text-muted-foreground hover:border-primary/40 hover:text-foreground"
                                         }`}
                                 >
                                     {tag}
                                 </button>
                             ))}
+
+                            {/* More dropdown */}
+                            {overflowTags.length > 0 && (
+                                <div ref={moreRef} className="relative">
+                                    <button
+                                        onClick={() => setMoreOpen((v) => !v)}
+                                        className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium transition-colors ${overflowTags.some((t) => t.toLowerCase() === activeTag.toLowerCase())
+                                            ? "border-primary bg-primary text-primary-foreground"
+                                            : "border-input bg-transparent text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                                            }`}
+                                    >
+                                        More
+                                        <ChevronDown className={`size-3.5 transition-transform duration-200 ${moreOpen ? "rotate-180" : ""}`} />
+                                    </button>
+
+                                    {moreOpen && (
+                                        <div className="absolute left-1/2 top-full z-50 mt-2 w-52 -translate-x-1/2 rounded-xl border border-border bg-card p-2 shadow-lg">
+                                            {overflowTags.map((tag) => (
+                                                <button
+                                                    key={tag}
+                                                    onClick={() => selectTag(tag)}
+                                                    className={`w-full rounded-lg px-3 py-2 text-left text-sm transition-colors ${activeTag.toLowerCase() === tag.toLowerCase()
+                                                        ? "bg-primary text-primary-foreground"
+                                                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                                                        }`}
+                                                >
+                                                    {tag}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </section>
@@ -164,9 +231,9 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
                                                 <button
                                                     key={tag}
                                                     onClick={(e) => { e.preventDefault(); selectTag(tag); }}
-                                                    className={`rounded-full border px-2.5 py-0.5 text-[10px] font-medium transition-colors ${activeTag === tag
-                                                            ? "border-primary bg-primary text-primary-foreground"
-                                                            : "border-input text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                                                    className={`rounded-full border px-2.5 py-0.5 text-[10px] font-medium transition-colors ${activeTag.toLowerCase() === tag.toLowerCase()
+                                                        ? "border-primary bg-primary text-primary-foreground"
+                                                        : "border-input text-muted-foreground hover:border-primary/40 hover:text-foreground"
                                                         }`}
                                                 >
                                                     {tag}
@@ -196,10 +263,10 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
                                                         </span>
                                                     )}
                                                     <time
-                                                        dateTime={post.updatedAt ?? post.date}
+                                                        dateTime={post.date}
                                                         className="text-[10px] leading-tight text-muted-foreground"
                                                     >
-                                                        {formatDateShort(post.updatedAt ?? post.date)}
+                                                        {formatDateShort(post.date)}
                                                     </time>
                                                 </div>
                                             </div>

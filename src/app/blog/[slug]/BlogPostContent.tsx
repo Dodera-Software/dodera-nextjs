@@ -7,12 +7,16 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import type { BlogPost } from "@/types";
 import { fadeInUp, fadeInUpLg } from "@/lib/animations";
+import { TableOfContents, extractHeadings, injectHeadingIds } from "@/components/TableOfContents";
 
 export interface BlogPostContentProps {
     post: BlogPost;
 }
 
 export function BlogPostContent({ post }: BlogPostContentProps) {
+    const processedBody = post.body ? injectHeadingIds(post.body) : undefined;
+    const headings = post.body ? extractHeadings(post.body).filter((h) => h.level <= 2) : [];
+
     return (
         <>
             {/* ── Header ──────────────────────────────────── */}
@@ -57,6 +61,20 @@ export function BlogPostContent({ post }: BlogPostContentProps) {
                                 day: "numeric",
                             })}
                         </time>
+                        {post.updatedAt && post.updatedAt !== post.date && (
+                            <time
+                                dateTime={post.updatedAt}
+                                className="flex items-center gap-1.5 text-xs text-primary/80"
+                            >
+                                <Calendar className="size-3" />
+                                Updated{" "}
+                                {new Date(post.updatedAt).toLocaleDateString("en-US", {
+                                    year: "numeric",
+                                    month: "long",
+                                    day: "numeric",
+                                })}
+                            </time>
+                        )}
                     </motion.div>
 
                     <motion.h1
@@ -142,14 +160,15 @@ export function BlogPostContent({ post }: BlogPostContentProps) {
                             initial="hidden"
                             animate="visible"
                             transition={{ duration: 0.5, delay: 0.3 }}
-                            className="relative aspect-[16/9] overflow-hidden rounded-xl border border-border"
+                            className="overflow-hidden rounded-xl border border-border"
                         >
                             <Image
                                 src={post.image}
                                 alt={post.title}
-                                fill
+                                width={896}
+                                height={504}
                                 priority
-                                className="object-cover"
+                                className="h-auto w-full object-contain"
                                 sizes="(max-width: 768px) 100vw, 896px"
                             />
                         </motion.div>
@@ -160,7 +179,18 @@ export function BlogPostContent({ post }: BlogPostContentProps) {
             {/* ── Body ────────────────────────────────────── */}
             <section aria-label="Article body" className="relative py-16">
                 <div className="mx-auto max-w-3xl px-6">
-                    {post.body ? (
+                    {headings.length >= 2 && (
+                        <motion.div
+                            variants={fadeInUp}
+                            initial="hidden"
+                            animate="visible"
+                            transition={{ duration: 0.4, delay: 0.35 }}
+                            className="mb-10"
+                        >
+                            <TableOfContents headings={headings} />
+                        </motion.div>
+                    )}
+                    {processedBody ? (
                         <article
                             className="prose prose-lg max-w-none
                 prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-foreground
@@ -173,7 +203,7 @@ export function BlogPostContent({ post }: BlogPostContentProps) {
                 prose-pre:bg-muted prose-pre:border prose-pre:border-border
                 prose-img:rounded-xl
                 prose-hr:border-border"
-                            dangerouslySetInnerHTML={{ __html: post.body }}
+                            dangerouslySetInnerHTML={{ __html: processedBody }}
                         />
                     ) : (
                         <div className="rounded-xl border border-border bg-card p-12 text-center">
