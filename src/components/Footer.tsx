@@ -107,7 +107,7 @@ export function Footer() {
                 </p>
                 <p className="flex items-center gap-1 text-xs text-muted-foreground">
                     Made with <Heart className="size-3 animate-pulse fill-primary text-primary" /> by
-                    {" "}{COMPANY.name}
+                    {" "}<a href={COMPANY.url} target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-foreground">{COMPANY.name}</a>
                 </p>
             </div>
         </footer>
