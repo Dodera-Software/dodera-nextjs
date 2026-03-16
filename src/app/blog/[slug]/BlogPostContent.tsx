@@ -15,7 +15,7 @@ export interface BlogPostContentProps {
 
 export function BlogPostContent({ post }: BlogPostContentProps) {
     const processedBody = post.body ? injectHeadingIds(post.body) : undefined;
-    const headings = post.body ? extractHeadings(post.body) : [];
+    const headings = post.body ? extractHeadings(post.body).filter((h) => h.level <= 2) : [];
 
     return (
         <>
