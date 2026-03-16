@@ -83,32 +83,41 @@ function textToRichText(text: string): prismic.RichTextField {
         paragraphBuffer = [];
     };
 
+    const headingRules = [
+        { prefix: "### ", type: prismic.RichTextNodeType.heading3 },
+        { prefix: "## ", type: prismic.RichTextNodeType.heading2 },
+        { prefix: "# ", type: prismic.RichTextNodeType.heading1 },
+    ] as const;
+
     for (const line of lines) {
         const trimmed = line.trim();
         if (!trimmed) {
             flushParagraph();
             continue;
         }
-        if (trimmed.startsWith("### ")) {
+
+        const heading = headingRules.find(r => trimmed.startsWith(r.prefix));
+        if (heading) {
             flushParagraph();
-            nodes.push({ type: prismic.RichTextNodeType.heading3, text: trimmed.slice(4), spans: [] });
-        } else if (trimmed.startsWith("## ")) {
-            flushParagraph();
-            nodes.push({ type: prismic.RichTextNodeType.heading2, text: trimmed.slice(3), spans: [] });
-        } else if (trimmed.startsWith("# ")) {
-            flushParagraph();
-            nodes.push({ type: prismic.RichTextNodeType.heading1, text: trimmed.slice(2), spans: [] });
-        } else if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
+            nodes.push({ type: heading.type, text: trimmed.slice(heading.prefix.length), spans: [] });
+            continue;
+        }
+
+        if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
             flushParagraph();
             const { plainText, spans } = extractInlineSpans(trimmed.slice(2));
             nodes.push({ type: prismic.RichTextNodeType.listItem, text: plainText, spans });
-        } else if (/^\d+\.\s+/.test(trimmed)) {
+            continue;
+        }
+
+        if (/^\d+\.\s+/.test(trimmed)) {
             flushParagraph();
             const { plainText, spans } = extractInlineSpans(trimmed.replace(/^\d+\.\s+/, ""));
             nodes.push({ type: prismic.RichTextNodeType.oListItem, text: plainText, spans });
-        } else {
-            paragraphBuffer.push(trimmed);
+            continue;
         }
+
+        paragraphBuffer.push(trimmed);
     }
     flushParagraph();
 

@@ -117,8 +117,8 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
                             <button
                                 onClick={() => selectTag("")}
                                 className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${!activeTag
-                                        ? "border-primary bg-primary text-primary-foreground"
-                                        : "border-input bg-transparent text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                                    ? "border-primary bg-primary text-primary-foreground"
+                                    : "border-input bg-transparent text-muted-foreground hover:border-primary/40 hover:text-foreground"
                                     }`}
                             >
                                 All
@@ -130,8 +130,8 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
                                     key={tag}
                                     onClick={() => selectTag(tag)}
                                     className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${activeTag.toLowerCase() === tag.toLowerCase()
-                                            ? "border-primary bg-primary text-primary-foreground"
-                                            : "border-input bg-transparent text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                                        ? "border-primary bg-primary text-primary-foreground"
+                                        : "border-input bg-transparent text-muted-foreground hover:border-primary/40 hover:text-foreground"
                                         }`}
                                 >
                                     {tag}
@@ -144,8 +144,8 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
                                     <button
                                         onClick={() => setMoreOpen((v) => !v)}
                                         className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium transition-colors ${overflowTags.some((t) => t.toLowerCase() === activeTag.toLowerCase())
-                                                ? "border-primary bg-primary text-primary-foreground"
-                                                : "border-input bg-transparent text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                                            ? "border-primary bg-primary text-primary-foreground"
+                                            : "border-input bg-transparent text-muted-foreground hover:border-primary/40 hover:text-foreground"
                                             }`}
                                     >
                                         More
@@ -159,8 +159,8 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
                                                     key={tag}
                                                     onClick={() => selectTag(tag)}
                                                     className={`w-full rounded-lg px-3 py-2 text-left text-sm transition-colors ${activeTag.toLowerCase() === tag.toLowerCase()
-                                                            ? "bg-primary text-primary-foreground"
-                                                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                                                        ? "bg-primary text-primary-foreground"
+                                                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
                                                         }`}
                                                 >
                                                     {tag}
@@ -231,7 +231,7 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
                                                 <button
                                                     key={tag}
                                                     onClick={(e) => { e.preventDefault(); selectTag(tag); }}
-                                                    className={`rounded-full border px-2.5 py-0.5 text-[10px] font-medium transition-colors ${activeTag === tag
+                                                    className={`rounded-full border px-2.5 py-0.5 text-[10px] font-medium transition-colors ${activeTag.toLowerCase() === tag.toLowerCase()
                                                         ? "border-primary bg-primary text-primary-foreground"
                                                         : "border-input text-muted-foreground hover:border-primary/40 hover:text-foreground"
                                                         }`}
