@@ -52,33 +52,38 @@ export function Breadcrumb({ items, className }: BreadcrumbProps) {
     return (
         <nav
             aria-label="Breadcrumb"
-            className={cn("mx-auto max-w-7xl px-6 pt-24 pb-4", className)}
+            className={cn(
+                "sticky top-16 z-40 border-b border-border/50 bg-background/80 backdrop-blur-xl",
+                className,
+            )}
         >
-            <ol className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
-                {crumbs.map((item, i) => (
-                    <li
-                        key={i}
-                        className="flex items-center gap-1.5"
-                        aria-current={i === crumbs.length - 1 ? "page" : undefined}
-                    >
-                        {i > 0 && (
-                            <ChevronRight className="size-3.5 shrink-0" aria-hidden="true" />
-                        )}
-                        {item.href ? (
-                            <Link
-                                href={item.href}
-                                className="transition-colors hover:text-foreground"
-                            >
-                                {item.label}
-                            </Link>
-                        ) : (
-                            <span className="font-medium text-foreground">
-                                {item.label}
-                            </span>
-                        )}
-                    </li>
-                ))}
-            </ol>
+            <div className="mx-auto max-w-7xl px-6 py-4">
+                <ol className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
+                    {crumbs.map((item, i) => (
+                        <li
+                            key={i}
+                            className="flex items-center gap-1.5"
+                            aria-current={i === crumbs.length - 1 ? "page" : undefined}
+                        >
+                            {i > 0 && (
+                                <ChevronRight className="size-3.5 shrink-0" aria-hidden="true" />
+                            )}
+                            {item.href ? (
+                                <Link
+                                    href={item.href}
+                                    className="transition-colors hover:text-foreground"
+                                >
+                                    {item.label}
+                                </Link>
+                            ) : (
+                                <span className="font-medium text-foreground">
+                                    {item.label}
+                                </span>
+                            )}
+                        </li>
+                    ))}
+                </ol>
+            </div>
         </nav>
     );
 }

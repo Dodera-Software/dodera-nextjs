@@ -92,9 +92,8 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
                         transition={{ duration: 0.4, delay: 0.06 }}
                         className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl"
                     >
-                        Engineering{" "}
-                        <span className="text-primary">Insights</span>{" "}
-                        & AI Development
+                        Tech, AI &amp;{" "}
+                        <span className="text-primary">Beyond</span>
                     </motion.h1>
                     <motion.p
                         variants={fadeInUp}
@@ -103,7 +102,7 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
                         transition={{ duration: 0.4, delay: 0.12 }}
                         className="mx-auto max-w-2xl text-lg leading-relaxed text-muted-foreground"
                     >
-                        Deep dives into AI development, software architecture, SaaS best practices, and technical documentation &ndash; from the team that builds production systems every day.
+                        Industry trends, engineering deep-dives, and lessons from the field - written by the people building it.
                     </motion.p>
                 </div>
             </section>
@@ -210,7 +209,7 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
                                                 src={post.image}
                                                 alt={post.title}
                                                 fill
-                                                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                                className="object-cover transform-gpu transition-transform duration-500 group-hover:scale-105 will-change-transform"
                                                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                             />
                                         </div>

@@ -9,7 +9,6 @@ import {
     useInView,
 } from "framer-motion";
 import Link from "next/link";
-import { Breadcrumb } from "@/components/Breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { SectionHeading } from "@/components/SectionHeading";
 import { ContactForm } from "@/components/ContactForm";
@@ -135,11 +134,8 @@ function StatsRow() {
 export function AboutPageContent() {
     return (
         <>
-            {/* ── Breadcrumb ──────────────────────────────────────────────── */}
-            <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "About Us" }]} />
-
             {/* ── Hero ────────────────────────────────────────────────────── */}
-            <section aria-labelledby="about-hero-heading" className="relative pb-24 pt-8">
+            <section aria-labelledby="about-hero-heading" className="relative pb-24 pt-32">
                 <div className="absolute inset-0 grid-bg" />
 
                 <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">

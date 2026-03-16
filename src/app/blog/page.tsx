@@ -43,9 +43,9 @@ export default async function BlogPage() {
                         { name: "Blog", url: `${SITE.url}/blog` },
                     ]),
                     collectionPageSchema({
-                        name: "Blog - Engineering Insights & AI Development",
+                        name: "Blog - Tech, AI & Beyond",
                         description:
-                            "Technical articles on AI development, software engineering, SaaS architecture, and documentation best practices.",
+                            "Industry trends, engineering insights, AI developments, and lessons from the field — written by the Dodera Software team.",
                         url: `${SITE.url}/blog`,
                     }),
                 ]}

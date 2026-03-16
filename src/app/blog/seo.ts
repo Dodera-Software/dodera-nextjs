@@ -6,14 +6,14 @@
  */
 
 export const BLOG_META = {
-    title: "Blog - Engineering Insights & AI Development",
+    title: "Blog - Tech, AI & Beyond",
     description:
-        "Technical articles on AI development, software engineering, SaaS architecture, and documentation best practices from the Dodera Software team.",
+        "Industry trends, engineering insights, AI developments, and lessons from the field - written by the Dodera Software team.",
     keywords: [
-        "software engineering blog",
-        "AI development articles",
-        "SaaS development insights",
-        "technical documentation blog",
+        "tech blog",
+        "AI industry news",
+        "software engineering insights",
+        "IT trends",
         "Dodera Software blog",
     ],
 } as const;

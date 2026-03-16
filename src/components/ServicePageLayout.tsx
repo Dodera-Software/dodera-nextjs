@@ -84,7 +84,7 @@ export function ServicePageLayout({ data }: ServicePageLayoutProps) {
             })()}
 
             {/* ── Hero ────────────────────────────────────────── */}
-            <section aria-label="Service overview" className="relative pb-20 pt-8">
+            <section aria-label="Service overview" className="relative pb-20 pt-32">
                 <div className="absolute inset-0 grid-bg" />
 
                 <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
