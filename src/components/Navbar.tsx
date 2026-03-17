@@ -12,6 +12,7 @@ import { SERVICES, NAV_LINKS } from "@/config/site";
 export function Navbar() {
     const [megaOpen, setMegaOpen] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
+    const [mobileServiceOpen, setMobileServiceOpen] = useState<number | null>(null);
     const navRef = useRef<HTMLElement>(null);
     const megaCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -89,7 +90,7 @@ export function Navbar() {
                     variant="ghost"
                     size="icon"
                     className="md:hidden"
-                    onClick={() => setMobileOpen(!mobileOpen)}
+                    onClick={() => { setMobileOpen(!mobileOpen); setMobileServiceOpen(null); }}
                     aria-label={mobileOpen ? "Close menu" : "Open menu"}
                     aria-expanded={mobileOpen}
                 >
@@ -160,21 +161,56 @@ export function Navbar() {
                             <p className="mb-3 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
                                 Services
                             </p>
-                            {SERVICES.map((s) => (
-                                <Link
-                                    key={s.title}
-                                    href={s.href}
-                                    onClick={() => setMobileOpen(false)}
-                                    className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                                >
-                                    <div className="flex size-8 items-center justify-center rounded-md bg-primary/10">
-                                        <s.icon className="size-4 text-primary" />
+                            {SERVICES.map((s, i) => (
+                                <div key={s.title}>
+                                    <div className="flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-accent">
+                                        <Link
+                                            href={s.href}
+                                            onClick={() => setMobileOpen(false)}
+                                            className="flex flex-1 items-center gap-3 text-sm text-muted-foreground hover:text-foreground"
+                                        >
+                                            <div className="flex size-8 items-center justify-center rounded-md bg-primary/10">
+                                                <s.icon className="size-4 text-primary" />
+                                            </div>
+                                            <div>
+                                                <span className="font-medium text-foreground">{s.title}</span>
+                                                <p className="text-xs text-muted-foreground">{s.subtitle}</p>
+                                            </div>
+                                        </Link>
+                                        <button
+                                            onClick={() => setMobileServiceOpen(mobileServiceOpen === i ? null : i)}
+                                            aria-label={mobileServiceOpen === i ? "Collapse subservices" : "Expand subservices"}
+                                            className="ml-auto shrink-0 p-1 text-muted-foreground transition-colors hover:text-foreground"
+                                        >
+                                            <ChevronDown
+                                                className={`size-4 transition-transform duration-200 ${mobileServiceOpen === i ? "rotate-180" : ""}`}
+                                            />
+                                        </button>
                                     </div>
-                                    <div>
-                                        <span className="font-medium text-foreground">{s.title}</span>
-                                        <p className="text-xs text-muted-foreground">{s.subtitle}</p>
-                                    </div>
-                                </Link>
+                                    <AnimatePresence initial={false}>
+                                        {mobileServiceOpen === i && (
+                                            <motion.ul
+                                                initial={{ height: 0, opacity: 0 }}
+                                                animate={{ height: "auto", opacity: 1 }}
+                                                exit={{ height: 0, opacity: 0 }}
+                                                transition={{ duration: 0.2 }}
+                                                className="overflow-hidden pl-14"
+                                            >
+                                                {s.highlights.map((item) => (
+                                                    <li key={item.label}>
+                                                        <Link
+                                                            href={item.href}
+                                                            onClick={() => setMobileOpen(false)}
+                                                            className="block rounded-lg px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                                                        >
+                                                            {item.label}
+                                                        </Link>
+                                                    </li>
+                                                ))}
+                                            </motion.ul>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
                             ))}
 
                             <div className="my-3 h-px bg-border" />
