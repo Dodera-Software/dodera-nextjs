@@ -37,6 +37,8 @@ import type {
 
 export const COMPANY = {
     name: "Dodera Software",
+    taxId: "49004234",
+    registrationNumber: "J30/958/2023",
     legalName: "Dodera Software S.R.L.",
     email: "office@doderasoft.com",
     url: "https://doderasoft.com",

@@ -147,6 +147,13 @@ export default function PrivacyPolicyPage() {
                         <strong>{COMPANY.legalName}</strong><br />
                         {COMPANY.address}<br />
                         {COMPANY.location}<br />
+                        {COMPANY.taxId && (<>
+                            CUI: {COMPANY.taxId}<br />
+                        </>)}
+                        {COMPANY.registrationNumber && (<>
+                            Registration No: {COMPANY.registrationNumber}<br />
+                        </>)}
+
                         <a href={`tel:${COMPANY.phone.replace(/\s/g, "")}`}>{COMPANY.phone}</a><br />
                         <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>
                     </p>
