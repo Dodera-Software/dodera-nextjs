@@ -1,10 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Inbox } from "lucide-react";
-import { motion } from "framer-motion";
+import { ArrowRight, Inbox, MapPin, Clock, ChevronDown, ChevronUp } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { ApplyModal, type ApplyJobInfo } from "@/components/ApplyModal";
 import { fadeInUp, fadeInUpLg, viewportOnce, stagger } from "@/lib/animations";
+
+interface JobOpening {
+    id: number;
+    title: string;
+    department: string | null;
+    location: string;
+    type: string;
+    description: string | null;
+    apply_url: string | null;
+}
 
 const WHY_ITEMS = [
     {
@@ -34,12 +46,27 @@ const WHY_ITEMS = [
 ] as const;
 
 export function CareersPageContent() {
+    const [openings, setOpenings] = useState<JobOpening[]>([]);
+    const [loadingJobs, setLoadingJobs] = useState(true);
+    const [expandedId, setExpandedId] = useState<number | null>(null);
+    const [applyJob, setApplyJob] = useState<ApplyJobInfo | null>(null);
+
+    useEffect(() => {
+        fetch("/api/careers")
+            .then((r) => r.json())
+            .then((d) => {
+                if (d.status === "success") setOpenings(d.data);
+            })
+            .catch(() => { })
+            .finally(() => setLoadingJobs(false));
+    }, []);
+
     return (
         <>
             {/* Hero */}
             <section aria-labelledby="careers-hero-heading" className="relative pb-10 pt-32">
                 <div className="absolute inset-0 grid-bg" />
-                <div className="relative z-10 mx-auto max-w-3xl px-6 text-center">
+                <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
                     <motion.p
                         variants={fadeInUp}
                         initial="hidden"
@@ -58,7 +85,7 @@ export function CareersPageContent() {
                         className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl"
                     >
                         Be part of{" "}
-                        <span className="text-primary">Dodera Software</span>{" "}
+                        <span className="whitespace-nowrap text-primary">Dodera Software</span>{" "}
                         team.
                     </motion.h1>
                     <motion.p
@@ -75,42 +102,136 @@ export function CareersPageContent() {
                 </div>
             </section>
 
-            {/* No positions available */}
+            {/* Open Positions */}
             <section aria-labelledby="open-roles-heading" className="relative py-12">
                 <div className="absolute inset-0 grid-bg-sm" />
-                <div className="relative z-10 mx-auto max-w-2xl px-6 text-center">
-                    <motion.div
-                        variants={fadeInUpLg}
+                <div className="relative z-10 mx-auto max-w-3xl px-6">
+                    <motion.h2
+                        id="open-roles-heading"
+                        variants={fadeInUp}
                         initial="hidden"
                         whileInView="visible"
                         viewport={viewportOnce}
-                        className="flex flex-col items-center gap-6"
+                        className="mb-8 text-center text-2xl font-bold tracking-tight sm:text-3xl"
                     >
-                        <div className="flex size-16 items-center justify-center rounded-2xl border border-border bg-card">
-                            <Inbox className="size-7 text-muted-foreground" />
+                        Open Positions
+                    </motion.h2>
+
+                    {loadingJobs ? (
+                        <div className="flex justify-center py-10">
+                            <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                         </div>
-                        <div>
-                            <h2
-                                id="open-roles-heading"
-                                className="mb-3 text-2xl font-bold tracking-tight sm:text-3xl"
-                            >
-                                No open positions right now
-                            </h2>
-                            <p className="text-base leading-relaxed text-muted-foreground">
-                                We don't have any positions open at the moment. If you have
-                                a standout skill and think you belong on this team, send us a message.
-                                We'd love to meet you.
-                            </p>
+                    ) : openings.length === 0 ? (
+                        <motion.div
+                            variants={fadeInUpLg}
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={viewportOnce}
+                            className="flex flex-col items-center gap-6 text-center"
+                        >
+                            <div className="flex size-16 items-center justify-center rounded-2xl border border-border bg-card">
+                                <Inbox className="size-7 text-muted-foreground" />
+                            </div>
+                            <div>
+                                <h3 className="mb-3 text-xl font-bold tracking-tight">
+                                    No open positions right now
+                                </h3>
+                                <p className="text-base leading-relaxed text-muted-foreground">
+                                    We don&apos;t have any positions open at the moment. If you have
+                                    a standout skill and think you belong on this team, send us a message.
+                                    We&apos;d love to meet you.
+                                </p>
+                            </div>
+                            <Button size="lg" asChild>
+                                <Link href="mailto:office@doderasoft.com">
+                                    Contact Us
+                                    <ArrowRight className="ml-1 size-4" />
+                                </Link>
+                            </Button>
+                        </motion.div>
+                    ) : (
+                        <div className="space-y-4">
+                            {openings.map((job, i) => (
+                                <motion.div
+                                    key={job.id}
+                                    variants={fadeInUpLg}
+                                    initial="hidden"
+                                    whileInView="visible"
+                                    viewport={viewportOnce}
+                                    transition={stagger(i)}
+                                    className="rounded-xl border border-border bg-card overflow-hidden"
+                                >
+                                    {/* Header row — always visible */}
+                                    <button
+                                        onClick={() => setExpandedId(expandedId === job.id ? null : job.id)}
+                                        className="w-full text-left px-6 py-5 flex items-start justify-between gap-4 hover:bg-muted/30 transition-colors"
+                                        aria-expanded={expandedId === job.id}
+                                    >
+                                        <div className="flex-1">
+                                            <h3 className="text-lg font-semibold">{job.title}</h3>
+                                            {job.department && (
+                                                <p className="mt-0.5 text-sm text-muted-foreground">{job.department}</p>
+                                            )}
+                                            <div className="mt-2 flex flex-wrap gap-3 text-xs text-muted-foreground">
+                                                <span className="flex items-center gap-1">
+                                                    <MapPin className="size-3.5" />
+                                                    {job.location}
+                                                </span>
+                                                <span className="flex items-center gap-1">
+                                                    <Clock className="size-3.5" />
+                                                    {job.type}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div className="shrink-0 mt-1 text-muted-foreground">
+                                            {expandedId === job.id ? (
+                                                <ChevronUp className="size-5" />
+                                            ) : (
+                                                <ChevronDown className="size-5" />
+                                            )}
+                                        </div>
+                                    </button>
+
+                                    {/* Expandable body */}
+                                    <AnimatePresence initial={false}>
+                                        {expandedId === job.id && (
+                                            <motion.div
+                                                key="body"
+                                                initial={{ height: 0, opacity: 0 }}
+                                                animate={{ height: "auto", opacity: 1 }}
+                                                exit={{ height: 0, opacity: 0 }}
+                                                transition={{ duration: 0.25, ease: "easeInOut" }}
+                                                className="overflow-hidden"
+                                            >
+                                                <div className="px-6 pb-6 border-t border-border pt-4 space-y-4">
+                                                    {job.description && (
+                                                        <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
+                                                            {job.description}
+                                                        </p>
+                                                    )}
+                                                    <Button onClick={() => setApplyJob({ id: job.id, title: job.title })}>
+                                                        Apply for this position
+                                                        <ArrowRight className="ml-1 size-4" />
+                                                    </Button>
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </motion.div>
+                            ))}
                         </div>
-                        <Button size="lg" asChild>
-                            <Link href="mailto:office@doderasoft.com">
-                                Contact Us
-                                <ArrowRight className="ml-1 size-4" />
-                            </Link>
-                        </Button>
-                    </motion.div>
+                    )}
                 </div>
             </section>
+
+            {/* Apply modal */}
+            {applyJob && (
+                <ApplyModal
+                    job={applyJob}
+                    open={!!applyJob}
+                    onOpenChange={(open) => { if (!open) setApplyJob(null); }}
+                />
+            )}
 
             {/* Why Dodera */}
             <section aria-labelledby="why-heading" className="relative py-20 bg-card/30 overflow-hidden">

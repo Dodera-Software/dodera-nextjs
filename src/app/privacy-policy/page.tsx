@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     robots: { index: true, follow: true },
 };
 
-const LAST_UPDATED = "March 5, 2026";
+const LAST_UPDATED = "March 17, 2026";
 
 export default function PrivacyPolicyPage() {
     return (
@@ -50,6 +50,11 @@ export default function PrivacyPolicyPage() {
                             reach out to us.
                         </li>
                         <li>
+                            <strong>Job applications</strong> — full name, email address, and CV/résumé
+                            file you upload when applying for an open position. This data is used
+                            exclusively for recruitment purposes.
+                        </li>
+                        <li>
                             <strong>Newsletter subscriptions</strong> — email address you provide when
                             you subscribe to our newsletter.
                         </li>
@@ -71,7 +76,7 @@ export default function PrivacyPolicyPage() {
 
                     <h2>3. Legal Basis for Processing (GDPR)</h2>
                     <ul>
-                        <li><strong>Consent</strong> — newsletter subscriptions.</li>
+                        <li><strong>Consent</strong> — newsletter subscriptions and job application processing.</li>
                         <li><strong>Legitimate interest</strong> — responding to contact form submissions and maintaining website security.</li>
                         <li><strong>Legal obligation</strong> — compliance with Romanian and EU law.</li>
                     </ul>
@@ -83,6 +88,13 @@ export default function PrivacyPolicyPage() {
                         request deletion of your data at any time by emailing{" "}
                         <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a> and we will remove
                         your records promptly.
+                    </p>
+                    <p>
+                        Job application data (personal details and CV files) is retained for a
+                        maximum of <strong>12 months</strong> from the date of submission. After
+                        this period, both the database record and the uploaded CV file are
+                        permanently deleted. You may request earlier deletion at any time by
+                        contacting us at <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>.
                     </p>
 
                     <h2>5. Your Rights</h2>
@@ -114,7 +126,7 @@ export default function PrivacyPolicyPage() {
                     </p>
                     <ul>
                         <li><strong>Vercel</strong> — website hosting and edge delivery.</li>
-                        <li><strong>Supabase</strong> — contact form data storage.</li>
+                        <li><strong>Supabase</strong> — contact form data storage, newsletter subscriber list, job application records, and CV file storage (private, access-controlled bucket).</li>
                         <li><strong>SMTP / Nodemailer</strong> — transactional email delivery via our configured mail provider.</li>
                     </ul>
 

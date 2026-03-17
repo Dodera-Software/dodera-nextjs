@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Send, User, Mail, MessageSquare, Building, Phone, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +29,7 @@ export interface FieldErrors {
     company?: string;
     phone?: string;
     message?: string;
+    gdpr_consent?: string;
 }
 
 function validate(data: Record<string, string>): FieldErrors {
@@ -71,6 +73,7 @@ export function ContactForm() {
     const [errors, setErrors] = useState<FieldErrors>({});
     const [submitCount, setSubmitCount] = useState(0);
     const [lastSubmitTime, setLastSubmitTime] = useState(0);
+    const [gdpr, setGdpr] = useState(false);
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -89,6 +92,9 @@ export function ContactForm() {
         }
 
         const fieldErrors = validate(raw);
+        if (!gdpr) {
+            fieldErrors.gdpr_consent = "You must agree to the privacy policy.";
+        }
         if (Object.keys(fieldErrors).length > 0) {
             setErrors(fieldErrors);
             return;
@@ -258,6 +264,32 @@ export function ContactForm() {
                     className="resize-none border-input"
                 />
                 <FieldError message={errors.message} />
+            </div>
+
+            {/* GDPR consent */}
+            <div className="space-y-1.5">
+                <label className="flex items-start gap-3 cursor-pointer">
+                    <input
+                        type="checkbox"
+                        checked={gdpr}
+                        onChange={(e) => setGdpr(e.target.checked)}
+                        className="mt-0.5 size-4 shrink-0 accent-primary"
+                        aria-invalid={!!errors.gdpr_consent}
+                    />
+                    <span className="text-xs leading-relaxed text-muted-foreground">
+                        I have read and agree to the{" "}
+                        <Link
+                            href="/privacy-policy"
+                            target="_blank"
+                            className="text-primary underline underline-offset-2"
+                        >
+                            Privacy Policy
+                        </Link>
+                        . I consent to Dodera Software S.R.L. processing my personal data
+                        submitted through this form in order to respond to my enquiry.
+                    </span>
+                </label>
+                <FieldError message={errors.gdpr_consent} />
             </div>
 
             <Button type="submit" size="lg" className="w-full" disabled={submitting}>
