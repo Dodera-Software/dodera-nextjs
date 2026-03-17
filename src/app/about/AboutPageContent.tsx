@@ -110,8 +110,8 @@ function StatsRow() {
         >
             <dl className="mx-auto flex max-w-2xl items-start justify-center divide-x divide-border">
                 {ABOUT_STATS.map((stat) => (
-                    <div key={stat.label} className="flex flex-col items-center px-14 py-4">
-                        <dd className="text-4xl font-bold text-primary sm:text-5xl">
+                    <div key={stat.label} className="flex flex-col items-center px-4 py-4 sm:px-10 md:px-14">
+                        <dd className="text-3xl font-bold text-primary sm:text-4xl md:text-5xl">
                             <AnimatedCounter
                                 to={stat.to}
                                 from={stat.from}
@@ -146,7 +146,7 @@ export function AboutPageContent() {
                         transition={{ duration: 0.4 }}
                         className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground"
                     >
-                        About Dodera Software
+                        About Us
                     </motion.p>
 
                     <motion.h1
