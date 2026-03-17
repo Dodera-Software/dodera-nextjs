@@ -187,6 +187,7 @@ export const NAV_LINKS: NavLink[] = [
     { label: "About Us", href: "/about" },
     { label: "Process", href: "/#process" },
     { label: "Blog", href: "/blog" },
+    { label: "Careers", href: "/careers" },
     { label: "Contact", href: "/#contact" },
 ];
 
@@ -216,6 +217,7 @@ export const FOOTER_LINK_GROUPS: FooterLinkGroup[] = [
             { label: "About Us", href: "/about" },
             { label: "Process", href: "/#process" },
             { label: "Blog", href: "/blog" },
+            { label: "Careers", href: "/careers" },
             { label: "Contact", href: "/#contact" },
         ],
     },
