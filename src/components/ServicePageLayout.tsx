@@ -129,9 +129,11 @@ export function ServicePageLayout({ data }: ServicePageLayoutProps) {
                                 <ArrowRight className="ml-1 size-4" />
                             </Link>
                         </Button>
-                        <Button variant="outline" size="lg" asChild>
-                            <Link href="/#process">Our Process</Link>
-                        </Button>
+                        {!data.parentSlug && (
+                            <Button variant="outline" size="lg" asChild>
+                                <Link href="/#process">Our Process</Link>
+                            </Button>
+                        )}
                     </motion.div>
                 </div>
             </section>
