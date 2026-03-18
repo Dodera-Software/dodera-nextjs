@@ -17,7 +17,6 @@ import {
     Handshake,
     Linkedin,
     Instagram,
-    Facebook,
     Clock,
     CheckSquare,
     Briefcase,
@@ -196,9 +195,8 @@ export const NAV_LINKS: NavLink[] = [
 // ── Social Media ────────────────────────────────────────
 
 export const SOCIAL_LINKS: SocialLink[] = [
-    { label: "LinkedIn", href: "https://linkedin.com/company/dodera", icon: Linkedin },
-    { label: "Instagram", href: "https://instagram.com/doderasoftware", icon: Instagram },
-    { label: "Facebook", href: "https://facebook.com/doderasoftware", icon: Facebook },
+    { label: "LinkedIn", href: "https://www.linkedin.com/company/dodera-software/", icon: Linkedin },
+    { label: "Instagram", href: "https://www.instagram.com/doderasoft/", icon: Instagram },
 ];
 
 // ── Footer ──────────────────────────────────────────────

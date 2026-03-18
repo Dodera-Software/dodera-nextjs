@@ -19,8 +19,8 @@ import { fadeInUp, fadeInUpLg, viewportOnce, stagger } from "@/lib/animations";
 // ── About page copy ───────────────────────────────────────────────────────────
 
 const ABOUT_STATS: { label: string; to: number; from: number; suffix: string }[] = [
-    { label: "Specialists", to: 4, from: 0, suffix: "+" },
-    { label: "Projects", to: 20, from: 0, suffix: "+" },
+    { label: "AI Applications", to: 20, from: 0, suffix: "+" },
+    { label: "Web Applications", to: 50, from: 0, suffix: "+" },
     { label: "Client Satisfaction", to: 99, from: 0, suffix: "%" },
 ];
 
