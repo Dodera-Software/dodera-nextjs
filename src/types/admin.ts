@@ -98,6 +98,22 @@ export interface BlogPostSummary {
     image: string | null;
 }
 
+// ── Careers ─────────────────────────────────────────────────
+
+export interface JobOpening {
+    id: number;
+    title: string;
+    department: string | null;
+    location: string;
+    type: string;
+    status: "open" | "closed" | "draft";
+    description: string | null;
+    apply_url: string | null;
+    sort_order: number;
+    created_at: string;
+    updated_at: string;
+}
+
 export interface AttachedFile {
     file: File;
     id: string;
