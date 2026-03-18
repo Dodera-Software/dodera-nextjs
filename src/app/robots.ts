@@ -15,7 +15,7 @@ export default function robots(): MetadataRoute.Robots {
             {
                 userAgent: "*",
                 allow: "/",
-                disallow: ["/api/", "/_next/", "/404"],
+                disallow: ["/api/", "/_next/", "/404", "/admin/", "/slice-simulator", "/unsubscribe"],
             },
             {
                 userAgent: "Googlebot",
