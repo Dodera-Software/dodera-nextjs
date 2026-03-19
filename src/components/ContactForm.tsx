@@ -11,17 +11,6 @@ import { EMAIL_RE, NAME_RE, PHONE_RE, DANGEROUS_RE, CONTACT_LIMITS } from "@/lib
 
 const LIMITS = CONTACT_LIMITS;
 
-/* ── Sanitiser ────────────────────────────────────────────── */
-function sanitise(value: string): string {
-    return value
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#x27;")
-        .trim();
-}
-
 /* ── Per-field validation ─────────────────────────────────── */
 export interface FieldErrors {
     name?: string;
@@ -100,11 +89,6 @@ export function ContactForm() {
             return;
         }
 
-        const safe: Record<string, string> = {};
-        for (const [key, val] of Object.entries(raw)) {
-            safe[key] = sanitise(val);
-        }
-
         setErrors({});
         setServerError(null);
         setSubmitting(true);
@@ -115,7 +99,7 @@ export function ContactForm() {
             const res = await fetch("/api/contact", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(safe),
+                body: JSON.stringify(raw),
             });
 
             const data = await res.json();
