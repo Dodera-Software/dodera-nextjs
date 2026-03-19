@@ -46,8 +46,16 @@ export async function middleware(request: NextRequest) {
         const origin = request.headers.get("origin");
         const siteUrl = (process.env.SITE_URL ?? "").replace(/\/$/, "");
         const isLocalhost = origin?.startsWith("http://localhost") || origin?.startsWith("http://127.0.0.1");
-        if (origin && siteUrl && !isLocalhost && !origin.startsWith(siteUrl)) {
-            return jsonError("Forbidden.", 403);
+        if (origin && siteUrl && !isLocalhost) {
+            try {
+                const originHostname = new URL(origin).hostname.replace(/^www\./, "");
+                const siteHostname = new URL(siteUrl).hostname.replace(/^www\./, "");
+                if (originHostname !== siteHostname) {
+                    return jsonError("Forbidden.", 403);
+                }
+            } catch {
+                return jsonError("Forbidden.", 403);
+            }
         }
     }
 
