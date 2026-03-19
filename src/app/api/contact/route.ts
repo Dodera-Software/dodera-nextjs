@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { z } from "zod";
 import { generateFollowUp, type LeadData } from "@/lib/contact-followup-service";
@@ -122,8 +122,8 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        /* Notify Slack + AI follow-up — fire and forget, never blocks the response */
-        void (async () => {
+        /* Notify Slack + AI follow-up — runs after response is sent, keeps the function alive on Vercel */
+        after(async () => {
             const lead: LeadData = {
                 name: parsed.data.name,
                 email: parsed.data.email,
@@ -133,7 +133,7 @@ export async function POST(request: NextRequest) {
             };
             const followUp = await generateFollowUp(lead);
             await notifySlack({ ...lead, followUp });
-        })();
+        });
 
         return NextResponse.json({ status: "success", message: "Message received!" });
     } catch {
