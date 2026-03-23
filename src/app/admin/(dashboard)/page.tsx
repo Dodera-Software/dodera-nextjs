@@ -89,6 +89,7 @@ export default function AdminDashboardPage() {
     const [postResult, setPostResult] = useState<AutoPostResult | null>(null);
     const [showOptions, setShowOptions] = useState(false);
     const [authorName, setAuthorName] = useState("Dodera Team");
+    const [postIdea, setPostIdea] = useState("");
     const confirm = useConfirm();
 
     // Blog post examples
@@ -198,7 +199,7 @@ export default function AdminDashboardPage() {
             const res = await fetch("/api/admin/trigger-autopost", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ publish: false, author_name: authorName }),
+                body: JSON.stringify({ publish: false, author_name: authorName, ...(postIdea.trim() ? { idea: postIdea.trim() } : {}) }),
             });
             const data = await res.json();
             setPostResult(data);
@@ -325,16 +326,30 @@ export default function AdminDashboardPage() {
                     </button>
 
                     {showOptions && (
-                        <div className="mt-3 flex flex-wrap gap-4 items-center">
-                            <label className="flex items-center gap-2 text-sm">
-                                Author name
-                                <Input
-                                    type="text"
-                                    value={authorName}
-                                    onChange={(e) => setAuthorName(e.target.value)}
-                                    className="w-40 h-8"
+                        <div className="mt-3 space-y-3">
+                            <div className="flex flex-wrap gap-4 items-center">
+                                <label className="flex items-center gap-2 text-sm">
+                                    Author name
+                                    <Input
+                                        type="text"
+                                        value={authorName}
+                                        onChange={(e) => setAuthorName(e.target.value)}
+                                        className="w-40 h-8"
+                                    />
+                                </label>
+                            </div>
+                            <div className="space-y-1.5">
+                                <label className="text-sm text-muted-foreground">
+                                    Blog idea{" "}
+                                    <span className="text-xs opacity-60">(optional — leave blank to auto-pick a trending topic)</span>
+                                </label>
+                                <Textarea
+                                    value={postIdea}
+                                    onChange={(e) => setPostIdea(e.target.value)}
+                                    placeholder="e.g. How AI is transforming code reviews in 2026…"
+                                    className="text-xs min-h-[72px] resize-y"
                                 />
-                            </label>
+                            </div>
                         </div>
                     )}
                 </div>

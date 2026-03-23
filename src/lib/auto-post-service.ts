@@ -19,6 +19,7 @@ export interface AutoPostOptions {
     authorName?: string;
     lang?: string;
     saveToPrismic?: boolean;
+    idea?: string;
 }
 
 export interface AutoPostServiceResult {
@@ -126,6 +127,7 @@ export async function autoPost(options: AutoPostOptions = {}): Promise<AutoPostS
         authorName = "Dodera Team",
         lang = "en-us",
         saveToPrismic = true,
+        idea,
     } = options;
 
     /* 1. Validate OpenAI key */
@@ -192,7 +194,9 @@ export async function autoPost(options: AutoPostOptions = {}): Promise<AutoPostS
                 { role: "system", content: SYSTEM_PROMPT },
                 {
                     role: "user",
-                    content: `${getRandomTopicHint()}\n\nPick the single most trending, share-worthy topic in the technology space right now and write the full blog post. Output only the JSON object.${recentPostsContext}${examplesContext}`,
+                    content: idea
+                        ? `Write a full blog post about the following idea/topic: "${idea}". Focus the entire post on this specific subject — do not deviate to a different topic. Output only the JSON object.${recentPostsContext}${examplesContext}`
+                        : `${getRandomTopicHint()}\n\nPick the single most trending, share-worthy topic in the technology space right now and write the full blog post. Output only the JSON object.${recentPostsContext}${examplesContext}`,
                 },
             ],
         });
