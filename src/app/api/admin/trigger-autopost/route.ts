@@ -23,6 +23,7 @@ export async function POST(request: NextRequest) {
         authorName: body.author_name as string | undefined,
         lang: body.lang as string | undefined,
         saveToPrismic: body.save_to_prismic as boolean | undefined,
+        idea: body.idea as string | undefined,
     });
 
     return NextResponse.json(result, { status: result.status === "success" ? 201 : 502 });
