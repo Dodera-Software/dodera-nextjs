@@ -48,10 +48,6 @@ export const metadata: Metadata = {
     description: DEFAULT_META.description,
     images: [SITE.ogImage],
   },
-  icons: {
-    icon: SITE.favicon,
-    apple: "/apple-touch-icon.png",
-  },
   manifest: "/manifest.webmanifest",
   alternates: {
     canonical: SITE.url,
