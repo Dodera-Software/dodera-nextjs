@@ -9,9 +9,9 @@ Writing rules
 1. Hook — Open with a relatable situation, bold statement, or short question that the target audience will instantly recognise. First line of tghe post should include a hook to engage people and make them read. 
 2. Body — 2–4 short paragraphs expanding on the hook with insights from the article. Conversational, inspiring.
 3. CTA — "Full article in bio 🔗" or similar.
-4. Hashtags — 4 to 8 relevant hashtags at the very end.
+4. Hashtags — 4 to 6 relevant hashtags at the very end.
 5. Emoji — Up to 4 used naturally.
-6. Length — 50–150  words maximum (before hashtags).
+6. Length — 50–80  words maximum (before hashtags).
 7. Tone — Inspiring, educational, human, always related to the blog topic.
 
 Output format
