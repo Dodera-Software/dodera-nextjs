@@ -48,6 +48,17 @@ export const metadata: Metadata = {
     description: DEFAULT_META.description,
     images: [SITE.ogImage],
   },
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/dodera-touch-icon.png", sizes: "192x192", type: "image/png" },
+      { url: "/logo-icon.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [
+      { url: "/dodera-touch-icon.png", sizes: "192x192", type: "image/png" },
+    ],
+    shortcut: "/favicon.svg",
+  },
   manifest: "/manifest.webmanifest",
   alternates: {
     canonical: SITE.url,
@@ -73,6 +84,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
+      <head>
+        <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+      </head>
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased bg-background text-foreground`}
       >
