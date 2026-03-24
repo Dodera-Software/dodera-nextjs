@@ -20,7 +20,7 @@ export function BlogPostContent({ post }: BlogPostContentProps) {
     return (
         <>
             {/* ── Header ──────────────────────────────────── */}
-            <section aria-label="Article header" className="relative pb-12 pt-32">
+            <section aria-label="Article header" className="relative pb-12 pt-20 md:pt-32">
                 <div className="absolute inset-0 grid-bg" />
 
                 <div className="relative z-10 mx-auto max-w-3xl px-6">
