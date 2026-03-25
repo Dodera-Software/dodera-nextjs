@@ -35,7 +35,7 @@ export function NotableClients() {
                     className="mb-12 text-center text-sm text-muted-foreground"
                 >
                     Backed by a{" "}
-                    <span className="font-semibold text-foreground">35+ member workflow team</span> - full-time engineers, long-term collaborators, and trusted specialists, all pulling in the same direction.
+                    <span className="font-semibold text-foreground">35+ member workflow team</span> — full-time engineers, long-term collaborators, and trusted specialists, all pulling in the same direction.
                 </motion.p>
 
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
