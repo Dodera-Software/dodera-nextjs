@@ -7,6 +7,7 @@ import { CaseStudiesSection } from "@/components/CaseStudiesSection";
 import { ServicesSection } from "@/components/ServicesSection";
 import { ProcessSection } from "@/components/ProcessSection";
 import { PricingSection } from "@/components/PricingSection";
+import { TeamSection } from "@/components/TeamSection";
 import { CTASection } from "@/components/CTASection";
 import { Footer } from "@/components/Footer";
 import { JsonLd } from "@/components/JsonLd";
@@ -66,6 +67,7 @@ export default function HomePage() {
         <ServicesSection />
         <ProcessSection />
         <PricingSection />
+        <TeamSection />
         <CTASection />
       </main>
       <Footer />

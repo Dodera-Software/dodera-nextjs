@@ -53,6 +53,10 @@ export function Footer() {
                                 <Clock className="size-4" />
                                 {COMPANY.hours}
                             </div>
+                            <div className="flex items-center gap-2 text-foreground/70">
+                                <span>🏛️</span>
+                                Founded in {COMPANY.foundedYear}
+                            </div>
                         </div>
                     </div>
 

@@ -39,6 +39,7 @@ export const COMPANY = {
     taxId: "49004234",
     registrationNumber: "J30/958/2023",
     legalName: "Dodera Software S.R.L.",
+    foundedYear: 2023,
     email: "office@doderasoft.com",
     url: "https://doderasoft.com",
     phone: "0748 650 469",
