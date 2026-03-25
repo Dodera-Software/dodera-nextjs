@@ -36,6 +36,8 @@ const contactSchema = z.object({
         .trim()
         .min(10, "Message must be at least 10 characters.")
         .max(2000, "Message must be at most 2000 characters."),
+    service_type: z.string().trim().max(80).optional().default(""),
+    budget: z.string().trim().max(40).optional().default(""),
     // Honeypot — must be empty; bots fill this, humans don't
     [HONEYPOT_FIELD]: z.string().optional().default(""),
 });
@@ -58,6 +60,8 @@ async function notifySlack(data: SlackLeadData) {
     ];
     if (data.company) lines.push(`*Company:* ${data.company}`);
     if (data.phone) lines.push(`*Phone:* ${data.phone}`);
+    if (data.service_type) lines.push(`*Service:* ${data.service_type}`);
+    if (data.budget) lines.push(`*Budget:* ${data.budget}`);
     lines.push(``, `*Message:*`, `>${data.message.replace(/\n/g, "\n>")}`);
 
     if (data.followUp) {
@@ -111,6 +115,8 @@ export async function POST(request: NextRequest) {
             email: parsed.data.email,
             company: parsed.data.company || null,
             phone: parsed.data.phone || null,
+            service_type: parsed.data.service_type || null,
+            budget: parsed.data.budget || null,
             message: parsed.data.message,
         });
 
@@ -129,6 +135,8 @@ export async function POST(request: NextRequest) {
                 email: parsed.data.email,
                 company: parsed.data.company ?? "",
                 phone: parsed.data.phone ?? "",
+                service_type: parsed.data.service_type ?? "",
+                budget: parsed.data.budget ?? "",
                 message: parsed.data.message,
             };
             const followUp = await generateFollowUp(lead);

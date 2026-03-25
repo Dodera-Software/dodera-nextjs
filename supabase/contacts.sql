@@ -18,3 +18,8 @@ alter table public.contacts enable row level security;
 
 -- Optional: add an index on created_at for dashboard sorting
 create index idx_contacts_created_at on public.contacts (created_at desc);
+
+-- ── Migration: add service_type and budget columns ────────────────────────────
+-- Run this if the table already exists (created before this migration was added)
+alter table public.contacts add column if not exists service_type text;
+alter table public.contacts add column if not exists budget       text;
