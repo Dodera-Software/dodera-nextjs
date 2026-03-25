@@ -3,6 +3,7 @@ import { Navbar } from "@/components/Navbar";
 import { HeroSection } from "@/components/HeroSection";
 import { TrustedBy } from "@/components/TrustedBy";
 import { TestimonialsSection } from "@/components/TestimonialsSection";
+import { CaseStudiesSection } from "@/components/CaseStudiesSection";
 import { ServicesSection } from "@/components/ServicesSection";
 import { ProcessSection } from "@/components/ProcessSection";
 import { CTASection } from "@/components/CTASection";
@@ -60,6 +61,7 @@ export default function HomePage() {
         <HeroSection />
         <TrustedBy />
         <TestimonialsSection />
+        <CaseStudiesSection />
         <ServicesSection />
         <ProcessSection />
         <CTASection />
