@@ -27,6 +27,8 @@ export interface LeadData {
     email: string;
     company: string;
     phone: string;
+    service_type?: string;
+    budget?: string;
     message: string;
 }
 
