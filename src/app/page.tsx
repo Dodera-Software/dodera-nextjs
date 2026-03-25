@@ -9,6 +9,7 @@ import { ProcessSection } from "@/components/ProcessSection";
 import { PricingSection } from "@/components/PricingSection";
 import { TeamSection } from "@/components/TeamSection";
 import { CTASection } from "@/components/CTASection";
+import { NotableClients } from "@/components/NotableClients";
 import { Footer } from "@/components/Footer";
 import { JsonLd } from "@/components/JsonLd";
 import { ScrollManager } from "@/components/ScrollManager";
@@ -62,6 +63,7 @@ export default function HomePage() {
       <main>
         <HeroSection />
         <TrustedBy />
+        <NotableClients />
         <TestimonialsSection />
         <CaseStudiesSection />
         <ServicesSection />
