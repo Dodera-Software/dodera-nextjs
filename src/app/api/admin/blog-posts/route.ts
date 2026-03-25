@@ -31,7 +31,7 @@ export async function GET() {
     }
 
     try {
-        // getAllPosts() is the same function that powers the live /blog page —
+        // getAllPosts() is the same function that powers the live /blog page -
         // it only returns what is actually published and visible on the website.
         const posts = await getAllPosts();
 

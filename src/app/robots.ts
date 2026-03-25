@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { SITE } from "@/config/seo";
 
 /**
- * Programmatic robots.txt — served at /robots.txt.
+ * Programmatic robots.txt - served at /robots.txt.
  *
  * Crawl directives:
  * - Allow everything except internal API and Next.js build artifacts

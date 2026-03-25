@@ -49,7 +49,7 @@ export const PLATFORMS: {
 
 /* ── Platform share URLs ────────────────────────────────────────
    Opens the platform ready to paste the copied post text.
-   Instagram has no web create-post URL — opens the feed instead.
+   Instagram has no web create-post URL - opens the feed instead.
    ─────────────────────────────────────────────────────────────── */
 export function getPlatformShareUrl(platform: SocialPlatform, articleUrl: string): string {
     switch (platform) {

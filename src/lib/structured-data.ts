@@ -169,7 +169,7 @@ export function collectionPageSchema(opts: {
     };
 }
 
-/* ── Schema.org Article (individual blog post — CMS ready) ── */
+/* ── Schema.org Article (individual blog post - CMS ready) ── */
 export function articleSchema(opts: {
     title: string;
     description: string;

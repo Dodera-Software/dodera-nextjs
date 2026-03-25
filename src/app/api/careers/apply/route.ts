@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
     const folder = jobId ? String(Number(jobId)) : "general";
     const storagePath = `${folder}/${Date.now()}-${safeName}${ext}`;
 
-    // Determine content type — multipart upload sometimes sends empty string
+    // Determine content type - multipart upload sometimes sends empty string
     const MIME_BY_EXT: Record<string, string> = {
         ".pdf": "application/pdf",
         ".doc": "application/msword",

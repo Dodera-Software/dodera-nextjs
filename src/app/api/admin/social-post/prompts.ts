@@ -1,5 +1,5 @@
 /**
- * Social Post Generation — Prompt Builder
+ * Social Post Generation - Prompt Builder
  *
  * ⚠️  Do NOT edit prompts here.
  *    Edit the plain-text prompt files directly:
@@ -40,8 +40,8 @@ export function buildSystemPrompt(platform: SocialPlatform, examples: string[]):
 
     const examplesBlock =
         examples.length > 0
-            ? `Study the hook openings, paragraph rhythm, line breaks, and CTA style of these real posts. Mirror the patterns — do NOT copy any content.\n\n${examples.map((e, i) => `### Example ${i + 1}\n${e}`).join("\n\n")}`
-            : `No personal examples provided — use proven ${platform} best practices for hooks, paragraph rhythm, and CTAs.`;
+            ? `Study the hook openings, paragraph rhythm, line breaks, and CTA style of these real posts. Mirror the patterns - do NOT copy any content.\n\n${examples.map((e, i) => `### Example ${i + 1}\n${e}`).join("\n\n")}`
+            : `No personal examples provided - use proven ${platform} best practices for hooks, paragraph rhythm, and CTAs.`;
 
     return withCompany.replaceAll("{{EXAMPLES}}", examplesBlock);
 }

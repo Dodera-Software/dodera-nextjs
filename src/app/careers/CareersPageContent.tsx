@@ -161,7 +161,7 @@ export function CareersPageContent() {
                                     transition={stagger(i)}
                                     className="rounded-xl border border-border bg-card overflow-hidden"
                                 >
-                                    {/* Header row — always visible */}
+                                    {/* Header row - always visible */}
                                     <button
                                         onClick={() => setExpandedId(expandedId === job.id ? null : job.id)}
                                         className="w-full text-left px-6 py-5 flex items-start justify-between gap-4 hover:bg-muted/30 transition-colors"

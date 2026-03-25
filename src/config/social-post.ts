@@ -1,6 +1,6 @@
 /**
- * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║           SOCIAL POST AI — IDENTITY CONFIG                              ║
+ * ╔══════════════════════════════════════════════════════════════════════════�-
+ * ║           SOCIAL POST AI - IDENTITY CONFIG                              ║
  * ╠══════════════════════════════════════════════════════════════════════════╣
  * ║  To edit the actual prompt text / writing rules, open the .txt files    ║
  * ║  next to the route:                                                      ║

@@ -6,13 +6,13 @@ import { getContactFollowupModel, getContactFollowupDailyLimit, getContactFollow
 
 /* ── Static limits (not user-configurable) ───────────────── */
 
-/** Minimum message length — too short to extract useful context. */
+/** Minimum message length - too short to extract useful context. */
 const MIN_MSG_LENGTH = 30;
 
-/** Max characters sent to AI — caps token usage on long messages. */
+/** Max characters sent to AI - caps token usage on long messages. */
 const MAX_INPUT_CHARS = 600;
 
-/** Hard timeout in ms — AI slowness never delays the Slack notification. */
+/** Hard timeout in ms - AI slowness never delays the Slack notification. */
 const TIMEOUT_MS = 8_000;
 
 /** o-series reasoning models do not accept a temperature parameter. */
@@ -72,7 +72,7 @@ async function isDailyLimitReached(): Promise<boolean> {
  *  - Skipped for very short messages (< 30 chars).
  *  - Lead context is capped at 600 chars before being sent to the model.
  *  - Hard 8 s timeout via AbortController.
- *  - All failures are swallowed — never blocks the Slack notification.
+ *  - All failures are swallowed - never blocks the Slack notification.
  */
 export async function generateFollowUp(data: LeadData): Promise<string | undefined> {
     const apiKey = process.env.OPENAI_API_KEY;
@@ -86,7 +86,7 @@ export async function generateFollowUp(data: LeadData): Promise<string | undefin
     if (!enabled || !model) return undefined;
 
     if (await isDailyLimitReached()) {
-        console.log("[contact-followup] Daily limit reached — skipping AI follow-up.");
+        console.log("[contact-followup] Daily limit reached - skipping AI follow-up.");
         return undefined;
     }
 

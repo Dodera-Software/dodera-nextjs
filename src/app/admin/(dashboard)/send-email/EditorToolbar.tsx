@@ -192,7 +192,7 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
                 onChange={handleImageFile}
             />
 
-            {/* Image size controls — only visible when an image node is selected */}
+            {/* Image size controls - only visible when an image node is selected */}
             {isImageActive && (
                 <>
                     <ToolbarDivider />

@@ -40,7 +40,7 @@ export async function DELETE(request: NextRequest) {
             );
         }
 
-        /* Delete from Supabase (idempotent — no error if not found) */
+        /* Delete from Supabase (idempotent - no error if not found) */
         const { error } = await supabase
             .from("subscribers")
             .delete()

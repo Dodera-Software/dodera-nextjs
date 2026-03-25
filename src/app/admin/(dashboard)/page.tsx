@@ -220,21 +220,21 @@ export default function AdminDashboardPage() {
     const cards = [
         {
             label: "Total Subscribers",
-            value: stats?.subscribers ?? "—",
+            value: stats?.subscribers ?? "-",
             icon: Users,
             color: "text-blue-400",
             bg: "bg-blue-400/10",
         },
         {
             label: "Total API Tokens",
-            value: stats?.tokens ?? "—",
+            value: stats?.tokens ?? "-",
             icon: Key,
             color: "text-amber-400",
             bg: "bg-amber-400/10",
         },
         {
             label: "Active Tokens",
-            value: stats?.activeTokens ?? "—",
+            value: stats?.activeTokens ?? "-",
             icon: LayoutDashboard,
             color: "text-emerald-400",
             bg: "bg-emerald-400/10",
@@ -341,7 +341,7 @@ export default function AdminDashboardPage() {
                             <div className="space-y-1.5">
                                 <label className="text-sm text-muted-foreground">
                                     Blog idea{" "}
-                                    <span className="text-xs opacity-60">(optional — leave blank to auto-pick a trending topic)</span>
+                                    <span className="text-xs opacity-60">(optional - leave blank to auto-pick a trending topic)</span>
                                 </label>
                                 <Textarea
                                     value={postIdea}

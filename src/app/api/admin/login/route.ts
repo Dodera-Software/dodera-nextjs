@@ -6,7 +6,7 @@ import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
     try {
-        /* IP rate limit — prevent brute-force attacks */
+        /* IP rate limit - prevent brute-force attacks */
         const ip = getClientIp(request);
         const { limited } = await checkRateLimit("admin_login", ip);
         if (limited) {

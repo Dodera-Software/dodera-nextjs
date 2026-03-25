@@ -127,7 +127,7 @@ function textToRichText(text: string): prismic.RichTextField {
 /* ── Request validation ─────────────────────────────────────── */
 
 const blogPostPayloadSchema = z.object({
-    /** URL slug — must be unique across all blog posts */
+    /** URL slug - must be unique across all blog posts */
     uid: z
         .string()
         .trim()
@@ -229,7 +229,7 @@ export async function POST(request: NextRequest) {
             return file;
         }
 
-        /* Handle image assets — download externally hosted images first so
+        /* Handle image assets - download externally hosted images first so
            Prismic receives binary data rather than a foreign URL. */
         let featuredImage;
         if (payload.featured_image_url) {

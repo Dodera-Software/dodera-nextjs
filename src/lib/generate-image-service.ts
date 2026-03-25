@@ -11,7 +11,7 @@ type ImageModel = (typeof VALID_MODELS)[number];
 
 /**
  * Generate an image via DALL-E and return its temporary CDN URL.
- * Can accept either a raw `prompt` string or blog post fields —
+ * Can accept either a raw `prompt` string or blog post fields -
  * same shape as /api/generate-image.
  *
  * Pass `size` to override the default 1792x1024.
@@ -46,7 +46,7 @@ export async function generateImageUrl(
 
     const openai = new OpenAI({ apiKey: openaiKey });
 
-    console.log(`[generate-image-service] Model: ${requestedModel} | Size: ${requestedSize} — prompt: "${imagePrompt.slice(0, 100)}…"`);
+    console.log(`[generate-image-service] Model: ${requestedModel} | Size: ${requestedSize} - prompt: "${imagePrompt.slice(0, 100)}…"`);
 
     // Each model has different supported parameters:
     // - dall-e-3: supports quality + response_format

@@ -274,12 +274,12 @@ export default function ContactsPage() {
                                             </td>
                                             <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">
                                                 {contact.company || (
-                                                    <span className="opacity-40">—</span>
+                                                    <span className="opacity-40">-</span>
                                                 )}
                                             </td>
                                             <td className="px-4 py-3 text-muted-foreground hidden lg:table-cell">
                                                 {contact.phone || (
-                                                    <span className="opacity-40">—</span>
+                                                    <span className="opacity-40">-</span>
                                                 )}
                                             </td>
                                             <td className="px-4 py-3 text-muted-foreground hidden sm:table-cell whitespace-nowrap">

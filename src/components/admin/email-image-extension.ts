@@ -4,7 +4,7 @@ import Image from "@tiptap/extension-image";
  * Extended TipTap Image node that supports email-safe alignment via an
  * `align` attribute ("none" | "left" | "center" | "right").
  *
- * allowBase64: true — ensures base64 data URLs survive setContent() on reload.
+ * allowBase64: true - ensures base64 data URLs survive setContent() on reload.
  * Alignment is rendered as inline CSS so it works in all email clients.
  * Used by both the Send Email and Welcome Email editors.
  */

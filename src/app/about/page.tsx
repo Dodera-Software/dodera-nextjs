@@ -32,7 +32,7 @@ export const metadata: Metadata = {
                 url: SITE.ogImage,
                 width: 1200,
                 height: 630,
-                alt: "Dodera Software — About Us",
+                alt: "Dodera Software - About Us",
             },
         ],
     },
@@ -50,7 +50,7 @@ const faqData = [
     {
         question: "Where is Dodera Software based?",
         answer:
-            "We are based in Romania and serve clients internationally — from startups in Western Europe to enterprises in North America. All work is delivered remotely with clear async communication.",
+            "We are based in Romania and serve clients internationally - from startups in Western Europe to enterprises in North America. All work is delivered remotely with clear async communication.",
     },
     {
         question: "What size of projects do you take on?",

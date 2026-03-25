@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import {
@@ -494,7 +494,7 @@ export default function TokensPage() {
                             </Button>
                             <Button type="submit" disabled={creating}>
                                 {creating && <Loader2 className="w-4 h-4 animate-spin" />}
-                                {creating ? "Generating…" : "Generate"}
+                                {creating ? "Generating�" : "Generate"}
                             </Button>
                         </DialogFooter>
                     </form>
@@ -554,7 +554,7 @@ export default function TokensPage() {
                 </DialogContent>
             </Dialog>
 
-            {/* Fixed dropdown — renders outside table overflow context */}
+            {/* Fixed dropdown - renders outside table overflow context */}
             {openMenuId !== null && (() => {
                 const token = tokens.find((t) => t.id === openMenuId);
                 if (!token) return null;

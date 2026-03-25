@@ -36,7 +36,7 @@ const contactSchema = z.object({
         .trim()
         .min(10, "Message must be at least 10 characters.")
         .max(2000, "Message must be at most 2000 characters."),
-    // Honeypot — must be empty; bots fill this, humans don't
+    // Honeypot - must be empty; bots fill this, humans don't
     [HONEYPOT_FIELD]: z.string().optional().default(""),
 });
 
@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        /* Honeypot — silent success so bots don't know they were blocked */
+        /* Honeypot - silent success so bots don't know they were blocked */
         if (parsed.data[HONEYPOT_FIELD]) {
             return NextResponse.json({ status: "success", message: "Message received!" });
         }
@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        /* Notify Slack + AI follow-up — runs after response is sent, keeps the function alive on Vercel */
+        /* Notify Slack + AI follow-up - runs after response is sent, keeps the function alive on Vercel */
         after(async () => {
             const lead: LeadData = {
                 name: parsed.data.name,

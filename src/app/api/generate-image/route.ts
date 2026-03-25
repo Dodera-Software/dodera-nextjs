@@ -13,10 +13,10 @@ const OPENAI_IMAGE_MODEL = process.env.OPENAI_IMAGE_MODEL ?? "dall-e-3";
 /**
  * POST /api/generate-image
  *
- * Case 1 — Direct prompt:
+ * Case 1 - Direct prompt:
  *   { "prompt": "A futuristic cityscape at night" }
  *
- * Case 2 — Blog post fields (same shape forwarded by /api/auto-post):
+ * Case 2 - Blog post fields (same shape forwarded by /api/auto-post):
  *   { "title": "...", "excerpt": "...", "category": "...", "tags": [...], ... }
  *   A descriptive image prompt is derived from the provided fields.
  *
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
         const openai = new OpenAI({ apiKey: openaiKey });
 
         console.log(
-            `[generate-image] Generating image — prompt: "${imagePrompt.slice(0, 120)}${imagePrompt.length > 120 ? "…" : ""}"`,
+            `[generate-image] Generating image - prompt: "${imagePrompt.slice(0, 120)}${imagePrompt.length > 120 ? "…" : ""}"`,
         );
 
         const imageResponse = await openai.images.generate({

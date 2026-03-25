@@ -3,10 +3,10 @@ import path from "path";
 
 // Loaded from image-prompt.txt so non-technical editors can adjust the image
 // style/tone without touching TypeScript. Supported placeholders:
-//   {{TITLE}}    — blog post title (always present)
-//   {{EXCERPT}}  — short article summary (optional)
-//   {{CATEGORY}} — post category (optional)
-//   {{TAGS}}     — comma-separated tags (optional)
+//   {{TITLE}}    - blog post title (always present)
+//   {{EXCERPT}}  - short article summary (optional)
+//   {{CATEGORY}} - post category (optional)
+//   {{TAGS}}     - comma-separated tags (optional)
 // Lines where an optional placeholder resolves to empty are automatically
 // removed from the final prompt.
 
@@ -43,7 +43,7 @@ export function buildImagePrompt(body: Record<string, unknown>): string | null {
             .replaceAll("{{TAGS}}", tags)
             .split("\n")
             // Drop lines where an optional placeholder was replaced with nothing
-            // (they'll look like "Category: " or "Related topics: " — trailing colon)
+            // (they'll look like "Category: " or "Related topics: " - trailing colon)
             .filter((line) => line.trim() !== "" && !line.trim().endsWith(":"))
             .join(" ");
     }

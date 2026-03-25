@@ -100,7 +100,7 @@ export interface BlogPost {
     readTime: string;
     category: string;
     tags: string[];
-    /** CMS fields — populated when a headless CMS is connected. */
+    /** CMS fields - populated when a headless CMS is connected. */
     author?: BlogAuthor;
     /** Featured image URL (absolute or relative). */
     image?: string;

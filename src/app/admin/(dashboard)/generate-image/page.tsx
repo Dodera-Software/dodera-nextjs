@@ -148,7 +148,7 @@ export default function GenerateImagePage() {
             {/* Main card */}
             <div className={`rounded-xl border border-border bg-card overflow-hidden flex flex-col ${history.length > 0 ? "min-h-[calc(100vh-12rem)]" : ""}`}>
 
-                {/* History — only shown when there's content */}
+                {/* History - only shown when there's content */}
                 {history.length > 0 && (
                     <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 min-h-0">
                         {history.map((item) => {
@@ -222,7 +222,7 @@ export default function GenerateImagePage() {
                     </div>
                 )}
 
-                {/* Empty state — only shown when no history */}
+                {/* Empty state - only shown when no history */}
                 {history.length === 0 && (
                     <div className="flex flex-col items-center text-center px-6 pt-10 pb-6 space-y-6">
                         <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center ring-1 ring-primary/20">

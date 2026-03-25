@@ -129,7 +129,7 @@ export function injectUnsubscribeFooter(html: string, subscriberEmail: string): 
  *
  * @param bodyHtml        - The main body HTML (will be placed inside a centred
  *   container).
- * @param subscriberEmail - The recipient's address — used to generate their
+ * @param subscriberEmail - The recipient's address - used to generate their
  *   personal unsubscribe link.
  */
 export function buildSubscriberEmail(bodyHtml: string, subscriberEmail: string): string {

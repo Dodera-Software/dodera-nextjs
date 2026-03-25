@@ -4,7 +4,7 @@ import { SERVICE_PAGE_SLUGS } from "@/config/services";
 import { getAllPosts } from "@/lib/cms";
 
 /**
- * Programmatic sitemap — served at /sitemap.xml.
+ * Programmatic sitemap - served at /sitemap.xml.
  *
  * Includes every indexable page: home, blog listing,
  * all parent & child service pages, and blog posts.

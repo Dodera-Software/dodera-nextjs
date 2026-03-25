@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { motion } from "framer-motion";
 import { TRUSTED_LOGOS } from "@/config/site";
@@ -13,7 +13,7 @@ export function TrustedBy() {
                     Using globally trusted technologies like
                 </p>
 
-                {/* Social icons — desktop, absolute right */}
+                {/* Social icons - desktop, absolute right */}
                 <div className="absolute right-6 top-1/2 hidden -translate-y-1/2 flex-col items-end gap-2 lg:flex">
                     <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/50">
                         Find us on:
@@ -37,7 +37,7 @@ export function TrustedBy() {
                     ))}
                 </div>
 
-                {/* Social icons — mobile/tablet */}
+                {/* Social icons - mobile/tablet */}
                 <div className="mt-10 flex flex-col items-center gap-3 lg:hidden">
                     <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/50">
                         Find us on:

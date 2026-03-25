@@ -28,7 +28,7 @@ export const metadata: Metadata = {
                 url: SITE.ogImage,
                 width: 1200,
                 height: 630,
-                alt: "Dodera Software — Careers",
+                alt: "Dodera Software - Careers",
             },
         ],
     },

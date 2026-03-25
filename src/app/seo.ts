@@ -1,7 +1,7 @@
 /**
  * src/app/seo.ts
  *
- * SEO metadata for the Homepage (/) — edit here to update
+ * SEO metadata for the Homepage (/) - edit here to update
  * the title, description, and keywords shown in search results.
  */
 

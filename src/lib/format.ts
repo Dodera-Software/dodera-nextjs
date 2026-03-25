@@ -26,7 +26,7 @@ export function formatDateShort(dateStr: string): string {
 }
 
 /**
- * Format a date with time component. Handles null (returns "—").
+ * Format a date with time component. Handles null (returns "-").
  * Example: "Mar 5, 2026 09:00"
  */
 export function formatDateTime(dateStr: string | null, pattern = "MMM d, yyyy HH:mm"): string {

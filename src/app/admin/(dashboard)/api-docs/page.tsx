@@ -353,7 +353,7 @@ export default function ApiDocsPage() {
         <div className="space-y-8">
             <AdminPageHeader
                 title="API Documentation"
-                subtitle={`Overview of all backend API endpoints — ${API_ENDPOINTS.length} total`}
+                subtitle={`Overview of all backend API endpoints - ${API_ENDPOINTS.length} total`}
             />
 
             {/* Stats */}

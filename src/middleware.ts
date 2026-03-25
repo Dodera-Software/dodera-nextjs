@@ -5,7 +5,7 @@ import {
     PUBLIC_API_ROUTES,
 } from "@/config/api-auth";
 
-/* ── Helpers (Edge-compatible — no Node crypto) ─────────────── */
+/* ── Helpers (Edge-compatible - no Node crypto) ─────────────── */
 
 async function sha256(input: string): Promise<string> {
     const encoded = new TextEncoder().encode(input);

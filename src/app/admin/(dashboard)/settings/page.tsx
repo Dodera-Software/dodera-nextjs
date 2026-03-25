@@ -17,7 +17,7 @@ import { OPENAI_TEXT_MODELS, IMAGE_MODELS } from "@/config/ai-models";
 
 const BOOLEAN_KEYS = new Set(["contact_followup_enabled"]);
 
-// Keys managed by their own dedicated admin pages — hide from generic settings list
+// Keys managed by their own dedicated admin pages - hide from generic settings list
 const HIDDEN_KEYS = new Set(["welcome_email_subject", "welcome_email_html"]);
 
 function isBooleanKey(key: string) {
@@ -219,13 +219,13 @@ export default function SettingsPage() {
             <div className="rounded-xl border border-border bg-card p-4 flex items-start gap-3">
                 <Settings className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
                 <div className="space-y-1 text-xs text-muted-foreground">
-                    <p><span className="font-medium text-foreground">contact_followup_enabled</span> — Whether to generate AI follow-up suggestions (<code className="bg-muted px-1 rounded">true</code> / <code className="bg-muted px-1 rounded">false</code>).</p>
-                    <p><span className="font-medium text-foreground">contact_followup_model</span> — OpenAI model for AI lead follow-ups. Choose from the dropdown (e.g. <code className="bg-muted px-1 rounded">gpt-4o-mini</code> for cost efficiency, <code className="bg-muted px-1 rounded">gpt-4o</code> or <code className="bg-muted px-1 rounded">gpt-5</code> for best quality).</p>
-                    <p><span className="font-medium text-foreground">social_post_model</span> — OpenAI model used when generating social posts.</p>
-                    <p><span className="font-medium text-foreground">image_generation_model</span> — Model used for AI image generation (e.g. <code className="bg-muted px-1 rounded">dall-e-3</code> or <code className="bg-muted px-1 rounded">gpt-image-1</code>).</p>
-                    <p><span className="font-medium text-foreground">contact_followup_daily_limit</span> — Max AI calls per day (UTC). <code className="bg-muted px-1 rounded">0</code> = unlimited.</p>
-                    <p><span className="font-medium text-foreground">contact_rate_limit_max</span> — Max contact form submissions allowed per IP within the time window.</p>
-                    <p><span className="font-medium text-foreground">contact_rate_limit_window_minutes</span> — Rolling window in minutes for the contact form IP rate limit.</p>
+                    <p><span className="font-medium text-foreground">contact_followup_enabled</span> - Whether to generate AI follow-up suggestions (<code className="bg-muted px-1 rounded">true</code> / <code className="bg-muted px-1 rounded">false</code>).</p>
+                    <p><span className="font-medium text-foreground">contact_followup_model</span> - OpenAI model for AI lead follow-ups. Choose from the dropdown (e.g. <code className="bg-muted px-1 rounded">gpt-4o-mini</code> for cost efficiency, <code className="bg-muted px-1 rounded">gpt-4o</code> or <code className="bg-muted px-1 rounded">gpt-5</code> for best quality).</p>
+                    <p><span className="font-medium text-foreground">social_post_model</span> - OpenAI model used when generating social posts.</p>
+                    <p><span className="font-medium text-foreground">image_generation_model</span> - Model used for AI image generation (e.g. <code className="bg-muted px-1 rounded">dall-e-3</code> or <code className="bg-muted px-1 rounded">gpt-image-1</code>).</p>
+                    <p><span className="font-medium text-foreground">contact_followup_daily_limit</span> - Max AI calls per day (UTC). <code className="bg-muted px-1 rounded">0</code> = unlimited.</p>
+                    <p><span className="font-medium text-foreground">contact_rate_limit_max</span> - Max contact form submissions allowed per IP within the time window.</p>
+                    <p><span className="font-medium text-foreground">contact_rate_limit_window_minutes</span> - Rolling window in minutes for the contact form IP rate limit.</p>
                 </div>
             </div>
         </div>

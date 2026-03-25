@@ -1,5 +1,5 @@
 /**
- * n8n logo icon component — renders the recolored_icon.svg from /public
+ * n8n logo icon component - renders the recolored_icon.svg from /public
  */
 import Image from "next/image";
 

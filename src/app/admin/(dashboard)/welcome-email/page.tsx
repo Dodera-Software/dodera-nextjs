@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 
-/* Unlayer editor — client-only (needs window / iframe) */
+/* Unlayer editor - client-only (needs window / iframe) */
 const EmailEditor = dynamic(
     () => import("react-email-editor"),
     {

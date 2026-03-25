@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import {
@@ -27,7 +27,7 @@ import { PLATFORMS, getPlatformShareUrl, type SocialPlatform } from "./platforms
 import type { SocialBlogPost } from "@/types/admin";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 
-/* ── Types ─────────────────────────────────────────────────── */
+/* -- Types --------------------------------------------------- */
 
 export interface GeneratedItem {
     platform: SocialPlatform;
@@ -41,7 +41,7 @@ export interface ExampleItem {
     content: string;
 }
 
-/* ── Component ──────────────────────────────────────────────── */
+/* -- Component ------------------------------------------------ */
 
 export default function GenerateSocialPostPage() {
     /* posts */
@@ -72,7 +72,7 @@ export default function GenerateSocialPostPage() {
     const [deletingExampleId, setDeletingExampleId] = useState<number | null>(null);
     const [expandedExampleIds, setExpandedExampleIds] = useState<Set<number>>(new Set());
 
-    /* ── Fetch posts ─────────────────────────────────────────── */
+    /* -- Fetch posts ------------------------------------------- */
     useEffect(() => {
         setPostsLoading(true);
         fetch("/api/admin/blog-posts")
@@ -84,11 +84,11 @@ export default function GenerateSocialPostPage() {
                     setPostsError(data.message ?? "Failed to load posts.");
                 }
             })
-            .catch(() => setPostsError("Network error — could not load blog posts."))
+            .catch(() => setPostsError("Network error - could not load blog posts."))
             .finally(() => setPostsLoading(false));
     }, []);
 
-    /* ── Fetch examples for a platform ──────────────────────── */
+    /* -- Fetch examples for a platform ------------------------ */
     const fetchExamples = useCallback(async (platform: SocialPlatform) => {
         if (examples[platform] !== undefined) return; // already loaded
         setExamplesLoading((prev) => ({ ...prev, [platform]: true }));
@@ -103,7 +103,7 @@ export default function GenerateSocialPostPage() {
         }
     }, [examples]);
 
-    /* ── Add example ─────────────────────────────────────────── */
+    /* -- Add example ------------------------------------------- */
     const handleAddExample = useCallback(async () => {
         if (!activePlatform || !newExampleText.trim() || addingExample) return;
         setAddingExample(true);
@@ -126,7 +126,7 @@ export default function GenerateSocialPostPage() {
         }
     }, [activePlatform, newExampleText, addingExample]);
 
-    /* ── Delete example ──────────────────────────────────────── */
+    /* -- Delete example ---------------------------------------- */
     const handleDeleteExample = useCallback(async (platform: SocialPlatform, id: number) => {
         setDeletingExampleId(id);
         try {
@@ -140,7 +140,7 @@ export default function GenerateSocialPostPage() {
         }
     }, []);
 
-    /* ── Filter posts by search ──────────────────────────────── */
+    /* -- Filter posts by search -------------------------------- */
     const filtered = posts.filter((p) => {
         if (!search.trim()) return true;
         const q = search.toLowerCase();
@@ -152,7 +152,7 @@ export default function GenerateSocialPostPage() {
         );
     });
 
-    /* ── Generate ────────────────────────────────────────────── */
+    /* -- Generate ---------------------------------------------- */
     const generate = useCallback(
         async (platform: SocialPlatform) => {
             if (!selected || generating) return;
@@ -221,7 +221,7 @@ export default function GenerateSocialPostPage() {
         [selected, generating],
     );
 
-    /* ── Copy ────────────────────────────────────────────────── */
+    /* -- Copy -------------------------------------------------- */
     const handleCopy = useCallback(async (text: string) => {
         try {
             await navigator.clipboard.writeText(text);
@@ -232,7 +232,7 @@ export default function GenerateSocialPostPage() {
         }
     }, []);
 
-    /* ── Open in platform (copy text + redirect) ─────────────── */
+    /* -- Open in platform (copy text + redirect) --------------- */
     const handleOpenInPlatform = useCallback(async (platform: SocialPlatform, text: string, articleUrl: string) => {
         try {
             await navigator.clipboard.writeText(text);
@@ -242,7 +242,7 @@ export default function GenerateSocialPostPage() {
         window.open(getPlatformShareUrl(platform, articleUrl), "_blank", "noopener,noreferrer");
     }, []);
 
-    /* ── Select a post ───────────────────────────────────────── */
+    /* -- Select a post ----------------------------------------- */
     const handleSelect = (post: SocialBlogPost) => {
         setSelected(post);
         setGenerated({});
@@ -251,7 +251,7 @@ export default function GenerateSocialPostPage() {
         setCopied(false);
     };
 
-    /* ── Regenerate helper ───────────────────────────────────── */
+    /* -- Regenerate helper ------------------------------------- */
     const generateSocialPostRegenerate = useCallback((platform: SocialPlatform) => {
         setShared(false);
         setCopied(false);
@@ -263,10 +263,10 @@ export default function GenerateSocialPostPage() {
         generate(platform);
     }, [generate]);
 
-    /* ── Active generated content ────────────────────────────── */
+    /* -- Active generated content ------------------------------ */
     const activeItem = activePlatform ? generated[activePlatform] : null;
 
-    /* ── Format date ─────────────────────────────────────────── */
+    /* -- Format date ------------------------------------------- */
     const fmt = (d: string | null) =>
         d
             ? new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
@@ -281,7 +281,7 @@ export default function GenerateSocialPostPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-6 items-start">
 
-                {/* ── Left: Post selector ───────────────────────────────── */}
+                {/* -- Left: Post selector --------------------------------- */}
                 <div className="rounded-xl border border-border bg-card overflow-hidden flex flex-col">
                     <div className="px-4 pt-4 pb-3 border-b border-border">
                         <p className="text-sm font-semibold mb-2">Published Posts</p>
@@ -290,7 +290,7 @@ export default function GenerateSocialPostPage() {
                             <Input
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
-                                placeholder="Search by title, category, tag…"
+                                placeholder="Search by title, category, tag�"
                                 className="h-8 pl-8 text-xs"
                             />
                         </div>
@@ -300,7 +300,7 @@ export default function GenerateSocialPostPage() {
                         {postsLoading && (
                             <div className="flex items-center justify-center gap-2 py-10 text-muted-foreground">
                                 <Loader2 className="w-4 h-4 animate-spin" />
-                                <span className="text-sm">Loading posts…</span>
+                                <span className="text-sm">Loading posts�</span>
                             </div>
                         )}
 
@@ -364,10 +364,10 @@ export default function GenerateSocialPostPage() {
                     )}
                 </div>
 
-                {/* ── Right: Generation panel ───────────────────────────── */}
+                {/* -- Right: Generation panel ----------------------------- */}
                 <div className="flex flex-col gap-4">
 
-                    {/* No post selected — empty state */}
+                    {/* No post selected - empty state */}
                     {!selected && (
                         <div className="rounded-xl border border-border bg-card flex flex-col items-center justify-center py-16 px-6 text-center gap-4">
                             <div className="w-14 h-14 rounded-2xl bg-primary/10 ring-1 ring-primary/20 flex items-center justify-center">
@@ -524,7 +524,7 @@ export default function GenerateSocialPostPage() {
                                         <div className="border-t border-border p-4 space-y-4">
                                             <p className="text-xs text-muted-foreground leading-relaxed">
                                                 Paste real {PLATFORMS.find(p => p.id === activePlatform)?.label} posts that performed well.
-                                                The AI will mirror their hook style, rhythm and CTA structure — it will never copy content.
+                                                The AI will mirror their hook style, rhythm and CTA structure - it will never copy content.
                                             </p>
 
                                             {/* Add new example */}
@@ -532,7 +532,7 @@ export default function GenerateSocialPostPage() {
                                                 <textarea
                                                     value={newExampleText}
                                                     onChange={(e) => setNewExampleText(e.target.value)}
-                                                    placeholder={`Paste a ${PLATFORMS.find(p => p.id === activePlatform)?.label} post here…`}
+                                                    placeholder={`Paste a ${PLATFORMS.find(p => p.id === activePlatform)?.label} post here�`}
                                                     rows={5}
                                                     className="w-full text-sm px-3 py-2 rounded-lg border border-border bg-background resize-none focus:outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground"
                                                 />
@@ -553,13 +553,13 @@ export default function GenerateSocialPostPage() {
                                             {examplesLoading[activePlatform] ? (
                                                 <div className="flex items-center gap-2 py-4 text-muted-foreground">
                                                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                                    <span className="text-xs">Loading examples…</span>
+                                                    <span className="text-xs">Loading examples�</span>
                                                 </div>
                                             ) : (
                                                 <div className="space-y-2">
                                                     {(examples[activePlatform] ?? []).length === 0 ? (
                                                         <p className="text-xs text-muted-foreground italic py-2">
-                                                            No examples yet — add your first one above.
+                                                            No examples yet - add your first one above.
                                                         </p>
                                                     ) : (
                                                         (examples[activePlatform] ?? []).map((ex) => {
@@ -661,7 +661,7 @@ export default function GenerateSocialPostPage() {
                                         {activeItem?.loading && (
                                             <div className="flex items-center gap-3 py-6 justify-center text-muted-foreground">
                                                 <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                                                <span className="text-sm">AI is crafting your post…</span>
+                                                <span className="text-sm">AI is crafting your post�</span>
                                             </div>
                                         )}
 
@@ -694,7 +694,7 @@ export default function GenerateSocialPostPage() {
                                                         {activeItem.post}
                                                     </pre>
 
-                                                    {/* Blog image — shown for Facebook & Instagram */}
+                                                    {/* Blog image - shown for Facebook & Instagram */}
                                                     {meta.showImage && selected?.image && (
                                                         <div className="rounded-lg overflow-hidden border border-border">
                                                             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -728,7 +728,7 @@ export default function GenerateSocialPostPage() {
                                                             {shared ? (
                                                                 <>
                                                                     <Check className="w-4 h-4" />
-                                                                    Text copied — {meta.label} opening…
+                                                                    Text copied - {meta.label} opening�
                                                                 </>
                                                             ) : (
                                                                 <>
@@ -748,7 +748,7 @@ export default function GenerateSocialPostPage() {
                                         {!activeItem && (
                                             <div className="flex items-center justify-center py-8 text-muted-foreground">
                                                 <Loader2 className="w-4 h-4 animate-spin text-primary mr-2" />
-                                                <span className="text-sm">Starting generation…</span>
+                                                <span className="text-sm">Starting generation�</span>
                                             </div>
                                         )}
                                     </div>

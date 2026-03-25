@@ -19,7 +19,7 @@ const OPENAI_MODEL = process.env.AUTO_POST_OPENAI_MODEL ?? "gpt-4o";
 /**
  * GET /api/auto-post
  *
- * No body required — the AI picks the trending topic and writes everything.
+ * No body required - the AI picks the trending topic and writes everything.
  *
  * Optional query params:
  *   save_to_prismic  "true" | "false"  default: true
@@ -53,18 +53,18 @@ export async function GET(request: NextRequest) {
             .limit(20);
 
         if (dbError) {
-            console.warn("[auto-post] Supabase fetch error — proceeding without deduplication:", dbError.message);
+            console.warn("[auto-post] Supabase fetch error - proceeding without deduplication:", dbError.message);
         } else if (recentPosts && recentPosts.length > 0) {
             const list = recentPosts
                 .map((p, i) => `${i + 1}. "${p.title}" (${p.category ?? "uncategorised"}) [uid: ${p.uid}]`)
                 .join("\n");
-            recentPostsContext = `\n\nRECENT POSTS — DO NOT repeat these topics, titles, or close variations of them:\n${list}`;
+            recentPostsContext = `\n\nRECENT POSTS - DO NOT repeat these topics, titles, or close variations of them:\n${list}`;
             console.log(`[auto-post] Loaded ${recentPosts.length} recent post(s) for deduplication.`);
         } else {
-            console.log("[auto-post] No previous posts found in Supabase — first generation.");
+            console.log("[auto-post] No previous posts found in Supabase - first generation.");
         }
     } catch (dbErr) {
-        console.warn("[auto-post] Could not fetch recent posts — proceeding without deduplication:", dbErr);
+        console.warn("[auto-post] Could not fetch recent posts - proceeding without deduplication:", dbErr);
     }
 
     if (!openaiKey || openaiKey.startsWith("sk-your-")) {
@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
     try {
         const openai = new OpenAI({ apiKey: openaiKey });
 
-        console.log(`[auto-post] Calling ${OPENAI_MODEL} — researching trending IT topic and generating post...`);
+        console.log(`[auto-post] Calling ${OPENAI_MODEL} - researching trending IT topic and generating post...`);
 
         const completion = await openai.chat.completions.create({
             model: OPENAI_MODEL,
@@ -126,7 +126,7 @@ export async function GET(request: NextRequest) {
 
         generatedPost = parseGeneratedPost(rawContent);
 
-        console.log(`[auto-post] Generated — uid="${generatedPost.uid}" title="${generatedPost.title}"`);
+        console.log(`[auto-post] Generated - uid="${generatedPost.uid}" title="${generatedPost.title}"`);
     } catch (err) {
         console.error("[auto-post] OpenAI error:", err);
         return NextResponse.json(
@@ -169,10 +169,10 @@ export async function GET(request: NextRequest) {
             featuredImageUrl = imageJson.url;
             console.log(`[auto-post] Featured image URL obtained: ${featuredImageUrl?.slice(0, 80)}…`);
         } else {
-            console.warn(`[auto-post] Image generation returned ${imageRes.status} — continuing without image.`);
+            console.warn(`[auto-post] Image generation returned ${imageRes.status} - continuing without image.`);
         }
     } catch (imgErr) {
-        console.warn("[auto-post] Image generation failed — continuing without image:", imgErr);
+        console.warn("[auto-post] Image generation failed - continuing without image:", imgErr);
     }
 
     /* ── 6. Return early if save_to_prismic=false ────────────── */
@@ -250,10 +250,10 @@ export async function GET(request: NextRequest) {
             if (insertError) {
                 console.warn("[auto-post] Supabase insert warning (post saved to Prismic, deduplication record skipped):", insertError.message);
             } else {
-                console.log(`[auto-post] Post recorded in Supabase — uid="${generatedPost.uid}"`);
+                console.log(`[auto-post] Post recorded in Supabase - uid="${generatedPost.uid}"`);
             }
         } catch (insertErr) {
-            console.warn("[auto-post] Supabase insert failed — non-critical:", insertErr);
+            console.warn("[auto-post] Supabase insert failed - non-critical:", insertErr);
         }
 
         return NextResponse.json(

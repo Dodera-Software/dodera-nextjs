@@ -55,7 +55,7 @@
   }
 }
 
-/* Tiptap editor — forced light theme regardless of OS dark mode */
+/* Tiptap editor - forced light theme regardless of OS dark mode */
 .tiptap-editor,
 .tiptap-editor p,
 .tiptap-editor li,
@@ -80,7 +80,7 @@
   color: hsl(var(--primary));
 }
 
-/* Tiptap — image cursor + selection ring */
+/* Tiptap - image cursor + selection ring */
 .tiptap-editor img {
   cursor: pointer;
 }

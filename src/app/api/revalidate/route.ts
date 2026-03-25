@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 
 /**
- * Prismic webhook handler — triggers on-demand ISR revalidation.
+ * Prismic webhook handler - triggers on-demand ISR revalidation.
  *
  * Set this URL as a webhook in the Prismic dashboard:
  *   https://your-domain.com/api/revalidate

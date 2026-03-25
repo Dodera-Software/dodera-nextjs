@@ -7,7 +7,7 @@ import { enableAutoPreviews } from "@prismicio/next";
  * The name of your Prismic repository (from the dashboard URL).
  * e.g. if your repo is at https://your-repo-name.prismic.io
  *
- * Server-only — never exposed to the browser.
+ * Server-only - never exposed to the browser.
  */
 export const repositoryName =
     process.env.PRISMIC_REPOSITORY_NAME || "your-repo-name";
@@ -18,7 +18,7 @@ export const repositoryName =
 const endpoint = prismic.getRepositoryEndpoint(repositoryName);
 
 /**
- * Route resolver — tells Prismic which URL each document type maps to.
+ * Route resolver - tells Prismic which URL each document type maps to.
  * This is used by `<PrismicLink>` and the preview system.
  */
 const routes: prismic.ClientConfig["routes"] = [
@@ -39,7 +39,7 @@ const DEFAULT_REVALIDATE_SECONDS = 60;
  * This must only be called from Server Components, Route Handlers,
  * or other server-side code. The module is guarded by `server-only`.
  *
- * @param config  — Optional overrides (e.g. custom `fetchOptions`).
+ * @param config  - Optional overrides (e.g. custom `fetchOptions`).
  */
 export function createClient(
     config: prismic.ClientConfig = {},

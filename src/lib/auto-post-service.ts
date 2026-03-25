@@ -146,18 +146,18 @@ export async function autoPost(options: AutoPostOptions = {}): Promise<AutoPostS
             .limit(20);
 
         if (dbError) {
-            console.warn("[auto-post-service] Supabase fetch error — proceeding without deduplication:", dbError.message);
+            console.warn("[auto-post-service] Supabase fetch error - proceeding without deduplication:", dbError.message);
         } else if (recentPosts && recentPosts.length > 0) {
             const list = recentPosts
                 .map((p, i) => `${i + 1}. "${p.title}" (${p.category ?? "uncategorised"}) [uid: ${p.uid}]`)
                 .join("\n");
-            recentPostsContext = `\n\nRECENT POSTS — DO NOT repeat these topics, titles, or close variations of them:\n${list}`;
+            recentPostsContext = `\n\nRECENT POSTS - DO NOT repeat these topics, titles, or close variations of them:\n${list}`;
             console.log(`[auto-post-service] Loaded ${recentPosts.length} recent post(s) for deduplication.`);
         } else {
-            console.log("[auto-post-service] No previous posts in Supabase — first generation.");
+            console.log("[auto-post-service] No previous posts in Supabase - first generation.");
         }
     } catch (dbErr) {
-        console.warn("[auto-post-service] Could not fetch recent posts — proceeding without deduplication:", dbErr);
+        console.warn("[auto-post-service] Could not fetch recent posts - proceeding without deduplication:", dbErr);
     }
 
     /* 1c. Fetch blog post examples for style guidance */
@@ -174,11 +174,11 @@ export async function autoPost(options: AutoPostOptions = {}): Promise<AutoPostS
             const formatted = exampleRows
                 .map((e, i) => `--- EXAMPLE ${i + 1} ---\n${e.content}`)
                 .join("\n\n");
-            examplesContext = `\n\nSTYLE EXAMPLES — The following are blog posts whose structure, tone, length, word choices, and internal linking style you MUST closely mirror. Do NOT copy the topic or content — only replicate the writing style:\n\n${formatted}`;
+            examplesContext = `\n\nSTYLE EXAMPLES - The following are blog posts whose structure, tone, length, word choices, and internal linking style you MUST closely mirror. Do NOT copy the topic or content - only replicate the writing style:\n\n${formatted}`;
             console.log(`[auto-post-service] Loaded ${exampleRows.length} blog post example(s) for style guidance.`);
         }
     } catch (examplesErr) {
-        console.warn("[auto-post-service] Could not fetch blog post examples — proceeding without style guidance:", examplesErr);
+        console.warn("[auto-post-service] Could not fetch blog post examples - proceeding without style guidance:", examplesErr);
     }
 
     /* 2. Generate post content */
@@ -195,7 +195,7 @@ export async function autoPost(options: AutoPostOptions = {}): Promise<AutoPostS
                 {
                     role: "user",
                     content: idea
-                        ? `Write a full blog post about the following idea/topic: "${idea}". Focus the entire post on this specific subject — do not deviate to a different topic. Output only the JSON object.${recentPostsContext}${examplesContext}`
+                        ? `Write a full blog post about the following idea/topic: "${idea}". Focus the entire post on this specific subject - do not deviate to a different topic. Output only the JSON object.${recentPostsContext}${examplesContext}`
                         : `${getRandomTopicHint()}\n\nPick the single most trending, share-worthy topic in the technology space right now and write the full blog post. Output only the JSON object.${recentPostsContext}${examplesContext}`,
                 },
             ],
@@ -203,7 +203,7 @@ export async function autoPost(options: AutoPostOptions = {}): Promise<AutoPostS
         const raw = completion.choices[0]?.message?.content ?? "";
         if (!raw) throw new Error("OpenAI returned an empty response.");
         generatedPost = parseGeneratedPost(raw);
-        console.log(`[auto-post-service] Generated — uid="${generatedPost.uid}" title="${generatedPost.title}"`);
+        console.log(`[auto-post-service] Generated - uid="${generatedPost.uid}" title="${generatedPost.title}"`);
     } catch (err) {
         return {
             status: "error",
@@ -223,7 +223,7 @@ export async function autoPost(options: AutoPostOptions = {}): Promise<AutoPostS
         featuredImageUrl = url;
         console.log(`[auto-post-service] Image URL: ${url.slice(0, 80)}…`);
     } catch (imgErr) {
-        console.warn("[auto-post-service] Image generation failed — continuing without image:", imgErr);
+        console.warn("[auto-post-service] Image generation failed - continuing without image:", imgErr);
     }
 
     if (!saveToPrismic) {
@@ -313,10 +313,10 @@ export async function autoPost(options: AutoPostOptions = {}): Promise<AutoPostS
             if (insertError) {
                 console.warn("[auto-post-service] Supabase insert warning:", insertError.message);
             } else {
-                console.log(`[auto-post-service] Post recorded in Supabase — uid="${generatedPost.uid}"`);
+                console.log(`[auto-post-service] Post recorded in Supabase - uid="${generatedPost.uid}"`);
             }
         } catch (insertErr) {
-            console.warn("[auto-post-service] Supabase insert failed — non-critical:", insertErr);
+            console.warn("[auto-post-service] Supabase insert failed - non-critical:", insertErr);
         }
 
         if (publish) {

@@ -251,14 +251,14 @@ export function AboutPageContent() {
                         We build <span className="text-primary">anything digital.</span>
                     </SectionHeading>
 
-                    {/* Row 1 — 3 cards */}
+                    {/* Row 1 - 3 cards */}
                     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                         {CAPABILITIES.slice(0, 3).map((cap, i) => (
                             <CapabilityCard key={cap.title} cap={cap} index={i} />
                         ))}
                     </div>
 
-                    {/* Row 2 — remaining cards centered */}
+                    {/* Row 2 - remaining cards centered */}
                     <div className="mx-auto mt-6 grid gap-6 sm:grid-cols-2 lg:w-2/3 lg:grid-cols-2">
                         {CAPABILITIES.slice(3).map((cap, i) => (
                             <CapabilityCard key={cap.title} cap={cap} index={i + 3} />

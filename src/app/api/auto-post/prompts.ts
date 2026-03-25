@@ -44,14 +44,14 @@ const TOPIC_DOMAINS = [
 export function getRandomTopicHint(): string {
     const shuffled = [...TOPIC_DOMAINS].sort(() => Math.random() - 0.5);
     const picked = shuffled.slice(0, 3);
-    return `Consider these domains first (but pick whichever is genuinely trending the most): ${picked.join(", ")}. Do NOT always default to AI — variety is critical.`;
+    return `Consider these domains first (but pick whichever is genuinely trending the most): ${picked.join(", ")}. Do NOT always default to AI - variety is critical.`;
 }
 
 /* ── Response parser ────────────────────────────────────────── */
 
 export function parseGeneratedPost(raw: string): GeneratedPost {
     // With Structured Outputs (json_schema + strict:true) the model is
-    // guaranteed to return a valid object matching the schema — no fencing,
+    // guaranteed to return a valid object matching the schema - no fencing,
     // no missing fields.  We still parse defensively and coerce tags just in
     // case the caller ever switches back to a non-strict model.
     const parsed = JSON.parse(raw) as Record<string, unknown>;

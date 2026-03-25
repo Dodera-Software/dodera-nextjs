@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
         status: "success",
-        message: "Token created. Copy it now — it won't be shown again.",
+        message: "Token created. Copy it now - it won't be shown again.",
         plainToken,
         data,
     }, { status: 201 });

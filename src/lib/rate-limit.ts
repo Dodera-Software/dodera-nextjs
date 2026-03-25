@@ -31,8 +31,8 @@ export interface RateLimitResult {
  * If not limited, logs the attempt in `rate_limit_log`.
  *
  * Config keys (from app_config table):
- *   `{endpoint}_rate_limit_max`             — max requests per window (default 5)
- *   `{endpoint}_rate_limit_window_minutes`  — rolling window in minutes (default 60)
+ *   `{endpoint}_rate_limit_max`             - max requests per window (default 5)
+ *   `{endpoint}_rate_limit_window_minutes`  - rolling window in minutes (default 60)
  *
  * Example keys for the contact form:
  *   contact_rate_limit_max = 5
@@ -74,7 +74,7 @@ export async function checkRateLimit(
             return { limited: true, remaining: 0 };
         }
 
-        // Log this attempt (fire-and-forget — never fails silently)
+        // Log this attempt (fire-and-forget - never fails silently)
         supabase
             .from("rate_limit_log")
             .insert({ key })

@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        /* Send welcome email (fire-and-forget — don't block the response) */
+        /* Send welcome email (fire-and-forget - don't block the response) */
         (async () => {
             try {
                 const [subject, bodyHtml] = await Promise.all([

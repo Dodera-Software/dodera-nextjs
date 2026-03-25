@@ -1,7 +1,7 @@
 /**
  * src/app/privacy-policy/seo.ts
  *
- * SEO metadata for the Privacy Policy page (/privacy-policy) — edit here
+ * SEO metadata for the Privacy Policy page (/privacy-policy) - edit here
  * to update the title, description, and canonical shown in search results.
  */
 

@@ -1,5 +1,5 @@
 /**
- * CMS abstraction layer — powered by Prismic.
+ * CMS abstraction layer - powered by Prismic.
  *
  * This module fetches blog content from the Prismic headless CMS
  * and maps it into the app's internal BlogPost type so the rest of
@@ -115,7 +115,7 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
         const doc = await client.getByUID<BlogPostDocument>("blog_post", slug);
         return mapPrismicPost(doc);
     } catch (err) {
-        // Document not found — fall back to static data
+        // Document not found - fall back to static data
         if (
             err instanceof prismic.NotFoundError ||
             (err instanceof prismic.PrismicError && err.message.includes("not found"))

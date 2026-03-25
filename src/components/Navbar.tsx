@@ -98,7 +98,7 @@ export function Navbar() {
                 </Button>
             </div>
 
-            {/* Mega menu — full-width, anchored to bottom of nav bar */}
+            {/* Mega menu - full-width, anchored to bottom of nav bar */}
             <AnimatePresence>
                 {megaOpen && (
                     <motion.div

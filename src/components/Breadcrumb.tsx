@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 export interface BreadcrumbItem {
     label: string;
-    /** Omit for the current (last) page — renders as plain text. */
+    /** Omit for the current (last) page - renders as plain text. */
     href?: string;
 }
 

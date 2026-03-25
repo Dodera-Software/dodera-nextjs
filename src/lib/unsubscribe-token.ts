@@ -68,7 +68,7 @@ export function buildUnsubscribeUrl(email: string): string | null {
         });
         return `${base}/unsubscribe?${params.toString()}`;
     } catch {
-        console.warn("[unsubscribe-token] UNSUBSCRIBE_TOKEN_SECRET is not set — skipping unsubscribe URL.");
+        console.warn("[unsubscribe-token] UNSUBSCRIBE_TOKEN_SECRET is not set - skipping unsubscribe URL.");
         return null;
     }
 }

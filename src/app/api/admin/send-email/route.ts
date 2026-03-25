@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
             if (result.status === "fulfilled") {
                 totalAccepted += result.value.accepted.length;
                 if (result.value.error) {
-                    // sendEmail caught an SMTP error — count it as rejected
+                    // sendEmail caught an SMTP error - count it as rejected
                     totalRejected++;
                     errors.push(result.value.error);
                 } else {

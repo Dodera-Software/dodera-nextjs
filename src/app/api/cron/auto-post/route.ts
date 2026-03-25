@@ -21,9 +21,9 @@ function pickRandomAuthor(): string {
  * Picks a random author and forwards the request to /api/auto-post.
  *
  * Required env vars:
- *   CRON_SECRET         — shared secret to authenticate the cron caller.
+ *   CRON_SECRET         - shared secret to authenticate the cron caller.
  *                         Vercel auto-injects this; for Netlify set it manually.
- *   AUTO_POST_API_TOKEN — a valid Supabase-backed API token used to
+ *   AUTO_POST_API_TOKEN - a valid Supabase-backed API token used to
  *                         authenticate the forwarded /api/auto-post call.
  */
 export async function GET(request: NextRequest) {
@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
     url.searchParams.set("author_name", author);
     url.searchParams.set("publish", "true");
 
-    console.log(`[cron/auto-post] Triggering auto-post — author="${author}"`);
+    console.log(`[cron/auto-post] Triggering auto-post - author="${author}"`);
 
     try {
         const res = await fetch(url.toString(), {
@@ -84,7 +84,7 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        console.log(`[cron/auto-post] Success — uid="${json.uid}", author="${author}"`);
+        console.log(`[cron/auto-post] Success - uid="${json.uid}", author="${author}"`);
 
         return NextResponse.json(
             { status: "success", author, uid: json.uid, auto_post_response: json },

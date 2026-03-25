@@ -45,21 +45,21 @@ export default function PrivacyPolicyPage() {
                     <p>We collect the minimum data necessary to operate the services described on this website:</p>
                     <ul>
                         <li>
-                            <strong>Contact form submissions</strong> — name, email address, company name,
+                            <strong>Contact form submissions</strong> - name, email address, company name,
                             phone number (optional), and project description you provide when you
                             reach out to us.
                         </li>
                         <li>
-                            <strong>Job applications</strong> — full name, email address, and CV/résumé
+                            <strong>Job applications</strong> - full name, email address, and CV/résumé
                             file you upload when applying for an open position. This data is used
                             exclusively for recruitment purposes.
                         </li>
                         <li>
-                            <strong>Newsletter subscriptions</strong> — email address you provide when
+                            <strong>Newsletter subscriptions</strong> - email address you provide when
                             you subscribe to our newsletter.
                         </li>
                         <li>
-                            <strong>Usage data</strong> — anonymised analytics such as pages visited,
+                            <strong>Usage data</strong> - anonymised analytics such as pages visited,
                             time on page, and referral source. We do not use cookies for advertising
                             or cross-site tracking.
                         </li>
@@ -76,9 +76,9 @@ export default function PrivacyPolicyPage() {
 
                     <h2>3. Legal Basis for Processing (GDPR)</h2>
                     <ul>
-                        <li><strong>Consent</strong> — newsletter subscriptions and job application processing.</li>
-                        <li><strong>Legitimate interest</strong> — responding to contact form submissions and maintaining website security.</li>
-                        <li><strong>Legal obligation</strong> — compliance with Romanian and EU law.</li>
+                        <li><strong>Consent</strong> - newsletter subscriptions and job application processing.</li>
+                        <li><strong>Legitimate interest</strong> - responding to contact form submissions and maintaining website security.</li>
+                        <li><strong>Legal obligation</strong> - compliance with Romanian and EU law.</li>
                     </ul>
 
                     <h2>4. Data Retention</h2>
@@ -104,7 +104,7 @@ export default function PrivacyPolicyPage() {
                         <li>Request correction of inaccurate data.</li>
                         <li>Request erasure of your data (&quot;right to be forgotten&quot;).</li>
                         <li>Object to or restrict certain types of processing.</li>
-                        <li>Data portability — receive a copy of your data in a machine-readable format.</li>
+                        <li>Data portability - receive a copy of your data in a machine-readable format.</li>
                         <li>Lodge a complaint with your local supervisory authority.</li>
                     </ul>
                     <p>
@@ -125,9 +125,9 @@ export default function PrivacyPolicyPage() {
                         policies and GDPR data-processing agreements:
                     </p>
                     <ul>
-                        <li><strong>Vercel</strong> — website hosting and edge delivery.</li>
-                        <li><strong>Supabase</strong> — contact form data storage, newsletter subscriber list, job application records, and CV file storage (private, access-controlled bucket).</li>
-                        <li><strong>SMTP / Nodemailer</strong> — transactional email delivery via our configured mail provider.</li>
+                        <li><strong>Vercel</strong> - website hosting and edge delivery.</li>
+                        <li><strong>Supabase</strong> - contact form data storage, newsletter subscriber list, job application records, and CV file storage (private, access-controlled bucket).</li>
+                        <li><strong>SMTP / Nodemailer</strong> - transactional email delivery via our configured mail provider.</li>
                     </ul>
 
                     <h2>8. Data Security</h2>
