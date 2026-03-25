@@ -147,7 +147,7 @@ export function TestimonialsSection() {
                                             <StarRating rating={t.rating} />
                                         </div>
 
-                                        {/* Name & role */}
+                                        {/* Name, role & company */}
                                         <div className="text-center">
                                             <p
                                                 className={`text-sm font-semibold ${isCenter
