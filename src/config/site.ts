@@ -117,25 +117,25 @@ export const PROCESS_STEPS: ProcessStep[] = [
         icon: Search,
         title: "Understand Your Vision",
         description:
-            "We listen first. Deep-dive into your goals, challenges, and users to build a roadmap that makes sense.",
+            "Structured discovery sessions map your goals to measurable outcomes, so scope is locked before a single line of code is planned.",
     },
     {
         icon: Layers,
         title: "Design the Blueprint",
         description:
-            "Every great product starts with solid architecture. We plan every layer before writing a single line of code.",
+            "Tech stack chosen for your scale, not ours. APIs, data models, and component contracts are documented and signed off before the first commit.",
     },
     {
         icon: Zap,
         title: "Build & Iterate",
         description:
-            "Rapid development in focused sprints. You see real progress every week, with room to refine as we go.",
+            "Weekly deployments to staging so you test real builds, not mockups. Blockers are flagged early with no surprises at the deadline.",
     },
     {
         icon: Handshake,
         title: "Ship & Support",
         description:
-            "We deliver production-ready code, full documentation, and stay with you long after launch.",
+            "Go-live comes with runbooks, monitoring dashboards, and a stabilization window. Not just a handoff ZIP and good luck.",
     },
 ];
 
