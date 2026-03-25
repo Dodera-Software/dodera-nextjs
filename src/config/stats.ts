@@ -6,6 +6,11 @@ export interface Stat {
 
 export const STATS: Stat[] = [
     {
+        value: "35+",
+        label: "Team members",
+        description: "Engineers, designers & specialists",
+    },
+    {
         value: "6 wks",
         label: "Average delivery",
         description: "From kickoff to production",

@@ -19,7 +19,7 @@ export function StatsSection() {
                     By the numbers
                 </motion.p>
 
-                <div className="grid grid-cols-2 gap-y-12 md:grid-cols-4 md:gap-y-0">
+                <div className="grid grid-cols-2 gap-y-12 md:grid-cols-5 md:gap-y-0">
                     {STATS.map((stat, i) => (
                         <motion.div
                             key={stat.label}
