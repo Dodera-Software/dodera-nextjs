@@ -24,7 +24,7 @@ export const SITE = {
     },
     ogImage: "/og-image.png",
     logo: "/logo.png",
-    favicon: "/favicon.svg",
+    favicon: "/favicon.ico",
 } as const;
 
 /** Default meta used when a page doesn't override values (also the layout fallback). */
