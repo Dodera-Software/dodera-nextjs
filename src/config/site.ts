@@ -58,7 +58,7 @@ export const SERVICES: Service[] = [
         title: "Software Development",
         subtitle: "From Idea to Launch",
         description:
-            "Launch your digital product with confidence. We handle everything from MVP development to enterprise-grade platforms using proven tech stacks.",
+            "Custom web applications built on modern stacks (Laravel, Next.js, Node.js and more). From early-stage MVPs to full-scale platforms, we handle the full delivery.",
         tags: ["Laravel", "Nuxt", "Full-Stack"],
         image: "/software-development.jpg",
         highlights: [
@@ -73,7 +73,7 @@ export const SERVICES: Service[] = [
         title: "Presentation Websites",
         subtitle: "Stunning Sites That Convert",
         description:
-            "Make a lasting first impression. We design and build polished, fast-loading presentation websites that showcase your brand and turn visitors into leads.",
+            "Fast, polished websites built to rank and convert. We cover everything from design and performance to technical SEO, so your site works as hard as your team does.",
         tags: ["Brand Design", "Landing Pages", "Conversion"],
         image: "/presentation-website.png",
         highlights: [
@@ -86,7 +86,7 @@ export const SERVICES: Service[] = [
         title: "AI Development",
         subtitle: "Intelligent Workflows & Agents",
         description:
-            "Automate repetitive tasks and workflows with custom AI agents. We build intelligent systems that handle daily operations, data processing, and decision-making at scale.",
+            "AI agents and automation workflows using models from OpenAI, Anthropic, and others. We connect them to your existing tools and data to run complex operations hands-free.",
         tags: ["Workflow Automation", "AI Agents", "Process Optimization"],
         image: "/ai-development.jpg",
         highlights: [
@@ -100,7 +100,7 @@ export const SERVICES: Service[] = [
         title: "Technical Documentation",
         subtitle: "Knowledge Systems & Indexing",
         description:
-            "Transform your codebase and internal docs into AI-ready knowledge bases. Make your team's expertise searchable, accessible, and actionable.",
+            "Your codebase, processes, and internal knowledge turned into structured, AI-ready documentation - making information easy to find and use, for both your team and your tools.",
         tags: ["Knowledge Indexing", "AI Context", "Documentation"],
         image: "/technical-documentation.png",
         highlights: [
