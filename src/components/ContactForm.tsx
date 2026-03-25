@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Send, User, Mail, MessageSquare, Building, Phone, AlertCircle } from "lucide-react";
+import { Send, User, Mail, MessageSquare, Building, Phone, AlertCircle, Layers, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { FieldError } from "@/components/ui/field-error";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { EMAIL_RE, NAME_RE, PHONE_RE, DANGEROUS_RE, CONTACT_LIMITS } from "@/lib/validation";
 
 const LIMITS = CONTACT_LIMITS;
@@ -17,6 +18,8 @@ export interface FieldErrors {
     email?: string;
     company?: string;
     phone?: string;
+    service_type?: string;
+    budget?: string;
     message?: string;
     gdpr_consent?: string;
 }
@@ -63,6 +66,8 @@ export function ContactForm() {
     const [submitCount, setSubmitCount] = useState(0);
     const [lastSubmitTime, setLastSubmitTime] = useState(0);
     const [gdpr, setGdpr] = useState(false);
+    const [serviceType, setServiceType] = useState("");
+    const [budget, setBudget] = useState("");
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -79,6 +84,8 @@ export function ContactForm() {
         for (const [key, val] of fd.entries()) {
             raw[key] = typeof val === "string" ? val : "";
         }
+        raw.service_type = serviceType;
+        raw.budget = budget;
 
         const fieldErrors = validate(raw);
         if (!gdpr) {
@@ -224,6 +231,55 @@ export function ContactForm() {
                 </div>
             </div>
 
+            <div className="grid gap-5 sm:grid-cols-2">
+                <div className="space-y-2">
+                    <label htmlFor="contact-service-type" className="flex items-center gap-2 text-sm font-medium">
+                        <Layers className="size-3.5 text-muted-foreground" />
+                        Service Type <span className="text-muted-foreground font-normal">(optional)</span>
+                    </label>
+                    <Select
+                        value={serviceType}
+                        onValueChange={setServiceType}
+                    >
+                        <SelectTrigger id="contact-service-type" aria-invalid={!!errors.service_type}>
+                            <SelectValue placeholder="Select a service…" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="AI Development">AI Development</SelectItem>
+                            <SelectItem value="Custom AI Agents">Custom AI Agents</SelectItem>
+                            <SelectItem value="AI-Powered Automations">AI-Powered Automations</SelectItem>
+                            <SelectItem value="Software Development">Software Development</SelectItem>
+                            <SelectItem value="MVP to Market">MVP to Market</SelectItem>
+                            <SelectItem value="SaaS Product">SaaS Product</SelectItem>
+                            <SelectItem value="Enterprise Platform">Enterprise Platform</SelectItem>
+                            <SelectItem value="Presentation Website">Presentation Website</SelectItem>
+                            <SelectItem value="Technical Documentation">Technical Documentation</SelectItem>
+                            <SelectItem value="Other">Other</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <FieldError message={errors.service_type} />
+                </div>
+                <div className="space-y-2">
+                    <label htmlFor="contact-budget" className="flex items-center gap-2 text-sm font-medium">
+                        <Wallet className="size-3.5 text-muted-foreground" />
+                        Budget Range <span className="text-muted-foreground font-normal">(optional)</span>
+                    </label>
+                    <Select value={budget} onValueChange={setBudget}>
+                        <SelectTrigger id="contact-budget">
+                            <SelectValue placeholder="Select a range…" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="Not sure yet">Not sure yet</SelectItem>
+                            <SelectItem value="Under €500">Under €500</SelectItem>
+                            <SelectItem value="€500 – €2,000">€500 – €2,000</SelectItem>
+                            <SelectItem value="€2,000 – €10,000">€2,000 – €10,000</SelectItem>
+                            <SelectItem value="€10,000+">€10,000+</SelectItem>
+                            <SelectItem value="Monthly retainer">Monthly retainer</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+            </div>
+
             {serverError && (
                 <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                     <AlertCircle className="size-4 shrink-0" />
@@ -241,7 +297,7 @@ export function ContactForm() {
                     required
                     name="message"
                     rows={4}
-                    placeholder="Tell us about your project, timeline, and budget..."
+                    placeholder="Describe your project - idea, timeline, any technical requirements…"
                     maxLength={LIMITS.message.max}
                     minLength={LIMITS.message.min}
                     aria-invalid={!!errors.message}
