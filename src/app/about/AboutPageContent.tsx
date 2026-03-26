@@ -12,7 +12,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { SectionHeading } from "@/components/SectionHeading";
 import { ContactForm } from "@/components/ContactForm";
-import { ENGAGEMENT_MODELS } from "@/config/site";
+import { PricingSection } from "@/components/PricingSection";
 import { CapabilityCard, CAPABILITIES } from "./CapabilityCard";
 import { fadeInUp, fadeInUpLg, viewportOnce, stagger } from "@/lib/animations";
 
@@ -267,104 +267,8 @@ export function AboutPageContent() {
                 </div>
             </section>
 
-            {/* ── Mid-page CTA ────────────────────────────────────────────── */}
-            <section aria-labelledby="mid-cta-heading" className="relative py-20">
-                <div className="absolute inset-0 grid-bg-sm" />
-                <motion.div
-                    variants={fadeInUpLg}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={viewportOnce}
-                    transition={{ duration: 0.4 }}
-                    className="relative z-10 mx-auto max-w-3xl px-6 text-center"
-                >
-                    <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                        Ready to ship?
-                    </p>
-                    <h2 id="mid-cta-heading" className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">
-                        Got a project in mind?{" "}
-                        <span className="text-primary">Let&apos;s talk.</span>
-                    </h2>
-                    <p className="mb-8 text-base leading-relaxed text-muted-foreground">
-                        Book a{" "}<strong className="font-semibold text-primary">free</strong>{" "}30-minute call. We will review your idea and tell you exactly how we can help, no commitment required.
-                    </p>
-                    <Link
-                        href="#contact"
-                        className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
-                    >
-                        Start a Project
-                    </Link>
-                </motion.div>
-            </section>
-
-            {/* ── Engagement Models ───────────────────────────────────────── */}
-            <section aria-labelledby="engagement-heading" className="relative py-24">
-                <div className="relative z-10 mx-auto max-w-7xl px-6">
-                    <SectionHeading label="Engagement Models" id="engagement-heading">
-                        Pick the model that{" "}
-                        <span className="text-primary">fits you.</span>
-                    </SectionHeading>
-
-                    <div className="grid gap-6 lg:grid-cols-3">
-                        {ENGAGEMENT_MODELS.map((model, i) => (
-                            <motion.article
-                                key={model.title}
-                                variants={fadeInUpLg}
-                                initial="hidden"
-                                whileInView="visible"
-                                viewport={viewportOnce}
-                                transition={stagger(i)}
-                                className="flex flex-col rounded-xl border border-border bg-card p-8 transition-[box-shadow,border-color] hover:border-primary/20 hover:shadow-md"
-                            >
-                                <div className="mb-5 flex size-12 items-center justify-center rounded-lg border border-border bg-primary/10">
-                                    <model.icon className="size-6 text-primary" aria-hidden="true" />
-                                </div>
-                                <h3 className="mb-1 text-xl font-bold">{model.title}</h3>
-                                <p className="mb-4 text-sm font-medium text-primary">
-                                    {model.tagline}
-                                </p>
-                                <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
-                                    {model.description}
-                                </p>
-                                <ul className="mt-auto space-y-2" aria-label="Best for">
-                                    {model.bestFor.map((item) => (
-                                        <li
-                                            key={item}
-                                            className="flex items-start gap-2 text-sm text-muted-foreground"
-                                        >
-                                            <span
-                                                aria-hidden="true"
-                                                className="mt-0.5 shrink-0 text-primary"
-                                            >
-                                                ✓
-                                            </span>
-                                            {item}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </motion.article>
-                        ))}
-                    </div>
-
-                    <motion.p
-                        variants={fadeInUp}
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={viewportOnce}
-                        transition={{ duration: 0.4, delay: 0.3 }}
-                        className="mt-10 text-center text-sm text-muted-foreground"
-                    >
-                        Not sure which model fits?{" "}
-                        <Link
-                            href="#contact"
-                            className="font-medium text-primary underline-offset-4 hover:underline"
-                        >
-                            Tell us about your project
-                        </Link>{" "}
-                        and we&apos;ll suggest the right approach.
-                    </motion.p>
-                </div>
-            </section>
+            {/* ── Pricing ─────────────────────────────────────────────────── */}
+            <PricingSection />
 
             {/* ── FAQ ─────────────────────────────────────────────────────── */}
             <section aria-labelledby="faq-heading" className="relative py-24">
