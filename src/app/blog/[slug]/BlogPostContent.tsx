@@ -220,7 +220,7 @@ export function BlogPostContent({ post }: BlogPostContentProps) {
 
             {/* ── CTA ─────────────────────────────────────── */}
             <section aria-labelledby="post-cta" className="relative py-24">
-                <div className="absolute inset-0 grid-bg-sm" />
+                <div className="absolute inset-0 grid-bg" />
                 <div className="relative z-10 mx-auto max-w-3xl px-6 text-center">
                     <h2
                         id="post-cta"

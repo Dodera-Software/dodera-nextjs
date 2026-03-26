@@ -247,7 +247,6 @@ export function ServicePageLayout({ data }: ServicePageLayoutProps) {
             {/* ── FAQ Section ─────────────────────────────────── */}
             {data.faqs.length > 0 && (
                 <section aria-labelledby="faq-heading" className="relative py-20">
-                    <div className="absolute inset-0 grid-bg-sm" />
                     <div className="relative z-10 mx-auto max-w-3xl px-6">
                         <motion.div
                             variants={fadeInUp}
@@ -336,7 +335,7 @@ export function ServicePageLayout({ data }: ServicePageLayoutProps) {
 
             {/* ── CTA ─────────────────────────────────────────── */}
             <section aria-labelledby="cta-heading" className="relative py-24">
-                <div className="absolute inset-0 grid-bg-sm" />
+                <div className="absolute inset-0 grid-bg" />
                 <div className="relative z-10 mx-auto max-w-3xl px-6 text-center">
                     <motion.div
                         variants={fadeInUpLg}
