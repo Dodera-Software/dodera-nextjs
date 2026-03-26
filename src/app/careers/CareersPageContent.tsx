@@ -104,7 +104,6 @@ export function CareersPageContent() {
 
             {/* Open Positions */}
             <section aria-labelledby="open-roles-heading" className="relative py-12">
-                <div className="absolute inset-0 grid-bg-sm" />
                 <div className="relative z-10 mx-auto max-w-3xl px-6">
                     <motion.h2
                         id="open-roles-heading"

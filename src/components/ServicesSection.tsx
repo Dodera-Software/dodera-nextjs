@@ -13,7 +13,6 @@ import { fadeInUpLg, viewportOnce, stagger } from "@/lib/animations";
 export function ServicesSection() {
     return (
         <section id="services" aria-labelledby="services-heading" className="relative py-32">
-            <div className="absolute inset-0 grid-bg-sm" />
 
             <div className="relative z-10 mx-auto max-w-7xl px-6">
                 <SectionHeading label="What We Build" id="services-heading">

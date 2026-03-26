@@ -181,7 +181,6 @@ export function AboutPageContent() {
                 aria-labelledby="our-story-heading"
                 className="relative py-24"
             >
-                <div className="absolute inset-0 grid-bg-sm" />
 
                 <div className="relative z-10 mx-auto max-w-7xl px-6">
                     <div className="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-20">
@@ -269,7 +268,7 @@ export function AboutPageContent() {
 
             {/* ── Mid-page CTA ────────────────────────────────────────────── */}
             <section aria-labelledby="mid-cta-heading" className="relative py-20">
-                <div className="absolute inset-0 grid-bg-sm" />
+                <div className="absolute inset-0 grid-bg" />
                 <motion.div
                     variants={fadeInUpLg}
                     initial="hidden"
@@ -400,7 +399,7 @@ export function AboutPageContent() {
                 aria-labelledby="about-cta-heading"
                 className="relative py-32"
             >
-                <div className="absolute inset-0 grid-bg-sm" />
+                <div className="absolute inset-0 grid-bg" />
 
                 <div className="relative z-10 mx-auto max-w-5xl px-6">
                     <motion.div
