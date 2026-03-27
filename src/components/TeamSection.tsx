@@ -5,7 +5,7 @@ import { SectionHeading } from "@/components/SectionHeading";
 import { fadeInUp, fadeInUpLg, viewportOnce, stagger } from "@/lib/animations";
 
 const DISCIPLINES = [
-    { emoji: "⚙️", label: "Backend Engineering" },
+    { emoji: "⚙️", label: "Backend Development" },
     { emoji: "🖥️", label: "Frontend Development" },
     { emoji: "🎨", label: "UI / UX Design" },
     { emoji: "🧪", label: "QA & Testing" },

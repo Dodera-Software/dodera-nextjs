@@ -59,7 +59,7 @@ export const SERVICES: Service[] = [
         subtitle: "From Idea to Launch",
         description:
             "Custom web applications built on modern stacks (Laravel, Next.js, Node.js and more). From early-stage MVPs to full-scale platforms, we handle the full delivery.",
-        tags: ["Laravel", "Nuxt", "Full-Stack"],
+        tags: ["Laravel", "Nuxt", "Vue.js", "React"],
         image: "/software-development.jpg",
         highlights: [
             { label: "MVP to Market", href: "/services/software-development/mvp-to-market" },
@@ -73,7 +73,7 @@ export const SERVICES: Service[] = [
         title: "Presentation Websites",
         subtitle: "Stunning Sites That Convert",
         description:
-            "Fast, polished websites built to rank and convert. We cover everything from design and performance to technical SEO, so your site works as hard as your team does.",
+            "Fast, personalized and responsive websites built to rank and convert. We cover everything from design and performance to technical SEO, so your site works as hard as your team does.",
         tags: ["Brand Design", "Landing Pages", "Conversion"],
         image: "/presentation-website.png",
         highlights: [
@@ -86,7 +86,7 @@ export const SERVICES: Service[] = [
         title: "AI Development",
         subtitle: "Intelligent Workflows & Agents",
         description:
-            "AI agents and automation workflows using models from OpenAI, Anthropic, and others. We connect them to your existing tools and data to run complex operations hands-free.",
+            "AI agents and automation workflows using LLM from OpenAI, Anthropic and others. We connect them to your existing tools and data to run complex operations hands-free.",
         tags: ["Workflow Automation", "AI Agents", "Process Optimization"],
         image: "/ai-development.jpg",
         highlights: [

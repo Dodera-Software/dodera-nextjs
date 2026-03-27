@@ -36,7 +36,7 @@ export function HeroSection() {
                             transition={{ duration: 0.4, delay: 0.16 }}
                             className="max-w-lg text-base sm:text-lg leading-relaxed text-muted-foreground"
                         >
-                            We offer premium IT consulting and solutions in AI infrastructure, SaaS development, technical documentation, and custom business websites for startups and modern enterprises.
+                            We offer IT consulting and solutions in AI infrastructure, SaaS development, technical documentation and custom business websites for startups and modern enterprises.
                         </motion.p>
 
                         <motion.div
