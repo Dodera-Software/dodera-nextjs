@@ -762,7 +762,7 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
         parentSlug: "presentation-websites",
         metaTitle: "Business Showcase Sites - Custom Brand Websites That Convert",
         metaDescription:
-            "We design and build bespoke business showcase websites that establish authority, communicate your value, and generate qualified leads. Premium design backed by performance engineering.",
+            "We design and build bespoke business showcase websites that establish authority, communicate your value, and generate qualified leads. High quality design backed by performance engineering.",
         keywords: [
             "business showcase website",
             "brand website design",
@@ -776,7 +776,7 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
         heroTitle: "Your Brand, Presented",
         heroHighlight: "Flawlessly.",
         heroDescription:
-            "We craft bespoke business showcase websites built to position your brand as the authority in your market - combining premium visual design, sharp messaging, and conversion-focused architecture.",
+            "We craft bespoke business showcase websites built to position your brand as the authority in your market - combining high quality visual design, sharp messaging, and conversion-focused architecture.",
         sections: [
             {
                 title: "What Is a Business Showcase Site?",
