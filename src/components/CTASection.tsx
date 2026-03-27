@@ -7,7 +7,7 @@ import { fadeInUpLg, viewportOnce } from "@/lib/animations";
 export function CTASection() {
     return (
         <section id="contact" aria-labelledby="contact-heading" className="relative py-32">
-            <div className="absolute inset-0 grid-bg-sm" />
+            <div className="absolute inset-0 grid-bg" />
 
             <div className="relative z-10 mx-auto max-w-5xl px-6">
                 <motion.div

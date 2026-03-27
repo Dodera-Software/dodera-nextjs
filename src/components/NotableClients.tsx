@@ -13,8 +13,9 @@ const CLIENT_INDUSTRIES = [
 
 export function NotableClients() {
     return (
-        <section aria-labelledby="clients-heading" className="border-b border-border/50 py-20">
-            <div className="mx-auto max-w-7xl px-6">
+        <section aria-labelledby="clients-heading" className="relative border-b border-border/50 py-20">
+            <div className="absolute inset-0 grid-bg" />
+            <div className="relative z-10 mx-auto max-w-7xl px-6">
                 <motion.p
                     variants={fadeInUp}
                     initial="hidden"
