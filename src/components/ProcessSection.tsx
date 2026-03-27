@@ -16,7 +16,7 @@ export function ProcessSection() {
                 </SectionHeading>
 
                 {/* Desktop: horizontal flow */}
-                <div className="hidden md:block">
+                <div className="hidden md:block" aria-hidden="true">
                     <div className="relative flex items-start">
                         {PROCESS_STEPS.map((step, i) => (
                             <div key={step.title} className="group relative flex flex-1 flex-col items-center">

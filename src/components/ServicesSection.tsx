@@ -27,7 +27,7 @@ export function ServicesSection() {
                 {(() => {
                     const featured = SERVICES[0];
                     return (
-                        <Link href={featured.href} className="mb-6 block">
+                        <Link href={featured.href} aria-label={`Explore our ${featured.title} service`} className="mb-6 block">
                             <motion.div
                                 variants={fadeInUpLg}
                                 initial="hidden"
@@ -102,7 +102,7 @@ export function ServicesSection() {
                 {/* Remaining services */}
                 <div className="grid gap-6 md:grid-cols-3">
                     {SERVICES.slice(1).map((s, i) => (
-                        <Link key={s.title} href={s.href}>
+                        <Link key={s.title} href={s.href} aria-label={`Explore our ${s.title} service`}>
                             <motion.div
                                 variants={fadeInUpLg}
                                 initial="hidden"

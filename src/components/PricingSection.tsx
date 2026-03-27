@@ -36,10 +36,7 @@ export function PricingSection() {
                                 viewport={viewportOnce}
                                 transition={stagger(i, 0.12)}
                             >
-                                <Link
-                                    href="/#contact"
-                                    className="group flex h-full flex-col rounded-xl border border-border bg-card p-6 shadow-sm transition-[box-shadow,border-color] hover:border-primary/25 hover:shadow-md"
-                                >
+                                <div className="group flex h-full flex-col rounded-xl border border-border bg-card p-6 shadow-sm transition-[box-shadow,border-color,transform] hover:border-primary/25 hover:shadow-md hover:scale-[1.03]">
                                     {/* Icon */}
                                     <div className="mb-5 flex size-11 items-center justify-center rounded-lg border border-border bg-primary/10">
                                         <Icon className="size-5 text-primary" />
@@ -85,7 +82,7 @@ export function PricingSection() {
                                             {tier.rateSub}
                                         </span>
                                     </div>
-                                </Link>
+                                </div>
                             </motion.div>
                         );
                     })}
