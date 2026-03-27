@@ -187,7 +187,6 @@ export const ENGAGEMENT_MODELS: EngagementModel[] = [
 
 export const NAV_LINKS: NavLink[] = [
     { label: "About Us", href: "/about" },
-    { label: "Process", href: "/#process" },
     { label: "Blog", href: "/blog" },
     { label: "Careers", href: "/careers" },
     { label: "Contact", href: "/#contact" },
