@@ -25,7 +25,7 @@ export const metadata: Metadata = {
         siteName: SITE.name,
         images: [
             {
-                url: SITE.ogImage,
+                url: "/og-images/og-careers.png",
                 width: 1200,
                 height: 630,
                 alt: "Dodera Software — Careers",
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
         card: "summary_large_image",
         title: CAREERS_META.twitter.title,
         description: CAREERS_META.twitter.description,
-        images: [SITE.ogImage],
+        images: ["/og-images/og-careers.png"],
     },
 };
 

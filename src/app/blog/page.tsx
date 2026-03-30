@@ -23,11 +23,13 @@ export const metadata: Metadata = {
         url: `${SITE.url}/blog`,
         type: "website",
         siteName: SITE.name,
+        images: [{ url: "/og-images/og-blog.png", width: 1200, height: 630, alt: BLOG_META.title }],
     },
     twitter: {
         card: "summary_large_image",
         title: BLOG_META.title,
         description: BLOG_META.description,
+        images: ["/og-images/og-blog.png"],
     },
 };
 

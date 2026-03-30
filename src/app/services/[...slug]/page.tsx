@@ -27,6 +27,10 @@ export async function generateMetadata({
     const data = SERVICE_PAGES[key];
     if (!data) return {};
 
+    const ogImage =
+        data.ogImage ??
+        (data.parentSlug ? SERVICE_PAGES[data.parentSlug]?.ogImage : undefined);
+
     return {
         title: data.metaTitle,
         description: data.metaDescription,
@@ -37,11 +41,15 @@ export async function generateMetadata({
             description: data.metaDescription,
             url: `${SITE.url}${data.canonical}`,
             type: "website",
+            ...(ogImage && {
+                images: [{ url: ogImage, width: 1200, height: 630, alt: data.metaTitle }],
+            }),
         },
         twitter: {
             card: "summary_large_image",
             title: data.metaTitle,
             description: data.metaDescription,
+            ...(ogImage && { images: [ogImage] }),
         },
     };
 }

@@ -70,6 +70,8 @@ export interface ServicePageData {
     metaDescription: string;
     keywords: string[];
     canonical: string;
+    /** Page-specific OG image path (relative to /public), e.g. "/og-images/og-ai-development.jpg". */
+    ogImage?: string;
     heroLabel: string;
     heroTitle: string;
     heroHighlight: string;
