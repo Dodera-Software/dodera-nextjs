@@ -13,6 +13,7 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
      * ────────────────────────────────────────────────────── */
     "ai-development": {
         slug: "ai-development",
+        ogImage: "/og-images/og-ai-development.png",
         metaTitle: "AI Development Services - Custom Agents & Automations",
         metaDescription:
             "We build production-grade AI systems - from custom agents and workflow automations to intelligent data pipelines. Based in Romania, serving clients internationally.",
@@ -280,6 +281,7 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
 
     "software-development": {
         slug: "software-development",
+        ogImage: "/og-images/og-software-development.png",
         metaTitle: "Software Development Services - From Idea to Production",
         metaDescription:
             "End-to-end custom software development. We build MVPs, enterprise platforms, and SaaS products using .NET, Laravel, Nuxt, React, and modern full-stack architectures.",
@@ -660,6 +662,7 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
      * ────────────────────────────────────────────────────── */
     "presentation-websites": {
         slug: "presentation-websites",
+        ogImage: "/og-images/og-presentation-websites.png",
         metaTitle: "Presentation Website Design & Development - Stunning Sites That Convert",
         metaDescription:
             "We design and build high-performance presentation websites that make a lasting first impression. Fast, SEO-optimised, and crafted to convert visitors into leads.",
@@ -847,6 +850,7 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
 
     "technical-documentation": {
         slug: "technical-documentation",
+        ogImage: "/og-images/og-technical-documentation.png",
         metaTitle: "Technical Documentation Services - Knowledge Systems & AI-Ready Docs",
         metaDescription:
             "Transform your codebase and internal docs into AI-ready knowledge bases. We build documentation systems that make your team's expertise searchable and actionable.",
