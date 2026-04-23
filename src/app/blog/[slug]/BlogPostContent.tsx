@@ -155,13 +155,7 @@ export function BlogPostContent({ post }: BlogPostContentProps) {
             {post.image && (
                 <section aria-label="Featured image" className="relative">
                     <div className="mx-auto max-w-4xl px-6">
-                        <motion.div
-                            variants={fadeInUpLg}
-                            initial="hidden"
-                            animate="visible"
-                            transition={{ duration: 0.5, delay: 0.3 }}
-                            className="overflow-hidden rounded-xl border border-border"
-                        >
+                        <div className="overflow-hidden rounded-xl border border-border">
                             <Image
                                 src={post.image}
                                 alt={post.title}
@@ -171,7 +165,7 @@ export function BlogPostContent({ post }: BlogPostContentProps) {
                                 className="h-auto w-full object-contain"
                                 sizes="(max-width: 768px) 100vw, 896px"
                             />
-                        </motion.div>
+                        </div>
                     </div>
                 </section>
             )}

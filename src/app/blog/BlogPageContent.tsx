@@ -198,8 +198,9 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
                                 <motion.article
                                     variants={fadeInUpLg}
                                     initial="hidden"
-                                    whileInView="visible"
-                                    viewport={viewportOnce}
+                                    {...(i < 3
+                                        ? { animate: "visible" }
+                                        : { whileInView: "visible", viewport: viewportOnce })}
                                     transition={stagger(i % 3)}
                                     className="group flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-colors hover:border-primary/20 hover:bg-accent/30"
                                 >
@@ -209,6 +210,7 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
                                                 src={post.image}
                                                 alt={post.title}
                                                 fill
+                                                priority={i === 0}
                                                 className="object-cover transform-gpu transition-transform duration-500 group-hover:scale-105 will-change-transform"
                                                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                             />
