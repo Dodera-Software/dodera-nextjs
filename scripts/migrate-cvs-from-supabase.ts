@@ -75,7 +75,10 @@ async function main() {
                 .join("/")}`;
 
             const res = await fetch(url, {
-                headers: { Authorization: `Bearer ${supabaseKey}` },
+                headers: {
+                    apikey: supabaseKey,
+                    Authorization: `Bearer ${supabaseKey}`,
+                },
             });
 
             if (!res.ok) {
