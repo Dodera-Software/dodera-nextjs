@@ -15,7 +15,7 @@ const schema = z.object({
  *
  * Body: { email: string; token: string }
  *
- * Validates the HMAC token, then removes the subscriber from Supabase.
+ * Validates the HMAC token, then removes the subscriber from the database.
  * Returns 200 regardless of whether the email was actually in the DB
  * (prevents email enumeration).
  */

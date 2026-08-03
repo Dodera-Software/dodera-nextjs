@@ -129,7 +129,7 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        /* Notify Slack + AI follow-up — runs after response is sent, keeps the function alive on Vercel */
+        /* Notify Slack + AI follow-up — runs after the response is sent */
         after(async () => {
             const lead: LeadData = {
                 name: parsed.data.name,
