@@ -3,17 +3,27 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import type { AdminSession } from "@/types/admin";
 
-const rawAdminSecret = process.env.ADMIN_JWT_SECRET;
-if (process.env.NODE_ENV === "production" && !rawAdminSecret) {
-    throw new Error(
-        "[admin-auth] ADMIN_JWT_SECRET environment variable is not set. " +
-        "This is required in production to secure admin sessions."
-    );
-}
+/**
+ * Resolved lazily (not at module scope): the secret must not be needed
+ * during `next build` — the Docker image builds without any secrets and
+ * they are injected only at container runtime. Missing config still
+ * fails loudly on the first real request in production.
+ */
+let cachedJwtSecret: Uint8Array | null = null;
+function getJwtSecret(): Uint8Array {
+    if (cachedJwtSecret) return cachedJwtSecret;
 
-const JWT_SECRET = new TextEncoder().encode(
-    rawAdminSecret ?? "fallback-secret-change-me",
-);
+    const raw = process.env.ADMIN_JWT_SECRET;
+    if (process.env.NODE_ENV === "production" && !raw) {
+        throw new Error(
+            "[admin-auth] ADMIN_JWT_SECRET environment variable is not set. " +
+            "This is required in production to secure admin sessions."
+        );
+    }
+
+    cachedJwtSecret = new TextEncoder().encode(raw ?? "fallback-secret-change-me");
+    return cachedJwtSecret;
+}
 
 const COOKIE_NAME = "admin_session";
 const COOKIE_MAX_AGE = 60 * 60 * 24; // 24 hours
@@ -30,7 +40,7 @@ export async function createAdminSession(user: AdminSession): Promise<string> {
         .setProtectedHeader({ alg: "HS256" })
         .setIssuedAt()
         .setExpirationTime(`${COOKIE_MAX_AGE}s`)
-        .sign(JWT_SECRET);
+        .sign(getJwtSecret());
 
     const cookieStore = await cookies();
     cookieStore.set(COOKIE_NAME, token, {
@@ -55,7 +65,7 @@ export async function verifyAdminSession(): Promise<AdminSession | null> {
     if (!token) return null;
 
     try {
-        const { payload } = await jwtVerify(token, JWT_SECRET);
+        const { payload } = await jwtVerify(token, getJwtSecret());
         return {
             id: payload.id as number,
             email: payload.email as string,
