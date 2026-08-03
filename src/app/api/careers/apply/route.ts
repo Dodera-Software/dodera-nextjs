@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { db } from "@/db";
 import { cvFiles, jobApplications } from "@/db/schema";
+import { cleanupExpiredApplications } from "@/lib/application-retention";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { EMAIL_RE } from "@/lib/validation";
 
@@ -116,6 +117,9 @@ export async function POST(request: NextRequest) {
             { status: 500 },
         );
     }
+
+    // GDPR retention sweep — runs after the response is sent
+    after(() => cleanupExpiredApplications());
 
     return NextResponse.json({ status: "success" }, { status: 201 });
 }
