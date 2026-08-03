@@ -80,6 +80,31 @@ async function notifySlack(data: SlackLeadData) {
     }).catch((err) => console.error("Slack notification failed:", err));
 }
 
+/* ── Telegram lead notification ────────────────────────────── */
+
+async function notifyTelegram(data: LeadData) {
+    const secret = process.env.LEAD_SECRET;
+    if (!secret) return;
+
+    await fetch("https://hooks.preview.doderasoft.com/lead", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "x-lead-secret": secret,
+        },
+        body: JSON.stringify({
+            site: "dodera.io",
+            name: data.name,
+            email: data.email,
+            company: data.company || undefined,
+            phone: data.phone || undefined,
+            service_type: data.service_type || undefined,
+            budget: data.budget || undefined,
+            message: data.message,
+        }),
+    }).catch((err) => console.error("Telegram notification failed:", err));
+}
+
 /* ── Route handler ────────────────────────────────────────── */
 
 export async function POST(request: NextRequest) {
@@ -141,7 +166,10 @@ export async function POST(request: NextRequest) {
                 message: parsed.data.message,
             };
             const followUp = await generateFollowUp(lead);
-            await notifySlack({ ...lead, followUp });
+            await Promise.all([
+                notifySlack({ ...lead, followUp }),
+                notifyTelegram(lead),
+            ]);
         });
 
         return NextResponse.json({ status: "success", message: "Message received!" });
