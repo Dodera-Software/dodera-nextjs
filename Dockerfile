@@ -19,6 +19,13 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
+# NEXT_PUBLIC_* values are inlined into the client bundle at build time.
+# Coolify passes buildtime env vars as --build-arg; they must be declared
+# as ARG here or Docker silently drops them.
+ARG NEXT_PUBLIC_ADMIN_LINK_COOLIFY
+ARG NEXT_PUBLIC_ADMIN_LINK_PRISMIC_MIGRATION
+ENV NEXT_PUBLIC_ADMIN_LINK_COOLIFY=$NEXT_PUBLIC_ADMIN_LINK_COOLIFY \
+    NEXT_PUBLIC_ADMIN_LINK_PRISMIC_MIGRATION=$NEXT_PUBLIC_ADMIN_LINK_PRISMIC_MIGRATION
 RUN npm run build
 
 # ── Runtime ───────────────────────────────────────────────────
