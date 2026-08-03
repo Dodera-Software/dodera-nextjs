@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { count, desc } from "drizzle-orm";
 import { verifyAdminSession } from "@/lib/admin-auth";
+import { cleanupExpiredApplications } from "@/lib/application-retention";
 import { db } from "@/db";
 import { jobApplications } from "@/db/schema";
 
@@ -21,6 +22,9 @@ export async function GET(request: NextRequest) {
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
     const limit = Math.min(200, Math.max(1, parseInt(searchParams.get("limit") || "25", 10)));
     const offset = (page - 1) * limit;
+
+    // GDPR retention sweep — runs after the response is sent
+    after(() => cleanupExpiredApplications());
 
     try {
         const [data, [{ total }]] = await Promise.all([

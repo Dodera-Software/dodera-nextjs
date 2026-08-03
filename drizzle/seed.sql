@@ -41,6 +41,11 @@ insert into public.app_config (key, value, description) values
     'social_post_model',
     'gpt-4o',
     'OpenAI model used for social post generation. E.g. gpt-4o, gpt-4o-mini, gpt-4-turbo.'
+  ),
+  (
+    'application_retention_days',
+    '365',
+    'Days to keep job applications and CV files before automatic deletion (GDPR). Must match the privacy policy. 0 disables cleanup.'
   )
 on conflict (key) do nothing;
 

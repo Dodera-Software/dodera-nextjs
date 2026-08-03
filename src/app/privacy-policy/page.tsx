@@ -93,8 +93,9 @@ export default function PrivacyPolicyPage() {
                         Job application data (personal details and CV files) is retained for a
                         maximum of <strong>12 months</strong> from the date of submission. After
                         this period, both the database record and the uploaded CV file are
-                        permanently deleted. You may request earlier deletion at any time by
-                        contacting us at <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>.
+                        automatically and permanently deleted from our systems. You may request
+                        earlier deletion at any time by contacting us at{" "}
+                        <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>.
                     </p>
 
                     <h2>5. Your Rights</h2>
