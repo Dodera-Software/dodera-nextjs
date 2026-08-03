@@ -93,7 +93,7 @@ async function notifyTelegram(data: LeadData) {
             "x-lead-secret": secret,
         },
         body: JSON.stringify({
-            site: "dodera.io",
+            site: "doderasoft.com",
             name: data.name,
             email: data.email,
             company: data.company || undefined,
