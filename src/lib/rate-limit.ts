@@ -1,6 +1,8 @@
 import "server-only";
 import { type NextRequest } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { and, count, eq, gte, lt } from "drizzle-orm";
+import { db } from "@/db";
+import { rateLimitLog } from "@/db/schema";
 import { getConfig } from "@/lib/app-config";
 
 /* ── IP extraction ────────────────────────────────────────── */
@@ -52,43 +54,36 @@ export async function checkRateLimit(
 
         const max = Math.max(1, parseInt(maxRaw, 10) || 5);
         const windowMinutes = Math.max(1, parseInt(windowRaw, 10) || 60);
-        const windowStart = new Date(Date.now() - windowMinutes * 60 * 1000).toISOString();
+        const windowStart = new Date(Date.now() - windowMinutes * 60 * 1000);
 
         const key = `${endpoint}:${ip}`;
 
         // Count requests in the current window
-        const { count, error: countError } = await supabase
-            .from("rate_limit_log")
-            .select("id", { count: "exact", head: true })
-            .eq("key", key)
-            .gte("created_at", windowStart);
+        const [row] = await db
+            .select({ count: count() })
+            .from(rateLimitLog)
+            .where(and(eq(rateLimitLog.key, key), gte(rateLimitLog.createdAt, windowStart)));
 
-        if (countError) {
-            console.warn("[rate-limit] Count query failed:", countError.message);
-            return { limited: false, remaining: max };
-        }
-
-        const current = count ?? 0;
+        const current = row?.count ?? 0;
 
         if (current >= max) {
             return { limited: true, remaining: 0 };
         }
 
         // Log this attempt (fire-and-forget — never fails silently)
-        supabase
-            .from("rate_limit_log")
-            .insert({ key })
-            .then(({ error }) => {
-                if (error) console.warn("[rate-limit] Insert failed:", error.message);
-            });
+        db.insert(rateLimitLog)
+            .values({ key })
+            .catch((err) => console.warn("[rate-limit] Insert failed:", err));
 
         // Opportunistically clean entries older than the window to keep the table lean
-        supabase
-            .from("rate_limit_log")
-            .delete()
-            .eq("key", key)
-            .lt("created_at", new Date(Date.now() - windowMinutes * 60 * 1000 * 2).toISOString())
-            .then();
+        db.delete(rateLimitLog)
+            .where(
+                and(
+                    eq(rateLimitLog.key, key),
+                    lt(rateLimitLog.createdAt, new Date(Date.now() - windowMinutes * 60 * 1000 * 2)),
+                ),
+            )
+            .catch(() => {});
 
         return { limited: false, remaining: max - current - 1 };
     } catch (err) {

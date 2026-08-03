@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAdminSession } from "@/lib/admin-auth";
-import { supabase } from "@/lib/supabase";
+import { inArray } from "drizzle-orm";
+import { db } from "@/db";
+import { appConfig } from "@/db/schema";
 import { setConfig } from "@/lib/app-config";
 import { z } from "zod";
 
@@ -15,17 +17,16 @@ export async function GET() {
         return NextResponse.json({ status: "error", message: "Not authenticated." }, { status: 401 });
     }
 
-    const { data, error } = await supabase
-        .from("app_config")
-        .select("key, value")
-        .in("key", [SUBJECT_KEY, HTML_KEY, DESIGN_KEY]);
-
-    if (error) {
-        console.error("[welcome-email-template] Supabase read error:", error);
+    let rows: { key: string; value: string }[];
+    try {
+        rows = await db
+            .select({ key: appConfig.key, value: appConfig.value })
+            .from(appConfig)
+            .where(inArray(appConfig.key, [SUBJECT_KEY, HTML_KEY, DESIGN_KEY]));
+    } catch (err) {
+        console.error("[welcome-email-template] Config read error:", err);
         return NextResponse.json({ status: "error", message: "Failed to load template." }, { status: 500 });
     }
-
-    const rows = data ?? [];
     const subject = rows.find((r) => r.key === SUBJECT_KEY)?.value ?? "";
     const html = rows.find((r) => r.key === HTML_KEY)?.value ?? "";
     const design = rows.find((r) => r.key === DESIGN_KEY)?.value ?? null;

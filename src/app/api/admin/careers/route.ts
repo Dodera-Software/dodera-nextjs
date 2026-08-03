@@ -1,9 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
+import { asc, desc, eq } from "drizzle-orm";
 import { verifyAdminSession } from "@/lib/admin-auth";
-import { supabase } from "@/lib/supabase";
+import { db } from "@/db";
+import { jobOpenings } from "@/db/schema";
 
 const ALLOWED_STATUSES = ["open", "closed", "draft"] as const;
 const ALLOWED_TYPES = ["Full-time", "Part-time", "Contract", "Internship"] as const;
+
+/** Serialize a job_openings row with the snake_case keys the admin UI expects. */
+function toApiShape(row: typeof jobOpenings.$inferSelect) {
+    return {
+        id: row.id,
+        title: row.title,
+        department: row.department,
+        location: row.location,
+        type: row.type,
+        status: row.status,
+        description: row.description,
+        apply_url: row.applyUrl,
+        sort_order: row.sortOrder,
+        created_at: row.createdAt,
+        updated_at: row.updatedAt,
+    };
+}
 
 export async function GET() {
     const session = await verifyAdminSession();
@@ -14,21 +33,20 @@ export async function GET() {
         );
     }
 
-    const { data, error } = await supabase
-        .from("job_openings")
-        .select("*")
-        .order("sort_order", { ascending: true })
-        .order("created_at", { ascending: false });
+    try {
+        const rows = await db
+            .select()
+            .from(jobOpenings)
+            .orderBy(asc(jobOpenings.sortOrder), desc(jobOpenings.createdAt));
 
-    if (error) {
-        console.error("Error fetching job openings:", error);
+        return NextResponse.json({ status: "success", data: rows.map(toApiShape) });
+    } catch (err) {
+        console.error("Error fetching job openings:", err);
         return NextResponse.json(
             { status: "error", message: "Failed to fetch job openings." },
             { status: 500 },
         );
     }
-
-    return NextResponse.json({ status: "success", data });
 }
 
 export async function POST(request: NextRequest) {
@@ -64,30 +82,29 @@ export async function POST(request: NextRequest) {
         );
     }
 
-    const { data, error } = await supabase
-        .from("job_openings")
-        .insert({
-            title: title.trim(),
-            department: department?.trim() || null,
-            location: location?.trim() || "Remote",
-            type: type || "Full-time",
-            status: status || "open",
-            description: description?.trim() || null,
-            apply_url: apply_url?.trim() || null,
-            sort_order: sort_order ?? 0,
-        })
-        .select()
-        .single();
+    try {
+        const [row] = await db
+            .insert(jobOpenings)
+            .values({
+                title: title.trim(),
+                department: department?.trim() || null,
+                location: location?.trim() || "Remote",
+                type: type || "Full-time",
+                status: status || "open",
+                description: description?.trim() || null,
+                applyUrl: apply_url?.trim() || null,
+                sortOrder: sort_order ?? 0,
+            })
+            .returning();
 
-    if (error) {
-        console.error("Error creating job opening:", error);
+        return NextResponse.json({ status: "success", data: toApiShape(row) }, { status: 201 });
+    } catch (err) {
+        console.error("Error creating job opening:", err);
         return NextResponse.json(
             { status: "error", message: "Failed to create job opening." },
             { status: 500 },
         );
     }
-
-    return NextResponse.json({ status: "success", data }, { status: 201 });
 }
 
 export async function PATCH(request: NextRequest) {
@@ -123,13 +140,16 @@ export async function PATCH(request: NextRequest) {
         );
     }
 
-    const allowedFields = ["title", "department", "location", "type", "status", "description", "apply_url", "sort_order"];
-    const updatePayload: Record<string, unknown> = {};
-    for (const key of allowedFields) {
-        if (key in fields) {
-            updatePayload[key] = fields[key];
-        }
-    }
+    // Map allowed snake_case API fields onto drizzle columns
+    const updatePayload: Partial<typeof jobOpenings.$inferInsert> = {};
+    if ("title" in fields) updatePayload.title = fields.title;
+    if ("department" in fields) updatePayload.department = fields.department;
+    if ("location" in fields) updatePayload.location = fields.location;
+    if ("type" in fields) updatePayload.type = fields.type;
+    if ("status" in fields) updatePayload.status = fields.status;
+    if ("description" in fields) updatePayload.description = fields.description;
+    if ("apply_url" in fields) updatePayload.applyUrl = fields.apply_url;
+    if ("sort_order" in fields) updatePayload.sortOrder = fields.sort_order;
 
     if (Object.keys(updatePayload).length === 0) {
         return NextResponse.json(
@@ -138,22 +158,31 @@ export async function PATCH(request: NextRequest) {
         );
     }
 
-    const { data, error } = await supabase
-        .from("job_openings")
-        .update(updatePayload)
-        .eq("id", id)
-        .select()
-        .single();
+    // The old Postgres trigger kept updated_at fresh; now the app does it
+    updatePayload.updatedAt = new Date();
 
-    if (error) {
-        console.error("Error updating job opening:", error);
+    try {
+        const [row] = await db
+            .update(jobOpenings)
+            .set(updatePayload)
+            .where(eq(jobOpenings.id, id))
+            .returning();
+
+        if (!row) {
+            return NextResponse.json(
+                { status: "error", message: "Job opening not found." },
+                { status: 404 },
+            );
+        }
+
+        return NextResponse.json({ status: "success", data: toApiShape(row) });
+    } catch (err) {
+        console.error("Error updating job opening:", err);
         return NextResponse.json(
             { status: "error", message: "Failed to update job opening." },
             { status: 500 },
         );
     }
-
-    return NextResponse.json({ status: "success", data });
 }
 
 export async function DELETE(request: NextRequest) {
@@ -173,10 +202,10 @@ export async function DELETE(request: NextRequest) {
         );
     }
 
-    const { error } = await supabase.from("job_openings").delete().eq("id", id);
-
-    if (error) {
-        console.error("Error deleting job opening:", error);
+    try {
+        await db.delete(jobOpenings).where(eq(jobOpenings.id, id));
+    } catch (err) {
+        console.error("Error deleting job opening:", err);
         return NextResponse.json(
             { status: "error", message: "Failed to delete job opening." },
             { status: 500 },

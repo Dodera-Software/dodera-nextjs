@@ -70,7 +70,7 @@ const API_ENDPOINTS: ApiEndpoint[] = [
         auth: "none",
         description: "Public contact form submission",
         details:
-            "Handles contact form submissions from the website. Validates name, email, and message (plus optional company and phone) with Zod, then inserts the submission into the Supabase contacts table.",
+            "Handles contact form submissions from the website. Validates name, email, and message (plus optional company and phone) with Zod, then inserts the submission into the contacts table.",
         params: [
             { name: "name", type: "string", required: true, description: "Sender's name" },
             { name: "email", type: "string", required: true, description: "Sender's email address" },
@@ -86,7 +86,7 @@ const API_ENDPOINTS: ApiEndpoint[] = [
         auth: "none",
         description: "Newsletter subscription",
         details:
-            "Handles newsletter subscription requests. Validates the email, checks for duplicates in the Supabase subscribers table, and inserts new subscribers. Returns success even if already subscribed to prevent email enumeration.",
+            "Handles newsletter subscription requests. Validates the email, checks for duplicates in the subscribers table, and inserts new subscribers. Returns success even if already subscribed to prevent email enumeration.",
         params: [
             { name: "email", type: "string", required: true, description: "Subscriber's email address" },
         ],
@@ -103,15 +103,6 @@ const API_ENDPOINTS: ApiEndpoint[] = [
             { name: "secret", type: "string (query)", required: true, description: "Webhook secret for authentication" },
         ],
         response: '{ "revalidated": true }',
-    },
-    {
-        path: "/api/cron/auto-post",
-        methods: ["GET"],
-        auth: "cron-secret",
-        description: "Scheduled auto-post cron job",
-        details:
-            "Cron job handler that runs daily at 09:00 UTC. On Netlify, triggered by the scheduled function in netlify/functions/cron-auto-post.mts. Verifies the request via CRON_SECRET, picks a random author, then forwards the request to /api/auto-post using the AUTO_POST_API_TOKEN environment variable.",
-        response: '{ "status": "success", "post": { ... } }',
     },
     {
         path: "/api/preview",
@@ -308,9 +299,6 @@ export default function ApiDocsPage() {
     const adminEndpoints = API_ENDPOINTS.filter(
         (e) => e.auth === "admin-session"
     );
-    const cronEndpoints = API_ENDPOINTS.filter(
-        (e) => e.auth === "cron-secret"
-    );
     const webhookEndpoints = API_ENDPOINTS.filter(
         (e) => e.auth === "webhook-secret"
     );
@@ -328,12 +316,6 @@ export default function ApiDocsPage() {
             description:
                 "Internal endpoints used by the admin dashboard. Require an active admin session cookie.",
             endpoints: adminEndpoints,
-        },
-        {
-            title: "Cron Jobs",
-            description:
-                "Scheduled endpoints authenticated via CRON_SECRET.",
-            endpoints: cronEndpoints,
         },
         {
             title: "Webhook Endpoints",

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
-import { Users, Key, LayoutDashboard, Wand2, Loader2, CheckCircle2, XCircle, ExternalLink, ChevronDown, ChevronUp, BarChart2, GitBranch, Database, Plus, Trash2, BookOpen } from "lucide-react";
+import { Users, Key, LayoutDashboard, Wand2, Loader2, CheckCircle2, XCircle, ExternalLink, ChevronDown, ChevronUp, GitBranch, Plus, Trash2, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,50 +18,16 @@ interface BlogExampleItem {
     created_at: string;
 }
 
-/* ── Platform-aware quick links ────────────────────────────── */
-const PLATFORM = process.env.NEXT_PUBLIC_DEPLOY_PLATFORM ?? "netlify";
-
-const PLATFORM_LINKS: Record<string, { label: string; description: string; icon: React.ElementType; color: string; bg: string; url?: string }[]> = {
-    netlify: [
-        {
-            label: "Netlify",
-            description: "Deployments & settings",
-            icon: ExternalLink,
-            color: "text-sky-400",
-            bg: "bg-sky-400/10",
-            url: process.env.NEXT_PUBLIC_ADMIN_LINK_NETLIFY,
-        },
-        {
-            label: "Netlify Analytics",
-            description: "Traffic & performance",
-            icon: BarChart2,
-            color: "text-violet-400",
-            bg: "bg-violet-400/10",
-            url: process.env.NEXT_PUBLIC_ADMIN_LINK_NETLIFY_ANALYTICS,
-        },
-    ],
-    vercel: [
-        {
-            label: "Vercel",
-            description: "Deployments & settings",
-            icon: ExternalLink,
-            color: "text-sky-400",
-            bg: "bg-sky-400/10",
-            url: process.env.NEXT_PUBLIC_ADMIN_LINK_VERCEL,
-        },
-        {
-            label: "Vercel Analytics",
-            description: "Traffic & performance",
-            icon: BarChart2,
-            color: "text-violet-400",
-            bg: "bg-violet-400/10",
-            url: process.env.NEXT_PUBLIC_ADMIN_LINK_VERCEL_ANALYTICS,
-        },
-    ],
-};
-
+/* ── Quick links ───────────────────────────────────────────── */
 const QUICK_LINKS = [
-    ...(PLATFORM_LINKS[PLATFORM] ?? []),
+    {
+        label: "Coolify",
+        description: "Deployments & settings",
+        icon: ExternalLink,
+        color: "text-sky-400",
+        bg: "bg-sky-400/10",
+        url: process.env.NEXT_PUBLIC_ADMIN_LINK_COOLIFY,
+    },
     {
         label: "Prismic Migration",
         description: "Drafts waiting to publish",
@@ -69,14 +35,6 @@ const QUICK_LINKS = [
         color: "text-rose-400",
         bg: "bg-rose-400/10",
         url: process.env.NEXT_PUBLIC_ADMIN_LINK_PRISMIC_MIGRATION,
-    },
-    {
-        label: "Supabase",
-        description: "Database & auth",
-        icon: Database,
-        color: "text-emerald-400",
-        bg: "bg-emerald-400/10",
-        url: process.env.NEXT_PUBLIC_ADMIN_LINK_SUPABASE,
     },
 ].filter((l) => !!l.url) as { label: string; description: string; icon: React.ElementType; color: string; bg: string; url: string }[];
 

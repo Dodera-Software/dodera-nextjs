@@ -6,7 +6,9 @@ import {
     type SocialPlatform,
     type BlogContext,
 } from "@/app/api/admin/social-post/prompts";
-import { supabase } from "@/lib/supabase";
+import { asc, eq } from "drizzle-orm";
+import { db } from "@/db";
+import { socialPostExamples } from "@/db/schema";
 import { getSocialPostModel } from "@/lib/app-config";
 
 export interface GenerateSocialPostOptions {
@@ -20,14 +22,17 @@ export interface GenerateSocialPostResult {
 }
 
 async function getExamples(platform: SocialPlatform): Promise<string[]> {
-    const { data, error } = await supabase
-        .from("social_post_examples")
-        .select("content")
-        .eq("platform", platform)
-        .order("created_at", { ascending: true });
+    try {
+        const rows = await db
+            .select({ content: socialPostExamples.content })
+            .from(socialPostExamples)
+            .where(eq(socialPostExamples.platform, platform))
+            .orderBy(asc(socialPostExamples.createdAt));
 
-    if (error || !data) return [];
-    return data.map((row) => row.content);
+        return rows.map((row) => row.content);
+    } catch {
+        return [];
+    }
 }
 
 /**

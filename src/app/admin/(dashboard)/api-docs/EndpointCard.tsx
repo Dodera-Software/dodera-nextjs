@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Shield, Clock, Globe, Copy, Check, ChevronDown, ChevronUp } from "lucide-react";
+import { Shield, Globe, Copy, Check, ChevronDown, ChevronUp } from "lucide-react";
 import type { HttpMethod, ApiEndpoint } from "@/types/admin";
 
 const METHOD_COLORS: Record<HttpMethod, string> = {
@@ -28,14 +28,6 @@ const AUTH_CONFIG = {
         bg: "bg-blue-400/10",
         border: "border-blue-400/20",
         description: "Requires an active admin session cookie (login via /admin/login)",
-    },
-    "cron-secret": {
-        label: "Cron Secret",
-        icon: Clock,
-        color: "text-violet-400",
-        bg: "bg-violet-400/10",
-        border: "border-violet-400/20",
-        description: "CRON_SECRET (set manually in Netlify env vars; was auto-injected on Vercel)",
     },
     "webhook-secret": {
         label: "Webhook Secret",

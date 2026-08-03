@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { supabase } from "@/lib/supabase";
+import { eq } from "drizzle-orm";
+import { db } from "@/db";
+import { adminUsers } from "@/db/schema";
 import { createAdminSession } from "@/lib/admin-auth";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
@@ -27,13 +29,18 @@ export async function POST(request: NextRequest) {
         }
 
         // Look up the admin user
-        const { data: user, error } = await supabase
-            .from("admin_users")
-            .select("id, email, name, password_hash")
-            .eq("email", email.toLowerCase().trim())
-            .single();
+        const [user] = await db
+            .select({
+                id: adminUsers.id,
+                email: adminUsers.email,
+                name: adminUsers.name,
+                password_hash: adminUsers.passwordHash,
+            })
+            .from(adminUsers)
+            .where(eq(adminUsers.email, email.toLowerCase().trim()))
+            .limit(1);
 
-        if (error || !user) {
+        if (!user) {
             return NextResponse.json(
                 { status: "error", message: "Invalid email or password." },
                 { status: 401 },
@@ -51,10 +58,10 @@ export async function POST(request: NextRequest) {
         }
 
         // Update last login
-        await supabase
-            .from("admin_users")
-            .update({ last_login_at: new Date().toISOString() })
-            .eq("id", user.id);
+        await db
+            .update(adminUsers)
+            .set({ lastLoginAt: new Date() })
+            .where(eq(adminUsers.id, user.id));
 
         // Create session
         await createAdminSession({

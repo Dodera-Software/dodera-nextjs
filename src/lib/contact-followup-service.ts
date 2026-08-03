@@ -1,6 +1,8 @@
 import "server-only";
 import OpenAI from "openai";
-import { supabase } from "@/lib/supabase";
+import { and, count, gte, lt } from "drizzle-orm";
+import { db } from "@/db";
+import { contacts } from "@/db/schema";
 import { FOLLOWUP_SYSTEM_PROMPT } from "@/app/api/contact/prompts";
 import { getContactFollowupModel, getContactFollowupDailyLimit, getContactFollowupEnabled } from "@/lib/app-config";
 
@@ -32,7 +34,7 @@ export interface LeadData {
     message: string;
 }
 
-/* ── Daily limit check (Supabase-backed, serverless-safe) ─── */
+/* ── Daily limit check (DB-backed) ────────────────────────── */
 
 /**
  * Returns true if the daily AI call limit has been reached.
@@ -45,19 +47,19 @@ async function isDailyLimitReached(): Promise<boolean> {
 
     try {
         const todayUtc = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
-        const { count, error } = await supabase
-            .from("contacts")
-            .select("id", { count: "exact", head: true })
-            .gte("created_at", `${todayUtc}T00:00:00Z`)
-            .lt("created_at", `${todayUtc}T23:59:59Z`);
+        const [row] = await db
+            .select({ count: count() })
+            .from(contacts)
+            .where(
+                and(
+                    gte(contacts.createdAt, new Date(`${todayUtc}T00:00:00Z`)),
+                    lt(contacts.createdAt, new Date(`${todayUtc}T23:59:59Z`)),
+                ),
+            );
 
-        if (error) {
-            console.warn("[contact-followup] Daily limit check failed:", error.message);
-            return false;
-        }
-
-        return (count ?? 0) >= dailyLimit;
-    } catch {
+        return (row?.count ?? 0) >= dailyLimit;
+    } catch (err) {
+        console.warn("[contact-followup] Daily limit check failed:", err);
         return false;
     }
 }

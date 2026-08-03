@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAdminSession } from "@/lib/admin-auth";
-import { supabase } from "@/lib/supabase";
+import { asc } from "drizzle-orm";
+import { db } from "@/db";
+import { subscribers } from "@/db/schema";
 import { sendEmail, verifySmtp, buildSubscriberEmail } from "@/lib/email-service";
 
 // ── POST /api/admin/send-email ─────────────────────────────
@@ -43,21 +45,21 @@ export async function POST(request: NextRequest) {
     let recipients: string[] = [];
 
     if (to === "all") {
-        // Fetch all subscriber emails from Supabase
-        const { data, error } = await supabase
-            .from("subscribers")
-            .select("email")
-            .order("created_at", { ascending: true });
+        // Fetch all subscriber emails
+        try {
+            const data = await db
+                .select({ email: subscribers.email })
+                .from(subscribers)
+                .orderBy(asc(subscribers.createdAt));
 
-        if (error) {
-            console.error("[send-email] Failed to fetch subscribers:", error);
+            recipients = data.map((r) => r.email);
+        } catch (err) {
+            console.error("[send-email] Failed to fetch subscribers:", err);
             return NextResponse.json(
                 { status: "error", message: "Failed to fetch subscribers." },
                 { status: 500 },
             );
         }
-
-        recipients = (data ?? []).map((r: { email: string }) => r.email);
     } else {
         recipients = to.split(",").map((e) => e.trim()).filter(Boolean);
     }

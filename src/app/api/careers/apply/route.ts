@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { db } from "@/db";
+import { cvFiles, jobApplications } from "@/db/schema";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { EMAIL_RE } from "@/lib/validation";
 
@@ -87,37 +88,29 @@ export async function POST(request: NextRequest) {
     };
     const contentType = file!.type || MIME_BY_EXT[ext] || "application/octet-stream";
 
-    // Upload CV to Supabase Storage (private bucket "cvs")
+    // Store the CV bytes and the application record atomically
     const fileBuffer = Buffer.from(await file!.arrayBuffer());
-    const { error: storageError } = await supabase.storage
-        .from("cvs")
-        .upload(storagePath, fileBuffer, {
-            contentType,
-            upsert: false,
+
+    try {
+        await db.transaction(async (tx) => {
+            await tx.insert(cvFiles).values({
+                path: storagePath,
+                filename: file!.name,
+                contentType,
+                data: fileBuffer,
+            });
+
+            await tx.insert(jobApplications).values({
+                jobId: jobId ? Number(jobId) : null,
+                jobTitle,
+                fullName,
+                email,
+                cvPath: storagePath,
+                gdprConsent: true,
+            });
         });
-
-    if (storageError) {
-        console.error("CV upload error:", storageError.message, storageError);
-        return NextResponse.json(
-            { status: "error", message: `Storage error: ${storageError.message}` },
-            { status: 500 },
-        );
-    }
-
-    // Insert application record
-    const { error: dbError } = await supabase.from("job_applications").insert({
-        job_id: jobId ? Number(jobId) : null,
-        job_title: jobTitle,
-        full_name: fullName,
-        email,
-        cv_path: storagePath,
-        gdpr_consent: true,
-    });
-
-    if (dbError) {
-        console.error("Application insert error:", dbError);
-        // Best-effort rollback: remove the uploaded file
-        await supabase.storage.from("cvs").remove([storagePath]);
+    } catch (err) {
+        console.error("Application insert error:", err);
         return NextResponse.json(
             { status: "error", message: "Failed to submit application. Please try again." },
             { status: 500 },

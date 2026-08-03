@@ -1,7 +1,9 @@
 import "server-only";
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAdminSession } from "@/lib/admin-auth";
-import { supabase } from "@/lib/supabase";
+import { asc, eq } from "drizzle-orm";
+import { db } from "@/db";
+import { socialPostExamples } from "@/db/schema";
 
 const VALID_PLATFORMS = ["linkedin", "facebook", "instagram"] as const;
 type Platform = (typeof VALID_PLATFORMS)[number];
@@ -21,17 +23,25 @@ export async function GET(request: NextRequest) {
         );
     }
 
-    const { data, error } = await supabase
-        .from("social_post_examples")
-        .select("id, platform, content, created_at")
-        .eq("platform", platform)
-        .order("created_at", { ascending: true });
+    try {
+        const data = await db
+            .select({
+                id: socialPostExamples.id,
+                platform: socialPostExamples.platform,
+                content: socialPostExamples.content,
+                created_at: socialPostExamples.createdAt,
+            })
+            .from(socialPostExamples)
+            .where(eq(socialPostExamples.platform, platform))
+            .orderBy(asc(socialPostExamples.createdAt));
 
-    if (error) {
-        return NextResponse.json({ status: "error", message: error.message }, { status: 502 });
+        return NextResponse.json({ status: "success", examples: data });
+    } catch (err) {
+        return NextResponse.json(
+            { status: "error", message: err instanceof Error ? err.message : "Query failed." },
+            { status: 502 },
+        );
     }
-
-    return NextResponse.json({ status: "success", examples: data });
 }
 
 /* ── POST /api/admin/social-post-examples ─────────────────── */
@@ -54,15 +64,22 @@ export async function POST(request: NextRequest) {
         );
     }
 
-    const { data, error } = await supabase
-        .from("social_post_examples")
-        .insert({ platform, content: content.trim() })
-        .select("id, platform, content, created_at")
-        .single();
+    try {
+        const [data] = await db
+            .insert(socialPostExamples)
+            .values({ platform, content: content.trim() })
+            .returning({
+                id: socialPostExamples.id,
+                platform: socialPostExamples.platform,
+                content: socialPostExamples.content,
+                created_at: socialPostExamples.createdAt,
+            });
 
-    if (error) {
-        return NextResponse.json({ status: "error", message: error.message }, { status: 502 });
+        return NextResponse.json({ status: "success", example: data }, { status: 201 });
+    } catch (err) {
+        return NextResponse.json(
+            { status: "error", message: err instanceof Error ? err.message : "Insert failed." },
+            { status: 502 },
+        );
     }
-
-    return NextResponse.json({ status: "success", example: data }, { status: 201 });
 }

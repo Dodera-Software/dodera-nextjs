@@ -1,36 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Dodera — doderasoft.com
+
+Next.js 16 app for [doderasoft.com](https://doderasoft.com). Content lives in
+Prismic; application data (contacts, newsletter, careers, admin, API tokens)
+lives in Postgres, accessed via [Drizzle ORM](https://orm.drizzle.team).
+Deployed on a Hetzner server with [Coolify](https://coolify.io) (Dockerfile
+build, see `MIGRATION.md` for the full setup/runbook).
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+cp .env.example .env      # fill in DATABASE_URL and the rest
+npm install
+npm run db:migrate        # apply drizzle/ migrations to the database
+psql "$DATABASE_URL" -f drizzle/seed.sql   # fresh installs only: default app_config
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Database
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Schema: `src/db/schema.ts` (Drizzle). Server client: `src/db/index.ts`.
+- Change the schema → `npm run db:generate` (writes SQL to `drizzle/`) → `npm run db:migrate`.
+- `npm run db:studio` opens Drizzle Studio.
+- CV uploads are stored in the `cv_files` table (bytea), so a DB backup covers all data.
 
-## Learn More
+## Useful scripts
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run admin:seed        # create/update the admin dashboard user
+npm run token:generate -- --name "CI pipeline" [--expires 90]
+npm run token:list
+npm run token:revoke -- --name "CI pipeline"
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deployment
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Coolify builds the `Dockerfile` (Next.js standalone output) and health-checks
+`GET /api/health`. Required env vars are listed in `.env.example` — mark
+`NEXT_PUBLIC_*` ones as build-time variables in Coolify.

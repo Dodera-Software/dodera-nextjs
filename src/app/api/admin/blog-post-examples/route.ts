@@ -1,7 +1,9 @@
 import "server-only";
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAdminSession } from "@/lib/admin-auth";
-import { supabase } from "@/lib/supabase";
+import { asc } from "drizzle-orm";
+import { db } from "@/db";
+import { blogPostExamples } from "@/db/schema";
 
 /* ── GET /api/admin/blog-post-examples ───────────────────────── */
 export async function GET() {
@@ -10,16 +12,23 @@ export async function GET() {
         return NextResponse.json({ status: "error", message: "Not authenticated." }, { status: 401 });
     }
 
-    const { data, error } = await supabase
-        .from("blog_post_examples")
-        .select("id, content, created_at")
-        .order("created_at", { ascending: true });
+    try {
+        const data = await db
+            .select({
+                id: blogPostExamples.id,
+                content: blogPostExamples.content,
+                created_at: blogPostExamples.createdAt,
+            })
+            .from(blogPostExamples)
+            .orderBy(asc(blogPostExamples.createdAt));
 
-    if (error) {
-        return NextResponse.json({ status: "error", message: error.message }, { status: 502 });
+        return NextResponse.json({ status: "success", examples: data });
+    } catch (err) {
+        return NextResponse.json(
+            { status: "error", message: err instanceof Error ? err.message : "Query failed." },
+            { status: 502 },
+        );
     }
-
-    return NextResponse.json({ status: "success", examples: data });
 }
 
 /* ── POST /api/admin/blog-post-examples ──────────────────────── */
@@ -39,15 +48,21 @@ export async function POST(request: NextRequest) {
         );
     }
 
-    const { data, error } = await supabase
-        .from("blog_post_examples")
-        .insert({ content: content.trim() })
-        .select("id, content, created_at")
-        .single();
+    try {
+        const [data] = await db
+            .insert(blogPostExamples)
+            .values({ content: content.trim() })
+            .returning({
+                id: blogPostExamples.id,
+                content: blogPostExamples.content,
+                created_at: blogPostExamples.createdAt,
+            });
 
-    if (error) {
-        return NextResponse.json({ status: "error", message: error.message }, { status: 502 });
+        return NextResponse.json({ status: "success", example: data }, { status: 201 });
+    } catch (err) {
+        return NextResponse.json(
+            { status: "error", message: err instanceof Error ? err.message : "Insert failed." },
+            { status: 502 },
+        );
     }
-
-    return NextResponse.json({ status: "success", example: data }, { status: 201 });
 }

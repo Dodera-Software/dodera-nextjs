@@ -1,7 +1,9 @@
 import "server-only";
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAdminSession } from "@/lib/admin-auth";
-import { supabase } from "@/lib/supabase";
+import { eq } from "drizzle-orm";
+import { db } from "@/db";
+import { socialPostExamples } from "@/db/schema";
 
 /* ── DELETE /api/admin/social-post-examples/[id] ──────────── */
 export async function DELETE(
@@ -19,13 +21,13 @@ export async function DELETE(
         return NextResponse.json({ status: "error", message: "Invalid id." }, { status: 400 });
     }
 
-    const { error } = await supabase
-        .from("social_post_examples")
-        .delete()
-        .eq("id", numId);
-
-    if (error) {
-        return NextResponse.json({ status: "error", message: error.message }, { status: 502 });
+    try {
+        await db.delete(socialPostExamples).where(eq(socialPostExamples.id, numId));
+    } catch (err) {
+        return NextResponse.json(
+            { status: "error", message: err instanceof Error ? err.message : "Delete failed." },
+            { status: 502 },
+        );
     }
 
     return NextResponse.json({ status: "success" });
