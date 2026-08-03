@@ -110,7 +110,11 @@ Compare against the same query in the Supabase SQL editor
    `SLACK_LEADS_WEBHOOK_URL`, `ZOHO_SMTP_PASSWORD`, `ADMIN_JWT_SECRET`,
    `UNSUBSCRIBE_TOKEN_SECRET`, `NEXT_PUBLIC_ADMIN_LINK_COOLIFY`,
    `NEXT_PUBLIC_ADMIN_LINK_PRISMIC_MIGRATION`.
-   Mark the two `NEXT_PUBLIC_*` vars **Available at Buildtime** (they're inlined during `next build`).
+   Mark the two `NEXT_PUBLIC_*` vars plus `PRISMIC_REPOSITORY_NAME` and
+   `PRISMIC_ACCESS_TOKEN` **Available at Buildtime** — the `NEXT_PUBLIC_*`
+   values are inlined during `next build`, and the blog pages are SSG so
+   the build needs Prismic access or the fallback posts get baked in.
+   Everything else stays runtime-only.
 3. Set the app's health check to `GET /api/health` (the Dockerfile also ships a `HEALTHCHECK`).
 4. Add the domain, let Coolify provision TLS.
 

@@ -19,13 +19,21 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
-# NEXT_PUBLIC_* values are inlined into the client bundle at build time.
 # Coolify passes buildtime env vars as --build-arg; they must be declared
-# as ARG here or Docker silently drops them.
+# as ARG here or Docker silently drops them. Builder-stage ARGs do not
+# persist into the final runner image.
+#
+# - NEXT_PUBLIC_*: inlined into the client bundle at build time.
+# - PRISMIC_*: the blog pages are SSG — without Prismic access during
+#   `next build`, the hardcoded fallback posts get baked into the HTML.
 ARG NEXT_PUBLIC_ADMIN_LINK_COOLIFY
 ARG NEXT_PUBLIC_ADMIN_LINK_PRISMIC_MIGRATION
+ARG PRISMIC_REPOSITORY_NAME
+ARG PRISMIC_ACCESS_TOKEN
 ENV NEXT_PUBLIC_ADMIN_LINK_COOLIFY=$NEXT_PUBLIC_ADMIN_LINK_COOLIFY \
-    NEXT_PUBLIC_ADMIN_LINK_PRISMIC_MIGRATION=$NEXT_PUBLIC_ADMIN_LINK_PRISMIC_MIGRATION
+    NEXT_PUBLIC_ADMIN_LINK_PRISMIC_MIGRATION=$NEXT_PUBLIC_ADMIN_LINK_PRISMIC_MIGRATION \
+    PRISMIC_REPOSITORY_NAME=$PRISMIC_REPOSITORY_NAME \
+    PRISMIC_ACCESS_TOKEN=$PRISMIC_ACCESS_TOKEN
 RUN npm run build
 
 # ── Runtime ───────────────────────────────────────────────────
