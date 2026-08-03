@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { eq } from "drizzle-orm";
+import { db } from "@/db";
+import { subscribers } from "@/db/schema";
 import { verifyUnsubscribeToken } from "@/lib/unsubscribe-token";
 import { z } from "zod";
 
@@ -40,14 +42,11 @@ export async function DELETE(request: NextRequest) {
             );
         }
 
-        /* Delete from Supabase (idempotent — no error if not found) */
-        const { error } = await supabase
-            .from("subscribers")
-            .delete()
-            .eq("email", normalizedEmail);
-
-        if (error) {
-            console.error("[unsubscribe] Supabase delete error:", error.message);
+        /* Delete (idempotent — no error if not found) */
+        try {
+            await db.delete(subscribers).where(eq(subscribers.email, normalizedEmail));
+        } catch (err) {
+            console.error("[unsubscribe] Delete error:", err);
             return NextResponse.json(
                 { status: "error", message: "Failed to unsubscribe. Please try again." },
                 { status: 500 },

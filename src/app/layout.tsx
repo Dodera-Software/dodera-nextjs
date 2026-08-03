@@ -5,8 +5,6 @@ import { Toaster } from "sonner";
 import { PrismicPreviewBar } from "@/components/PrismicPreviewBar";
 import { SITE, DEFAULT_META } from "@/config/seo";
 import "./globals.css";
-import { Analytics } from "@vercel/analytics/next"
-import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -94,12 +92,6 @@ export default function RootLayout({
           />
         </TooltipProvider>
         <PrismicPreviewBar />
-        {process.env.NEXT_PUBLIC_DEPLOY_PLATFORM === "vercel" && (
-          <>
-            <Analytics />
-            <SpeedInsights />
-          </>
-        )}
       </body>
     </html>
   );

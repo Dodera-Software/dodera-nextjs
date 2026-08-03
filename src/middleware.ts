@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { eq } from "drizzle-orm";
+import { db } from "@/db";
+import { apiTokens } from "@/db/schema";
 import {
     PROTECTED_API_ROUTES,
     PUBLIC_API_ROUTES,
 } from "@/config/api-auth";
 
-/* ── Helpers (Edge-compatible — no Node crypto) ─────────────── */
+/* ── Helpers ─────────────────────────────────────────────────── */
 
 async function sha256(input: string): Promise<string> {
     const encoded = new TextEncoder().encode(input);
@@ -81,41 +83,42 @@ export async function middleware(request: NextRequest) {
     }
 
     // --- Token verification ---
-    const supabaseUrl = process.env.SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_SECRET_KEY;
+    const tokenHash = await sha256(plainToken);
 
-    if (!supabaseUrl || !supabaseKey) {
-        console.error("Middleware: SUPABASE_URL or SUPABASE_SECRET_KEY is not set.");
+    let data: { id: number; name: string; expiresAt: Date | null; revokedAt: Date | null } | undefined;
+    try {
+        [data] = await db
+            .select({
+                id: apiTokens.id,
+                name: apiTokens.name,
+                expiresAt: apiTokens.expiresAt,
+                revokedAt: apiTokens.revokedAt,
+            })
+            .from(apiTokens)
+            .where(eq(apiTokens.tokenHash, tokenHash))
+            .limit(1);
+    } catch (err) {
+        console.error("Middleware: token lookup failed:", err);
         return jsonError("Internal server configuration error.", 500);
     }
 
-    const supabase = createClient(supabaseUrl, supabaseKey);
-    const tokenHash = await sha256(plainToken);
-
-    const { data, error } = await supabase
-        .from("api_tokens")
-        .select("id, name, expires_at, revoked_at")
-        .eq("token_hash", tokenHash)
-        .single();
-
-    if (error || !data) {
+    if (!data) {
         return jsonError("Invalid API token.", 401);
     }
 
-    if (data.revoked_at) {
+    if (data.revokedAt) {
         return jsonError("This API token has been revoked.", 401);
     }
 
-    if (data.expires_at && new Date(data.expires_at) < new Date()) {
+    if (data.expiresAt && data.expiresAt < new Date()) {
         return jsonError("This API token has expired.", 401);
     }
 
     // Update last_used_at (fire-and-forget)
-    supabase
-        .from("api_tokens")
-        .update({ last_used_at: new Date().toISOString() })
-        .eq("id", data.id)
-        .then();
+    db.update(apiTokens)
+        .set({ lastUsedAt: new Date() })
+        .where(eq(apiTokens.id, data.id))
+        .catch(() => {});
 
     // Forward token metadata in headers so route handlers can access it
     const requestHeaders = new Headers(request.headers);
@@ -128,6 +131,9 @@ export async function middleware(request: NextRequest) {
 }
 
 /* ── Matcher: only run on API routes ────────────────────────── */
+// runtime "nodejs" — the token lookup talks to Postgres via pg,
+// which requires the Node runtime (self-hosted, so no edge anyway).
 export const config = {
     matcher: "/api/:path*",
+    runtime: "nodejs",
 };

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { count, desc, eq } from "drizzle-orm";
 import { verifyAdminSession } from "@/lib/admin-auth";
-import { supabase } from "@/lib/supabase";
+import { db } from "@/db";
+import { apiTokens } from "@/db/schema";
 import { randomBytes, createHash } from "crypto";
 
 function generateToken(): string {
@@ -26,30 +28,41 @@ export async function GET(request: NextRequest) {
     const limit = Math.min(200, Math.max(1, parseInt(searchParams.get("limit") || "25", 10)));
     const offset = (page - 1) * limit;
 
-    const { data, error, count } = await supabase
-        .from("api_tokens")
-        .select("id, name, created_at, expires_at, revoked_at, last_used_at", { count: "exact" })
-        .order("created_at", { ascending: false })
-        .range(offset, offset + limit - 1);
+    try {
+        const [data, [{ total }]] = await Promise.all([
+            db
+                .select({
+                    id: apiTokens.id,
+                    name: apiTokens.name,
+                    created_at: apiTokens.createdAt,
+                    expires_at: apiTokens.expiresAt,
+                    revoked_at: apiTokens.revokedAt,
+                    last_used_at: apiTokens.lastUsedAt,
+                })
+                .from(apiTokens)
+                .orderBy(desc(apiTokens.createdAt))
+                .limit(limit)
+                .offset(offset),
+            db.select({ total: count() }).from(apiTokens),
+        ]);
 
-    if (error) {
-        console.error("Error fetching tokens:", error);
+        return NextResponse.json({
+            status: "success",
+            data,
+            pagination: {
+                page,
+                limit,
+                total,
+                totalPages: Math.ceil(total / limit),
+            },
+        });
+    } catch (err) {
+        console.error("Error fetching tokens:", err);
         return NextResponse.json(
             { status: "error", message: "Failed to fetch tokens." },
             { status: 500 },
         );
     }
-
-    return NextResponse.json({
-        status: "success",
-        data,
-        pagination: {
-            page,
-            limit,
-            total: count || 0,
-            totalPages: Math.ceil((count || 0) / limit),
-        },
-    });
 }
 
 export async function POST(request: NextRequest) {
@@ -75,33 +88,37 @@ export async function POST(request: NextRequest) {
     const tokenHash = hashToken(plainToken);
 
     const expiresAt = expiresDays
-        ? new Date(Date.now() + expiresDays * 86400000).toISOString()
+        ? new Date(Date.now() + expiresDays * 86400000)
         : null;
 
-    const { data, error } = await supabase
-        .from("api_tokens")
-        .insert({
-            token_hash: tokenHash,
-            name: name.trim(),
-            expires_at: expiresAt,
-        })
-        .select("id, name, created_at, expires_at")
-        .single();
+    try {
+        const [data] = await db
+            .insert(apiTokens)
+            .values({
+                tokenHash,
+                name: name.trim(),
+                expiresAt,
+            })
+            .returning({
+                id: apiTokens.id,
+                name: apiTokens.name,
+                created_at: apiTokens.createdAt,
+                expires_at: apiTokens.expiresAt,
+            });
 
-    if (error) {
-        console.error("Error creating token:", error);
+        return NextResponse.json({
+            status: "success",
+            message: "Token created. Copy it now — it won't be shown again.",
+            plainToken,
+            data,
+        }, { status: 201 });
+    } catch (err) {
+        console.error("Error creating token:", err);
         return NextResponse.json(
             { status: "error", message: "Failed to create token." },
             { status: 500 },
         );
     }
-
-    return NextResponse.json({
-        status: "success",
-        message: "Token created. Copy it now — it won't be shown again.",
-        plainToken,
-        data,
-    }, { status: 201 });
 }
 
 export async function DELETE(request: NextRequest) {
@@ -123,13 +140,13 @@ export async function DELETE(request: NextRequest) {
     }
 
     if (action === "revoke") {
-        const { error } = await supabase
-            .from("api_tokens")
-            .update({ revoked_at: new Date().toISOString() })
-            .eq("id", id);
-
-        if (error) {
-            console.error("Error revoking token:", error);
+        try {
+            await db
+                .update(apiTokens)
+                .set({ revokedAt: new Date() })
+                .where(eq(apiTokens.id, id));
+        } catch (err) {
+            console.error("Error revoking token:", err);
             return NextResponse.json(
                 { status: "error", message: "Failed to revoke token." },
                 { status: 500 },
@@ -140,13 +157,10 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Full delete
-    const { error } = await supabase
-        .from("api_tokens")
-        .delete()
-        .eq("id", id);
-
-    if (error) {
-        console.error("Error deleting token:", error);
+    try {
+        await db.delete(apiTokens).where(eq(apiTokens.id, id));
+    } catch (err) {
+        console.error("Error deleting token:", err);
         return NextResponse.json(
             { status: "error", message: "Failed to delete token." },
             { status: 500 },
@@ -181,20 +195,26 @@ export async function PATCH(request: NextRequest) {
         );
     }
 
-    const { data, error } = await supabase
-        .from("api_tokens")
-        .update({ name: name.trim() })
-        .eq("id", id)
-        .select("id, name")
-        .single();
+    try {
+        const [data] = await db
+            .update(apiTokens)
+            .set({ name: name.trim() })
+            .where(eq(apiTokens.id, id))
+            .returning({ id: apiTokens.id, name: apiTokens.name });
 
-    if (error) {
-        console.error("Error renaming token:", error);
+        if (!data) {
+            return NextResponse.json(
+                { status: "error", message: "Token not found." },
+                { status: 404 },
+            );
+        }
+
+        return NextResponse.json({ status: "success", message: "Token renamed.", data });
+    } catch (err) {
+        console.error("Error renaming token:", err);
         return NextResponse.json(
             { status: "error", message: "Failed to rename token." },
             { status: 500 },
         );
     }
-
-    return NextResponse.json({ status: "success", message: "Token renamed.", data });
 }

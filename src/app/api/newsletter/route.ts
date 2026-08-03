@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { eq } from "drizzle-orm";
+import { db } from "@/db";
+import { subscribers } from "@/db/schema";
 import { z } from "zod";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { getConfig } from "@/lib/app-config";
@@ -41,33 +43,31 @@ export async function POST(request: NextRequest) {
         }
 
         /* Check if already subscribed */
-        const { data: existing, error: selectError } = await supabase
-            .from("subscribers")
-            .select("id")
-            .eq("email", email)
-            .maybeSingle();
+        try {
+            const existing = await db
+                .select({ id: subscribers.id })
+                .from(subscribers)
+                .where(eq(subscribers.email, email))
+                .limit(1);
 
-        if (selectError) {
-            console.error("Supabase select error:", selectError);
+            if (existing.length > 0) {
+                return NextResponse.json(
+                    { status: "success", message: "You're already subscribed!" },
+                );
+            }
+        } catch (err) {
+            console.error("Subscriber lookup error:", err);
             return NextResponse.json(
                 { status: "error", message: "Something went wrong. Please try again." },
                 { status: 500 },
             );
         }
 
-        if (existing) {
-            return NextResponse.json(
-                { status: "success", message: "You're already subscribed!" },
-            );
-        }
-
         /* Insert new subscriber */
-        const { error: insertError } = await supabase
-            .from("subscribers")
-            .insert({ email });
-
-        if (insertError) {
-            console.error("Supabase insert error:", insertError);
+        try {
+            await db.insert(subscribers).values({ email });
+        } catch (err) {
+            console.error("Subscriber insert error:", err);
             return NextResponse.json(
                 { status: "error", message: "Failed to subscribe. Please try again." },
                 { status: 500 },

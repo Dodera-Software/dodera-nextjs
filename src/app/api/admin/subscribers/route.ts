@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { count, desc, eq, ilike, type SQL } from "drizzle-orm";
 import { verifyAdminSession } from "@/lib/admin-auth";
-import { supabase } from "@/lib/supabase";
+import { db } from "@/db";
+import { subscribers } from "@/db/schema";
 
 export async function GET(request: NextRequest) {
     const session = await verifyAdminSession();
@@ -17,36 +19,44 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get("search") || "";
     const offset = (page - 1) * limit;
 
-    let query = supabase
-        .from("subscribers")
-        .select("id, email, created_at", { count: "exact" })
-        .order("created_at", { ascending: false })
-        .range(offset, offset + limit - 1);
-
+    let where: SQL | undefined;
     if (search) {
-        query = query.ilike("email", `%${search}%`);
+        where = ilike(subscribers.email, `%${search}%`);
     }
 
-    const { data, error, count } = await query;
+    try {
+        const [data, [{ total }]] = await Promise.all([
+            db
+                .select({
+                    id: subscribers.id,
+                    email: subscribers.email,
+                    created_at: subscribers.createdAt,
+                })
+                .from(subscribers)
+                .where(where)
+                .orderBy(desc(subscribers.createdAt))
+                .limit(limit)
+                .offset(offset),
+            db.select({ total: count() }).from(subscribers).where(where),
+        ]);
 
-    if (error) {
-        console.error("Error fetching subscribers:", error);
+        return NextResponse.json({
+            status: "success",
+            data,
+            pagination: {
+                page,
+                limit,
+                total,
+                totalPages: Math.ceil(total / limit),
+            },
+        });
+    } catch (err) {
+        console.error("Error fetching subscribers:", err);
         return NextResponse.json(
             { status: "error", message: "Failed to fetch subscribers." },
             { status: 500 },
         );
     }
-
-    return NextResponse.json({
-        status: "success",
-        data,
-        pagination: {
-            page,
-            limit,
-            total: count || 0,
-            totalPages: Math.ceil((count || 0) / limit),
-        },
-    });
 }
 
 export async function DELETE(request: NextRequest) {
@@ -66,13 +76,10 @@ export async function DELETE(request: NextRequest) {
         );
     }
 
-    const { error } = await supabase
-        .from("subscribers")
-        .delete()
-        .eq("id", id);
-
-    if (error) {
-        console.error("Error deleting subscriber:", error);
+    try {
+        await db.delete(subscribers).where(eq(subscribers.id, id));
+    } catch (err) {
+        console.error("Error deleting subscriber:", err);
         return NextResponse.json(
             { status: "error", message: "Failed to delete subscriber." },
             { status: 500 },

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { count, desc, eq, ilike, or, type SQL } from "drizzle-orm";
 import { verifyAdminSession } from "@/lib/admin-auth";
-import { supabase } from "@/lib/supabase";
+import { db } from "@/db";
+import { contacts } from "@/db/schema";
 
 export async function GET(request: NextRequest) {
     const session = await verifyAdminSession();
@@ -17,40 +19,52 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get("search") || "";
     const offset = (page - 1) * limit;
 
-    let query = supabase
-        .from("contacts")
-        .select("id, name, email, company, phone, message, created_at", {
-            count: "exact",
-        })
-        .order("created_at", { ascending: false })
-        .range(offset, offset + limit - 1);
-
+    let where: SQL | undefined;
     if (search) {
-        query = query.or(
-            `name.ilike.%${search}%,email.ilike.%${search}%,company.ilike.%${search}%`,
+        where = or(
+            ilike(contacts.name, `%${search}%`),
+            ilike(contacts.email, `%${search}%`),
+            ilike(contacts.company, `%${search}%`),
         );
     }
 
-    const { data, error, count } = await query;
+    try {
+        const [data, [{ total }]] = await Promise.all([
+            db
+                .select({
+                    id: contacts.id,
+                    name: contacts.name,
+                    email: contacts.email,
+                    company: contacts.company,
+                    phone: contacts.phone,
+                    message: contacts.message,
+                    created_at: contacts.createdAt,
+                })
+                .from(contacts)
+                .where(where)
+                .orderBy(desc(contacts.createdAt))
+                .limit(limit)
+                .offset(offset),
+            db.select({ total: count() }).from(contacts).where(where),
+        ]);
 
-    if (error) {
-        console.error("Error fetching contacts:", error);
+        return NextResponse.json({
+            status: "success",
+            data,
+            pagination: {
+                page,
+                limit,
+                total,
+                totalPages: Math.ceil(total / limit),
+            },
+        });
+    } catch (err) {
+        console.error("Error fetching contacts:", err);
         return NextResponse.json(
             { status: "error", message: "Failed to fetch contacts." },
             { status: 500 },
         );
     }
-
-    return NextResponse.json({
-        status: "success",
-        data,
-        pagination: {
-            page,
-            limit,
-            total: count || 0,
-            totalPages: Math.ceil((count || 0) / limit),
-        },
-    });
 }
 
 export async function DELETE(request: NextRequest) {
@@ -70,10 +84,10 @@ export async function DELETE(request: NextRequest) {
         );
     }
 
-    const { error } = await supabase.from("contacts").delete().eq("id", id);
-
-    if (error) {
-        console.error("Error deleting contact:", error);
+    try {
+        await db.delete(contacts).where(eq(contacts.id, id));
+    } catch (err) {
+        console.error("Error deleting contact:", err);
         return NextResponse.json(
             { status: "error", message: "Failed to delete contact." },
             { status: 500 },

@@ -8,7 +8,8 @@
  *   npx tsx scripts/revoke-api-token.ts --id 3
  */
 
-import { createClient } from "@supabase/supabase-js";
+import { and, eq, isNull } from "drizzle-orm";
+import { getDb, schema } from "./db";
 
 /* ── Parse CLI args ─────────────────────────────────────────── */
 function parseArgs(): { name: string | null; id: number | null } {
@@ -42,38 +43,26 @@ function parseArgs(): { name: string | null; id: number | null } {
 /* ── Main ───────────────────────────────────────────────────── */
 async function main() {
     const { name, id } = parseArgs();
+    const { db, pool } = getDb();
+    const { apiTokens } = schema;
 
-    const supabaseUrl = process.env.SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_SECRET_KEY;
+    const matcher = id ? eq(apiTokens.id, id) : eq(apiTokens.name, name!);
 
-    if (!supabaseUrl || !supabaseKey) {
-        console.error(
-            "Error: SUPABASE_URL and SUPABASE_SECRET_KEY must be set in .env",
-        );
+    let data;
+    try {
+        data = await db
+            .update(apiTokens)
+            .set({ revokedAt: new Date() })
+            .where(and(matcher, isNull(apiTokens.revokedAt))) // only revoke active tokens
+            .returning({ id: apiTokens.id, name: apiTokens.name });
+    } catch (err) {
+        console.error("Update error:", err instanceof Error ? err.message : err);
         process.exit(1);
+    } finally {
+        await pool.end();
     }
 
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    let query = supabase
-        .from("api_tokens")
-        .update({ revoked_at: new Date().toISOString() })
-        .is("revoked_at", null); // only revoke active tokens
-
-    if (id) {
-        query = query.eq("id", id);
-    } else if (name) {
-        query = query.eq("name", name);
-    }
-
-    const { data, error, count } = await query.select("id, name");
-
-    if (error) {
-        console.error("Supabase update error:", error.message);
-        process.exit(1);
-    }
-
-    if (!data || data.length === 0) {
+    if (data.length === 0) {
         console.log("No active token found matching that criteria.");
         process.exit(0);
     }

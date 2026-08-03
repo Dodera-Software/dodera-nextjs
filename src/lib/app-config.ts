@@ -1,5 +1,7 @@
 import "server-only";
-import { supabase } from "@/lib/supabase";
+import { eq, asc } from "drizzle-orm";
+import { db } from "@/db";
+import { appConfig } from "@/db/schema";
 import type { ConfigRow } from "@/types/admin";
 
 /* ── In-memory cache (best-effort on serverless) ─────────── */
@@ -32,53 +34,74 @@ export async function getConfig(key: string, fallback = ""): Promise<string> {
     const hit = getCached(key);
     if (hit !== undefined) return hit;
 
-    const { data, error } = await supabase
-        .from("app_config")
-        .select("value")
-        .eq("key", key)
-        .single();
+    try {
+        const rows = await db
+            .select({ value: appConfig.value })
+            .from(appConfig)
+            .where(eq(appConfig.key, key))
+            .limit(1);
 
-    if (error || !data) return fallback;
+        if (rows.length === 0) return fallback;
 
-    setCached(key, data.value);
-    return data.value;
+        setCached(key, rows[0].value);
+        return rows[0].value;
+    } catch {
+        return fallback;
+    }
 }
 
 /**
  * Read all config rows, returned as a plain Record<string, string>.
  */
 export async function getAllConfig(): Promise<Record<string, string>> {
-    const { data, error } = await supabase
-        .from("app_config")
-        .select("key, value, description, updated_at")
-        .order("key");
+    try {
+        const rows = await db
+            .select({ key: appConfig.key, value: appConfig.value })
+            .from(appConfig)
+            .orderBy(asc(appConfig.key));
 
-    if (error || !data) return {};
-    return Object.fromEntries(data.map((row) => [row.key, row.value]));
+        return Object.fromEntries(rows.map((row) => [row.key, row.value]));
+    } catch {
+        return {};
+    }
 }
 
 /**
  * Read all config rows with metadata (for the admin UI).
  */
 export async function getAllConfigRows(): Promise<ConfigRow[]> {
-    const { data, error } = await supabase
-        .from("app_config")
-        .select("key, value, description, updated_at")
-        .order("key");
+    try {
+        const rows = await db
+            .select({
+                key: appConfig.key,
+                value: appConfig.value,
+                description: appConfig.description,
+                updated_at: appConfig.updatedAt,
+            })
+            .from(appConfig)
+            .orderBy(asc(appConfig.key));
 
-    if (error || !data) return [];
-    return data as ConfigRow[];
+        return rows.map((row): ConfigRow => ({
+            ...row,
+            updated_at: row.updated_at.toISOString(),
+        }));
+    } catch {
+        return [];
+    }
 }
 
 /**
  * Upsert a config value. Also invalidates the local cache entry.
  */
 export async function setConfig(key: string, value: string): Promise<void> {
-    const { error } = await supabase
-        .from("app_config")
-        .upsert({ key, value, updated_at: new Date().toISOString() });
+    await db
+        .insert(appConfig)
+        .values({ key, value, updatedAt: new Date() })
+        .onConflictDoUpdate({
+            target: appConfig.key,
+            set: { value, updatedAt: new Date() },
+        });
 
-    if (error) throw new Error(error.message);
     setCached(key, value); // update cache immediately
 }
 

@@ -125,8 +125,7 @@ export default function PrivacyPolicyPage() {
                         policies and GDPR data-processing agreements:
                     </p>
                     <ul>
-                        <li><strong>Vercel</strong> — website hosting and edge delivery.</li>
-                        <li><strong>Supabase</strong> — contact form data storage, newsletter subscriber list, job application records, and CV file storage (private, access-controlled bucket).</li>
+                        <li><strong>Hetzner Online GmbH (Germany, EU)</strong> — hosting of our website and database, which stores contact form data, the newsletter subscriber list, job application records, and CV files (private, access-controlled).</li>
                         <li><strong>SMTP / Nodemailer</strong> — transactional email delivery via our configured mail provider.</li>
                     </ul>
 

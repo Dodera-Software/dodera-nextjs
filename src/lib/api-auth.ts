@@ -1,7 +1,9 @@
 import "server-only";
 import { NextRequest, NextResponse } from "next/server";
 import { createHash } from "crypto";
-import { supabase } from "@/lib/supabase";
+import { eq } from "drizzle-orm";
+import { db } from "@/db";
+import { apiTokens } from "@/db/schema";
 
 export interface AuthResult {
     /** Whether the token is valid */
@@ -60,13 +62,23 @@ export async function authenticateRequest(
         .digest("hex");
 
     // Look up the hash
-    const { data, error } = await supabase
-        .from("api_tokens")
-        .select("id, name, expires_at, revoked_at")
-        .eq("token_hash", tokenHash)
-        .single();
+    let data: { id: number; name: string; expiresAt: Date | null; revokedAt: Date | null } | undefined;
+    try {
+        [data] = await db
+            .select({
+                id: apiTokens.id,
+                name: apiTokens.name,
+                expiresAt: apiTokens.expiresAt,
+                revokedAt: apiTokens.revokedAt,
+            })
+            .from(apiTokens)
+            .where(eq(apiTokens.tokenHash, tokenHash))
+            .limit(1);
+    } catch (err) {
+        console.error("[api-auth] Token lookup failed:", err);
+    }
 
-    if (error || !data) {
+    if (!data) {
         return {
             valid: false,
             errorResponse: NextResponse.json(
@@ -77,7 +89,7 @@ export async function authenticateRequest(
     }
 
     // Check revocation
-    if (data.revoked_at) {
+    if (data.revokedAt) {
         return {
             valid: false,
             errorResponse: NextResponse.json(
@@ -88,7 +100,7 @@ export async function authenticateRequest(
     }
 
     // Check expiration
-    if (data.expires_at && new Date(data.expires_at) < new Date()) {
+    if (data.expiresAt && data.expiresAt < new Date()) {
         return {
             valid: false,
             errorResponse: NextResponse.json(
@@ -99,11 +111,10 @@ export async function authenticateRequest(
     }
 
     // Update last_used_at (fire-and-forget, don't block the response)
-    supabase
-        .from("api_tokens")
-        .update({ last_used_at: new Date().toISOString() })
-        .eq("id", data.id)
-        .then();
+    db.update(apiTokens)
+        .set({ lastUsedAt: new Date() })
+        .where(eq(apiTokens.id, data.id))
+        .catch((err) => console.warn("[api-auth] last_used_at update failed:", err));
 
     return {
         valid: true,

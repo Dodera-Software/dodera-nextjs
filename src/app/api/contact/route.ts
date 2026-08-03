@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse, after } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { db } from "@/db";
+import { contacts } from "@/db/schema";
 import { z } from "zod";
 import { generateFollowUp, type LeadData } from "@/lib/contact-followup-service";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
@@ -110,18 +111,18 @@ export async function POST(request: NextRequest) {
         }
 
         /* Persist */
-        const { error } = await supabase.from("contacts").insert({
-            name: parsed.data.name,
-            email: parsed.data.email,
-            company: parsed.data.company || null,
-            phone: parsed.data.phone || null,
-            service_type: parsed.data.service_type || null,
-            budget: parsed.data.budget || null,
-            message: parsed.data.message,
-        });
-
-        if (error) {
-            console.error("Supabase insert error:", error);
+        try {
+            await db.insert(contacts).values({
+                name: parsed.data.name,
+                email: parsed.data.email,
+                company: parsed.data.company || null,
+                phone: parsed.data.phone || null,
+                serviceType: parsed.data.service_type || null,
+                budget: parsed.data.budget || null,
+                message: parsed.data.message,
+            });
+        } catch (err) {
+            console.error("Contact insert error:", err);
             return NextResponse.json(
                 { status: "error", message: "Failed to save your message. Please try again." },
                 { status: 500 },

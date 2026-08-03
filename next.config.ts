@@ -25,6 +25,9 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  /* ── Standalone output — required for the Docker/Coolify build ── */
+  output: "standalone",
+
   /* ── Security headers applied to every route ─────────── */
   async headers() {
     return [

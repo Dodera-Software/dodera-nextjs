@@ -1,7 +1,7 @@
 /**
  * generate-api-token.ts
  * ---------------------
- * CLI script to generate a new API bearer token and store its hash in Supabase.
+ * CLI script to generate a new API bearer token and store its hash in Postgres.
  *
  * Usage:
  *   npx tsx scripts/generate-api-token.ts --name "CI pipeline"
@@ -14,8 +14,8 @@
  * The plaintext token is printed ONCE to stdout — it cannot be retrieved later.
  */
 
-import { createClient } from "@supabase/supabase-js";
 import { randomBytes, createHash } from "crypto";
+import { getDb, schema } from "./db";
 
 /* ── Parse CLI args ─────────────────────────────────────────── */
 function parseArgs(): { name: string; expiresDays: number | null } {
@@ -60,36 +60,26 @@ function hashToken(token: string): string {
 /* ── Main ───────────────────────────────────────────────────── */
 async function main() {
     const { name, expiresDays } = parseArgs();
-
-    // Validate env
-    const supabaseUrl = process.env.SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_SECRET_KEY;
-
-    if (!supabaseUrl || !supabaseKey) {
-        console.error(
-            "Error: SUPABASE_URL and SUPABASE_SECRET_KEY must be set in .env",
-        );
-        process.exit(1);
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const { db, pool } = getDb();
 
     const plainToken = generateToken();
     const tokenHash = hashToken(plainToken);
 
     const expiresAt = expiresDays
-        ? new Date(Date.now() + expiresDays * 24 * 60 * 60 * 1000).toISOString()
+        ? new Date(Date.now() + expiresDays * 24 * 60 * 60 * 1000)
         : null;
 
-    const { error } = await supabase.from("api_tokens").insert({
-        token_hash: tokenHash,
-        name,
-        expires_at: expiresAt,
-    });
-
-    if (error) {
-        console.error("Supabase insert error:", error.message);
+    try {
+        await db.insert(schema.apiTokens).values({
+            tokenHash,
+            name,
+            expiresAt,
+        });
+    } catch (err) {
+        console.error("Insert error:", err instanceof Error ? err.message : err);
         process.exit(1);
+    } finally {
+        await pool.end();
     }
 
     console.log("");
@@ -98,7 +88,7 @@ async function main() {
     console.log("╠══════════════════════════════════════════════════════════╣");
     console.log(`║  Name:     ${name}`);
     console.log(
-        `║  Expires:  ${expiresAt ? new Date(expiresAt).toLocaleDateString() : "never"}`,
+        `║  Expires:  ${expiresAt ? expiresAt.toLocaleDateString() : "never"}`,
     );
     console.log("╠══════════════════════════════════════════════════════════╣");
     console.log(`║  Token:    ${plainToken}`);
