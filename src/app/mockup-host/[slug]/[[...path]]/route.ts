@@ -37,7 +37,10 @@ function baseHeaders(): Record<string, string> {
         "X-Content-Type-Options": "nosniff",
         "Referrer-Policy": "strict-origin-when-cross-origin",
         "Strict-Transport-Security": `max-age=${ONE_YEAR}`,
-        "Content-Security-Policy": `frame-ancestors ${frameAncestors()}`,
+        // upgrade-insecure-requests: mockups often copy CDN links as http://,
+        // which browsers block on an https page (mixed content). This makes
+        // the browser fetch them over https instead of silently dropping them.
+        "Content-Security-Policy": `frame-ancestors ${frameAncestors()}; upgrade-insecure-requests`,
     };
 }
 
