@@ -153,3 +153,42 @@ export interface ApiEndpoint {
     }[];
     response?: string;
 }
+
+// ── Mockups ─────────────────────────────────────────────────
+
+export interface MockupDeployment {
+    id: number;
+    version: number;
+    entry_path: string;
+    file_count: number;
+    total_bytes: number;
+    note: string | null;
+    created_by: string | null;
+    created_at: string;
+    is_active: boolean;
+}
+
+export interface MockupProject {
+    id: number;
+    slug: string;
+    name: string;
+    client_name: string | null;
+    notes: string | null;
+    /** Public preview URL, or null when MOCKUPS_DOMAIN is not configured. */
+    url: string | null;
+    active_deployment: MockupDeployment | null;
+    deployments_count: number;
+    created_by: string | null;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface MockupProjectDetail extends MockupProject {
+    deployments: MockupDeployment[];
+}
+
+export interface MockupFileInfo {
+    path: string;
+    content_type: string;
+    size: number;
+}

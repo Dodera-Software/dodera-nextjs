@@ -6,6 +6,7 @@ import {
     PROTECTED_API_ROUTES,
     PUBLIC_API_ROUTES,
 } from "@/config/api-auth";
+import { MOCKUP_INTERNAL_PREFIX, parseMockupHost } from "@/config/mockups";
 
 /* ── Helpers ─────────────────────────────────────────────────── */
 
@@ -40,6 +41,46 @@ function isProtectedRoute(pathname: string): boolean {
 
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
+
+    // --- Mockup previews: <slug>.<MOCKUPS_DOMAIN> ---
+    // Every request on a mockup subdomain is served by the internal
+    // /mockup-host route; nothing else of the app is exposed on those hosts.
+    const mockupHost = parseMockupHost(request.headers.get("host"), process.env.MOCKUPS_DOMAIN);
+    if (mockupHost.isMockupHost) {
+        if (!mockupHost.slug) {
+            // Bare mockups domain (or an invalid label): send visitors to the main site.
+            return NextResponse.redirect(process.env.SITE_URL || "https://doderasoft.com", 302);
+        }
+        const url = request.nextUrl.clone();
+        url.pathname = `${MOCKUP_INTERNAL_PREFIX}/${mockupHost.slug}${pathname === "/" ? "" : pathname}`;
+        const requestHeaders = new Headers(request.headers);
+        requestHeaders.set("x-mockup-slug", mockupHost.slug);
+        requestHeaders.set("x-mockup-path", pathname);
+        return NextResponse.rewrite(url, { request: { headers: requestHeaders } });
+    }
+
+    // The internal serving route must never be reachable on the main site.
+    if (pathname === MOCKUP_INTERNAL_PREFIX || pathname.startsWith(`${MOCKUP_INTERNAL_PREFIX}/`)) {
+        return new NextResponse("Not found", { status: 404 });
+    }
+
+    // --- Trailing-slash redirect ---
+    // Next's built-in redirect is disabled (skipTrailingSlashRedirect) so
+    // mockup hosts can serve "folder/" URLs; keep the default behaviour here.
+    // Built by hand rather than via nextUrl.clone(): NextURL remembers that
+    // the original URL had a trailing slash and would put it straight back.
+    // Redirects from middleware must be absolute, so use the proxy's
+    // forwarded scheme/host (Traefik sets both) with a plain-host fallback.
+    if (pathname.length > 1 && pathname.endsWith("/")) {
+        const proto = (request.headers.get("x-forwarded-proto") ?? request.nextUrl.protocol.replace(":", ""))
+            .split(",")[0]
+            .trim();
+        const host = (request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? request.nextUrl.host)
+            .split(",")[0]
+            .trim();
+        const location = `${proto}://${host}${pathname.replace(/\/+$/, "")}${request.nextUrl.search}`;
+        return NextResponse.redirect(location, 308);
+    }
 
     // --- Origin check for public contact endpoint ---
     // Browsers always send Origin on cross-site POSTs; reject anything that
@@ -130,10 +171,12 @@ export async function middleware(request: NextRequest) {
     });
 }
 
-/* ── Matcher: only run on API routes ────────────────────────── */
+/* ── Matcher ────────────────────────────────────────────────── */
+// Runs on every request except Next's static assets: API routes need the
+// token check, and any path may belong to a mockup subdomain.
 // runtime "nodejs" — the token lookup talks to Postgres via pg,
 // which requires the Node runtime (self-hosted, so no edge anyway).
 export const config = {
-    matcher: "/api/:path*",
+    matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
     runtime: "nodejs",
 };

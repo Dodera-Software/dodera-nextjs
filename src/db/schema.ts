@@ -9,6 +9,7 @@ import {
     uniqueIndex,
     check,
     customType,
+    type AnyPgColumn,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
@@ -218,4 +219,66 @@ export const socialPostExamples = pgTable(
             sql`${t.platform} in ('linkedin', 'facebook', 'instagram')`,
         ),
     ],
+);
+
+/* ── mockup_projects — client mockup workspaces (Admin → Mockups) ── */
+export const mockupProjects = pgTable(
+    "mockup_projects",
+    {
+        id: bigint("id", { mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),
+        slug: text("slug").notNull().unique(), // subdomain label → <slug>.<MOCKUPS_DOMAIN>
+        name: text("name").notNull(),
+        clientName: text("client_name"),
+        notes: text("notes"),
+        // The deployment currently served on the subdomain (NULL = nothing live yet).
+        activeDeploymentId: bigint("active_deployment_id", { mode: "number" }).references(
+            (): AnyPgColumn => mockupDeployments.id,
+            { onDelete: "set null" },
+        ),
+        createdBy: text("created_by"), // admin email
+        createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+            .notNull()
+            .defaultNow(),
+        updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+            .notNull()
+            .defaultNow(),
+    },
+    (t) => [index("idx_mockup_projects_updated_at").on(t.updatedAt.desc())],
+);
+
+/* ── mockup_deployments — one row per upload (versioned, roll-backable) ── */
+export const mockupDeployments = pgTable(
+    "mockup_deployments",
+    {
+        id: bigint("id", { mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),
+        projectId: bigint("project_id", { mode: "number" })
+            .notNull()
+            .references(() => mockupProjects.id, { onDelete: "cascade" }),
+        version: integer("version").notNull(), // 1, 2, 3… per project
+        entryPath: text("entry_path").notNull().default("index.html"), // file served at "/"
+        fileCount: integer("file_count").notNull().default(0),
+        totalBytes: bigint("total_bytes", { mode: "number" }).notNull().default(0),
+        note: text("note"),
+        createdBy: text("created_by"),
+        createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+            .notNull()
+            .defaultNow(),
+    },
+    (t) => [uniqueIndex("idx_mockup_deployments_project_version").on(t.projectId, t.version)],
+);
+
+/* ── mockup_files — the static files of a deployment (bytea, like cv_files) ── */
+export const mockupFiles = pgTable(
+    "mockup_files",
+    {
+        id: bigint("id", { mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),
+        deploymentId: bigint("deployment_id", { mode: "number" })
+            .notNull()
+            .references(() => mockupDeployments.id, { onDelete: "cascade" }),
+        path: text("path").notNull(), // relative, forward slashes, e.g. "css/style.css"
+        contentType: text("content_type").notNull(),
+        size: integer("size").notNull(),
+        data: bytea("data").notNull(),
+    },
+    (t) => [uniqueIndex("idx_mockup_files_deployment_path").on(t.deploymentId, t.path)],
 );

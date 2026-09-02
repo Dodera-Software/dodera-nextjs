@@ -34,6 +34,14 @@ npm run token:list
 npm run token:revoke -- --name "CI pipeline"
 ```
 
+## Mockup previews
+
+Admin → **Mockups** deploys plain HTML/CSS/JS mockups to
+`https://<slug>.demo.doderasoft.com/` for leads (versioned, roll-backable,
+embedded preview). Files live in Postgres. Needs `MOCKUPS_DOMAIN` plus a
+one-time wildcard DNS + DNS-01 certificate setup on the Coolify proxy — see
+`MOCKUPS.md`.
+
 ## Deployment
 
 Coolify builds the `Dockerfile` (Next.js standalone output) and health-checks

@@ -20,6 +20,7 @@ import {
     MailCheck,
     Share2,
     Briefcase,
+    MonitorSmartphone,
 } from "lucide-react";
 import type { AdminSession, AdminNavItem } from "@/types/admin";
 
@@ -28,6 +29,7 @@ const NAV_ITEMS: AdminNavItem[] = [
     { href: "/admin/contacts", label: "Contacts", icon: MessageSquare },
     { href: "/admin/subscribers", label: "Subscribers", icon: Users },
     { href: "/admin/careers", label: "Careers", icon: Briefcase },
+    { href: "/admin/mockups", label: "Mockups", icon: MonitorSmartphone },
     { href: "/admin/tokens", label: "API Tokens", icon: Key },
     { href: "/admin/generate-image", label: "Generate Image", icon: ImageIcon },
     { href: "/admin/generate-social-post", label: "Social Post", icon: Share2 },
