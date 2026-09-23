@@ -7,6 +7,7 @@ import {
     prepareUpload,
     type IncomingFile,
 } from "@/lib/mockups";
+import { notifyIntelilangOfDeployment } from "@/lib/intelilang";
 
 /* ── POST /api/admin/mockups/[id]/deployments ─────────────────
  * multipart/form-data:
@@ -14,6 +15,7 @@ import {
  *   paths   — optional JSON array of relative paths, same order as `files`
  *             (browsers drop folder info from File.name, so the UI sends it)
  *   note    — optional label for this version
+ *   intelilang — "true" to tell InteliLang this version went live
  *
  * Creates the next version and makes it live immediately.
  */
@@ -67,12 +69,17 @@ export async function POST(
 
         const prepared = prepareUpload(incoming);
         const deployment = await createDeployment(id, prepared, { note, createdBy: session.email });
+        // The version is live either way; InteliLang being unreachable only changes the message.
+        const intelilang = formData.get("intelilang") === "true"
+            ? await notifyIntelilangOfDeployment(id, deployment.id, "deployed")
+            : null;
         const project = await getProjectDetail(id);
+        const live = `Version ${deployment.version} is live (${prepared.files.length} file${prepared.files.length === 1 ? "" : "s"}).`;
 
         return NextResponse.json(
             {
                 status: "success",
-                message: `Version ${deployment.version} is live (${prepared.files.length} file${prepared.files.length === 1 ? "" : "s"}).`,
+                message: !intelilang ? live : intelilang.ok ? `${live} Sent to InteliLang.` : `${live} Not sent to InteliLang: ${intelilang.reason}`,
                 data: project,
             },
             { status: 201 },

@@ -166,6 +166,8 @@ export interface MockupDeployment {
     created_by: string | null;
     created_at: string;
     is_active: boolean;
+    /** Whether this version was sent to InteliLang: null when it wasn't asked for. */
+    intelilang_status: "sent" | "failed" | null;
 }
 
 export interface MockupProject {
@@ -191,4 +193,13 @@ export interface MockupFileInfo {
     path: string;
     content_type: string;
     size: number;
+}
+
+/** GET /api/admin/intelilang — never includes the secret itself. */
+export interface IntelilangSettings {
+    url: string;
+    secret_set: boolean;
+    secret_tail: string | null;
+    configured: boolean;
+    can_store_secret: boolean;
 }

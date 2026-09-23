@@ -18,6 +18,8 @@ import {
 
 interface MockupUploaderProps {
     projectId: number;
+    /** InteliLang is set up in Settings: offer to tell it about this version. */
+    intelilangConnected: boolean;
     /** Called with the refreshed project after a successful deploy. */
     onDeployed: (project: MockupProjectDetail, message: string) => void;
 }
@@ -27,8 +29,9 @@ interface MockupUploaderProps {
  * folder (drag-and-drop or the folder picker) or a .zip; the server unpacks
  * zips and strips a wrapper folder, so the staging list mirrors that here.
  */
-export function MockupUploader({ projectId, onDeployed }: MockupUploaderProps) {
+export function MockupUploader({ projectId, intelilangConnected, onDeployed }: MockupUploaderProps) {
     const [staged, setStaged] = useState<StagedFile[]>([]);
+    const [sendToIntelilang, setSendToIntelilang] = useState(true);
     const [dragging, setDragging] = useState(false);
     const [note, setNote] = useState("");
     const [uploading, setUploading] = useState(false);
@@ -73,9 +76,10 @@ export function MockupUploader({ projectId, onDeployed }: MockupUploaderProps) {
         setProgress(0);
         setError(null);
         try {
-            const result = await uploadDeployment(projectId, staged, note, setProgress);
+            const result = await uploadDeployment(projectId, staged, note, setProgress, intelilangConnected && sendToIntelilang);
             if (result.ok && result.data) {
-                toast.success(result.message);
+                if (result.message.includes("Not sent to InteliLang")) toast.warning(result.message);
+                else toast.success(result.message);
                 onDeployed(result.data, result.message);
                 setStaged([]);
                 setNote("");
@@ -233,6 +237,22 @@ export function MockupUploader({ projectId, onDeployed }: MockupUploaderProps) {
                     )}
                 </Button>
             </div>
+
+            {intelilangConnected && (
+                <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer select-none">
+                    <input
+                        type="checkbox"
+                        checked={sendToIntelilang}
+                        onChange={(e) => setSendToIntelilang(e.target.checked)}
+                        disabled={uploading}
+                        className="mt-0.5 h-3.5 w-3.5 accent-primary"
+                    />
+                    <span>
+                        <span className="font-medium text-foreground">Send to InteliLang</span> — the project there learns
+                        this version went live, with its link and note.
+                    </span>
+                </label>
+            )}
 
             {uploading && (
                 <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">

@@ -14,6 +14,7 @@ import {
 import { toast } from "sonner";
 import type { ConfigRow } from "@/types/admin";
 import { OPENAI_TEXT_MODELS, IMAGE_MODELS } from "@/config/ai-models";
+import { IntelilangSettingsCard } from "@/components/admin/IntelilangSettingsCard";
 
 const BOOLEAN_KEYS = new Set(["contact_followup_enabled"]);
 
@@ -106,6 +107,8 @@ export default function SettingsPage() {
                     Refresh
                 </Button>
             </div>
+
+            <IntelilangSettingsCard />
 
             {loading ? (
                 <div className="flex items-center gap-2 text-muted-foreground text-sm">

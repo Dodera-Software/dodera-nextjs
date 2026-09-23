@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { and, eq } from "drizzle-orm";
 import { verifyAdminSession } from "@/lib/admin-auth";
+import { notifyIntelilangOfDeployment } from "@/lib/intelilang";
 import { db } from "@/db";
 import { mockupDeployments, mockupProjects } from "@/db/schema";
 import { activateDeployment, getProjectDetail, listDeploymentFiles } from "@/lib/mockups";
@@ -71,8 +72,13 @@ export async function PATCH(request: NextRequest, { params }: Ctx) {
         if (!ok) {
             return NextResponse.json({ status: "error", message: "Deployment not found." }, { status: 404 });
         }
-        const project = await getProjectDetail(ids.projectId);
-        return NextResponse.json({ status: "success", message: "This version is now live.", data: project });
+        // A version that was sent to InteliLang when it was deployed says so again when it goes back live.
+        const before = await getProjectDetail(ids.projectId);
+        const sentBefore = before?.deployments.find((d) => d.id === ids.deploymentId)?.intelilang_status === "sent";
+        const intelilang = sentBefore ? await notifyIntelilangOfDeployment(ids.projectId, ids.deploymentId, "made_live") : null;
+        const project = sentBefore ? await getProjectDetail(ids.projectId) : before;
+        const message = !intelilang ? "This version is now live." : intelilang.ok ? "This version is now live. InteliLang knows." : `This version is now live. Not sent to InteliLang: ${intelilang.reason}`;
+        return NextResponse.json({ status: "success", message, data: project });
     } catch (err) {
         console.error("Error activating deployment:", err);
         return NextResponse.json({ status: "error", message: "Failed to switch versions." }, { status: 500 });

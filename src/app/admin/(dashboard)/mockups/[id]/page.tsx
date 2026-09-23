@@ -34,6 +34,8 @@ import { toast } from "sonner";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { MockupUploader } from "@/components/admin/mockups/MockupUploader";
 import { MockupPreview } from "@/components/admin/mockups/MockupPreview";
+import { MockupIntelilangStatus } from "@/components/admin/mockups/MockupIntelilangStatus";
+import { useIntelilangConnected } from "@/lib/mockups-client";
 import { formatDateTime } from "@/lib/format";
 import { formatBytes } from "@/lib/mockups-client";
 import { validateSlug } from "@/config/mockups";
@@ -43,6 +45,7 @@ export default function MockupProjectPage() {
     const params = useParams<{ id: string }>();
     const router = useRouter();
     const confirm = useConfirm();
+    const intelilangConnected = useIntelilangConnected();
     const projectId = Number(params.id);
 
     const [project, setProject] = useState<MockupProjectDetail | null>(null);
@@ -146,7 +149,7 @@ export default function MockupProjectPage() {
             const data = await res.json();
             if (res.ok && data.status === "success") {
                 setProject(data.data);
-                toast.success(`Version ${version} is live`);
+                toast.success(data.message ?? `Version ${version} is live`);
             } else {
                 toast.error(data.message ?? "Failed to switch versions");
             }
@@ -320,6 +323,7 @@ export default function MockupProjectPage() {
                 <div className="xl:col-span-2 space-y-6">
                     <MockupUploader
                         projectId={project.id}
+                        intelilangConnected={intelilangConnected}
                         onDeployed={(updated) => setProject(updated)}
                     />
 
@@ -362,6 +366,12 @@ export default function MockupProjectPage() {
                                                     {d.created_by && ` · ${d.created_by}`}
                                                 </p>
                                                 {d.note && <p className="text-xs truncate mt-0.5">{d.note}</p>}
+                                                <MockupIntelilangStatus
+                                                    projectId={project.id}
+                                                    deployment={d}
+                                                    connected={intelilangConnected}
+                                                    onChange={setProject}
+                                                />
                                             </div>
                                             {d.is_active ? (
                                                 <span className="text-xs text-emerald-500 font-medium">Live</span>

@@ -259,6 +259,7 @@ export function serializeDeployment(row: DeploymentRow, activeDeploymentId: numb
         created_by: row.createdBy,
         created_at: row.createdAt.toISOString(),
         is_active: row.id === activeDeploymentId,
+        intelilang_status: row.intelilangStatus === "sent" || row.intelilangStatus === "failed" ? row.intelilangStatus : null,
     };
 }
 

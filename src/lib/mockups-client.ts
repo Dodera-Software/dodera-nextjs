@@ -1,6 +1,7 @@
 /**
  * Browser-side helpers for the Mockups admin pages (no server imports).
  */
+import { useEffect, useState } from "react";
 import type { MockupProjectDetail } from "@/types/admin";
 
 export interface StagedFile {
@@ -117,11 +118,13 @@ export function uploadDeployment(
     staged: StagedFile[],
     note: string,
     onProgress: (percent: number) => void,
+    sendToIntelilang = false,
 ): Promise<UploadResult> {
     const form = new FormData();
     for (const s of staged) form.append("files", s.file, s.file.name);
     form.append("paths", JSON.stringify(staged.map((s) => s.path)));
     if (note.trim()) form.append("note", note.trim());
+    if (sendToIntelilang) form.append("intelilang", "true");
 
     return new Promise((resolve) => {
         const xhr = new XMLHttpRequest();
@@ -147,4 +150,20 @@ export function uploadDeployment(
         xhr.onerror = () => resolve({ ok: false, status: 0, message: "Network error — the upload did not complete." });
         xhr.send(form);
     });
+}
+
+/** Whether InteliLang is set up in Settings, so deployments can be sent to it. False until known. */
+export function useIntelilangConnected(): boolean {
+    const [connected, setConnected] = useState(false);
+    useEffect(() => {
+        let cancelled = false;
+        fetch("/api/admin/intelilang")
+            .then((res) => res.json())
+            .then((body) => {
+                if (!cancelled) setConnected(body?.status === "success" && Boolean(body.data?.configured));
+            })
+            .catch(() => {});
+        return () => { cancelled = true; };
+    }, []);
+    return connected;
 }

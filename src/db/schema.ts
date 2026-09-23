@@ -260,6 +260,8 @@ export const mockupDeployments = pgTable(
         totalBytes: bigint("total_bytes", { mode: "number" }).notNull().default(0),
         note: text("note"),
         createdBy: text("created_by"),
+        // InteliLang: null = not sent (the box was unticked), "sent" or "failed".
+        intelilangStatus: text("intelilang_status"),
         createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
             .notNull()
             .defaultNow(),

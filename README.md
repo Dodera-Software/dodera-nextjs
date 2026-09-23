@@ -42,6 +42,9 @@ embedded preview). Files live in Postgres. Needs `MOCKUPS_DOMAIN` plus a
 one-time wildcard DNS + DNS-01 certificate setup on the Coolify proxy — see
 `MOCKUPS.md`.
 
+Deployments can also be sent to InteliLang (Admin → Settings → InteliLang, needs
+`APP_ENCRYPTION_KEY`) — see `MOCKUPS.md` → "Telling InteliLang what went live".
+
 ## Deployment
 
 Coolify builds the `Dockerfile` (Next.js standalone output) and health-checks

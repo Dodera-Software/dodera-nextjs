@@ -1,0 +1,1 @@
+ALTER TABLE "mockup_deployments" ADD COLUMN "intelilang_status" text;

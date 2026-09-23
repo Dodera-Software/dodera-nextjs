@@ -161,6 +161,24 @@ already set).
   as are `.DS_Store`, `__MACOSX`, `node_modules`, dotfiles.
 - Mockups are served with `X-Robots-Tag: noindex`, never indexed.
 
+## Telling InteliLang what went live
+
+Each deployment can be sent to one InteliLang project (intelilang.com), so its chat
+can answer "what's the staging link for Acme?" with the link and who deployed it.
+
+1. In InteliLang, open the project → Sources → Add a source → "Another app (webhook)".
+   Copy the address and the signing secret it shows (the secret is shown once).
+2. Here: Admin → Settings → InteliLang. Paste both, Save, then "Send a test".
+   The secret is encrypted with `APP_ENCRYPTION_KEY` before it is stored and is never
+   shown again; only its last four characters are.
+3. Deploying: "Send to InteliLang" under the Deploy button (ticked by default). A
+   version sent there says so in the version list; one that wasn't (or failed) has a
+   "Send to InteliLang" link. Making a sent version live again tells InteliLang too.
+
+Messages are signed the Standard Webhooks way (`standardwebhooks`), see
+`src/lib/intelilang.ts`. A deploy never fails because InteliLang is unreachable: the
+version goes live and the message says it wasn't sent.
+
 ## Changing the domain
 
 Prefer another name than `demo`? Change it in three places: the two DNS
