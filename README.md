@@ -22,6 +22,7 @@ Open [http://localhost:3000](http://localhost:3000).
 
 - Schema: `src/db/schema.ts` (Drizzle). Server client: `src/db/index.ts`.
 - Change the schema → `npm run db:generate` (writes SQL to `drizzle/`) → `npm run db:migrate`.
+- In production, pending migrations are applied automatically when the server starts (`src/instrumentation.ts`); if one fails, the new container doesn't start and the old one keeps serving.
 - `npm run db:studio` opens Drizzle Studio.
 - CV uploads are stored in the `cv_files` table (bytea), so a DB backup covers all data.
 
