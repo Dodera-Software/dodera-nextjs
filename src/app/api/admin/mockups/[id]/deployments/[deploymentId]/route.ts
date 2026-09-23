@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { and, eq } from "drizzle-orm";
 import { verifyAdminSession } from "@/lib/admin-auth";
-import { notifyIntelilangOfDeployment } from "@/lib/intelilang";
+import { deletionNotice, notifyIntelilangOfDeletion, notifyIntelilangOfDeployment, readMockupSentToIntelilang } from "@/lib/intelilang";
 import { db } from "@/db";
-import { mockupDeployments, mockupProjects } from "@/db/schema";
+import { mockupDeployments } from "@/db/schema";
 import { activateDeployment, getProjectDetail, listDeploymentFiles } from "@/lib/mockups";
 
 const unauthorized = () =>
@@ -94,15 +94,16 @@ export async function DELETE(_request: NextRequest, { params }: Ctx) {
     if (!ids) return NextResponse.json({ status: "error", message: "Invalid id." }, { status: 400 });
 
     try {
-        if (!(await deploymentBelongsToProject(ids.projectId, ids.deploymentId))) {
+        const [deployment] = await db
+            .select({ version: mockupDeployments.version })
+            .from(mockupDeployments)
+            .where(and(eq(mockupDeployments.id, ids.deploymentId), eq(mockupDeployments.projectId, ids.projectId)))
+            .limit(1);
+        const before = deployment ? await readMockupSentToIntelilang(ids.projectId) : null;
+        if (!deployment || !before) {
             return NextResponse.json({ status: "error", message: "Deployment not found." }, { status: 404 });
         }
-        const [project] = await db
-            .select({ activeDeploymentId: mockupProjects.activeDeploymentId })
-            .from(mockupProjects)
-            .where(eq(mockupProjects.id, ids.projectId))
-            .limit(1);
-        if (project?.activeDeploymentId === ids.deploymentId) {
+        if (before.project.activeDeploymentId === ids.deploymentId) {
             return NextResponse.json(
                 { status: "error", message: "This version is live. Make another version live first." },
                 { status: 409 },
@@ -110,8 +111,9 @@ export async function DELETE(_request: NextRequest, { params }: Ctx) {
         }
 
         await db.delete(mockupDeployments).where(eq(mockupDeployments.id, ids.deploymentId));
+        const intelilang = await notifyIntelilangOfDeletion(before, session.email, deployment.version);
         const detail = await getProjectDetail(ids.projectId);
-        return NextResponse.json({ status: "success", message: "Version deleted.", data: detail });
+        return NextResponse.json({ status: "success", message: deletionNotice("Version deleted.", intelilang), data: detail });
     } catch (err) {
         console.error("Error deleting deployment:", err);
         return NextResponse.json({ status: "error", message: "Failed to delete the version." }, { status: 500 });

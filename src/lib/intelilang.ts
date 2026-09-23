@@ -1,6 +1,6 @@
 import "server-only";
 import { randomUUID } from "node:crypto";
-import { and, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import { Webhook } from "standardwebhooks";
 import { db } from "@/db";
 import { mockupDeployments, mockupProjects } from "@/db/schema";
@@ -183,4 +183,80 @@ export async function notifyIntelilangOfDeployment(projectId: number, deployment
         await db.update(mockupDeployments).set({ intelilangStatus: "failed" }).where(eq(mockupDeployments.id, deploymentId));
         return { ok: false, reason };
     }
+}
+
+/** What InteliLang was told about a mockup, read before the mockup or one of its versions is deleted. */
+export interface MockupSentToIntelilang {
+    project: typeof mockupProjects.$inferSelect;
+    /** Versions whose deployment reached InteliLang. */
+    sentVersions: number[];
+    liveVersion: number | null;
+}
+
+export async function readMockupSentToIntelilang(projectId: number): Promise<MockupSentToIntelilang | null> {
+    const [project] = await db.select().from(mockupProjects).where(eq(mockupProjects.id, projectId)).limit(1);
+    if (!project) return null;
+    const deployments = await db
+        .select({ id: mockupDeployments.id, version: mockupDeployments.version, status: mockupDeployments.intelilangStatus })
+        .from(mockupDeployments)
+        .where(eq(mockupDeployments.projectId, projectId))
+        .orderBy(asc(mockupDeployments.version));
+    return {
+        project,
+        sentVersions: deployments.filter((d) => d.status === "sent").map((d) => d.version),
+        liveVersion: deployments.find((d) => d.id === project.activeDeploymentId)?.version ?? null,
+    };
+}
+
+function deletionMessage(before: MockupSentToIntelilang, deletedBy: string, version: number | null): IntelilangMessage {
+    const { project } = before;
+    const url = getProjectUrl(project.slug) ?? undefined;
+    const client = project.clientName ? ` for ${project.clientName}` : "";
+    const now = new Date().toISOString();
+    if (version !== null) {
+        const live = before.liveVersion !== null
+            ? ` Version ${before.liveVersion} is still the live one${url ? ` at ${url}` : ""}.`
+            : "";
+        return {
+            // The same id as the deploy message, so InteliLang replaces "is live" with this.
+            id: `mockup-${project.id}-v${version}`,
+            title: `Deleted ${project.name} v${version}${client}`,
+            body: `Version ${version} of the ${project.name} mockup${client} was deleted by ${deletedBy} from the Dodera admin panel. It no longer exists and can't be made live again.${live}`,
+            author: deletedBy,
+            occurredAt: now,
+        };
+    }
+    return {
+        id: `mockup-${project.id}-deleted`,
+        title: `Deleted the ${project.name} mockup${client}`,
+        body: [
+            `The ${project.name} mockup${client} was deleted by ${deletedBy} from the Dodera admin panel, together with all its versions.`,
+            url ? `${url} no longer shows it.` : "Its preview link no longer works.",
+        ].join("\n"),
+        author: deletedBy,
+        occurredAt: now,
+    };
+}
+
+/**
+ * Tells InteliLang that a mockup, or one version of it, was deleted: only when it is
+ * connected and knew about what was deleted, so a mockup kept out of it stays out.
+ * Returns null when there was nothing to tell. Never throws, like the deploy notice.
+ */
+export async function notifyIntelilangOfDeletion(before: MockupSentToIntelilang, deletedBy: string, version: number | null = null) {
+    const told = version === null ? before.sentVersions.length > 0 : before.sentVersions.includes(version);
+    if (!told || !(await getIntelilangSettings()).configured) return null;
+    try {
+        await sendToIntelilang(deletionMessage(before, deletedBy, version));
+        return { ok: true, reason: null };
+    } catch (err) {
+        if (!(err instanceof IntelilangError)) console.error("[intelilang] send failed", err);
+        return { ok: false, reason: err instanceof IntelilangError ? err.message : "Sending to InteliLang failed." };
+    }
+}
+
+/** The toast after a delete, saying whether InteliLang heard about it. */
+export function deletionNotice(done: string, intelilang: { ok: boolean; reason: string | null } | null) {
+    if (!intelilang) return done;
+    return intelilang.ok ? `${done} InteliLang knows.` : `${done} Not sent to InteliLang: ${intelilang.reason}`;
 }

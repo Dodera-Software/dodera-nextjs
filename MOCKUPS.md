@@ -174,9 +174,12 @@ can answer "what's the staging link for Acme?" with the link and who deployed it
 3. Deploying: "Send to InteliLang" under the Deploy button (ticked by default). A
    version sent there says so in the version list; one that wasn't (or failed) has a
    "Send to InteliLang" link. Making a sent version live again tells InteliLang too.
+4. Deleting: deleting a version that was sent replaces its entry in InteliLang with
+   "deleted" (same message id), and deleting a project with any sent version sends one
+   "deleted" message. Mockups never sent to InteliLang stay out of it when deleted.
 
 Messages are signed the Standard Webhooks way (`standardwebhooks`), see
-`src/lib/intelilang.ts`. A deploy never fails because InteliLang is unreachable: the
+`src/lib/intelilang.ts`. A deploy or delete never fails because InteliLang is unreachable: the
 version goes live and the message says it wasn't sent.
 
 ## Changing the domain

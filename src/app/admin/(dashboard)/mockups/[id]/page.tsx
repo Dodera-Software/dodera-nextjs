@@ -176,7 +176,7 @@ export default function MockupProjectPage() {
             const data = await res.json();
             if (res.ok && data.status === "success") {
                 setProject(data.data);
-                toast.success("Version deleted");
+                toast.success(data.message ?? "Version deleted");
             } else {
                 toast.error(data.message ?? "Failed to delete the version");
             }
@@ -200,7 +200,7 @@ export default function MockupProjectPage() {
             const res = await fetch(`/api/admin/mockups/${project.id}`, { method: "DELETE" });
             const data = await res.json();
             if (res.ok && data.status === "success") {
-                toast.success("Project deleted");
+                toast.success(data.message ?? "Project deleted");
                 router.replace("/admin/mockups");
             } else {
                 toast.error(data.message ?? "Failed to delete the project");

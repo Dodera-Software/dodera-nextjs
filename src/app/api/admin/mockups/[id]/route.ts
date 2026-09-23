@@ -5,6 +5,7 @@ import { db } from "@/db";
 import { mockupProjects } from "@/db/schema";
 import { validateSlug } from "@/config/mockups";
 import { getProjectDetail } from "@/lib/mockups";
+import { deletionNotice, notifyIntelilangOfDeletion, readMockupSentToIntelilang } from "@/lib/intelilang";
 
 const unauthorized = () =>
     NextResponse.json({ status: "error", message: "Not authenticated." }, { status: 401 });
@@ -118,14 +119,16 @@ export async function DELETE(_request: NextRequest, { params }: Ctx) {
     if (!id) return NextResponse.json({ status: "error", message: "Invalid id." }, { status: 400 });
 
     try {
+        const before = await readMockupSentToIntelilang(id);
         const [row] = await db
             .delete(mockupProjects)
             .where(eq(mockupProjects.id, id))
             .returning({ id: mockupProjects.id });
-        if (!row) {
+        if (!row || !before) {
             return NextResponse.json({ status: "error", message: "Project not found." }, { status: 404 });
         }
-        return NextResponse.json({ status: "success", message: "Project deleted." });
+        const intelilang = await notifyIntelilangOfDeletion(before, session.email);
+        return NextResponse.json({ status: "success", message: deletionNotice("Project deleted.", intelilang) });
     } catch (err) {
         console.error("Error deleting mockup project:", err);
         return NextResponse.json({ status: "error", message: "Failed to delete the project." }, { status: 500 });
