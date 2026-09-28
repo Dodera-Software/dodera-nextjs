@@ -21,12 +21,14 @@ import {
     Share2,
     Briefcase,
     MonitorSmartphone,
+    SquareKanban,
 } from "lucide-react";
 import type { AdminSession, AdminNavItem } from "@/types/admin";
 
 const NAV_ITEMS: AdminNavItem[] = [
     { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
     { href: "/admin/contacts", label: "Contacts", icon: MessageSquare },
+    { href: "/admin/leads", label: "Leads", icon: SquareKanban },
     { href: "/admin/subscribers", label: "Subscribers", icon: Users },
     { href: "/admin/careers", label: "Careers", icon: Briefcase },
     { href: "/admin/mockups", label: "Mockups", icon: MonitorSmartphone },
