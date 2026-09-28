@@ -8,6 +8,7 @@ import {
     type IncomingFile,
 } from "@/lib/mockups";
 import { notifyIntelilangOfDeployment } from "@/lib/intelilang";
+import { logDeploymentOnLeads } from "@/lib/leads";
 
 /* ── POST /api/admin/mockups/[id]/deployments ─────────────────
  * multipart/form-data:
@@ -69,6 +70,9 @@ export async function POST(
 
         const prepared = prepareUpload(incoming);
         const deployment = await createDeployment(id, prepared, { note, createdBy: session.email });
+        await logDeploymentOnLeads(id, deployment.version, note || null, session.email).catch((err) =>
+            console.error("[leads] could not log the deploy on linked leads:", err),
+        );
         // The version is live either way; InteliLang being unreachable only changes the message.
         const intelilang = formData.get("intelilang") === "true"
             ? await notifyIntelilangOfDeployment(id, deployment.id, "deployed")

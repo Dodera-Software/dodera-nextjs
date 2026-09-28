@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { eq } from "drizzle-orm";
 import { verifyAdminSession } from "@/lib/admin-auth";
-import { db } from "@/db";
-import { mockupProjects } from "@/db/schema";
-import { slugify, validateSlug } from "@/config/mockups";
-import { getMockupsDomain, getProject, listProjects } from "@/lib/mockups";
+import { createProject, getMockupsDomain, getProject, listProjects } from "@/lib/mockups";
 
 const unauthorized = () =>
     NextResponse.json({ status: "error", message: "Not authenticated." }, { status: 401 });
@@ -49,54 +45,16 @@ export async function POST(request: NextRequest) {
     const clientName = typeof body.client_name === "string" ? body.client_name.trim().slice(0, 120) || null : null;
     const notes = typeof body.notes === "string" ? body.notes.trim().slice(0, 2000) || null : null;
 
-    const explicitSlug = typeof body.slug === "string" && body.slug.trim().length > 0;
-    let slug = explicitSlug ? (body.slug as string).trim().toLowerCase() : slugify(name);
-    const slugError = validateSlug(slug);
-    if (slugError) {
-        return NextResponse.json({ status: "error", message: slugError }, { status: 400 });
-    }
+    const slug = typeof body.slug === "string" ? body.slug : null;
 
     try {
-        // Auto-generated slugs get a numeric suffix on collision; explicit ones must be free.
-        let free = false;
-        for (let attempt = 1; attempt <= 20 && !free; attempt++) {
-            const candidate = attempt === 1 ? slug : `${slug.slice(0, 60)}-${attempt}`;
-            const [existing] = await db
-                .select({ id: mockupProjects.id })
-                .from(mockupProjects)
-                .where(eq(mockupProjects.slug, candidate))
-                .limit(1);
-            if (!existing) {
-                slug = candidate;
-                free = true;
-            } else if (explicitSlug) {
-                return NextResponse.json(
-                    { status: "error", message: `The subdomain "${slug}" is already in use.` },
-                    { status: 409 },
-                );
-            }
+        const created = await createProject({ name, slug, clientName, notes, createdBy: session.email });
+        if (!created.ok) {
+            return NextResponse.json({ status: "error", message: created.message }, { status: created.status });
         }
-        if (!free) {
-            return NextResponse.json(
-                { status: "error", message: "Could not find a free subdomain — pick one manually." },
-                { status: 409 },
-            );
-        }
-
-        const [row] = await db
-            .insert(mockupProjects)
-            .values({ slug, name, clientName, notes, createdBy: session.email })
-            .returning({ id: mockupProjects.id });
-
-        const project = await getProject(row.id);
+        const project = await getProject(created.id);
         return NextResponse.json({ status: "success", data: project }, { status: 201 });
     } catch (err) {
-        if ((err as { code?: string })?.code === "23505") {
-            return NextResponse.json(
-                { status: "error", message: `The subdomain "${slug}" is already in use.` },
-                { status: 409 },
-            );
-        }
         console.error("Error creating mockup project:", err);
         return NextResponse.json(
             { status: "error", message: "Failed to create the project." },

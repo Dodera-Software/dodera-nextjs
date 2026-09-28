@@ -5,6 +5,7 @@ import {
     boolean,
     integer,
     timestamp,
+    date,
     index,
     uniqueIndex,
     check,
@@ -283,4 +284,61 @@ export const mockupFiles = pgTable(
         data: bytea("data").notNull(),
     },
     (t) => [uniqueIndex("idx_mockup_files_deployment_path").on(t.deploymentId, t.path)],
+);
+
+/* ── leads — sales pipeline cards (Admin → Leads kanban) ───── */
+export const leads = pgTable(
+    "leads",
+    {
+        id: bigint("id", { mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),
+        name: text("name").notNull(), // company or person the card is about
+        contactName: text("contact_name"),
+        email: text("email"),
+        phone: text("phone"),
+        website: text("website"),
+        source: text("source"), // free text, see LEAD_SOURCES in src/config/leads.ts
+        stage: text("stage").notNull().default("new"), // LEAD_STAGES id = kanban column
+        position: integer("position").notNull().default(0), // order inside the column, 0 = top
+        valueEur: integer("value_eur"), // estimated deal value, whole euros
+        nextStep: text("next_step"),
+        followUpOn: date("follow_up_on", { mode: "string" }), // YYYY-MM-DD
+        notes: text("notes"),
+        // Preview site for this lead (Admin → Mockups); deleting the project just unlinks it.
+        mockupProjectId: bigint("mockup_project_id", { mode: "number" }).references(
+            () => mockupProjects.id,
+            { onDelete: "set null" },
+        ),
+        createdBy: text("created_by"),
+        createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+            .notNull()
+            .defaultNow(),
+        updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+            .notNull()
+            .defaultNow(),
+    },
+    (t) => [
+        index("idx_leads_stage_position").on(t.stage, t.position),
+        index("idx_leads_mockup_project_id").on(t.mockupProjectId),
+    ],
+);
+
+/* ── lead_activities — timeline on a lead card (notes, stage moves, deploys) ── */
+export const leadActivities = pgTable(
+    "lead_activities",
+    {
+        id: bigint("id", { mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),
+        leadId: bigint("lead_id", { mode: "number" })
+            .notNull()
+            .references(() => leads.id, { onDelete: "cascade" }),
+        kind: text("kind").notNull(), // note | created | stage | deploy
+        body: text("body").notNull(),
+        createdBy: text("created_by"),
+        createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+            .notNull()
+            .defaultNow(),
+    },
+    (t) => [
+        index("idx_lead_activities_lead_created").on(t.leadId, t.createdAt.desc()),
+        check("lead_activities_kind_check", sql`${t.kind} in ('note', 'created', 'stage', 'deploy')`),
+    ],
 );

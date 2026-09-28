@@ -203,3 +203,50 @@ export interface IntelilangSettings {
     configured: boolean;
     can_store_secret: boolean;
 }
+
+// ── Leads (kanban) ──────────────────────────────────────────
+
+export type LeadActivityKind = "note" | "created" | "stage" | "deploy";
+
+export interface LeadActivity {
+    id: number;
+    kind: LeadActivityKind;
+    body: string;
+    created_by: string | null;
+    created_at: string;
+}
+
+/** The linked preview site, as much as a card needs to show. */
+export interface LeadPreview {
+    project_id: number;
+    name: string;
+    /** Public preview URL, or null when MOCKUPS_DOMAIN is not configured. */
+    url: string | null;
+    /** Live version number, or null when nothing is deployed yet. */
+    live_version: number | null;
+}
+
+export interface Lead {
+    id: number;
+    name: string;
+    contact_name: string | null;
+    email: string | null;
+    phone: string | null;
+    website: string | null;
+    source: string | null;
+    stage: string;
+    position: number;
+    value_eur: number | null;
+    next_step: string | null;
+    /** YYYY-MM-DD */
+    follow_up_on: string | null;
+    notes: string | null;
+    preview: LeadPreview | null;
+    created_by: string | null;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface LeadDetail extends Lead {
+    activities: LeadActivity[];
+}

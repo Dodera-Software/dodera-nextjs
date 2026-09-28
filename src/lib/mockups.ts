@@ -3,7 +3,7 @@ import { unzipSync } from "fflate";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { mockupDeployments, mockupFiles, mockupProjects } from "@/db/schema";
-import { MOCKUP_LIMITS, mockupUrl } from "@/config/mockups";
+import { MOCKUP_LIMITS, mockupUrl, slugify, validateSlug } from "@/config/mockups";
 import type { MockupDeployment, MockupProject, MockupProjectDetail } from "@/types/admin";
 
 /* ══════════════════════════════════════════════════════════════
@@ -339,6 +339,65 @@ export async function listDeploymentFiles(deploymentId: number) {
         .from(mockupFiles)
         .where(eq(mockupFiles.deploymentId, deploymentId))
         .orderBy(mockupFiles.path);
+}
+
+export type CreateProjectResult =
+    | { ok: true; id: number }
+    | { ok: false; status: number; message: string };
+
+/**
+ * Create a project. An explicit slug must be free; one derived from the name
+ * gets a numeric suffix on collision ("acme" → "acme-2").
+ */
+export async function createProject(input: {
+    name: string;
+    slug?: string | null;
+    clientName?: string | null;
+    notes?: string | null;
+    createdBy?: string | null;
+}): Promise<CreateProjectResult> {
+    const explicitSlug = Boolean(input.slug?.trim());
+    let slug = explicitSlug ? input.slug!.trim().toLowerCase() : slugify(input.name);
+    const slugError = validateSlug(slug);
+    if (slugError) return { ok: false, status: 400, message: slugError };
+
+    let free = false;
+    for (let attempt = 1; attempt <= 20 && !free; attempt++) {
+        const candidate = attempt === 1 ? slug : `${slug.slice(0, 60)}-${attempt}`;
+        const [existing] = await db
+            .select({ id: mockupProjects.id })
+            .from(mockupProjects)
+            .where(eq(mockupProjects.slug, candidate))
+            .limit(1);
+        if (!existing) {
+            slug = candidate;
+            free = true;
+        } else if (explicitSlug) {
+            return { ok: false, status: 409, message: `The subdomain "${slug}" is already in use.` };
+        }
+    }
+    if (!free) {
+        return { ok: false, status: 409, message: "Could not find a free subdomain — pick one manually." };
+    }
+
+    try {
+        const [row] = await db
+            .insert(mockupProjects)
+            .values({
+                slug,
+                name: input.name,
+                clientName: input.clientName ?? null,
+                notes: input.notes ?? null,
+                createdBy: input.createdBy ?? null,
+            })
+            .returning({ id: mockupProjects.id });
+        return { ok: true, id: row.id };
+    } catch (err) {
+        if ((err as { code?: string })?.code === "23505") {
+            return { ok: false, status: 409, message: `The subdomain "${slug}" is already in use.` };
+        }
+        throw err;
+    }
 }
 
 const INSERT_CHUNK = 25;
