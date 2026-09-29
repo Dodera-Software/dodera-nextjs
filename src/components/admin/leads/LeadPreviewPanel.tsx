@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import {
     AlertTriangle,
@@ -10,22 +10,21 @@ import {
     Link2Off,
     Loader2,
     MailCheck,
-    MonitorSmartphone,
     Plus,
     Rocket,
     Settings2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useConfirm } from "@/hooks/use-confirm";
 import { MockupUploader } from "@/components/admin/mockups/MockupUploader";
 import { MockupPreview } from "@/components/admin/mockups/MockupPreview";
+import { LinkExistingMockup } from "@/components/admin/leads/LinkExistingMockup";
 import { useIntelilangConnected } from "@/lib/mockups-client";
 import { formatDateTime } from "@/lib/format";
 import { MOCK_TONE_CLASSES, mockStatus } from "@/lib/leads-client";
 import { PREVIEW_LINK_NOTE } from "@/config/outreach-rules";
-import type { LeadDetail, MockupProject } from "@/types/admin";
+import type { LeadDetail } from "@/types/admin";
 
 interface LeadPreviewPanelProps {
     lead: LeadDetail;
@@ -45,22 +44,8 @@ export function LeadPreviewPanel({ lead, onChange, onReload }: LeadPreviewPanelP
     const confirm = useConfirm();
     const intelilangConnected = useIntelilangConnected();
     const [busy, setBusy] = useState(false);
-    const [projects, setProjects] = useState<MockupProject[] | null>(null);
 
     const preview = lead.preview;
-
-    // Existing projects for "link an existing one" — only needed while nothing is linked.
-    useEffect(() => {
-        if (preview) return;
-        let cancelled = false;
-        fetch("/api/admin/mockups")
-            .then((res) => res.json())
-            .then((body) => {
-                if (!cancelled && body.status === "success") setProjects(body.data);
-            })
-            .catch(() => {});
-        return () => { cancelled = true; };
-    }, [preview]);
 
     async function send(url: string, init: RequestInit, success: string) {
         setBusy(true);
@@ -126,32 +111,20 @@ export function LeadPreviewPanel({ lead, onChange, onReload }: LeadPreviewPanelP
         return (
             <div className="rounded-xl border border-border bg-card p-5 space-y-4">
                 <PanelTitle />
-                <div className="rounded-lg border border-dashed border-border px-4 py-8 text-center space-y-4">
-                    <MonitorSmartphone className="w-8 h-8 mx-auto text-muted-foreground opacity-60" />
-                    <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-                        Create a preview project for {lead.name} to deploy a mockup and get a shareable link.
+                <LinkExistingMockup lead={lead} busy={busy} onLink={(id) => linkProject(String(id))} />
+                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                    <span className="h-px flex-1 bg-border" />
+                    or start a new one
+                    <span className="h-px flex-1 bg-border" />
+                </div>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                    <p className="text-xs text-muted-foreground flex-1">
+                        Creates a Mockups project for {lead.name}; then deploy the mock site right here.
                     </p>
-                    <Button size="sm" onClick={createProject} disabled={busy}>
+                    <Button variant="outline" size="sm" onClick={createProject} disabled={busy}>
                         {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
                         Create preview project
                     </Button>
-                    {projects && projects.length > 0 && (
-                        <div className="max-w-xs mx-auto space-y-1.5">
-                            <p className="text-xs text-muted-foreground">or link an existing Mockups project</p>
-                            <Select onValueChange={linkProject} disabled={busy}>
-                                <SelectTrigger className="h-9 text-sm">
-                                    <SelectValue placeholder="Choose a project…" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {projects.map((p) => (
-                                        <SelectItem key={p.id} value={String(p.id)}>
-                                            {p.name} <span className="text-muted-foreground">· {p.slug}</span>
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    )}
                 </div>
             </div>
         );

@@ -12,7 +12,8 @@ import {
     type LeadStage,
 } from "@/config/leads";
 import { getProjectUrl } from "@/lib/mockups";
-import type { Lead, LeadActivity, LeadActivityKind, LeadDetail } from "@/types/admin";
+import { slugify } from "@/config/mockups";
+import type { Lead, LeadActivity, LeadActivityKind, LeadDetail, LeadPreview } from "@/types/admin";
 
 /* ══════════════════════════════════════════════════════════════
  * Leads pipeline — server-side service behind Admin → Leads.
@@ -38,6 +39,7 @@ interface PreviewJoin {
     projectName: string | null;
     projectSlug: string | null;
     liveVersion: number | null;
+    latestNote: string | null;
 }
 
 function serializeLead(row: LeadRow, preview: PreviewJoin): Lead {
@@ -70,6 +72,8 @@ function serializeLead(row: LeadRow, preview: PreviewJoin): Lead {
                 }
                 : null,
         mockup_sent_at: row.mockupSentAt?.toISOString() ?? null,
+        latest_note: preview.latestNote,
+        suggested_preview: null,
         created_by: row.createdBy,
         created_at: row.createdAt.toISOString(),
         updated_at: row.updatedAt.toISOString(),
@@ -96,21 +100,103 @@ function selectLeads() {
             projectName: mockupProjects.name,
             projectSlug: mockupProjects.slug,
             liveVersion: mockupDeployments.version,
+            latestNote: latestNoteSql,
         })
         .from(leads)
         .leftJoin(mockupProjects, eq(mockupProjects.id, leads.mockupProjectId))
         .leftJoin(mockupDeployments, eq(mockupDeployments.id, mockupProjects.activeDeploymentId));
 }
 
+/** Newest timeline note of the lead — the card shows a marker when there is one. */
+const latestNoteSql = sql<string | null>`(
+    select ${leadActivities.body} from ${leadActivities}
+    where ${leadActivities.leadId} = ${leads.id} and ${leadActivities.kind} = 'note'
+    order by ${leadActivities.createdAt} desc, ${leadActivities.id} desc
+    limit 1
+)`;
+
+/* ── Existing mockups ──────────────────────────────────────── */
+
+export interface LinkableMockup extends LeadPreview {
+    slug: string;
+    client_name: string | null;
+    updated_at: string;
+    /** The lead this project is already linked to, if any. */
+    linked_lead: { id: number; name: string } | null;
+}
+
+/** Every Mockups project, for "Link an existing mockup" — newest first. */
+export async function listLinkableMockups(): Promise<LinkableMockup[]> {
+    const rows = await db
+        .select({
+            id: mockupProjects.id,
+            name: mockupProjects.name,
+            slug: mockupProjects.slug,
+            clientName: mockupProjects.clientName,
+            updatedAt: mockupProjects.updatedAt,
+            liveVersion: mockupDeployments.version,
+            leadId: leads.id,
+            leadName: leads.name,
+        })
+        .from(mockupProjects)
+        .leftJoin(mockupDeployments, eq(mockupDeployments.id, mockupProjects.activeDeploymentId))
+        .leftJoin(leads, eq(leads.mockupProjectId, mockupProjects.id))
+        .orderBy(desc(mockupProjects.updatedAt));
+
+    // A project linked to several leads appears once (first lead wins).
+    const seen = new Map<number, LinkableMockup>();
+    for (const r of rows) {
+        if (seen.has(r.id)) continue;
+        seen.set(r.id, {
+            project_id: r.id,
+            name: r.name,
+            slug: r.slug,
+            client_name: r.clientName,
+            url: getProjectUrl(r.slug),
+            live_version: r.liveVersion,
+            updated_at: r.updatedAt.toISOString(),
+            linked_lead: r.leadId !== null && r.leadName !== null ? { id: r.leadId, name: r.leadName } : null,
+        });
+    }
+    return [...seen.values()];
+}
+
+/** "Svea Restaurant" / "svea-restaurant" → "svearestaurant", so names and subdomains compare equal. */
+function matchKey(value: string | null | undefined): string {
+    return slugify(value ?? "").replace(/-/g, "");
+}
+
+/**
+ * For leads without a preview: an unlinked Mockups project whose name,
+ * client or subdomain matches the business name — the one-click "Link it".
+ */
+async function attachSuggestions(list: Lead[]): Promise<Lead[]> {
+    const pending = list.filter((l) => !l.preview);
+    if (pending.length === 0) return list;
+
+    const free = (await listLinkableMockups()).filter((m) => m.linked_lead === null);
+    const byKey = new Map<string, LeadPreview>();
+    for (const m of free) {
+        const preview: LeadPreview = { project_id: m.project_id, name: m.name, url: m.url, live_version: m.live_version };
+        for (const key of [matchKey(m.name), matchKey(m.slug), matchKey(m.client_name)]) {
+            if (key && !byKey.has(key)) byKey.set(key, preview);
+        }
+    }
+    for (const lead of pending) lead.suggested_preview = byKey.get(matchKey(lead.name)) ?? null;
+    return list;
+}
+
 /** Every lead, ordered as the board shows them (per column, top to bottom). */
 export async function listLeads(): Promise<Lead[]> {
     const rows = await selectLeads().orderBy(asc(leads.stage), asc(leads.position), desc(leads.createdAt));
-    return rows.map((r) => serializeLead(r.lead, r));
+    return attachSuggestions(rows.map((r) => serializeLead(r.lead, r)));
 }
 
 export async function getLead(id: number): Promise<Lead | null> {
     const [row] = await selectLeads().where(eq(leads.id, id)).limit(1);
-    return row ? serializeLead(row.lead, row) : null;
+    if (!row) return null;
+    const [lead] = await attachSuggestions([serializeLead(row.lead, row)]);
+    return lead;
 }
 
 export async function getLeadDetail(id: number): Promise<LeadDetail | null> {
