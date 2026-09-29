@@ -10,6 +10,8 @@
  * needs a data migration.
  */
 
+import { OUTREACH_RULES, outreachRuleFor } from "@/config/outreach-rules";
+
 export const LEAD_STAGES = [
     { id: "new", label: "New", description: "Business found — collect photos, logo and info", dot: "bg-sky-400" },
     { id: "mockup", label: "Mockup", description: "Building the mock site", dot: "bg-amber-400" },
@@ -38,32 +40,19 @@ export const OUTREACH_STAGES = new Set<string>(["contacted", "interested", "nego
 /* ── Mock policy per country ───────────────────────────────── */
 
 /**
- * Countries where the first message goes out WITHOUT the mock link; it is
- * sent only once the business is interested and asks to see it. Everywhere
- * else the mock link goes with the first message. Matched case-insensitively,
- * by name or ISO code.
+ * Whether the mock link goes with the first message ("with-message") or only
+ * once the business replies positively ("on-request"). Comes from the
+ * country's entry in OUTREACH_RULES; countries not listed there default to
+ * "with-message".
  */
-export const MOCK_ON_REQUEST_COUNTRIES: readonly { name: string; code: string }[] = [
-    { name: "Romania", code: "RO" },
-    { name: "Canada", code: "CA" },
-];
-
 export type MockPolicy = "with-message" | "on-request";
 
 export function mockPolicy(country: string | null | undefined): MockPolicy {
-    const c = country?.trim().toLowerCase() ?? "";
-    return MOCK_ON_REQUEST_COUNTRIES.some((r) => r.name.toLowerCase() === c || r.code.toLowerCase() === c)
-        ? "on-request"
-        : "with-message";
+    return outreachRuleFor(country)?.approach === "ask-first" ? "on-request" : "with-message";
 }
 
-/** Suggestions for the Country field; anything else can be typed. */
-export const COMMON_COUNTRIES = [
-    "Romania", "Canada", "United States", "United Kingdom", "Ireland", "Australia", "New Zealand",
-    "Germany", "Austria", "Switzerland", "France", "Belgium", "Netherlands", "Luxembourg", "Italy",
-    "Spain", "Portugal", "Denmark", "Sweden", "Norway", "Finland", "Poland", "Czechia", "Hungary",
-    "Greece", "Bulgaria", "Moldova", "United Arab Emirates",
-] as const;
+/** Suggestions for the Country field: the countries we contact. Anything else can be typed. */
+export const COMMON_COUNTRIES: readonly string[] = OUTREACH_RULES.map((r) => r.name);
 
 /* ── Links ─────────────────────────────────────────────────── */
 

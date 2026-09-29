@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Facebook, Instagram, Loader2, Lock, MapPin } from "lucide-react";
+import { Facebook, Instagram, Loader2, MapPin } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,7 +15,8 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { LEAD_LIMITS, LEAD_STAGES, mockPolicy, type LeadStage } from "@/config/leads";
+import { LEAD_LIMITS, LEAD_STAGES, type LeadStage } from "@/config/leads";
+import { OutreachRuleNote } from "@/components/admin/leads/OutreachRuleNote";
 import { useLeadSuggestions } from "@/lib/leads-client";
 import type { LeadDetail } from "@/types/admin";
 
@@ -59,7 +60,6 @@ export function NewLeadDialog({ open, onOpenChange, initialStage, onCreated }: N
         setForm((prev) => ({ ...prev, [key]: e.target.value }));
 
     const canSave = form.country.trim() && form.name.trim() && form.category.trim() && form.google_maps_url.trim();
-    const onRequest = form.country.trim() !== "" && mockPolicy(form.country) === "on-request";
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
@@ -118,12 +118,7 @@ export function NewLeadDialog({ open, onOpenChange, initialStage, onCreated }: N
                             </datalist>
                         </div>
                     </div>
-                    {onRequest && (
-                        <p className="flex items-start gap-2 rounded-lg bg-violet-400/10 px-3 py-2 text-xs text-violet-400">
-                            <Lock className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
-                            {form.country.trim()}: the first message goes out without the mock — send it only once they ask.
-                        </p>
-                    )}
+                    <OutreachRuleNote country={form.country} />
                     <div className="space-y-2">
                         <Label htmlFor="leadName">Business *</Label>
                         <Input
