@@ -9,7 +9,6 @@ import {
     Facebook,
     Instagram,
     Loader2,
-    Lock,
     Mail,
     MapPin,
     Phone,
@@ -27,7 +26,8 @@ import { useConfirm } from "@/hooks/use-confirm";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { LeadPreviewPanel } from "@/components/admin/leads/LeadPreviewPanel";
 import { LeadTimeline } from "@/components/admin/leads/LeadTimeline";
-import { LEAD_LIMITS, LEAD_STAGES, mockPolicy } from "@/config/leads";
+import { OutreachRuleNote } from "@/components/admin/leads/OutreachRuleNote";
+import { LEAD_LIMITS, LEAD_STAGES } from "@/config/leads";
 import { formatDateTime } from "@/lib/format";
 import { FOLLOW_UP_CLASSES, externalHref, followUpState, useLeadSuggestions } from "@/lib/leads-client";
 import type { LeadDetail } from "@/types/admin";
@@ -322,12 +322,7 @@ export default function LeadPage() {
                                 </datalist>
                             </div>
                         </div>
-                        {form.country.trim() && mockPolicy(form.country) === "on-request" && (
-                            <p className="flex items-start gap-2 rounded-lg bg-violet-400/10 px-3 py-2 text-xs text-violet-400">
-                                <Lock className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
-                                {form.country.trim()}: the first message goes out without the mock — send it only once they ask.
-                            </p>
-                        )}
+                        <OutreachRuleNote country={form.country} />
                         <div className="space-y-2">
                             <Label htmlFor="name">Business *</Label>
                             <Input id="name" value={form.name} onChange={set("name")} required maxLength={LEAD_LIMITS.name} />
