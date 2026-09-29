@@ -206,6 +206,26 @@ export default function LeadsBoardPage() {
         }
     }
 
+    /** One click on a card: link the Mockups project that has the business's name. */
+    async function linkSuggested(lead: Lead) {
+        const project = lead.suggested_preview;
+        if (!project) return;
+        try {
+            const res = await fetch(`/api/admin/leads/${lead.id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ mockup_project_id: project.project_id }),
+            });
+            const data = await res.json();
+            if (!res.ok || data.status !== "success") throw new Error(data.message);
+            toast.success(`Linked "${project.name}" to ${lead.name}`);
+            // Refetch: the project is no longer free, so other cards' suggestions change too.
+            await fetchLeads();
+        } catch (err) {
+            toast.error((err as Error)?.message || "Failed to link the mockup");
+        }
+    }
+
     function copy(url: string) {
         navigator.clipboard.writeText(url);
         toast.success("Link copied");
@@ -323,6 +343,7 @@ export default function LeadsBoardPage() {
                                                             dragging={lead.id === dragId}
                                                             onDragStart={handleDragStart}
                                                             onDragEnd={handleDragEnd}
+                                                            onLinkSuggested={linkSuggested}
                                                         />
                                                     </div>
                                                 );

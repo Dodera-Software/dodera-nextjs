@@ -251,6 +251,10 @@ export interface Lead {
     preview: LeadPreview | null;
     /** When the preview link was sent to the business; null = not sent. */
     mockup_sent_at: string | null;
+    /** Newest note on the timeline, shown as a marker on the card. */
+    latest_note: string | null;
+    /** No preview linked yet, but an unlinked Mockups project matches the business name. */
+    suggested_preview: LeadPreview | null;
     created_by: string | null;
     created_at: string;
     updated_at: string;

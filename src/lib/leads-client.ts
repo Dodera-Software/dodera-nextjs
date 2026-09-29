@@ -140,3 +140,19 @@ export function mockStatus(lead: Lead): MockStatus {
 export function externalHref(link: string): string {
     return /^https?:\/\//i.test(link) ? link : `https://${link}`;
 }
+
+/** The signed-in admin's name, for signing outreach messages. Null until loaded. */
+export function useAdminName(): string | null {
+    const [name, setName] = useState<string | null>(null);
+    useEffect(() => {
+        let cancelled = false;
+        fetch("/api/admin/session")
+            .then((res) => res.json())
+            .then((body) => {
+                if (!cancelled && typeof body?.user?.name === "string") setName(body.user.name);
+            })
+            .catch(() => {});
+        return () => { cancelled = true; };
+    }, []);
+    return name;
+}

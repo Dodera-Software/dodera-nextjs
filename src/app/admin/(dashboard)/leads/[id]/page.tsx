@@ -27,6 +27,7 @@ import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { LeadPreviewPanel } from "@/components/admin/leads/LeadPreviewPanel";
 import { LeadTimeline } from "@/components/admin/leads/LeadTimeline";
 import { OutreachRuleNote } from "@/components/admin/leads/OutreachRuleNote";
+import { LeadMessages } from "@/components/admin/leads/LeadMessages";
 import { LEAD_LIMITS, LEAD_STAGES } from "@/config/leads";
 import { formatDateTime } from "@/lib/format";
 import { FOLLOW_UP_CLASSES, externalHref, followUpState, useLeadSuggestions } from "@/lib/leads-client";
@@ -421,7 +422,8 @@ export default function LeadPage() {
                     <LeadTimeline lead={lead} onChange={(next) => applyLead(next)} />
                 </div>
 
-                <div className="xl:col-span-3">
+                <div className="xl:col-span-3 space-y-6">
+                    <LeadMessages lead={lead} />
                     <LeadPreviewPanel lead={lead} onChange={(next) => applyLead(next)} onReload={load} />
                 </div>
             </div>
