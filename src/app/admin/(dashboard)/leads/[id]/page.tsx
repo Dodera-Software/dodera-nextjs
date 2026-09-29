@@ -3,7 +3,20 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, ExternalLink, Loader2, Mail, Phone, Save, SquareKanban, Trash2 } from "lucide-react";
+import {
+    ArrowLeft,
+    ExternalLink,
+    Facebook,
+    Instagram,
+    Loader2,
+    Lock,
+    Mail,
+    MapPin,
+    Phone,
+    Save,
+    SquareKanban,
+    Trash2,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,19 +27,24 @@ import { useConfirm } from "@/hooks/use-confirm";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { LeadPreviewPanel } from "@/components/admin/leads/LeadPreviewPanel";
 import { LeadTimeline } from "@/components/admin/leads/LeadTimeline";
-import { LEAD_LIMITS, LEAD_SOURCES, LEAD_STAGES } from "@/config/leads";
+import { LEAD_LIMITS, LEAD_STAGES, mockPolicy } from "@/config/leads";
 import { formatDateTime } from "@/lib/format";
-import { FOLLOW_UP_CLASSES, followUpState, websiteHref } from "@/lib/leads-client";
+import { FOLLOW_UP_CLASSES, externalHref, followUpState, useLeadSuggestions } from "@/lib/leads-client";
 import type { LeadDetail } from "@/types/admin";
 
 /** Editable fields, as strings for the inputs. */
 type Form = {
     name: string;
+    country: string;
+    city: string;
+    category: string;
+    facebook_url: string;
+    instagram_url: string;
+    google_maps_url: string;
     contact_name: string;
     email: string;
     phone: string;
     website: string;
-    source: string;
     value_eur: string;
     follow_up_on: string;
     next_step: string;
@@ -36,11 +54,16 @@ type Form = {
 function toForm(lead: LeadDetail): Form {
     return {
         name: lead.name,
+        country: lead.country ?? "",
+        city: lead.city ?? "",
+        category: lead.category ?? "",
+        facebook_url: lead.facebook_url ?? "",
+        instagram_url: lead.instagram_url ?? "",
+        google_maps_url: lead.google_maps_url ?? "",
         contact_name: lead.contact_name ?? "",
         email: lead.email ?? "",
         phone: lead.phone ?? "",
         website: lead.website ?? "",
-        source: lead.source ?? "",
         value_eur: lead.value_eur === null ? "" : String(lead.value_eur),
         follow_up_on: lead.follow_up_on ?? "",
         next_step: lead.next_step ?? "",
@@ -52,6 +75,7 @@ export default function LeadPage() {
     const params = useParams<{ id: string }>();
     const router = useRouter();
     const confirm = useConfirm();
+    const suggestions = useLeadSuggestions();
     const leadId = Number(params.id);
 
     const [lead, setLead] = useState<LeadDetail | null>(null);
@@ -125,7 +149,7 @@ export default function LeadPage() {
 
     async function handleSave(e: React.FormEvent) {
         e.preventDefault();
-        if (!form || saving || !form.name.trim()) return;
+        if (!form || saving) return;
         setSaving(true);
         try {
             const updated = await patch(form);
@@ -208,7 +232,11 @@ export default function LeadPage() {
 
             <AdminPageHeader
                 title={lead.name}
-                subtitle={`Added ${formatDateTime(lead.created_at, "MMM d, yyyy")}${lead.created_by ? ` by ${lead.created_by}` : ""}`}
+                subtitle={[
+                    lead.category,
+                    [lead.city, lead.country].filter(Boolean).join(", "),
+                    `added ${formatDateTime(lead.created_at, "MMM d, yyyy")}${lead.created_by ? ` by ${lead.created_by}` : ""}`,
+                ].filter(Boolean).join(" · ")}
                 actions={
                     <>
                         <Select value={lead.stage} onValueChange={handleStage} disabled={movingStage}>
@@ -244,11 +272,23 @@ export default function LeadPage() {
 
             <div className="grid gap-6 xl:grid-cols-5">
                 <div className="xl:col-span-2 space-y-6">
-                    {/* Details */}
+                    {/* Business — the Notion columns */}
                     <form onSubmit={handleSave} className="rounded-xl border border-border bg-card p-5 space-y-4">
                         <div className="flex items-center justify-between gap-3">
-                            <p className="font-medium text-sm">Details</p>
+                            <p className="font-medium text-sm">Business</p>
                             <div className="flex items-center gap-1">
+                                {lead.facebook_url && (
+                                    <IconLink href={lead.facebook_url} label="Open Facebook"><Facebook className="w-4 h-4" /></IconLink>
+                                )}
+                                {lead.instagram_url && (
+                                    <IconLink href={lead.instagram_url} label="Open Instagram"><Instagram className="w-4 h-4" /></IconLink>
+                                )}
+                                {lead.google_maps_url && (
+                                    <IconLink href={lead.google_maps_url} label="Open Google Maps"><MapPin className="w-4 h-4" /></IconLink>
+                                )}
+                                {lead.website && (
+                                    <IconLink href={lead.website} label="Open website"><ExternalLink className="w-4 h-4" /></IconLink>
+                                )}
                                 {lead.email && (
                                     <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
                                         <a href={`mailto:${lead.email}`} title={`Email ${lead.email}`}>
@@ -263,20 +303,58 @@ export default function LeadPage() {
                                         </a>
                                     </Button>
                                 )}
-                                {lead.website && (
-                                    <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-                                        <a href={websiteHref(lead.website)} target="_blank" rel="noopener noreferrer" title="Open website">
-                                            <ExternalLink className="w-4 h-4" />
-                                        </a>
-                                    </Button>
-                                )}
                             </div>
                         </div>
 
+                        <div className="grid sm:grid-cols-2 gap-3">
+                            <div className="space-y-2">
+                                <Label htmlFor="country">Country *</Label>
+                                <Input id="country" list="lead-detail-countries" value={form.country} onChange={set("country")} required maxLength={LEAD_LIMITS.name} />
+                                <datalist id="lead-detail-countries">
+                                    {suggestions.countries.map((c) => <option key={c} value={c} />)}
+                                </datalist>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="city">City</Label>
+                                <Input id="city" list="lead-detail-cities" value={form.city} onChange={set("city")} maxLength={LEAD_LIMITS.name} />
+                                <datalist id="lead-detail-cities">
+                                    {suggestions.cities.map((c) => <option key={c} value={c} />)}
+                                </datalist>
+                            </div>
+                        </div>
+                        {form.country.trim() && mockPolicy(form.country) === "on-request" && (
+                            <p className="flex items-start gap-2 rounded-lg bg-violet-400/10 px-3 py-2 text-xs text-violet-400">
+                                <Lock className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                                {form.country.trim()}: the first message goes out without the mock — send it only once they ask.
+                            </p>
+                        )}
                         <div className="space-y-2">
-                            <Label htmlFor="name">Company / name</Label>
+                            <Label htmlFor="name">Business *</Label>
                             <Input id="name" value={form.name} onChange={set("name")} required maxLength={LEAD_LIMITS.name} />
                         </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="category">Category *</Label>
+                            <Input id="category" list="lead-detail-categories" value={form.category} onChange={set("category")} required maxLength={LEAD_LIMITS.name} />
+                            <datalist id="lead-detail-categories">
+                                {suggestions.categories.map((c) => <option key={c} value={c} />)}
+                            </datalist>
+                        </div>
+                        <div className="grid sm:grid-cols-2 gap-3">
+                            <div className="space-y-2">
+                                <Label htmlFor="facebook_url">Facebook</Label>
+                                <Input id="facebook_url" value={form.facebook_url} onChange={set("facebook_url")} maxLength={LEAD_LIMITS.url} placeholder="Page link or name" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="instagram_url">Instagram</Label>
+                                <Input id="instagram_url" value={form.instagram_url} onChange={set("instagram_url")} maxLength={LEAD_LIMITS.url} placeholder="@handle or link" />
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="google_maps_url">Google Maps *</Label>
+                            <Input id="google_maps_url" value={form.google_maps_url} onChange={set("google_maps_url")} required maxLength={LEAD_LIMITS.url} />
+                        </div>
+
+                        <p className="pt-2 font-medium text-sm">Contact &amp; deal</p>
                         <div className="grid sm:grid-cols-2 gap-3">
                             <div className="space-y-2">
                                 <Label htmlFor="contact_name">Contact person</Label>
@@ -291,15 +369,8 @@ export default function LeadPage() {
                                 <Input id="phone" type="tel" value={form.phone} onChange={set("phone")} maxLength={60} />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="website">Website</Label>
-                                <Input id="website" value={form.website} onChange={set("website")} maxLength={LEAD_LIMITS.shortText} placeholder="acme.com" />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="source">Source</Label>
-                                <Input id="source" list="lead-detail-sources" value={form.source} onChange={set("source")} maxLength={LEAD_LIMITS.name} />
-                                <datalist id="lead-detail-sources">
-                                    {LEAD_SOURCES.map((s) => <option key={s} value={s} />)}
-                                </datalist>
+                                <Label htmlFor="website">Current website</Label>
+                                <Input id="website" value={form.website} onChange={set("website")} maxLength={LEAD_LIMITS.url} placeholder="if they have one" />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="value_eur">Est. value (€)</Label>
@@ -309,7 +380,7 @@ export default function LeadPage() {
                         <div className="grid sm:grid-cols-[1fr_auto] gap-3">
                             <div className="space-y-2">
                                 <Label htmlFor="next_step">Next step</Label>
-                                <Input id="next_step" value={form.next_step} onChange={set("next_step")} maxLength={LEAD_LIMITS.shortText} placeholder="Send the revised mockup" />
+                                <Input id="next_step" value={form.next_step} onChange={set("next_step")} maxLength={LEAD_LIMITS.shortText} placeholder="Send the mock on Instagram" />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="follow_up_on" className="flex items-center gap-2">
@@ -330,7 +401,7 @@ export default function LeadPage() {
                                 value={form.notes}
                                 onChange={set("notes")}
                                 maxLength={LEAD_LIMITS.notes}
-                                placeholder="What they need, budget, decision makers, links…"
+                                placeholder="What they need, photos collected, what they said…"
                                 className="min-h-[140px] text-sm"
                             />
                         </div>
@@ -341,7 +412,11 @@ export default function LeadPage() {
                                     Discard
                                 </Button>
                             )}
-                            <Button type="submit" size="sm" disabled={!dirty || saving || !form.name.trim()}>
+                            <Button
+                                type="submit"
+                                size="sm"
+                                disabled={!dirty || saving || !form.name.trim() || !form.country.trim() || !form.category.trim() || !form.google_maps_url.trim()}
+                            >
                                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                                 {saving ? "Saving…" : "Save"}
                             </Button>
@@ -356,6 +431,16 @@ export default function LeadPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+function IconLink({ href, label, children }: { href: string; label: string; children: React.ReactNode }) {
+    return (
+        <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+            <a href={externalHref(href)} target="_blank" rel="noopener noreferrer" title={label} aria-label={label}>
+                {children}
+            </a>
+        </Button>
     );
 }
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRightLeft, History, Loader2, MessageSquare, Plus, Rocket, Send, Trash2 } from "lucide-react";
+import { ArrowRightLeft, History, Loader2, MailCheck, MessageSquare, Plus, Rocket, Send, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,6 +15,7 @@ const KIND_ICON: Record<LeadActivityKind, typeof MessageSquare> = {
     created: Plus,
     stage: ArrowRightLeft,
     deploy: Rocket,
+    mock: MailCheck,
 };
 
 interface LeadTimelineProps {

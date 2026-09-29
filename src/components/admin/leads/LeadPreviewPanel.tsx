@@ -9,6 +9,7 @@ import {
     Globe,
     Link2Off,
     Loader2,
+    MailCheck,
     MonitorSmartphone,
     Plus,
     Rocket,
@@ -21,6 +22,8 @@ import { useConfirm } from "@/hooks/use-confirm";
 import { MockupUploader } from "@/components/admin/mockups/MockupUploader";
 import { MockupPreview } from "@/components/admin/mockups/MockupPreview";
 import { useIntelilangConnected } from "@/lib/mockups-client";
+import { formatDateTime } from "@/lib/format";
+import { MOCK_TONE_CLASSES, mockStatus } from "@/lib/leads-client";
 import type { LeadDetail, MockupProject } from "@/types/admin";
 
 interface LeadPreviewPanelProps {
@@ -34,7 +37,8 @@ interface LeadPreviewPanelProps {
 /**
  * The lead's preview site: create or link a Mockups project, then deploy with
  * the same uploader and Deploy button as Admin → Mockups. The link is
- * https://<slug>.<MOCKUPS_DOMAIN>/.
+ * https://<slug>.<MOCKUPS_DOMAIN>/. Also tracks whether the link has been
+ * sent to the business (see mockPolicy for when it should be).
  */
 export function LeadPreviewPanel({ lead, onChange, onReload }: LeadPreviewPanelProps) {
     const confirm = useConfirm();
@@ -103,6 +107,18 @@ export function LeadPreviewPanel({ lead, onChange, onReload }: LeadPreviewPanelP
         if (!preview?.url) return;
         navigator.clipboard.writeText(preview.url);
         toast.success("Link copied");
+    }
+
+    const markSent = (sent: boolean) =>
+        send(
+            `/api/admin/leads/${lead.id}`,
+            { method: "PATCH", body: JSON.stringify({ mockup_sent: sent }) },
+            sent ? "Marked as sent" : "Marked as not sent",
+        );
+
+    async function copyAndMarkSent() {
+        copyLink();
+        await markSent(true);
     }
 
     if (!preview) {
@@ -211,6 +227,14 @@ export function LeadPreviewPanel({ lead, onChange, onReload }: LeadPreviewPanelP
                         )}
                     </div>
                 </div>
+
+                <MockSentRow
+                    lead={lead}
+                    busy={busy}
+                    canSend={Boolean(preview.url) && live !== null}
+                    onCopyAndMark={copyAndMarkSent}
+                    onMark={markSent}
+                />
             </div>
 
             <MockupUploader
@@ -228,6 +252,55 @@ export function LeadPreviewPanel({ lead, onChange, onReload }: LeadPreviewPanelP
                         : "Nothing deployed yet — the preview appears after the first deploy."
                 }
             />
+        </div>
+    );
+}
+
+/** Whether the business has the preview link, with the next action. */
+function MockSentRow({
+    lead,
+    busy,
+    canSend,
+    onCopyAndMark,
+    onMark,
+}: {
+    lead: LeadDetail;
+    busy: boolean;
+    canSend: boolean;
+    onCopyAndMark: () => void;
+    onMark: (sent: boolean) => void;
+}) {
+    const status = mockStatus(lead);
+    const sentAt = lead.mockup_sent_at;
+
+    return (
+        <div className={`rounded-lg px-3 py-2.5 flex flex-col sm:flex-row sm:items-center gap-3 ${MOCK_TONE_CLASSES[status.tone]}`}>
+            <div className="flex items-start gap-2 min-w-0 flex-1">
+                <MailCheck className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                <div className="min-w-0">
+                    <p className="text-sm font-medium">{status.label}</p>
+                    <p className="text-xs opacity-90">
+                        {sentAt ? `Sent ${formatDateTime(sentAt)}` : status.hint}
+                    </p>
+                </div>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+                {sentAt ? (
+                    <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={() => onMark(false)} disabled={busy}>
+                        Mark as not sent
+                    </Button>
+                ) : (
+                    <>
+                        <Button variant="outline" size="sm" className="h-8 text-xs bg-card" onClick={() => onMark(true)} disabled={busy || !canSend}>
+                            Mark as sent
+                        </Button>
+                        <Button size="sm" className="h-8 text-xs" onClick={onCopyAndMark} disabled={busy || !canSend}>
+                            <Copy className="w-3.5 h-3.5" />
+                            Copy link &amp; mark sent
+                        </Button>
+                    </>
+                )}
+            </div>
         </div>
     );
 }

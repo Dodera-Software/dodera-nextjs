@@ -291,12 +291,19 @@ export const leads = pgTable(
     "leads",
     {
         id: bigint("id", { mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),
-        name: text("name").notNull(), // company or person the card is about
+        name: text("name").notNull(), // the business
+        // Required for new leads (enforced by the API); nullable for cards created before these existed.
+        country: text("country"),
+        city: text("city"),
+        category: text("category"), // industry, e.g. "Pet grooming"
+        facebookUrl: text("facebook_url"),
+        instagramUrl: text("instagram_url"),
+        googleMapsUrl: text("google_maps_url"),
         contactName: text("contact_name"),
         email: text("email"),
         phone: text("phone"),
         website: text("website"),
-        source: text("source"), // free text, see LEAD_SOURCES in src/config/leads.ts
+        source: text("source"), // legacy free text, no longer edited in the UI
         stage: text("stage").notNull().default("new"), // LEAD_STAGES id = kanban column
         position: integer("position").notNull().default(0), // order inside the column, 0 = top
         valueEur: integer("value_eur"), // estimated deal value, whole euros
@@ -308,6 +315,8 @@ export const leads = pgTable(
             () => mockupProjects.id,
             { onDelete: "set null" },
         ),
+        // When the preview link was sent to the business (NULL = not sent yet). See mockPolicy().
+        mockupSentAt: timestamp("mockup_sent_at", { withTimezone: true, mode: "date" }),
         createdBy: text("created_by"),
         createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
             .notNull()
@@ -330,7 +339,7 @@ export const leadActivities = pgTable(
         leadId: bigint("lead_id", { mode: "number" })
             .notNull()
             .references(() => leads.id, { onDelete: "cascade" }),
-        kind: text("kind").notNull(), // note | created | stage | deploy
+        kind: text("kind").notNull(), // note | created | stage | deploy | mock
         body: text("body").notNull(),
         createdBy: text("created_by"),
         createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
@@ -339,6 +348,6 @@ export const leadActivities = pgTable(
     },
     (t) => [
         index("idx_lead_activities_lead_created").on(t.leadId, t.createdAt.desc()),
-        check("lead_activities_kind_check", sql`${t.kind} in ('note', 'created', 'stage', 'deploy')`),
+        check("lead_activities_kind_check", sql`${t.kind} in ('note', 'created', 'stage', 'deploy', 'mock')`),
     ],
 );

@@ -206,7 +206,7 @@ export interface IntelilangSettings {
 
 // ── Leads (kanban) ──────────────────────────────────────────
 
-export type LeadActivityKind = "note" | "created" | "stage" | "deploy";
+export type LeadActivityKind = "note" | "created" | "stage" | "deploy" | "mock";
 
 export interface LeadActivity {
     id: number;
@@ -228,12 +228,19 @@ export interface LeadPreview {
 
 export interface Lead {
     id: number;
+    /** The business. */
     name: string;
+    /** Null only on cards created before these fields existed. */
+    country: string | null;
+    city: string | null;
+    category: string | null;
+    facebook_url: string | null;
+    instagram_url: string | null;
+    google_maps_url: string | null;
     contact_name: string | null;
     email: string | null;
     phone: string | null;
     website: string | null;
-    source: string | null;
     stage: string;
     position: number;
     value_eur: number | null;
@@ -242,6 +249,8 @@ export interface Lead {
     follow_up_on: string | null;
     notes: string | null;
     preview: LeadPreview | null;
+    /** When the preview link was sent to the business; null = not sent. */
+    mockup_sent_at: string | null;
     created_by: string | null;
     created_at: string;
     updated_at: string;

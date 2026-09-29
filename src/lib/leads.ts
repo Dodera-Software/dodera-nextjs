@@ -2,7 +2,15 @@ import "server-only";
 import { and, asc, desc, eq, inArray, min, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { leadActivities, leads, mockupDeployments, mockupProjects } from "@/db/schema";
-import { LEAD_LIMITS, stageLabel, type LeadStage } from "@/config/leads";
+import {
+    LEAD_LIMITS,
+    mockPolicy,
+    normalizeLink,
+    normalizeSocial,
+    OUTREACH_STAGES,
+    stageLabel,
+    type LeadStage,
+} from "@/config/leads";
 import { getProjectUrl } from "@/lib/mockups";
 import type { Lead, LeadActivity, LeadActivityKind, LeadDetail } from "@/types/admin";
 
@@ -13,6 +21,11 @@ import type { Lead, LeadActivity, LeadActivityKind, LeadDetail } from "@/types/a
  * order inside the column (lower = higher up). A card can be linked to a
  * mockup project, so the card shows the preview link and deploys from
  * either page land on the card's timeline.
+ *
+ * Outreach rule (see mockPolicy): a mock site is built for every business,
+ * but it only goes out with the first message outside the "on request"
+ * countries (Romania, Canada). There it is sent once they are interested.
+ * `mockup_sent_at` records whether the business has the link.
  * ══════════════════════════════════════════════════════════════ */
 
 type LeadRow = typeof leads.$inferSelect;
@@ -31,11 +44,16 @@ function serializeLead(row: LeadRow, preview: PreviewJoin): Lead {
     return {
         id: row.id,
         name: row.name,
+        country: row.country,
+        city: row.city,
+        category: row.category,
+        facebook_url: row.facebookUrl,
+        instagram_url: row.instagramUrl,
+        google_maps_url: row.googleMapsUrl,
         contact_name: row.contactName,
         email: row.email,
         phone: row.phone,
         website: row.website,
-        source: row.source,
         stage: row.stage,
         position: row.position,
         value_eur: row.valueEur,
@@ -51,6 +69,7 @@ function serializeLead(row: LeadRow, preview: PreviewJoin): Lead {
                     live_version: preview.liveVersion,
                 }
                 : null,
+        mockup_sent_at: row.mockupSentAt?.toISOString() ?? null,
         created_by: row.createdBy,
         created_at: row.createdAt.toISOString(),
         updated_at: row.updatedAt.toISOString(),
@@ -105,6 +124,26 @@ export async function getLeadDetail(id: number): Promise<LeadDetail | null> {
     return { ...lead, activities: activities.map(serializeActivity) };
 }
 
+/** Values already used, most common first — autocomplete for the add/edit forms. */
+export async function getLeadSuggestions(): Promise<{ countries: string[]; categories: string[]; cities: string[] }> {
+    const distinct = async (column: typeof leads.country | typeof leads.category | typeof leads.city) => {
+        const rows = await db
+            .select({ value: column, n: sql<number>`count(*)::int` })
+            .from(leads)
+            .where(sql`${column} is not null and ${column} <> ''`)
+            .groupBy(column)
+            .orderBy(sql`count(*) desc`, column)
+            .limit(200);
+        return rows.map((r) => r.value as string);
+    };
+    const [countries, categories, cities] = await Promise.all([
+        distinct(leads.country),
+        distinct(leads.category),
+        distinct(leads.city),
+    ]);
+    return { countries, categories, cities };
+}
+
 /* ── Input validation ──────────────────────────────────────── */
 
 export type ParsedLeadInput =
@@ -118,21 +157,59 @@ function optionalText(value: unknown, max: number): string | null {
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+/** Fields every new lead needs (the Notion columns); PATCH may not blank them. */
+const REQUIRED_TEXT = [
+    { key: "name", column: "name", label: "Business" },
+    { key: "country", column: "country", label: "Country" },
+    { key: "category", column: "category", label: "Category" },
+] as const;
+
 /**
  * Validate a create/update body (snake_case, as the UI sends it). Only keys
- * present in the body are returned, so the same parser serves PATCH.
- * `stage` and `mockup_project_id` are handled by their own code paths.
+ * present in the body are returned, so the same parser serves PATCH; with
+ * `creating`, the required fields must be present too.
+ * `stage`, `mockup_project_id` and `mockup_sent` are handled by their own code paths.
  */
-export function parseLeadInput(body: Record<string, unknown>, { requireName }: { requireName: boolean }): ParsedLeadInput {
+export function parseLeadInput(body: Record<string, unknown>, { creating }: { creating: boolean }): ParsedLeadInput {
     const values: Partial<LeadInsert> = {};
 
-    if ("name" in body || requireName) {
-        const name = typeof body.name === "string" ? body.name.trim() : "";
-        if (!name || name.length > LEAD_LIMITS.name) {
-            return { ok: false, message: `Name is required (max ${LEAD_LIMITS.name} characters).` };
+    for (const field of REQUIRED_TEXT) {
+        if (!(field.key in body) && !creating) continue;
+        const value = typeof body[field.key] === "string" ? (body[field.key] as string).trim() : "";
+        if (!value || value.length > LEAD_LIMITS.name) {
+            return { ok: false, message: `${field.label} is required (max ${LEAD_LIMITS.name} characters).` };
         }
-        values.name = name;
+        values[field.column] = value;
     }
+
+    if ("google_maps_url" in body || creating) {
+        const link = normalizeLink(typeof body.google_maps_url === "string" ? body.google_maps_url : "");
+        if (!link) {
+            return {
+                ok: false,
+                message: link === null ? "Google Maps link is required." : "The Google Maps link doesn't look right.",
+            };
+        }
+        values.googleMapsUrl = link.slice(0, LEAD_LIMITS.url);
+    }
+    for (const [key, column, kind, label] of [
+        ["facebook_url", "facebookUrl", "facebook", "Facebook"],
+        ["instagram_url", "instagramUrl", "instagram", "Instagram"],
+    ] as const) {
+        if (!(key in body)) continue;
+        const link = normalizeSocial(kind, typeof body[key] === "string" ? (body[key] as string) : "");
+        if (link === false) {
+            return { ok: false, message: `The ${label} link doesn't look right — paste the page link or the @handle.` };
+        }
+        values[column] = link?.slice(0, LEAD_LIMITS.url) ?? null;
+    }
+    if ("website" in body) {
+        const link = normalizeLink(typeof body.website === "string" ? body.website : "");
+        if (link === false) return { ok: false, message: "The website link doesn't look right." };
+        values.website = link?.slice(0, LEAD_LIMITS.url) ?? null;
+    }
+
+    if ("city" in body) values.city = optionalText(body.city, LEAD_LIMITS.name);
     if ("contact_name" in body) values.contactName = optionalText(body.contact_name, LEAD_LIMITS.name);
     if ("email" in body) {
         const email = optionalText(body.email, LEAD_LIMITS.shortText);
@@ -140,8 +217,6 @@ export function parseLeadInput(body: Record<string, unknown>, { requireName }: {
         values.email = email;
     }
     if ("phone" in body) values.phone = optionalText(body.phone, 60);
-    if ("website" in body) values.website = optionalText(body.website, LEAD_LIMITS.shortText);
-    if ("source" in body) values.source = optionalText(body.source, LEAD_LIMITS.name);
     if ("next_step" in body) values.nextStep = optionalText(body.next_step, LEAD_LIMITS.shortText);
     if ("notes" in body) values.notes = optionalText(body.notes, LEAD_LIMITS.notes);
     if ("value_eur" in body) {
@@ -188,7 +263,7 @@ async function topPosition(stage: LeadStage): Promise<number> {
 }
 
 export async function createLead(
-    values: Partial<LeadInsert> & { name: string },
+    values: Partial<LeadInsert> & { name: string; country: string; category: string },
     stage: LeadStage,
     createdBy: string,
 ): Promise<number> {
@@ -221,9 +296,7 @@ export async function updateLead(
         set.position = await topPosition(stage);
     }
     await db.update(leads).set(set).where(eq(leads.id, id));
-    if (stageChanged) {
-        await addActivity(id, "stage", `Moved from ${stageLabel(current.stage)} to ${stageLabel(stage)}`, by);
-    }
+    if (stageChanged) await afterStageChange(id, current.stage, stage, by);
     return true;
 }
 
@@ -266,9 +339,60 @@ export async function moveLead(leadId: number, stage: LeadStage, orderedIds: num
     });
 
     if (from === null) return false;
-    if (from !== stage) {
-        await addActivity(leadId, "stage", `Moved from ${stageLabel(from)} to ${stageLabel(stage)}`, by);
-    }
+    if (from !== stage) await afterStageChange(leadId, from, stage, by);
+    return true;
+}
+
+/** Country, whether the mock was sent, and the live preview version of a lead. */
+async function mockState(id: number) {
+    const [row] = await db
+        .select({
+            country: leads.country,
+            sentAt: leads.mockupSentAt,
+            liveVersion: mockupDeployments.version,
+        })
+        .from(leads)
+        .leftJoin(mockupProjects, eq(mockupProjects.id, leads.mockupProjectId))
+        .leftJoin(mockupDeployments, eq(mockupDeployments.id, mockupProjects.activeDeploymentId))
+        .where(eq(leads.id, id))
+        .limit(1);
+    return row ?? null;
+}
+
+/**
+ * Log a stage move and apply the outreach rule: when a card first reaches
+ * Contacted in a country where the mock goes with the first message, and a
+ * version is live, the link counts as sent.
+ */
+async function afterStageChange(id: number, from: string, to: LeadStage, by: string): Promise<void> {
+    await addActivity(id, "stage", `Moved from ${stageLabel(from)} to ${stageLabel(to)}`, by);
+    if (to !== "contacted" || OUTREACH_STAGES.has(from)) return;
+
+    const state = await mockState(id);
+    if (!state || state.sentAt || state.liveVersion === null || mockPolicy(state.country) !== "with-message") return;
+
+    await db.update(leads).set({ mockupSentAt: new Date() }).where(eq(leads.id, id));
+    await addActivity(id, "mock", `Mock v${state.liveVersion} sent with the first message`, by);
+}
+
+/** Record that the preview link was (or wasn't) sent to the business. Returns false when the lead is gone. */
+export async function setMockupSent(id: number, sent: boolean, by: string): Promise<boolean> {
+    const state = await mockState(id);
+    if (!state) return false;
+    if (Boolean(state.sentAt) === sent) return true;
+
+    await db
+        .update(leads)
+        .set({ mockupSentAt: sent ? new Date() : null, updatedAt: new Date() })
+        .where(eq(leads.id, id));
+    await addActivity(
+        id,
+        "mock",
+        sent
+            ? `Mock${state.liveVersion !== null ? ` v${state.liveVersion}` : ""} sent to the business`
+            : "Marked the mock as not sent",
+        by,
+    );
     return true;
 }
 

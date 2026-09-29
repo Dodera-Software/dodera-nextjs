@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ status: "error", message: "Invalid JSON body." }, { status: 400 });
     }
 
-    const parsed = parseLeadInput(body, { requireName: true });
+    const parsed = parseLeadInput(body, { creating: true });
     if (!parsed.ok) return NextResponse.json({ status: "error", message: parsed.message }, { status: 400 });
 
     const stage = body.stage ?? "new";
@@ -40,7 +40,8 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-        const id = await createLead({ ...parsed.values, name: parsed.values.name! }, stage, session.email);
+        const { name, country, category } = parsed.values;
+        const id = await createLead({ ...parsed.values, name: name!, country: country!, category: category! }, stage, session.email);
         return NextResponse.json({ status: "success", data: await getLeadDetail(id) }, { status: 201 });
     } catch (err) {
         console.error("Error creating lead:", err);
