@@ -37,7 +37,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         const created = await createProject({
             name: lead.name,
             slug: typeof body.slug === "string" ? body.slug : null,
-            clientName: lead.contact_name ?? lead.name,
+            clientName: lead.name,
+            notes: [lead.category, [lead.city, lead.country].filter(Boolean).join(", ")].filter(Boolean).join(" · ") || null,
             createdBy: session.email,
         });
         if (!created.ok) {

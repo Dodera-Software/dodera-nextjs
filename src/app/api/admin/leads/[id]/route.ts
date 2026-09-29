@@ -4,7 +4,7 @@ import { verifyAdminSession } from "@/lib/admin-auth";
 import { db } from "@/db";
 import { leads } from "@/db/schema";
 import { isLeadStage, type LeadStage } from "@/config/leads";
-import { getLeadDetail, parseLeadInput, setLeadPreview, updateLead } from "@/lib/leads";
+import { getLeadDetail, parseLeadInput, setLeadPreview, setMockupSent, updateLead } from "@/lib/leads";
 
 const unauthorized = () =>
     NextResponse.json({ status: "error", message: "Not authenticated." }, { status: 401 });
@@ -36,6 +36,7 @@ export async function GET(_request: NextRequest, { params }: Ctx) {
 
 /* ── PATCH /api/admin/leads/[id] — edit fields, stage, or linked preview ──
  * `mockup_project_id`: a mockup project id to link, or null to unlink.
+ * `mockup_sent`: true/false, whether the preview link was sent to the business.
  */
 export async function PATCH(request: NextRequest, { params }: Ctx) {
     const session = await verifyAdminSession();
@@ -51,7 +52,7 @@ export async function PATCH(request: NextRequest, { params }: Ctx) {
         return NextResponse.json({ status: "error", message: "Invalid JSON body." }, { status: 400 });
     }
 
-    const parsed = parseLeadInput(body, { requireName: false });
+    const parsed = parseLeadInput(body, { creating: false });
     if (!parsed.ok) return NextResponse.json({ status: "error", message: parsed.message }, { status: 400 });
 
     let stage: LeadStage | null = null;
@@ -70,7 +71,20 @@ export async function PATCH(request: NextRequest, { params }: Ctx) {
         }
     }
 
-    if (Object.keys(parsed.values).length === 0 && stage === null && projectId === undefined) {
+    let mockupSent: boolean | undefined;
+    if ("mockup_sent" in body) {
+        if (typeof body.mockup_sent !== "boolean") {
+            return NextResponse.json({ status: "error", message: "mockup_sent must be true or false." }, { status: 400 });
+        }
+        mockupSent = body.mockup_sent;
+    }
+
+    if (
+        Object.keys(parsed.values).length === 0 &&
+        stage === null &&
+        projectId === undefined &&
+        mockupSent === undefined
+    ) {
         return NextResponse.json({ status: "error", message: "No valid fields to update." }, { status: 400 });
     }
 
@@ -80,6 +94,7 @@ export async function PATCH(request: NextRequest, { params }: Ctx) {
         if (projectId !== undefined && !(await setLeadPreview(id, projectId))) {
             return NextResponse.json({ status: "error", message: "Mockup project not found." }, { status: 404 });
         }
+        if (mockupSent !== undefined) await setMockupSent(id, mockupSent, session.email);
         return NextResponse.json({ status: "success", message: "Lead updated.", data: await getLeadDetail(id) });
     } catch (err) {
         console.error("Error updating lead:", err);
