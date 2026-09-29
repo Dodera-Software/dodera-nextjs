@@ -24,6 +24,7 @@ import { MockupPreview } from "@/components/admin/mockups/MockupPreview";
 import { useIntelilangConnected } from "@/lib/mockups-client";
 import { formatDateTime } from "@/lib/format";
 import { MOCK_TONE_CLASSES, mockStatus } from "@/lib/leads-client";
+import { PREVIEW_LINK_NOTE } from "@/config/outreach-rules";
 import type { LeadDetail, MockupProject } from "@/types/admin";
 
 interface LeadPreviewPanelProps {
@@ -228,6 +229,8 @@ export function LeadPreviewPanel({ lead, onChange, onReload }: LeadPreviewPanelP
                     </div>
                 </div>
 
+                <PreviewLinkNote />
+
                 <MockSentRow
                     lead={lead}
                     busy={busy}
@@ -252,6 +255,26 @@ export function LeadPreviewPanel({ lead, onChange, onReload }: LeadPreviewPanelP
                         : "Nothing deployed yet — the preview appears after the first deploy."
                 }
             />
+        </div>
+    );
+}
+
+/** Suggested wording to send with the link, so the message says honestly what the preview is. */
+function PreviewLinkNote() {
+    function copy() {
+        navigator.clipboard.writeText(PREVIEW_LINK_NOTE);
+        toast.success("Text copied");
+    }
+    return (
+        <div className="rounded-lg border border-dashed border-border px-3 py-2.5 space-y-1.5">
+            <div className="flex items-center justify-between gap-2">
+                <p className="text-xs font-medium">Send with the link</p>
+                <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={copy}>
+                    <Copy className="w-3.5 h-3.5" />
+                    Copy text
+                </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">{PREVIEW_LINK_NOTE}</p>
         </div>
     );
 }
