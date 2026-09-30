@@ -152,6 +152,27 @@ export const OUTREACH_RULES: readonly OutreachRule[] = [
         ],
     },
     {
+        code: "AU",
+        name: "Australia",
+        aliases: ["australia", "au", "aus"],
+        approach: "ask-first",
+        rule:
+            "The Spam Act 2003 needs consent for every commercial electronic message (email, SMS, instant message), " +
+            "businesses included (s. 16). Consent can be inferred if the business published this address conspicuously, " +
+            "without a “no unsolicited messages” note, and your offer relates to their line of work (Sch. 2 cl. 4).",
+        include: [
+            "Check their profile / site doesn't say they don't want offers",
+            "Say who you are and how to reach you (s. 17)",
+            "A working way to unsubscribe in every message — act on it within 5 working days (s. 18)",
+        ],
+        sources: [
+            {
+                label: "Spam Act 2003 (Cth), ss. 16–18 and Sch. 2 — Federal Register of Legislation",
+                url: "https://www.legislation.gov.au/C2004A01214/latest/text",
+            },
+        ],
+    },
+    {
         code: "GB",
         name: "United Kingdom",
         aliases: ["united kingdom", "uk", "great britain", "britain", "england", "scotland", "wales", "northern ireland", "gb"],
