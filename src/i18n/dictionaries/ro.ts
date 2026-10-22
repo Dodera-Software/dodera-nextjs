@@ -2,9 +2,9 @@
  * Dicționarul românesc — textele interfeței și datele site-ului adaptate
  * pentru cititorii din România. Ne adresăm cu „dumneavoastră” peste tot.
  *
- * Nu preluăm aici afirmațiile din varianta engleză care nu sunt încă
- * susținute de date (echipă „35+”, „7–10+ ani”, testimoniale fără companie);
- * vezi TODO-urile din componente și raportul final.
+ * Doar afirmații susținute de date: prețurile publicate, studiile de caz și
+ * datele firmei din registru. Fără cifre despre echipă sau testimoniale
+ * neverificate.
  */
 
 import { Cpu, Code2, FileText, Monitor, Search, Layers, Zap, Handshake, Clock, CheckSquare, SquareCheckBig, Briefcase } from "lucide-react";

@@ -3,7 +3,7 @@
 export const FAQ = [
     {
         q: "Where is Dodera Software based?",
-        a: "We are based in Romania and serve clients internationally, from startups in Western Europe to enterprises in North America. All work is delivered remotely with clear async communication.",
+        a: "We are based in Satu Mare, Romania (Strada Banat 1) and work with clients in Romania and abroad. Clients in Satu Mare can meet us in person; everyone else works with us remotely, with a weekly demo and clear async communication.",
     },
     {
         q: "What size of projects do you take on?",
@@ -19,10 +19,10 @@ export const FAQ = [
     },
     {
         q: "Do you work with early-stage startups?",
-        a: "Yes. We have helped several founders go from idea to launched MVP. We offer architecture advice, tech-stack guidance, and can move quickly to meet investor or market deadlines.",
+        a: "Yes. We build MVPs in 4–8 weeks and offer architecture advice and tech-stack guidance, so you can move quickly to meet investor or market deadlines.",
     },
     {
         q: "What industries do you have experience in?",
-        a: "Our team has shipped products in fintech, healthcare, logistics, e-commerce, education, and media. We understand the compliance, performance, and UX expectations of each vertical.",
+        a: "Our published case studies cover logistics, B2B software and healthcare. Every project starts with understanding the compliance, performance and UX expectations of your industry.",
     },
 ] as const;

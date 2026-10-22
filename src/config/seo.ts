@@ -42,8 +42,8 @@ export const SITE = {
     phoneIntl: "+40 748 650 469",
     taxId: "49004234",
     registrationNumber: "J30/958/2023",
-    /* Registered in 2023 (J30/958/2023). Older JSON-LD said 2024. */
-    foundingDate: "2023",
+    /* Registered 25 October 2023 (J30/958/2023, public registry). Older JSON-LD said 2024. */
+    foundingDate: "2023-10-25",
     address: {
         street: "Strada Banat 1",
         city: "Satu Mare",

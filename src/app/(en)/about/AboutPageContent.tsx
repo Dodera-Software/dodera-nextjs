@@ -1,28 +1,21 @@
 "use client";
 
-import { useRef, useEffect } from "react";
-import {
-    motion,
-    useMotionValue,
-    useSpring,
-    useTransform,
-    useInView,
-} from "framer-motion";
-import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
+import { motion } from "framer-motion";
 import { SectionHeading } from "@/components/SectionHeading";
 import { ContactForm } from "@/components/ContactForm";
 import { PricingSection } from "@/components/PricingSection";
 import { CapabilityCard, CAPABILITIES } from "./CapabilityCard";
-import { fadeInUp, fadeInUpLg, viewportOnce, stagger } from "@/lib/animations";
+import { fadeInUp, fadeInUpLg, viewportOnce } from "@/lib/animations";
 import { FAQ } from "./faq";
 
 // ── About page copy ───────────────────────────────────────────────────────────
 
-const ABOUT_STATS: { label: string; to: number; from: number; suffix: string }[] = [
-    { label: "AI Applications", to: 20, from: 0, suffix: "+" },
-    { label: "Web Applications", to: 50, from: 0, suffix: "+" },
-    { label: "Client Satisfaction", to: 99, from: 0, suffix: "%" },
+/* Verified facts only (registry, published prices) — the old counters
+ * ("20+ AI apps", "50+ web apps", "99% satisfaction") had no source. */
+const ABOUT_STATS: { label: string; value: string }[] = [
+    { label: "Founded", value: "2023" },
+    { label: "Projects from", value: "€300" },
+    { label: "Based in", value: "Satu Mare" },
 ];
 
 const ABOUT_VALUES = [
@@ -39,45 +32,17 @@ const ABOUT_VALUES = [
         body: "No black boxes. You get clear communication, weekly updates, and direct access to the engineers working on your product.",
     },
     {
-        title: "International Reach",
-        body: "Based in Romania, we operate fully async across time zones. English-first communication, competitive European rates.",
+        title: "Local and Remote",
+        body: "Based in Satu Mare, Romania. We meet local clients in person and work remotely with everyone else, in English or Romanian, at competitive European rates.",
     },
 ] as const;
 
 
-// ── Animated Counter ──────────────────────────────────────────────────────────
-
-/** Counts from `from` to `to` once `trigger` becomes true. */
-function AnimatedCounter({
-    to,
-    from = 0,
-    suffix = "",
-    trigger,
-}: {
-    to: number;
-    from?: number;
-    suffix?: string;
-    trigger: boolean;
-}) {
-    const motionValue = useMotionValue(from);
-    const spring = useSpring(motionValue, { stiffness: 50, damping: 16, restDelta: 0.4 });
-    const display = useTransform(spring, (v) => `${Math.round(v)}${suffix}`);
-
-    useEffect(() => {
-        if (trigger) motionValue.set(to);
-    }, [trigger, motionValue, to]);
-
-    return <motion.span className="tabular-nums">{display}</motion.span>;
-}
-
 // ── Stats Row ───────────────────────────────────────────────────────────
 
 function StatsRow() {
-    const ref = useRef<HTMLDivElement>(null);
-    const trigger = useInView(ref, { once: true, margin: "-80px" });
     return (
         <motion.div
-            ref={ref}
             variants={fadeInUpLg}
             initial="hidden"
             animate="visible"
@@ -85,18 +50,9 @@ function StatsRow() {
         >
             <dl className="mx-auto flex max-w-2xl items-start justify-center divide-x divide-border">
                 {ABOUT_STATS.map((stat) => (
-                    <div key={stat.label} className="flex flex-col items-center px-4 py-4 sm:px-10 md:px-14">
-                        <dd className="text-3xl font-bold text-primary sm:text-4xl md:text-5xl">
-                            <AnimatedCounter
-                                to={stat.to}
-                                from={stat.from}
-                                suffix={stat.suffix}
-                                trigger={trigger}
-                            />
-                        </dd>
-                        <dt className="mt-2 text-sm text-muted-foreground">
-                            {stat.label}
-                        </dt>
+                    <div key={stat.label} className="flex flex-col-reverse items-center px-4 py-4 sm:px-10 md:px-14">
+                        <dt className="mt-2 text-sm text-muted-foreground">{stat.label}</dt>
+                        <dd className="text-3xl font-bold text-primary sm:text-4xl md:text-5xl">{stat.value}</dd>
                     </div>
                 ))}
             </dl>
@@ -179,7 +135,7 @@ export function AboutPageContent({ founderSlot }: { founderSlot?: React.ReactNod
                             </h2>
                             <div className="space-y-4 text-base leading-relaxed text-muted-foreground">
                                 <p>Dodera Software was founded by engineers who were tired of watching great ideas fail because of poor technical execution. We built the company around a simple belief: software should be reliable, clear, and genuinely useful.</p>
-                                <p>Our team spans frontend, backend, AI and infrastructure disciplines. Every engineer on our roster is senior level, no juniors learning on your budget. We take ownership from the first line of architecture to the last deploy.</p>
+                                <p>Our team spans frontend, backend, AI and infrastructure disciplines. Experienced engineers lead every project. We take ownership from the first line of architecture to the last deploy.</p>
                                 <p>Whether you need a long-term engineering partner or a specialist team to ship a single critical feature, we adapt our engagement to match your pace and goals.</p>
                             </div>
                         </motion.div>
