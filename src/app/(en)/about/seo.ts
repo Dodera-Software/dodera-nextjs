@@ -6,7 +6,7 @@
  */
 
 export const ABOUT_META = {
-    title: "About Us - Meet the Dodera Software Team",
+    title: "About Us - Meet the Team",
     description:
         "Dodera Software is a boutique software engineering company based in Romania. We build web apps, mobile apps, AI systems, and automations for ambitious companies worldwide — per hour, per task, or per project.",
     keywords: [

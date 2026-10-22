@@ -31,7 +31,7 @@ export const RO_META = {
             "Contactați Dodera Software: 0748 650 469, office@doderasoft.com. Lucrăm cu clienți din România și din străinătate; prima discuție e gratuită.",
     },
     careers: {
-        title: "Cariere IT la Dodera Software",
+        title: "Cariere în IT, de la distanță",
         description:
             "Locuri de muncă în IT la Dodera Software, de la distanță: programatori, designeri și ingineri AI. Trimiteți-ne CV-ul și vă contactăm.",
     },
