@@ -9,6 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { FieldError } from "@/components/ui/field-error";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { EMAIL_RE, NAME_RE, PHONE_RE, DANGEROUS_RE, CONTACT_LIMITS } from "@/lib/validation";
+import { useDict } from "@/i18n/LocaleProvider";
+import type { Dictionary } from "@/i18n/dictionaries";
 
 const LIMITS = CONTACT_LIMITS;
 
@@ -24,33 +26,33 @@ export interface FieldErrors {
     gdpr_consent?: string;
 }
 
-function validate(data: Record<string, string>): FieldErrors {
+function validate(data: Record<string, string>, m: Dictionary["contactForm"]["errors"]): FieldErrors {
     const errors: FieldErrors = {};
 
     const name = data.name?.trim() ?? "";
-    if (!name) errors.name = "Name is required.";
-    else if (name.length < LIMITS.name.min) errors.name = `At least ${LIMITS.name.min} characters.`;
-    else if (name.length > LIMITS.name.max) errors.name = `Max ${LIMITS.name.max} characters.`;
-    else if (!NAME_RE.test(name)) errors.name = "Only letters, spaces, hyphens, and apostrophes allowed.";
+    if (!name) errors.name = m.nameRequired;
+    else if (name.length < LIMITS.name.min) errors.name = m.minChars(LIMITS.name.min);
+    else if (name.length > LIMITS.name.max) errors.name = m.maxChars(LIMITS.name.max);
+    else if (!NAME_RE.test(name)) errors.name = m.nameChars;
 
     const email = data.email?.trim() ?? "";
-    if (!email) errors.email = "Email is required.";
-    else if (email.length > LIMITS.email.max) errors.email = `Max ${LIMITS.email.max} characters.`;
-    else if (!EMAIL_RE.test(email)) errors.email = "Enter a valid email address.";
+    if (!email) errors.email = m.emailRequired;
+    else if (email.length > LIMITS.email.max) errors.email = m.maxChars(LIMITS.email.max);
+    else if (!EMAIL_RE.test(email)) errors.email = m.emailInvalid;
 
     const company = data.company?.trim() ?? "";
-    if (company && company.length > LIMITS.company.max) errors.company = `Max ${LIMITS.company.max} characters.`;
-    else if (company && DANGEROUS_RE.test(company)) errors.company = "Invalid characters detected.";
+    if (company && company.length > LIMITS.company.max) errors.company = m.maxChars(LIMITS.company.max);
+    else if (company && DANGEROUS_RE.test(company)) errors.company = m.invalidChars;
 
     const phone = data.phone?.trim() ?? "";
-    if (phone && !PHONE_RE.test(phone)) errors.phone = "Enter a valid phone number.";
-    else if (phone && phone.length > LIMITS.phone.max) errors.phone = `Max ${LIMITS.phone.max} characters.`;
+    if (phone && !PHONE_RE.test(phone)) errors.phone = m.phoneInvalid;
+    else if (phone && phone.length > LIMITS.phone.max) errors.phone = m.maxChars(LIMITS.phone.max);
 
     const message = data.message?.trim() ?? "";
-    if (!message) errors.message = "Project details are required.";
-    else if (message.length < LIMITS.message.min) errors.message = `At least ${LIMITS.message.min} characters.`;
-    else if (message.length > LIMITS.message.max) errors.message = `Max ${LIMITS.message.max} characters.`;
-    else if (DANGEROUS_RE.test(message)) errors.message = "Invalid characters detected.";
+    if (!message) errors.message = m.messageRequired;
+    else if (message.length < LIMITS.message.min) errors.message = m.minChars(LIMITS.message.min);
+    else if (message.length > LIMITS.message.max) errors.message = m.maxChars(LIMITS.message.max);
+    else if (DANGEROUS_RE.test(message)) errors.message = m.invalidChars;
 
     return errors;
 }
@@ -59,6 +61,7 @@ const HONEYPOT_FIELD = "website_url";
 
 /* ── Component ────────────────────────────────────────────── */
 export function ContactForm() {
+    const { contactForm: t, links } = useDict();
     const [submitted, setSubmitted] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [serverError, setServerError] = useState<string | null>(null);
@@ -85,9 +88,9 @@ export function ContactForm() {
         }
         raw.service_type = serviceType;
 
-        const fieldErrors = validate(raw);
+        const fieldErrors = validate(raw, t.errors);
         if (!gdpr) {
-            fieldErrors.gdpr_consent = "You must agree to the privacy policy.";
+            fieldErrors.gdpr_consent = t.errors.consent;
         }
         if (Object.keys(fieldErrors).length > 0) {
             setErrors(fieldErrors);
@@ -113,14 +116,14 @@ export function ContactForm() {
                 if (data.errors) {
                     setErrors(data.errors);
                 } else {
-                    setServerError(data.message ?? "Something went wrong. Please try again.");
+                    setServerError(data.message ?? t.errors.generic);
                 }
                 return;
             }
 
             setSubmitted(true);
         } catch {
-            setServerError("Network error. Please check your connection and try again.");
+            setServerError(t.errors.network);
         } finally {
             setSubmitting(false);
         }
@@ -132,9 +135,9 @@ export function ContactForm() {
                 <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full border border-emerald-200 bg-emerald-50">
                     <Send className="size-6 text-emerald-600" />
                 </div>
-                <h3 className="mb-2 text-xl font-bold">Message Sent</h3>
+                <h3 className="mb-2 text-xl font-bold">{t.sentTitle}</h3>
                 <p className="text-sm text-muted-foreground">
-                    Thank you! We&apos;ll get back to you within 24 hours.
+                    {t.sentText}
                 </p>
             </div>
         );
@@ -144,7 +147,7 @@ export function ContactForm() {
         <form
             onSubmit={handleSubmit}
             noValidate
-            aria-label="Contact form to get in touch with Dodera Software for project inquiries"
+            aria-label={t.formAria}
             className="mx-auto max-w-lg space-y-5 rounded-xl border border-border bg-card p-8 shadow-sm"
         >
             {/* Honeypot */}
@@ -157,14 +160,14 @@ export function ContactForm() {
                 <div className="space-y-2">
                     <label htmlFor="contact-name" className="flex items-center gap-2 text-sm font-medium">
                         <User className="size-3.5 text-muted-foreground" />
-                        Name
+                        {t.name}
                     </label>
                     <Input
                         id="contact-name"
                         required
                         name="name"
                         autoComplete="name"
-                        placeholder="Your name"
+                        placeholder={t.namePlaceholder}
                         maxLength={LIMITS.name.max}
                         minLength={LIMITS.name.min}
                         aria-invalid={!!errors.name}
@@ -175,7 +178,7 @@ export function ContactForm() {
                 <div className="space-y-2">
                     <label htmlFor="contact-email" className="flex items-center gap-2 text-sm font-medium">
                         <Mail className="size-3.5 text-muted-foreground" />
-                        Email
+                        {t.email}
                     </label>
                     <Input
                         id="contact-email"
@@ -183,7 +186,7 @@ export function ContactForm() {
                         type="email"
                         name="email"
                         autoComplete="email"
-                        placeholder="you@company.com"
+                        placeholder={t.emailPlaceholder}
                         maxLength={LIMITS.email.max}
                         aria-invalid={!!errors.email}
                         className="border-input"
@@ -196,13 +199,13 @@ export function ContactForm() {
                 <div className="space-y-2">
                     <label htmlFor="contact-company" className="flex items-center gap-2 text-sm font-medium">
                         <Building className="size-3.5 text-muted-foreground" />
-                        Company <span className="text-muted-foreground font-normal">(optional)</span>
+                        {t.company} <span className="text-muted-foreground font-normal">{t.optional}</span>
                     </label>
                     <Input
                         id="contact-company"
                         name="company"
                         autoComplete="organization"
-                        placeholder="Company name"
+                        placeholder={t.companyPlaceholder}
                         maxLength={LIMITS.company.max}
                         aria-invalid={!!errors.company}
                         className="border-input"
@@ -212,14 +215,14 @@ export function ContactForm() {
                 <div className="space-y-2">
                     <label htmlFor="contact-phone" className="flex items-center gap-2 text-sm font-medium">
                         <Phone className="size-3.5 text-muted-foreground" />
-                        Phone <span className="text-muted-foreground font-normal">(optional)</span>
+                        {t.phone} <span className="text-muted-foreground font-normal">{t.optional}</span>
                     </label>
                     <Input
                         id="contact-phone"
                         type="tel"
                         name="phone"
                         autoComplete="tel"
-                        placeholder="+1 (555) 000-0000"
+                        placeholder={t.phonePlaceholder}
                         maxLength={LIMITS.phone.max}
                         pattern="[+]?[\d\s()\-]{7,20}"
                         aria-invalid={!!errors.phone}
@@ -232,22 +235,19 @@ export function ContactForm() {
             <div className="space-y-2">
                 <label htmlFor="contact-service-type" className="flex items-center gap-2 text-sm font-medium">
                     <Layers className="size-3.5 text-muted-foreground" />
-                    Service Type <span className="text-muted-foreground font-normal">(optional)</span>
+                    {t.serviceType} <span className="text-muted-foreground font-normal">{t.optional}</span>
                 </label>
                 <Select
                     value={serviceType}
                     onValueChange={setServiceType}
                 >
                     <SelectTrigger id="contact-service-type" aria-invalid={!!errors.service_type}>
-                        <SelectValue placeholder="Select a service…" />
+                        <SelectValue placeholder={t.servicePlaceholder} />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="AI Development">AI Development</SelectItem>
-                        <SelectItem value="Web Application">Web Application</SelectItem>
-                        <SelectItem value="MVP to Market">MVP (Minimum Viable Product)</SelectItem>
-                        <SelectItem value="Presentation Website">Presentation Website</SelectItem>
-                        <SelectItem value="Technical Documentation">Technical Documentation</SelectItem>
-                        <SelectItem value="Other">Other</SelectItem>
+                        {t.serviceOptions.map((o) => (
+                            <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                        ))}
                     </SelectContent>
                 </Select>
                 <FieldError message={errors.service_type} />
@@ -263,14 +263,14 @@ export function ContactForm() {
             <div className="space-y-2">
                 <label htmlFor="contact-message" className="flex items-center gap-2 text-sm font-medium">
                     <MessageSquare className="size-3.5 text-muted-foreground" />
-                    Project Details
+                    {t.details}
                 </label>
                 <Textarea
                     id="contact-message"
                     required
                     name="message"
                     rows={4}
-                    placeholder="Shortly describe your project idea…"
+                    placeholder={t.detailsPlaceholder}
                     maxLength={LIMITS.message.max}
                     minLength={LIMITS.message.min}
                     aria-invalid={!!errors.message}
@@ -290,23 +290,22 @@ export function ContactForm() {
                         aria-invalid={!!errors.gdpr_consent}
                     />
                     <span className="text-xs leading-relaxed text-muted-foreground">
-                        I have read and agree to the{" "}
+                        {t.consentBefore}{" "}
                         <Link
-                            href="/privacy-policy"
+                            href={links.privacy}
                             target="_blank"
                             className="text-primary underline underline-offset-2"
                         >
-                            Privacy Policy
+                            {t.privacyPolicy}
                         </Link>
-                        . I consent to Dodera Software S.R.L. processing my personal data
-                        submitted through this form in order to respond to my enquiry.
+                        {t.consentAfter}
                     </span>
                 </label>
                 <FieldError message={errors.gdpr_consent} />
             </div>
 
             <Button type="submit" size="lg" className="w-full" disabled={submitting}>
-                {submitting ? "Sending…" : "Send Message"}
+                {submitting ? t.sending : t.send}
                 {!submitting && <Send className="ml-2 size-4" />}
             </Button>
         </form>

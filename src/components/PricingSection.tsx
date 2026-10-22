@@ -5,10 +5,11 @@ import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { SectionHeading } from "@/components/SectionHeading";
-import { PRICING_TIERS } from "@/config/pricing";
 import { fadeInUpLg, viewportOnce, stagger } from "@/lib/animations";
+import { useDict } from "@/i18n/LocaleProvider";
 
 export function PricingSection() {
+    const { pricing: t, links } = useDict();
     return (
         <section
             id="pricing"
@@ -19,13 +20,13 @@ export function PricingSection() {
             <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[500px] w-[900px] bg-primary/10 blur-3xl" />
 
             <div className="relative z-10 mx-auto max-w-7xl px-6">
-                <SectionHeading label="Pricing" id="pricing-heading">
-                    Pick the model that{" "}
-                    <span className="text-primary">fits you.</span>
+                <SectionHeading label={t.label} id="pricing-heading">
+                    {t.titleA}{" "}
+                    <span className="text-primary">{t.titleB}</span>
                 </SectionHeading>
 
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-4">
-                    {PRICING_TIERS.map((tier, i) => {
+                    {t.tiers.map((tier, i) => {
                         const Icon = tier.icon;
                         return (
                             <motion.div
@@ -68,8 +69,8 @@ export function PricingSection() {
                                     {/* Note */}
                                     {tier.note && (
                                         <p className="mb-4 text-xs text-muted-foreground/70">
-                                            {tier.note.replace("for free.", "").trim()}{" "}
-                                            <span className="font-semibold text-foreground/60">for free.</span>
+                                            {tier.note.replace(t.forFree, "").trim()}{" "}
+                                            <span className="font-semibold text-foreground/60">{t.forFree}</span>
                                         </p>
                                     )}
 
@@ -97,24 +98,24 @@ export function PricingSection() {
                     transition={{ delay: 0.5 }}
                     className="mt-10 flex flex-col items-center gap-6"
                 >
-                    <Link href="/#contact">
+                    <Link href={links.contact}>
                         <Button
                             size="lg"
                             className="gap-2 bg-primary px-10 text-primary-foreground hover:bg-primary/90"
                         >
-                            Get Started
+                            {t.getStarted}
                             <ArrowRight className="size-4" />
                         </Button>
                     </Link>
                     <p className="text-sm text-muted-foreground">
-                        Not sure which model fits?{" "}
+                        {t.notSure}{" "}
                         <Link
-                            href="/#contact"
+                            href={links.contact}
                             className="font-medium text-primary underline-offset-4 hover:underline"
                         >
-                            Tell us about your project
+                            {t.tellUs}
                         </Link>{" "}
-                        and we&apos;ll suggest the right approach.
+                        {t.suggest}
                     </p>
                 </motion.div>
             </div>

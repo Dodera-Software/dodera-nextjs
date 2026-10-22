@@ -4,19 +4,21 @@ import { motion } from "framer-motion";
 import { TRUSTED_LOGOS } from "@/config/site";
 import { SocialIconList } from "@/components/SocialIconList";
 import { fadeIn, viewportOnce } from "@/lib/animations";
+import { useDict } from "@/i18n/LocaleProvider";
 
 export function TrustedBy() {
+    const t = useDict().trustedBy;
     return (
-        <section aria-label="Trusted by" className="relative border-y border-border/50 py-16">
+        <section aria-label={t.ariaLabel} className="relative border-y border-border/50 py-16">
             <div className="mx-auto max-w-7xl px-6">
                 <p className="mb-10 text-center text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                    Using globally trusted technologies like
+                    {t.label}
                 </p>
 
                 {/* Social icons — desktop, absolute right */}
                 <div className="absolute right-6 top-1/2 hidden -translate-y-1/2 flex-col items-end gap-2 lg:flex">
                     <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/50">
-                        Find us on:
+                        {t.findUs}
                     </p>
                     <SocialIconList />
                 </div>
@@ -40,7 +42,7 @@ export function TrustedBy() {
                 {/* Social icons — mobile/tablet */}
                 <div className="mt-10 flex flex-col items-center gap-3 lg:hidden">
                     <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/50">
-                        Find us on:
+                        {t.findUs}
                     </p>
                     <SocialIconList />
                 </div>

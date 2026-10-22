@@ -7,7 +7,7 @@ import { SITE } from "@/config/seo";
 import { alternatesFor } from "@/i18n/routes";
 import { CAREERS_META } from "./seo";
 import { breadcrumbSchema } from "@/lib/structured-data";
-import { CareersPageContent } from "./CareersPageContent";
+import { CareersPageContent } from "@/components/CareersPageContent";
 
 /* ── SEO Metadata ────────────────────────────────────────────────────────── */
 

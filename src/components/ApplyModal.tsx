@@ -2,6 +2,72 @@
 
 import { useRef, useState } from "react";
 import Link from "next/link";
+import { useLocale } from "@/i18n/LocaleProvider";
+
+const COPY = {
+    en: {
+        badType: "Only PDF, DOC, and DOCX files are accepted.",
+        tooBig: "File must be smaller than 2 MB.",
+        nameRequired: "Full name is required.",
+        emailRequired: "A valid email is required.",
+        cvRequired: "Please upload your CV.",
+        consentRequired: "You must agree to the privacy policy.",
+        generic: "Something went wrong. Please try again.",
+        network: "Network error. Please check your connection and try again.",
+        title: (job: string) => `Apply for ${job}`,
+        description: "Fill in your details and upload your CV. We'll get back to you soon.",
+        submittedTitle: "Application submitted!",
+        submittedText: (first: string) => `Thank you, ${first}. We'll review your application and reach out if there's a good fit.`,
+        close: "Close",
+        fullName: "Full Name",
+        namePlaceholder: "Jane Doe",
+        email: "Email Address",
+        emailPlaceholder: "you@example.com",
+        cv: "CV / Resume",
+        cvHint: "(PDF, DOC, DOCX, RTF, ODT, TXT · max 2 MB)",
+        removeFile: "Remove file",
+        clickToUpload: "Click to upload",
+        dragDrop: "or drag and drop",
+        formats: "PDF, DOC, DOCX, RTF, ODT, TXT up to 2 MB",
+        consentBefore: "I have read and agree to the",
+        privacy: "Privacy Policy",
+        privacyHref: "/privacy-policy",
+        consentAfter: ". I consent to Dodera Software S.R.L. processing my personal data (including my CV) for recruitment purposes.",
+        submitting: "Submitting…",
+        submit: "Submit Application",
+    },
+    ro: {
+        badType: "Sunt acceptate doar fișiere PDF, DOC și DOCX.",
+        tooBig: "Fișierul trebuie să aibă mai puțin de 2 MB.",
+        nameRequired: "Numele complet este obligatoriu.",
+        emailRequired: "Este necesară o adresă de email validă.",
+        cvRequired: "Vă rugăm să încărcați CV-ul.",
+        consentRequired: "Pentru a trimite aplicația, trebuie să fiți de acord cu politica de confidențialitate.",
+        generic: "A apărut o eroare. Vă rugăm să încercați din nou.",
+        network: "Eroare de rețea. Verificați conexiunea și încercați din nou.",
+        title: (job: string) => `Aplicați pentru ${job}`,
+        description: "Completați datele și încărcați CV-ul. Vă răspundem în curând.",
+        submittedTitle: "Aplicație trimisă!",
+        submittedText: (first: string) => `Vă mulțumim, ${first}. Analizăm aplicația și vă contactăm dacă profilul se potrivește.`,
+        close: "Închide",
+        fullName: "Nume complet",
+        namePlaceholder: "Ana Popescu",
+        email: "Adresa de email",
+        emailPlaceholder: "nume@exemplu.ro",
+        cv: "CV",
+        cvHint: "(PDF, DOC, DOCX, RTF, ODT, TXT · maximum 2 MB)",
+        removeFile: "Șterge fișierul",
+        clickToUpload: "Faceți clic pentru a încărca",
+        dragDrop: "sau trageți fișierul aici",
+        formats: "PDF, DOC, DOCX, RTF, ODT, TXT, maximum 2 MB",
+        consentBefore: "Am citit și sunt de acord cu",
+        privacy: "Politica de confidențialitate",
+        privacyHref: "/ro/politica-de-confidentialitate",
+        consentAfter: ". Sunt de acord ca Dodera Software S.R.L. să prelucreze datele mele personale (inclusiv CV-ul) în scop de recrutare.",
+        submitting: "Se trimite…",
+        submit: "Trimiteți aplicația",
+    },
+} as const;
 import { Upload, FileText, X, Send, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import {
     Dialog,
@@ -45,6 +111,7 @@ interface FieldErrors {
 }
 
 export function ApplyModal({ job, open, onOpenChange }: Props) {
+    const t = COPY[useLocale()];
     const [fullName, setFullName] = useState("");
     const [email, setEmail] = useState("");
     const [file, setFile] = useState<File | null>(null);
@@ -77,11 +144,11 @@ export function ApplyModal({ job, open, onOpenChange }: Props) {
         if (!selected) return;
         const ext = selected.name.slice(selected.name.lastIndexOf(".")).toLowerCase();
         if (!ALLOWED_EXTENSIONS.includes(ext)) {
-            setErrors((e) => ({ ...e, cv: "Only PDF, DOC, and DOCX files are accepted." }));
+            setErrors((e) => ({ ...e, cv: t.badType }));
             return;
         }
         if (selected.size > MAX_FILE_SIZE) {
-            setErrors((e) => ({ ...e, cv: "File must be smaller than 2 MB." }));
+            setErrors((e) => ({ ...e, cv: t.tooBig }));
             return;
         }
         setFile(selected);
@@ -100,10 +167,10 @@ export function ApplyModal({ job, open, onOpenChange }: Props) {
 
         // Client-side validation
         const newErrors: FieldErrors = {};
-        if (!fullName.trim() || fullName.trim().length < 2) newErrors.full_name = "Full name is required.";
-        if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) newErrors.email = "A valid email is required.";
-        if (!file) newErrors.cv = "Please upload your CV.";
-        if (!gdpr) newErrors.gdpr_consent = "You must agree to the privacy policy.";
+        if (!fullName.trim() || fullName.trim().length < 2) newErrors.full_name = t.nameRequired;
+        if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) newErrors.email = t.emailRequired;
+        if (!file) newErrors.cv = t.cvRequired;
+        if (!gdpr) newErrors.gdpr_consent = t.consentRequired;
 
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
@@ -130,14 +197,14 @@ export function ApplyModal({ job, open, onOpenChange }: Props) {
                 if (data.errors) {
                     setErrors(data.errors);
                 } else {
-                    setServerError(data.message ?? "Something went wrong. Please try again.");
+                    setServerError(data.message ?? t.generic);
                 }
                 return;
             }
 
             setSubmitted(true);
         } catch {
-            setServerError("Network error. Please check your connection and try again.");
+            setServerError(t.network);
         } finally {
             setSubmitting(false);
         }
@@ -147,9 +214,9 @@ export function ApplyModal({ job, open, onOpenChange }: Props) {
         <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogContent className="max-w-md">
                 <DialogHeader>
-                    <DialogTitle>Apply for {job.title}</DialogTitle>
+                    <DialogTitle>{t.title(job.title)}</DialogTitle>
                     <DialogDescription>
-                        Fill in your details and upload your CV. We&apos;ll get back to you soon.
+                        {t.description}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -159,13 +226,13 @@ export function ApplyModal({ job, open, onOpenChange }: Props) {
                             <CheckCircle2 className="size-7 text-emerald-600" />
                         </div>
                         <div>
-                            <p className="font-semibold">Application submitted!</p>
+                            <p className="font-semibold">{t.submittedTitle}</p>
                             <p className="mt-1 text-sm text-muted-foreground">
-                                Thank you, {fullName.split(" ")[0]}. We&apos;ll review your application and reach out if there&apos;s a good fit.
+                                {t.submittedText(fullName.split(" ")[0])}
                             </p>
                         </div>
                         <Button variant="outline" onClick={() => handleOpenChange(false)}>
-                            Close
+                            {t.close}
                         </Button>
                     </div>
                 ) : (
@@ -173,13 +240,13 @@ export function ApplyModal({ job, open, onOpenChange }: Props) {
                         {/* Full name */}
                         <div className="space-y-1.5">
                             <label htmlFor="apply-name" className="text-sm font-medium">
-                                Full Name <span className="text-destructive">*</span>
+                                {t.fullName} <span className="text-destructive">*</span>
                             </label>
                             <Input
                                 id="apply-name"
                                 value={fullName}
                                 onChange={(e) => setFullName(e.target.value)}
-                                placeholder="Jane Doe"
+                                placeholder={t.namePlaceholder}
                                 maxLength={120}
                                 aria-invalid={!!errors.full_name}
                             />
@@ -189,14 +256,14 @@ export function ApplyModal({ job, open, onOpenChange }: Props) {
                         {/* Email */}
                         <div className="space-y-1.5">
                             <label htmlFor="apply-email" className="text-sm font-medium">
-                                Email Address <span className="text-destructive">*</span>
+                                {t.email} <span className="text-destructive">*</span>
                             </label>
                             <Input
                                 id="apply-email"
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                placeholder="you@example.com"
+                                placeholder={t.emailPlaceholder}
                                 maxLength={254}
                                 aria-invalid={!!errors.email}
                             />
@@ -206,8 +273,8 @@ export function ApplyModal({ job, open, onOpenChange }: Props) {
                         {/* CV upload */}
                         <div className="space-y-1.5">
                             <label className="text-sm font-medium">
-                                CV / Resume <span className="text-destructive">*</span>
-                                <span className="ml-1 font-normal text-muted-foreground">(PDF, DOC, DOCX, RTF, ODT, TXT · max 2 MB)</span>
+                                {t.cv} <span className="text-destructive">*</span>
+                                <span className="ml-1 font-normal text-muted-foreground">{t.cvHint}</span>
                             </label>
 
                             {file ? (
@@ -218,7 +285,7 @@ export function ApplyModal({ job, open, onOpenChange }: Props) {
                                         type="button"
                                         onClick={() => setFile(null)}
                                         className="shrink-0 text-muted-foreground hover:text-foreground"
-                                        aria-label="Remove file"
+                                        aria-label={t.removeFile}
                                     >
                                         <X className="size-4" />
                                     </button>
@@ -236,9 +303,9 @@ export function ApplyModal({ job, open, onOpenChange }: Props) {
                                 >
                                     <Upload className="size-6 text-muted-foreground" />
                                     <p className="text-sm text-muted-foreground">
-                                        <span className="font-medium text-foreground">Click to upload</span> or drag and drop
+                                        <span className="font-medium text-foreground">{t.clickToUpload}</span> {t.dragDrop}
                                     </p>
-                                    <p className="text-xs text-muted-foreground">PDF, DOC, DOCX, RTF, ODT, TXT up to 2 MB</p>
+                                    <p className="text-xs text-muted-foreground">{t.formats}</p>
                                 </div>
                             )}
 
@@ -263,16 +330,15 @@ export function ApplyModal({ job, open, onOpenChange }: Props) {
                                     aria-invalid={!!errors.gdpr_consent}
                                 />
                                 <span className="text-xs leading-relaxed text-muted-foreground">
-                                    I have read and agree to the{" "}
+                                    {t.consentBefore}{" "}
                                     <Link
-                                        href="/privacy-policy"
+                                        href={t.privacyHref}
                                         target="_blank"
                                         className="text-primary underline underline-offset-2"
                                     >
-                                        Privacy Policy
+                                        {t.privacy}
                                     </Link>
-                                    . I consent to Dodera Software S.R.L. processing my personal data
-                                    (including my CV) for recruitment purposes.
+                                    {t.consentAfter}
                                 </span>
                             </label>
                             <FieldError message={errors.gdpr_consent} />
@@ -291,7 +357,7 @@ export function ApplyModal({ job, open, onOpenChange }: Props) {
                             ) : (
                                 <Send className="mr-2 size-4" />
                             )}
-                            {submitting ? "Submitting…" : "Submit Application"}
+                            {submitting ? t.submitting : t.submit}
                         </Button>
                     </form>
                 )}

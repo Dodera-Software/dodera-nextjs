@@ -2,8 +2,8 @@
 
 import { motion } from "framer-motion";
 import { SectionHeading } from "@/components/SectionHeading";
-import { PROCESS_STEPS } from "@/config/site";
 import { fadeInUpLg, viewportOnce, stagger } from "@/lib/animations";
+import { useDict } from "@/i18n/LocaleProvider";
 
 /*
  * One list for every screen size: vertical timeline on mobile, horizontal
@@ -11,13 +11,15 @@ import { fadeInUpLg, viewportOnce, stagger } from "@/lib/animations";
  * so crawlers and AI summaries saw each step two times.)
  */
 export function ProcessSection() {
+    const t = useDict().process;
+    const PROCESS_STEPS = t.steps;
     return (
         <section id="process" aria-labelledby="process-heading" className="relative py-32">
             <div className="absolute inset-0 grid-bg" />
 
             <div className="relative z-10 mx-auto max-w-7xl px-6">
-                <SectionHeading label="How We Work" id="process-heading">
-                    From zero to <span className="text-primary">production</span>
+                <SectionHeading label={t.label} id="process-heading">
+                    {t.titleA} <span className="text-primary">{t.titleB}</span>
                 </SectionHeading>
 
                 <ol className="relative flex flex-col md:flex-row md:items-start">

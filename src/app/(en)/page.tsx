@@ -47,7 +47,7 @@ export default function HomePage() {
       <JsonLd
         data={[
           businessSchema(),
-          webSiteSchema(),
+          webSiteSchema({ languages: ["en", "ro"] }),
         ]}
       />
       <ScrollManager />

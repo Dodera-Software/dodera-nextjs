@@ -5,6 +5,7 @@ import { Send, AlertCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { EMAIL_RE } from "@/lib/validation";
+import { useDict } from "@/i18n/LocaleProvider";
 
 type Status = "idle" | "loading" | "success" | "error";
 
@@ -13,6 +14,7 @@ type Status = "idle" | "loading" | "success" | "error";
  * Extracted from Footer to be reusable on other pages too.
  */
 export function NewsletterForm() {
+    const t = useDict().newsletter;
     const [email, setEmail] = useState("");
     const [status, setStatus] = useState<Status>("idle");
     const [errorMsg, setErrorMsg] = useState("");
@@ -23,7 +25,7 @@ export function NewsletterForm() {
 
         if (!trimmed || trimmed.length > 254 || !EMAIL_RE.test(trimmed)) {
             setStatus("error");
-            setErrorMsg("Please enter a valid email address.");
+            setErrorMsg(t.invalidEmail);
             return;
         }
 
@@ -41,14 +43,14 @@ export function NewsletterForm() {
 
             if (!res.ok || data.status === "error") {
                 setStatus("error");
-                setErrorMsg(data.message ?? "Something went wrong. Please try again.");
+                setErrorMsg(data.message ?? t.genericError);
                 return;
             }
 
             setStatus("success");
         } catch {
             setStatus("error");
-            setErrorMsg("Network error. Please try again.");
+            setErrorMsg(t.networkError);
         }
     }
 
@@ -56,7 +58,7 @@ export function NewsletterForm() {
         return (
             <p className="flex items-center gap-2 text-sm text-emerald-600">
                 <Send className="size-3.5" />
-                Subscribed!
+                {t.success}
             </p>
         );
     }
@@ -67,14 +69,14 @@ export function NewsletterForm() {
                 type="email"
                 name="newsletter-email"
                 autoComplete="email"
-                placeholder="Enter your email"
+                placeholder={t.placeholder}
                 maxLength={254}
                 value={email}
                 onChange={(e) => {
                     setEmail(e.target.value);
                     if (status === "error") setStatus("idle");
                 }}
-                aria-label="Email address for newsletter"
+                aria-label={t.aria}
                 aria-invalid={status === "error"}
                 className="border-border"
             />
@@ -90,7 +92,7 @@ export function NewsletterForm() {
                 className="w-full"
                 disabled={status === "loading"}
             >
-                {status === "loading" ? "Subscribing…" : "Subscribe"}
+                {status === "loading" ? t.subscribing : t.subscribe}
                 <Send className="ml-2 size-3" />
             </Button>
         </form>

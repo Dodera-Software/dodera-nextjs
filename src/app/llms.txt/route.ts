@@ -1,6 +1,7 @@
 import { SITE, SERVICE_AREA } from "@/config/seo";
 import { PRICE_FACTS } from "@/config/pricing";
 import { SERVICE_PAGES } from "@/config/services";
+import { SERVICE_PAGES_RO } from "@/config/services.ro";
 import { ROUTES, absoluteUrl, type PageId, type StaticPageId } from "@/i18n/routes";
 import type { Locale } from "@/i18n/config";
 
@@ -16,13 +17,17 @@ const PAGE_TITLES: Record<StaticPageId, Record<Locale, string>> = {
     home: { en: "Home", ro: "Acasă" },
     services: { en: "All services", ro: "Toate serviciile" },
     about: { en: "About us", ro: "Despre noi" },
+    contact: { en: "Contact", ro: "Contact" },
     blog: { en: "Blog", ro: "Blog" },
     careers: { en: "Careers", ro: "Cariere" },
     privacy: { en: "Privacy policy", ro: "Politica de confidențialitate" },
 };
 
 function pageTitle(id: PageId, locale: Locale): string {
-    if (id.startsWith("service:")) return SERVICE_PAGES[id.slice("service:".length)]?.heroLabel ?? id;
+    if (id.startsWith("service:")) {
+        const key = id.slice("service:".length);
+        return (locale === "ro" ? SERVICE_PAGES_RO[key] : SERVICE_PAGES[key])?.heroLabel ?? id;
+    }
     return PAGE_TITLES[id as StaticPageId]?.[locale] ?? id;
 }
 
@@ -80,6 +85,10 @@ export function GET() {
 
 ${pageList("en")}
 ${hasRomanian ? `
+## Pe scurt, în română
+
+Dodera Software este o firmă de dezvoltare software din Satu Mare care construiește aplicații web, site-uri de prezentare, agenți AI și automatizări n8n pentru companii din toată România. Preț fix pe proiect de la ${p.projectFrom} EUR, pe sarcină de la ${p.taskFrom} EUR, pe oră ${p.hourly.min}–${p.hourly.max} EUR, abonament de la ${p.retainerFrom} EUR/lună. Întâlniri față în față în Satu Mare; în rest, de la distanță.
+
 ## Pagini cheie (Română)
 
 ${pageList("ro")}

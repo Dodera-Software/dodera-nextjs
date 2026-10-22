@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ApplyModal, type ApplyJobInfo } from "@/components/ApplyModal";
+import { useLocale } from "@/i18n/LocaleProvider";
 import { fadeInUp, fadeInUpLg, viewportOnce, stagger } from "@/lib/animations";
 
 interface JobOpening {
@@ -18,7 +19,7 @@ interface JobOpening {
     apply_url: string | null;
 }
 
-const WHY_ITEMS = [
+const WHY_ITEMS_EN = [
     {
         title: "Real ownership",
         body: "Every engineer owns their work end-to-end. You design, build, and ship features that reach real users.",
@@ -43,9 +44,68 @@ const WHY_ITEMS = [
         title: "Competitive rates",
         body: "We value great work and pay accordingly, with engagement models flexible enough to suit contractors and full-time team members alike.",
     },
-] as const;
+];
+
+const WHY_ITEMS_RO = [
+    {
+        title: "Responsabilitate reală",
+        body: "Fiecare inginer își duce munca de la cap la coadă: proiectează, construiește și publică funcționalități folosite de utilizatori reali.",
+    },
+    {
+        title: "Lucru de la distanță",
+        body: "Lucrați de unde sunteți cel mai productiv. Suntem obișnuiți să colaborăm la distanță, iar în Satu Mare ne putem vedea și la birou.",
+    },
+    {
+        title: "Proiecte care contează",
+        body: "Clienții noștri sunt atât startupuri, cât și companii consacrate. Veți lucra la probleme reale, cu rezultate pe care le vedeți.",
+    },
+    {
+        title: "Tehnologii moderne",
+        body: "Next.js, TypeScript, Laravel, instrumente AI. Folosim cele mai potrivite instrumente pentru fiecare proiect și ținem pasul cu ele.",
+    },
+    {
+        title: "Cultură transparentă",
+        body: "Feedback sincer, așteptări clare și inițiativă. Comunicăm deschis și rezolvăm problemele înainte să devină probleme mari.",
+    },
+    {
+        title: "Plată corectă",
+        body: "Apreciem munca bună și o plătim pe măsură, cu forme de colaborare potrivite atât pentru colaboratori, cât și pentru angajați.",
+    },
+];
+
+/* Static copy; job postings themselves come from the admin (/api/careers) as written there. */
+const COPY = {
+    en: {
+        eyebrow: "Careers",
+        titleA: "Be part of",
+        titleB: "team.",
+        lead: "We are a small, focused team of engineers and designers who care deeply about craft and ownership. We move fast, communicate openly, and build things that matter for clients around the world. If you are passionate about tech, you already belong here.",
+        openTitle: "Open Positions",
+        noneTitle: "No open positions right now",
+        noneText: "We don't have any positions open at the moment. If you have a standout skill and think you belong on this team, send us a message. We'd love to meet you.",
+        contact: "Contact Us",
+        apply: "Apply for this position",
+        whyTitle: "Why join Dodera?",
+        why: WHY_ITEMS_EN,
+    },
+    ro: {
+        eyebrow: "Cariere",
+        titleA: "Alăturați-vă echipei",
+        titleB: "din Satu Mare.",
+        lead: "Dodera Software este o firmă de dezvoltare software din Satu Mare: o echipă mică și concentrată de ingineri și designeri cărora le pasă de calitate și de responsabilitate. Lucrăm repede, comunicăm deschis și construim produse pentru clienți din România și din străinătate.",
+        openTitle: "Posturi disponibile",
+        noneTitle: "Momentan nu avem posturi deschise",
+        noneText: "Nu avem posturi deschise în acest moment. Dacă aveți o abilitate care vă diferențiază și credeți că vă potriviți în echipă, scrieți-ne. Ne-ar face plăcere să vă cunoaștem.",
+        contact: "Scrieți-ne",
+        apply: "Aplicați pentru acest post",
+        whyTitle: "De ce Dodera?",
+        why: WHY_ITEMS_RO,
+    },
+} as const;
 
 export function CareersPageContent() {
+    const t = COPY[useLocale()];
+    const WHY_ITEMS = t.why;
     const [openings, setOpenings] = useState<JobOpening[]>([]);
     const [loadingJobs, setLoadingJobs] = useState(true);
     const [expandedId, setExpandedId] = useState<number | null>(null);
@@ -74,7 +134,7 @@ export function CareersPageContent() {
                         transition={{ duration: 0.4 }}
                         className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground"
                     >
-                        Careers
+                        {t.eyebrow}
                     </motion.p>
                     <motion.h1
                         id="careers-hero-heading"
@@ -84,9 +144,9 @@ export function CareersPageContent() {
                         transition={{ duration: 0.4, delay: 0.08 }}
                         className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl"
                     >
-                        Be part of{" "}
+                        {t.titleA}{" "}
                         <span className="whitespace-nowrap text-primary">Dodera Software</span>{" "}
-                        team.
+                        {t.titleB}
                     </motion.h1>
                     <motion.p
                         variants={fadeInUp}
@@ -95,9 +155,7 @@ export function CareersPageContent() {
                         transition={{ duration: 0.4, delay: 0.16 }}
                         className="mx-auto max-w-2xl text-lg leading-relaxed text-muted-foreground"
                     >
-                        We are a small, focused team of engineers and designers who care deeply about
-                        craft and ownership. We move fast, communicate openly, and build things that
-                        matter for clients around the world. If you are passionate about tech, you already belong here.
+                        {t.lead}
                     </motion.p>
                 </div>
             </section>
@@ -113,7 +171,7 @@ export function CareersPageContent() {
                         viewport={viewportOnce}
                         className="mb-8 text-center text-2xl font-bold tracking-tight sm:text-3xl"
                     >
-                        Open Positions
+                        {t.openTitle}
                     </motion.h2>
 
                     {loadingJobs ? (
@@ -133,17 +191,15 @@ export function CareersPageContent() {
                             </div>
                             <div>
                                 <h3 className="mb-3 text-xl font-bold tracking-tight">
-                                    No open positions right now
+                                    {t.noneTitle}
                                 </h3>
                                 <p className="text-base leading-relaxed text-muted-foreground">
-                                    We don&apos;t have any positions open at the moment. If you have
-                                    a standout skill and think you belong on this team, send us a message.
-                                    We&apos;d love to meet you.
+                                    {t.noneText}
                                 </p>
                             </div>
                             <Button size="lg" asChild>
                                 <Link href="mailto:office@doderasoft.com">
-                                    Contact Us
+                                    {t.contact}
                                     <ArrowRight className="ml-1 size-4" />
                                 </Link>
                             </Button>
@@ -209,7 +265,7 @@ export function CareersPageContent() {
                                                         </p>
                                                     )}
                                                     <Button onClick={() => setApplyJob({ id: job.id, title: job.title })}>
-                                                        Apply for this position
+                                                        {t.apply}
                                                         <ArrowRight className="ml-1 size-4" />
                                                     </Button>
                                                 </div>
@@ -245,7 +301,7 @@ export function CareersPageContent() {
                         className="mb-12 text-center"
                     >
                         <h2 id="why-heading" className="text-3xl font-bold tracking-tight sm:text-4xl">
-                            Why join Dodera?
+                            {t.whyTitle}
                         </h2>
                     </motion.div>
 

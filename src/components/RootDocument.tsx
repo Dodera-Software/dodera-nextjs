@@ -3,6 +3,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "sonner";
 import { PrismicPreviewBar } from "@/components/PrismicPreviewBar";
 import { HTML_LANG, type Locale } from "@/i18n/config";
+import { LocaleProvider } from "@/i18n/LocaleProvider";
 
 /* latin-ext carries the Romanian diacritics (ș, ț, ă, â, î). */
 const inter = Inter({
@@ -36,9 +37,10 @@ export function RootDocument({
         className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased bg-background text-foreground`}
       >
         <TooltipProvider>
-          {children}
+          <LocaleProvider locale={locale}>{children}</LocaleProvider>
           <Toaster
             position="top-center"
+            containerAriaLabel={locale === "ro" ? "Notificări" : "Notifications"}
             toastOptions={{
               style: {
                 background: "hsl(var(--card))",

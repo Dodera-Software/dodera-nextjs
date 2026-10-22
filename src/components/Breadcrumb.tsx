@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useDict } from "@/i18n/LocaleProvider";
 
 export interface BreadcrumbItem {
     label: string;
@@ -33,8 +34,9 @@ function segmentToLabel(segment: string): string {
 
 function useAutoItems(): BreadcrumbItem[] {
     const pathname = usePathname();
+    const { breadcrumb, links } = useDict();
     const segments = pathname.split("/").filter(Boolean);
-    const crumbs: BreadcrumbItem[] = [{ label: "Home", href: "/" }];
+    const crumbs: BreadcrumbItem[] = [{ label: breadcrumb.home, href: links.home }];
     segments.forEach((seg, i) => {
         const isLast = i === segments.length - 1;
         crumbs.push({
@@ -47,11 +49,12 @@ function useAutoItems(): BreadcrumbItem[] {
 
 export function Breadcrumb({ items, className }: BreadcrumbProps) {
     const autoItems = useAutoItems();
+    const t = useDict().breadcrumb;
     const crumbs = items ?? autoItems;
 
     return (
         <nav
-            aria-label="Breadcrumb"
+            aria-label={t.ariaLabel}
             className={cn(
                 "sticky top-16 z-40 border-b border-border/50 bg-background/80 backdrop-blur-xl",
                 className,

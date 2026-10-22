@@ -16,6 +16,7 @@ import type { Metadata } from "next";
 import { SITE } from "@/config/seo";
 import { SERVICE_PAGE_SLUGS } from "@/config/services";
 import { DEFAULT_LOCALE, HTML_LANG, LOCALES, type Locale } from "./config";
+import { SERVICE_PATHS, STATIC_PATHS } from "./paths";
 
 export interface PageRoute {
     paths: Partial<Record<Locale, string>>;
@@ -24,17 +25,16 @@ export interface PageRoute {
     priority: number;
 }
 
-const SERVICE_SOURCES = ["src/config/services.ts", "src/components/ServicePageLayout.tsx"];
-
-/** Romanian path for each service page, keyed by the English service key. */
-export const SERVICE_RO_PATHS: Partial<Record<string, string>> = {};
+const SERVICE_SOURCES = ["src/config/services.ts", "src/config/services.ro.ts", "src/components/ServicePageLayout.tsx"];
 
 const STATIC_ROUTES = {
     home: {
-        paths: { en: "/" },
+        paths: STATIC_PATHS.home,
         sources: [
             "src/app/(en)/page.tsx",
             "src/app/(en)/seo.ts",
+            "src/app/(ro)/ro/page.tsx",
+            "src/i18n/dictionaries/ro.ts",
             "src/config/site.ts",
             "src/config/pricing.ts",
             "src/config/case-studies.ts",
@@ -50,32 +50,38 @@ const STATIC_ROUTES = {
         priority: 1.0,
     },
     services: {
-        paths: { en: "/services" },
-        sources: ["src/app/(en)/services/page.tsx", "src/config/site.ts", "src/components/ServicesIndex.tsx"],
+        paths: STATIC_PATHS.services,
+        sources: ["src/app/(en)/services/page.tsx", "src/app/(ro)/ro/servicii/page.tsx", "src/config/site.ts", "src/components/ServicesIndex.tsx"],
         changeFrequency: "monthly",
         priority: 0.9,
     },
     about: {
-        paths: { en: "/about" },
-        sources: ["src/app/(en)/about/page.tsx", "src/app/(en)/about/AboutPageContent.tsx", "src/app/(en)/about/seo.ts"],
+        paths: STATIC_PATHS.about,
+        sources: ["src/app/(ro)/ro/despre-noi/page.tsx", "src/app/(en)/about/page.tsx", "src/app/(en)/about/AboutPageContent.tsx", "src/app/(en)/about/seo.ts"],
         changeFrequency: "monthly",
         priority: 0.9,
     },
+    contact: {
+        paths: STATIC_PATHS.contact,
+        sources: ["src/app/(en)/contact/page.tsx", "src/app/(ro)/ro/contact/page.tsx", "src/components/ContactPage.tsx"],
+        changeFrequency: "yearly",
+        priority: 0.8,
+    },
     blog: {
-        paths: { en: "/blog" },
+        paths: STATIC_PATHS.blog,
         sources: ["src/app/(en)/blog/page.tsx", "src/app/(en)/blog/seo.ts"],
         changeFrequency: "weekly",
         priority: 0.8,
     },
     careers: {
-        paths: { en: "/careers" },
-        sources: ["src/app/(en)/careers/page.tsx", "src/app/(en)/careers/CareersPageContent.tsx", "src/app/(en)/careers/seo.ts"],
+        paths: STATIC_PATHS.careers,
+        sources: ["src/app/(ro)/ro/cariere/page.tsx", "src/app/(en)/careers/page.tsx", "src/components/CareersPageContent.tsx", "src/app/(en)/careers/seo.ts"],
         changeFrequency: "monthly",
         priority: 0.7,
     },
     privacy: {
-        paths: { en: "/privacy-policy" },
-        sources: ["src/app/(en)/privacy-policy/page.tsx"],
+        paths: STATIC_PATHS.privacy,
+        sources: ["src/app/(en)/privacy-policy/page.tsx", "src/app/(ro)/ro/politica-de-confidentialitate/page.tsx"],
         changeFrequency: "yearly",
         priority: 0.3,
     },
@@ -86,9 +92,8 @@ export type ServicePageId = `service:${string}`;
 export type PageId = StaticPageId | ServicePageId;
 
 function serviceRoute(key: string): PageRoute {
-    const ro = SERVICE_RO_PATHS[key];
     return {
-        paths: { en: `/services/${key}`, ...(ro ? { ro } : {}) },
+        paths: SERVICE_PATHS[key] ?? { en: `/services/${key}` },
         sources: SERVICE_SOURCES,
         changeFrequency: "monthly",
         priority: key.includes("/") ? 0.7 : 0.9,
@@ -133,12 +138,4 @@ export function alternatesFor(id: PageId, locale: Locale): NonNullable<Metadata[
         canonical: absoluteUrl(path),
         ...(languages ? { languages } : {}),
     };
-}
-
-/** The equivalent of `pathname` in `target`, used by the language switcher. Falls back to that locale's home. */
-export function switchLocalePath(pathname: string, target: Locale, extra: Partial<Record<Locale, string>>[] = []): string {
-    const all = [...Object.values(ROUTES).map((r) => r.paths), ...extra];
-    const clean = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
-    const match = all.find((p) => LOCALES.some((l) => p[l] === clean));
-    return match?.[target] ?? (target === "ro" ? "/ro" : "/");
 }
