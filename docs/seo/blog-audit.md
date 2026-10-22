@@ -1,6 +1,6 @@
 # Blog audit: keep, merge or noindex
 
-There are 15 posts on doderasoft.com/blog, all in English (Prismic `en-us`). **Nothing has been deleted or noindexed.** Each action below is a proposal for you to decide.
+There are 15 posts on doderasoft.com/blog, all in English (Prismic `en-us`). **Nothing has been deleted.** On 22 Oct 2026 the owner asked for the noindex list below to be applied (`src/config/blog-seo.ts`). The merge and refresh proposals are still open.
 
 **Why it matters:** a services company's blog helps rankings when its posts support what the company sells, so they earn links and answer buyer questions. Time-bound tech-news posts can't rank against news sites, go stale fast, and dilute what search engines and AI assistants think the site is about.
 
