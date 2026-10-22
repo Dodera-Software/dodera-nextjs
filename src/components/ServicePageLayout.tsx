@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/accordion";
 import { fadeInUp, fadeInUpLg, viewportOnce, stagger } from "@/lib/animations";
 import type { ServicePageData } from "@/types";
-import { SERVICE_PAGES } from "@/config/services";
 import { N8nIcon } from "@/components/icons/N8nIcon";
 import { Breadcrumb, BreadcrumbItem } from "@/components/Breadcrumb";
 
@@ -52,6 +51,8 @@ function resolveIcon(name: string) {
 
 export interface ServicePageLayoutProps {
     data: ServicePageData;
+    /** Parent service label, for the breadcrumb on child pages. */
+    parentLabel?: string;
 }
 
 /**
@@ -60,24 +61,22 @@ export interface ServicePageLayoutProps {
  * Renders a semantic, SEO-optimised page structure:
  * - Single H1 (hero)
  * - H2 content sections
- * - FAQ section with Schema.org markup
+ * - FAQ section with Schema.org markup (answers stay in the HTML
+ *   while collapsed — FAQPage markup requires them to be on the page)
  * - Related services
  * - CTA
  */
-export function ServicePageLayout({ data }: ServicePageLayoutProps) {
+export function ServicePageLayout({ data, parentLabel }: ServicePageLayoutProps) {
     return (
         <>
             {/* ── Breadcrumb ──────────────────────────────────── */}
             {(() => {
                 const crumbs: BreadcrumbItem[] = [
                     { label: "Home", href: "/" },
-                    { label: "Services", href: "/#services" },
+                    { label: "Services", href: "/services" },
                 ];
-                if (data.parentSlug) {
-                    const parent = SERVICE_PAGES[data.parentSlug];
-                    if (parent) {
-                        crumbs.push({ label: parent.heroLabel, href: `/services/${data.parentSlug}` });
-                    }
+                if (data.parentSlug && parentLabel) {
+                    crumbs.push({ label: parentLabel, href: `/services/${data.parentSlug}` });
                 }
                 crumbs.push({ label: data.heroLabel });
                 return <Breadcrumb items={crumbs} />;
@@ -279,7 +278,7 @@ export function ServicePageLayout({ data }: ServicePageLayoutProps) {
                                         <AccordionTrigger className="text-left text-base font-medium">
                                             {faq.question}
                                         </AccordionTrigger>
-                                        <AccordionContent className="text-sm leading-relaxed text-muted-foreground">
+                                        <AccordionContent forceMount className="text-sm leading-relaxed text-muted-foreground">
                                             {faq.answer}
                                         </AccordionContent>
                                     </AccordionItem>

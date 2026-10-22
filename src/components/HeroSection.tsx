@@ -17,17 +17,13 @@ export function HeroSection() {
                 <div className="grid w-full gap-10 lg:grid-cols-2 lg:gap-16 items-center">
                     {/* Left - Copy */}
                     <div className="flex flex-col gap-5 text-center lg:text-left items-center lg:items-start">
-                        <motion.h1
-                            variants={fadeInUp}
-                            initial="hidden"
-                            animate="visible"
-                            transition={{ duration: 0.4, delay: 0.08 }}
-                            className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl"
-                        >
-                            Software that
+                        {/* Plain h1, no entrance animation: it is the LCP element and
+                            must be visible in the server HTML, not after hydration. */}
+                        <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
+                            Software that{" "}
                             <br />
                             <span className="text-primary">Means Business.</span>
-                        </motion.h1>
+                        </h1>
 
                         <motion.p
                             variants={fadeInUp}

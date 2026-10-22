@@ -78,6 +78,7 @@ export default async function BlogPostPage({ params }: PageProps) {
             dateModified: post.updatedAt,
             image: post.image,
             authorName: post.author?.name,
+            locale: "en",
         }),
     ];
 

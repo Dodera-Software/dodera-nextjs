@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, ChevronDown, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { BlogPost } from "@/types";
@@ -14,12 +14,12 @@ import { formatDateShort } from "@/lib/format";
 
 export interface BlogPageContentProps {
     posts: BlogPost[];
+    /** ?tag= from the URL, read on the server so the listing is in the server HTML. */
+    activeTag: string;
 }
 
-export function BlogPageContent({ posts }: BlogPageContentProps) {
+export function BlogPageContent({ posts, activeTag }: BlogPageContentProps) {
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const activeTag = searchParams.get("tag") ?? "";
     const [moreOpen, setMoreOpen] = useState(false);
     const moreRef = useRef<HTMLDivElement>(null);
 
@@ -48,7 +48,7 @@ export function BlogPageContent({ posts }: BlogPageContentProps) {
         : posts;
 
     function selectTag(tag: string) {
-        const params = new URLSearchParams(searchParams.toString());
+        const params = new URLSearchParams();
         if (tag) {
             params.set("tag", tag);
         } else {

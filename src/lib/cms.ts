@@ -64,7 +64,10 @@ function mapPrismicPost(doc: BlogPostDocument): BlogPost {
             if (!html) return undefined;
             // Remove stray "undefined" fragments produced by empty embed blocks
             const cleaned = html.replace(/(?:<[^>]*>)?\s*undefined\s*(?:<\/[^>]*>)?/g, "").trim();
-            return cleaned || undefined;
+            // The post title is the page's only <h1>; headings authored as
+            // "Heading 1" in the body become <h2> so there is exactly one.
+            const singleH1 = cleaned.replace(/<(\/?)h1(\s|>)/gi, "<$1h2$2");
+            return singleH1 || undefined;
         })(),
         seo: {
             metaTitle: d.meta_title ?? undefined,

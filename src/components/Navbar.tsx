@@ -60,12 +60,18 @@ export function Navbar() {
                 {/* Desktop Nav */}
                 <div className="hidden items-center gap-8 md:flex">
                     <div onMouseEnter={openMega} onMouseLeave={closeMega}>
-                        <button className="flex items-center gap-1 text-sm font-medium text-foreground/70 transition-colors hover:text-foreground">
+                        <Link
+                            href="/services"
+                            aria-haspopup="true"
+                            aria-expanded={megaOpen}
+                            className="flex items-center gap-1 text-sm font-medium text-foreground/70 transition-colors hover:text-foreground"
+                        >
                             Services
                             <ChevronDown
+                                aria-hidden="true"
                                 className={`size-3.5 transition-transform ${megaOpen ? "rotate-180" : ""}`}
                             />
-                        </button>
+                        </Link>
                     </div>
 
                     {NAV_LINKS.map((link) => (
@@ -158,9 +164,13 @@ export function Navbar() {
                         className="overflow-hidden border-t border-border/50 bg-card/95 backdrop-blur-xl md:hidden"
                     >
                         <div className="space-y-1 px-6 py-5">
-                            <p className="mb-3 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+                            <Link
+                                href="/services"
+                                onClick={() => setMobileOpen(false)}
+                                className="mb-3 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground hover:text-foreground"
+                            >
                                 Services
-                            </p>
+                            </Link>
                             {SERVICES.map((s, i) => (
                                 <div key={s.title}>
                                     <div className="flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-accent">

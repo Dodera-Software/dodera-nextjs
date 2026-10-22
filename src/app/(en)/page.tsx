@@ -13,13 +13,9 @@ import { NotableClients } from "@/components/NotableClients";
 import { Footer } from "@/components/Footer";
 import { JsonLd } from "@/components/JsonLd";
 import { ScrollManager } from "@/components/ScrollManager";
-import {
-  organizationSchema,
-  webSiteSchema,
-  professionalServiceSchema,
-  breadcrumbSchema,
-} from "@/lib/structured-data";
+import { businessSchema, webSiteSchema } from "@/lib/structured-data";
 import { SITE } from "@/config/seo";
+import { alternatesFor } from "@/i18n/routes";
 import { HOME_META } from "./seo";
 
 export const metadata: Metadata = {
@@ -28,9 +24,7 @@ export const metadata: Metadata = {
   },
   description: HOME_META.description,
   keywords: [...HOME_META.keywords],
-  alternates: {
-    canonical: "/",
-  },
+  alternates: alternatesFor("home", "en"),
   openGraph: {
     title: HOME_META.title,
     description: HOME_META.description,
@@ -52,10 +46,8 @@ export default function HomePage() {
     <div className="min-h-screen bg-background">
       <JsonLd
         data={[
-          organizationSchema(),
+          businessSchema(),
           webSiteSchema(),
-          professionalServiceSchema(),
-          breadcrumbSchema([{ name: "Home", url: SITE.url }]),
         ]}
       />
       <ScrollManager />

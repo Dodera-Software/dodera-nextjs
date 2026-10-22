@@ -6,8 +6,8 @@
  */
 
 export const PRIVACY_META = {
-    title: "Privacy Policy | Dodera Software",
+    // The layout template appends " | Dodera Software" — it used to appear twice.
+    title: "Privacy Policy",
     description:
         "Learn how Dodera Software collects, uses, and protects your personal data in compliance with GDPR and applicable data-protection legislation.",
-    canonical: "https://doderasoft.com/privacy-policy",
 } as const;

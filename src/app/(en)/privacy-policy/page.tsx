@@ -4,11 +4,15 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { PRIVACY_META } from "./seo";
 import { COMPANY } from "@/config/site";
+import { SITE } from "@/config/seo";
+import { JsonLd } from "@/components/JsonLd";
+import { breadcrumbSchema } from "@/lib/structured-data";
+import { alternatesFor } from "@/i18n/routes";
 
 export const metadata: Metadata = {
     title: PRIVACY_META.title,
     description: PRIVACY_META.description,
-    alternates: { canonical: PRIVACY_META.canonical },
+    alternates: alternatesFor("privacy", "en"),
     robots: { index: true, follow: true },
 };
 
@@ -17,6 +21,12 @@ const LAST_UPDATED = "March 17, 2026";
 export default function PrivacyPolicyPage() {
     return (
         <div className="min-h-screen bg-background">
+            <JsonLd
+                data={breadcrumbSchema([
+                    { name: "Home", url: SITE.url },
+                    { name: "Privacy Policy", url: `${SITE.url}/privacy-policy` },
+                ])}
+            />
             <Navbar />
 
             <main className="mx-auto max-w-3xl px-6 pb-24 pt-32">

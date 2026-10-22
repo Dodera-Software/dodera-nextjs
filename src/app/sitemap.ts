@@ -1,74 +1,55 @@
 import type { MetadataRoute } from "next";
 import { SITE } from "@/config/seo";
-import { SERVICE_PAGE_SLUGS } from "@/config/services";
 import { getAllPosts } from "@/lib/cms";
+import { LOCALES } from "@/i18n/config";
+import { ROUTES, absoluteUrl, hreflangFor, type PageId } from "@/i18n/routes";
+import LASTMOD from "@/config/lastmod.json";
 
 /**
  * Programmatic sitemap — served at /sitemap.xml.
  *
- * Includes every indexable page: home, blog listing,
- * all parent & child service pages, and blog posts.
- *
- * Blog posts are sourced via the CMS abstraction layer
- * (lib/cms.ts). When you switch to Prismic/Sanity the
- * sitemap will automatically include all CMS posts.
+ * One entry per page per locale, each listing its hreflang alternates.
+ * lastmod is real: the last git commit touching the page's sources
+ * (src/config/lastmod.json, `npm run seo:lastmod`) or, for blog posts,
+ * the CMS publication dates. Pages without a known date get no lastmod
+ * rather than the request time.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const now = new Date();
     const posts = await getAllPosts();
+    const lastmod = LASTMOD as Partial<Record<PageId, string>>;
 
-    /* ── Static pages ──────────────────────────────────────── */
-    const staticPages: MetadataRoute.Sitemap = [
-        {
-            url: SITE.url,
-            lastModified: now,
-            changeFrequency: "weekly",
-            priority: 1.0,
-        },
-        {
-            url: `${SITE.url}/blog`,
-            lastModified: now,
-            changeFrequency: "weekly",
-            priority: 0.8,
-        },
-        {
-            url: `${SITE.url}/privacy-policy`,
-            lastModified: now,
-            changeFrequency: "yearly",
-            priority: 0.3,
-        },
-        {
-            url: `${SITE.url}/about`,
-            lastModified: now,
-            changeFrequency: "monthly",
-            priority: 0.9,
-        },
-        {
-            url: `${SITE.url}/careers`,
-            lastModified: now,
-            changeFrequency: "monthly",
-            priority: 0.7,
-        },
-    ];
+    /* ── Pages from the route map (static + services) ──────── */
+    const pages: MetadataRoute.Sitemap = Object.entries(ROUTES).flatMap(([id, route]) => {
+        const languages = hreflangFor(route.paths);
+        const date = lastmod[id as PageId];
 
-    /* ── Service pages ─────────────────────────────────────── */
-    const servicePages: MetadataRoute.Sitemap = SERVICE_PAGE_SLUGS.map((key) => {
-        const isParent = !key.includes("/");
-        return {
-            url: `${SITE.url}/services/${key}`,
-            lastModified: now,
-            changeFrequency: "monthly" as const,
-            priority: isParent ? 0.9 : 0.7,
-        };
+        return LOCALES.flatMap((locale) => {
+            const path = route.paths[locale];
+            if (!path) return [];
+            return [{
+                url: absoluteUrl(path),
+                ...(date && { lastModified: new Date(date) }),
+                changeFrequency: route.changeFrequency,
+                priority: route.priority,
+                ...(languages && { alternates: { languages } }),
+            }];
+        });
     });
 
     /* ── Blog posts ────────────────────────────────────────── */
     const blogPosts: MetadataRoute.Sitemap = posts.map((post) => ({
         url: `${SITE.url}/blog/${post.slug}`,
-        lastModified: post.updatedAt ? new Date(post.updatedAt) : new Date(post.date),
+        lastModified: new Date(post.updatedAt ?? post.date),
         changeFrequency: "monthly" as const,
         priority: 0.6,
     }));
 
-    return [...staticPages, ...servicePages, ...blogPosts];
+    // The blog listing changes whenever a post does.
+    const newestPost = Math.max(...blogPosts.map((p) => (p.lastModified as Date).getTime()).filter(Number.isFinite));
+    if (Number.isFinite(newestPost)) {
+        const blog = pages.find((p) => p.url === absoluteUrl("/blog"));
+        if (blog) blog.lastModified = new Date(newestPost);
+    }
+
+    return [...pages, ...blogPosts];
 }

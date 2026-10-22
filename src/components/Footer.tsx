@@ -49,10 +49,12 @@ export function Footer() {
                                 <MapPin className="size-4 shrink-0" />
                                 {COMPANY.location}
                             </div>
-                            <div className="flex items-center gap-2 text-foreground/70">
-                                <Clock className="size-4" />
-                                {COMPANY.hours}
-                            </div>
+                            {COMPANY.hours && (
+                                <div className="flex items-center gap-2 text-foreground/70">
+                                    <Clock className="size-4" />
+                                    {COMPANY.hours}
+                                </div>
+                            )}
                             <div className="flex items-center gap-2 text-foreground/70">
                                 <span>🏛️</span>
                                 Founded in {COMPANY.foundedYear}
@@ -110,7 +112,8 @@ export function Footer() {
                     &copy; {new Date().getFullYear()} {COMPANY.name}. All rights reserved.
                 </p>
                 <p className="flex items-center gap-1 text-xs text-muted-foreground">
-                    Made with <Heart className="size-3 animate-pulse fill-primary text-primary" /> by
+                    Made with <Heart className="size-3 animate-pulse fill-primary text-primary" aria-hidden="true" />
+                    <span className="sr-only">love</span> by
                     {" "}<a href={COMPANY.url} target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-foreground">{COMPANY.name}</a>
                 </p>
             </div>

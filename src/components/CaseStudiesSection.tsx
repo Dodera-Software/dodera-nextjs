@@ -117,6 +117,7 @@ export function CaseStudiesSection() {
                                             >
                                                 {cs.metric}
                                             </span>
+                                            {" "}
                                             <span className="mb-1 text-sm font-medium leading-snug text-foreground/80">
                                                 {cs.metricLabel}
                                             </span>

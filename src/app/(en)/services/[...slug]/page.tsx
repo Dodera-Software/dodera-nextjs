@@ -8,6 +8,7 @@ import { ScrollManager } from "@/components/ScrollManager";
 import { SERVICE_PAGES, SERVICE_PAGE_SLUGS } from "@/config/services";
 import { SITE } from "@/config/seo";
 import { breadcrumbSchema, faqSchema, serviceSchema } from "@/lib/structured-data";
+import { alternatesFor } from "@/i18n/routes";
 
 /* ── Static params for SSG ────────────────────────────────── */
 export function generateStaticParams() {
@@ -35,7 +36,7 @@ export async function generateMetadata({
         title: data.metaTitle,
         description: data.metaDescription,
         keywords: data.keywords,
-        alternates: { canonical: data.canonical },
+        alternates: alternatesFor(`service:${key}`, "en"),
         openGraph: {
             title: data.metaTitle,
             description: data.metaDescription,
@@ -65,7 +66,7 @@ export default async function ServicePage({ params }: PageProps) {
     // Build breadcrumb items
     const breadcrumbItems = [
         { name: "Home", url: SITE.url },
-        { name: "Services", url: `${SITE.url}/#services` },
+        { name: "Services", url: `${SITE.url}/services` },
     ];
 
     // If child service, add parent to breadcrumbs
@@ -100,7 +101,10 @@ export default async function ServicePage({ params }: PageProps) {
             <ScrollManager />
             <Navbar />
             <main>
-                <ServicePageLayout data={data} />
+                <ServicePageLayout
+                    data={data}
+                    parentLabel={data.parentSlug ? SERVICE_PAGES[data.parentSlug]?.heroLabel : undefined}
+                />
             </main>
             <Footer />
         </div>

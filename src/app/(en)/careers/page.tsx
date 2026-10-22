@@ -4,6 +4,7 @@ import { Footer } from "@/components/Footer";
 import { JsonLd } from "@/components/JsonLd";
 import { ScrollManager } from "@/components/ScrollManager";
 import { SITE } from "@/config/seo";
+import { alternatesFor } from "@/i18n/routes";
 import { CAREERS_META } from "./seo";
 import { breadcrumbSchema } from "@/lib/structured-data";
 import { CareersPageContent } from "./CareersPageContent";
@@ -14,9 +15,7 @@ export const metadata: Metadata = {
     title: CAREERS_META.title,
     description: CAREERS_META.description,
     keywords: [...CAREERS_META.keywords],
-    alternates: {
-        canonical: "/careers",
-    },
+    alternates: alternatesFor("careers", "en"),
     openGraph: {
         title: CAREERS_META.openGraph.title,
         description: CAREERS_META.openGraph.description,

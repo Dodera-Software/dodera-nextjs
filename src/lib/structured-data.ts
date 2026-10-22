@@ -2,128 +2,192 @@
  * Pre-built JSON-LD structured data factories.
  *
  * Each function returns a plain object ready to be serialized
- * as a `<script type="application/ld+json">` tag.
+ * as a `<script type="application/ld+json">` tag (see components/JsonLd).
+ *
+ * The business is one entity with a stable @id; every other node points at
+ * it, so search engines merge the pages into a single knowledge-graph entry.
+ * Fields whose facts are still missing (config/seo.ts TODOs) are left out
+ * rather than guessed.
  *
  * @see https://schema.org
  * @see https://developers.google.com/search/docs/appearance/structured-data
  */
 
-import { SITE, DEFAULT_META } from "@/config/seo";
+import { SITE, SERVICE_AREA, DEFAULT_META } from "@/config/seo";
+import { PRICE_FACTS } from "@/config/pricing";
+import { HTML_LANG, type Locale } from "@/i18n/config";
 
-/* ── Helpers ─────────────────────────────────────────────── */
+/* ── Ids & helpers ───────────────────────────────────────── */
+
+export const ORG_ID = `${SITE.url}/#organization`;
+export const WEBSITE_ID = `${SITE.url}/#website`;
 
 const SOCIAL_URLS = [
     SITE.social.linkedin,
     SITE.social.instagram,
     SITE.social.facebook,
-].filter(Boolean);
+].filter((u): u is string => Boolean(u));
 
-function orgSnippet() {
+/** Reference to the business entity, for provider/publisher/about. */
+function orgRef() {
     return {
         "@type": "Organization",
+        "@id": ORG_ID,
         name: SITE.name,
         url: SITE.url,
-        logo: `${SITE.url}${SITE.logo}`,
     };
 }
 
-/* ── Schema.org Organization ─────────────────────────────── */
-export function organizationSchema() {
+function logoObject() {
     return {
-        "@context": "https://schema.org",
-        "@type": "Organization",
-        name: SITE.name,
-        legalName: SITE.legalName,
-        url: SITE.url,
-        logo: `${SITE.url}${SITE.logo}`,
-        email: SITE.email,
-        phone: SITE.phone,
-        description: DEFAULT_META.description,
-        foundingDate: "2024",
-        address: {
-            "@type": "PostalAddress",
-            streetAddress: SITE.address.street,
-            addressLocality: SITE.address.city,
-            postalCode: SITE.address.postalCode,
-            addressCountry: SITE.address.country,
-        },
-        contactPoint: {
-            "@type": "ContactPoint",
-            email: SITE.email,
-            telephone: SITE.phone,
-            contactType: "customer service",
-            availableLanguage: ["English", "Romanian"],
-        },
-        sameAs: SOCIAL_URLS,
+        "@type": "ImageObject",
+        url: `${SITE.url}${SITE.logo}`,
     };
 }
 
-/* ── Schema.org WebSite (sitelinks search-box in Google) ── */
-export function webSiteSchema() {
+function postalAddress() {
     return {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        name: SITE.name,
-        url: SITE.url,
-        description: DEFAULT_META.description,
-        inLanguage: SITE.locale.replace("_", "-"),
-        publisher: orgSnippet(),
-        potentialAction: {
-            "@type": "SearchAction",
-            target: {
-                "@type": "EntryPoint",
-                urlTemplate: `${SITE.url}/?q={search_term_string}`,
+        "@type": "PostalAddress",
+        streetAddress: SITE.address.street,
+        addressLocality: SITE.address.city,
+        addressRegion: SITE.address.county,
+        postalCode: SITE.address.postalCode,
+        addressCountry: SITE.address.countryCode,
+    };
+}
+
+/** The cities from config/seo.ts SERVICE_AREA plus Romania. */
+export function areaServed() {
+    return [
+        ...SERVICE_AREA.map((c) => ({ "@type": "City", name: c.name })),
+        { "@type": "Country", name: "Romania" },
+    ];
+}
+
+/** The published pricing models, as schema.org offers. */
+function pricingOffers() {
+    return [
+        {
+            "@type": "Offer",
+            name: "Hourly",
+            priceSpecification: {
+                "@type": "UnitPriceSpecification",
+                minPrice: PRICE_FACTS.hourly.min,
+                maxPrice: PRICE_FACTS.hourly.max,
+                priceCurrency: PRICE_FACTS.currency,
+                unitCode: "HUR",
             },
-            "query-input": "required name=search_term_string",
         },
-    };
+        {
+            "@type": "Offer",
+            name: "Fixed-price task",
+            priceSpecification: {
+                "@type": "PriceSpecification",
+                minPrice: PRICE_FACTS.taskFrom,
+                priceCurrency: PRICE_FACTS.currency,
+            },
+        },
+        {
+            "@type": "Offer",
+            name: "Fixed-price project",
+            priceSpecification: {
+                "@type": "PriceSpecification",
+                minPrice: PRICE_FACTS.projectFrom,
+                priceCurrency: PRICE_FACTS.currency,
+            },
+        },
+    ];
 }
 
-/* ── Schema.org ProfessionalService ───────────────────────── */
-export function professionalServiceSchema() {
+/* ── Schema.org Organization + ProfessionalService ─────────
+ * ProfessionalService is a LocalBusiness (and so an Organization), which
+ * lets one node carry both the brand facts and the local-business facts.
+ */
+export function businessSchema(opts: { description?: string } = {}) {
+    const hours = SITE.openingHours;
+    const founder = SITE.founder;
+
     return {
         "@context": "https://schema.org",
         "@type": "ProfessionalService",
+        "@id": ORG_ID,
         name: SITE.name,
+        legalName: SITE.legalName,
         url: SITE.url,
-        email: SITE.email,
-        telephone: SITE.phone,
-        logo: `${SITE.url}${SITE.logo}`,
+        logo: logoObject(),
         image: `${SITE.url}${SITE.ogImage}`,
-        description: DEFAULT_META.description,
-        priceRange: "$$$$",
-        openingHours: "Mo-Su 00:00-23:59",
-        address: {
-            "@type": "PostalAddress",
-            streetAddress: SITE.address.street,
-            addressLocality: SITE.address.city,
-            postalCode: SITE.address.postalCode,
-            addressCountry: SITE.address.country,
+        description: opts.description ?? DEFAULT_META.description,
+        email: SITE.email,
+        telephone: SITE.phoneE164,
+        taxID: SITE.taxId,
+        foundingDate: SITE.foundingDate,
+        address: postalAddress(),
+        geo: {
+            "@type": "GeoCoordinates",
+            latitude: SITE.geo.latitude,
+            longitude: SITE.geo.longitude,
         },
-        areaServed: {
-            "@type": "GeoCircle",
-            geoMidpoint: { "@type": "GeoCoordinates", latitude: 44.43, longitude: 26.1 },
-            geoRadius: "20000",
+        hasMap: SITE.googleBusinessProfile ?? SITE.mapsUrl,
+        ...(hours && {
+            openingHoursSpecification: {
+                "@type": "OpeningHoursSpecification",
+                dayOfWeek: hours.days,
+                opens: hours.opens,
+                closes: hours.closes,
+            },
+        }),
+        ...(founder && {
+            founder: {
+                "@type": "Person",
+                name: founder.name,
+                jobTitle: founder.jobTitle,
+                sameAs: [founder.linkedin],
+            },
+        }),
+        areaServed: areaServed(),
+        priceRange: `${PRICE_FACTS.hourly.min}-${PRICE_FACTS.hourly.max} EUR/h; projects from ${PRICE_FACTS.projectFrom} EUR`,
+        contactPoint: {
+            "@type": "ContactPoint",
+            email: SITE.email,
+            telephone: SITE.phoneE164,
+            contactType: "sales",
+            areaServed: "RO",
+            availableLanguage: ["en", "ro"],
         },
         sameAs: SOCIAL_URLS,
-        serviceType: [
-            "AI Development",
-            "Custom Software Development",
-            "Smart Documentation",
-            "MCP Server Architecture",
-            "SaaS Development",
-        ],
         knowsAbout: [
-            "Artificial Intelligence",
-            "Machine Learning",
-            "Software Engineering",
-            ".NET",
+            "Custom software development",
+            "Web application development",
+            "Presentation websites",
+            "E-commerce",
+            "AI agents",
+            "Workflow automation",
+            "n8n",
+            "Technical documentation",
             "Laravel",
-            "Nuxt",
-            "TypeScript",
-            "React",
             "Next.js",
+            "Nuxt",
+            "React",
+            "Vue.js",
+            "Node.js",
+            "TypeScript",
+            "PostgreSQL",
         ],
+    };
+}
+
+/* ── Schema.org WebSite ───────────────────────────────────── */
+export function webSiteSchema(opts: { languages?: Locale[] } = {}) {
+    const languages = (opts.languages ?? ["en"]).map((l) => HTML_LANG[l]);
+    return {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "@id": WEBSITE_ID,
+        name: SITE.name,
+        url: SITE.url,
+        description: DEFAULT_META.description,
+        inLanguage: languages.length === 1 ? languages[0] : languages,
+        publisher: { "@id": ORG_ID },
     };
 }
 
@@ -132,19 +196,19 @@ export function serviceSchema(opts: {
     name: string;
     description: string;
     url: string;
+    serviceType?: string;
 }) {
     return {
         "@context": "https://schema.org",
         "@type": "Service",
+        "@id": `${opts.url}#service`,
         name: opts.name,
         description: opts.description,
         url: opts.url,
-        provider: orgSnippet(),
-        areaServed: {
-            "@type": "Place",
-            name: "Worldwide",
-        },
-        serviceType: opts.name,
+        serviceType: opts.serviceType ?? opts.name,
+        provider: orgRef(),
+        areaServed: areaServed(),
+        offers: pricingOffers(),
     };
 }
 
@@ -153,6 +217,7 @@ export function collectionPageSchema(opts: {
     name: string;
     description: string;
     url: string;
+    locale?: Locale;
 }) {
     return {
         "@context": "https://schema.org",
@@ -160,16 +225,13 @@ export function collectionPageSchema(opts: {
         name: opts.name,
         description: opts.description,
         url: opts.url,
-        isPartOf: {
-            "@type": "WebSite",
-            name: SITE.name,
-            url: SITE.url,
-        },
-        publisher: orgSnippet(),
+        isPartOf: { "@type": "WebSite", "@id": WEBSITE_ID, name: SITE.name, url: SITE.url },
+        publisher: orgRef(),
+        ...(opts.locale && { inLanguage: HTML_LANG[opts.locale] }),
     };
 }
 
-/* ── Schema.org Article (individual blog post — CMS ready) ── */
+/* ── Schema.org BlogPosting (individual blog post) ────────── */
 export function articleSchema(opts: {
     title: string;
     description: string;
@@ -178,32 +240,34 @@ export function articleSchema(opts: {
     dateModified?: string;
     image?: string;
     authorName?: string;
+    /** Author page or profile (LinkedIn) URL. */
+    authorUrl?: string;
+    locale?: Locale;
 }) {
+    // A post signed with a person's name gets a Person author; posts with no
+    // byline (or signed by the company) are attributed to the organization.
+    const isPerson = !!opts.authorName && opts.authorName.trim() !== SITE.name;
+
     return {
         "@context": "https://schema.org",
-        "@type": "Article",
+        "@type": "BlogPosting",
         headline: opts.title,
         description: opts.description,
         url: opts.url,
         datePublished: opts.datePublished,
         dateModified: opts.dateModified ?? opts.datePublished,
         image: opts.image ?? `${SITE.url}${SITE.ogImage}`,
-        author: {
-            "@type": "Organization",
-            name: opts.authorName ?? SITE.name,
-            url: SITE.url,
-        },
-        publisher: {
-            ...orgSnippet(),
-            logo: {
-                "@type": "ImageObject",
-                url: `${SITE.url}${SITE.logo}`,
-            },
-        },
-        mainEntityOfPage: {
-            "@type": "WebPage",
-            "@id": opts.url,
-        },
+        author: isPerson
+            ? {
+                "@type": "Person",
+                name: opts.authorName,
+                ...(opts.authorUrl && { url: opts.authorUrl }),
+                worksFor: orgRef(),
+            }
+            : orgRef(),
+        publisher: { ...orgRef(), logo: logoObject() },
+        mainEntityOfPage: { "@type": "WebPage", "@id": opts.url },
+        ...(opts.locale && { inLanguage: HTML_LANG[opts.locale] }),
     };
 }
 
@@ -221,82 +285,24 @@ export function breadcrumbSchema(items: { name: string; url: string }[]) {
     };
 }
 
-/* ── Schema.org AboutPage + Team (Person) ─────────────────── */
-export function aboutPageSchema() {
-    const team = [
-        { name: "Andrei Marin", jobTitle: "Co-founder & Solutions Architect" },
-        { name: "Radu Constantin", jobTitle: "Senior Full-Stack Engineer" },
-        { name: "Elena Popa", jobTitle: "Frontend Engineer" },
-        { name: "Mihai Ionescu", jobTitle: "Backend Engineer" },
-        { name: "Ana Dumitrescu", jobTitle: "AI & Automation Engineer" },
-        { name: "Bogdan Stanescu", jobTitle: "DevOps & CI/CD Engineer" },
-    ];
-
+/* ── Schema.org AboutPage ─────────────────────────────────── */
+export function aboutPageSchema(opts: { name: string; description: string; url: string; locale?: Locale }) {
     return {
         "@context": "https://schema.org",
         "@type": "AboutPage",
-        name: `About Us - ${SITE.name}`,
-        description:
-            "Learn about Dodera Software - who we are, what we build, our team of senior engineers, and how we engage with clients across web, mobile, AI, and automation projects.",
-        url: `${SITE.url}/about`,
-        isPartOf: {
-            "@type": "WebSite",
-            name: SITE.name,
-            url: SITE.url,
-        },
-        publisher: orgSnippet(),
-        about: {
-            "@context": "https://schema.org",
-            "@type": "Organization",
-            name: SITE.name,
-            legalName: SITE.legalName,
-            url: SITE.url,
-            logo: `${SITE.url}${SITE.logo}`,
-            email: SITE.email,
-            foundingDate: "2024",
-            description:
-                "Dodera Software is a Romanian software engineering company specialising in custom web applications, mobile apps, AI systems, and workflow automations. We serve startups and enterprises internationally, working per hour, per task, or per project.",
-            address: {
-                "@type": "PostalAddress",
-                addressCountry: "RO",
-                addressRegion: "Romania",
-            },
-            knowsAbout: [
-                "Software Development",
-                "AI Development",
-                "Web Applications",
-                "Mobile Development",
-                "CI/CD Pipelines",
-                "Cloud Infrastructure",
-                "Workflow Automation",
-                "SaaS Development",
-                "React",
-                "Next.js",
-                "Vue.js",
-                "Nuxt",
-                "Laravel",
-                ".NET",
-                "Node.js",
-                "TypeScript",
-                "Python",
-                "Docker",
-                "Kubernetes",
-            ],
-            employee: team.map((p) => ({
-                "@type": "Person",
-                name: p.name,
-                jobTitle: p.jobTitle,
-                worksFor: {
-                    "@type": "Organization",
-                    name: SITE.name,
-                    url: SITE.url,
-                },
-            })),
-        },
+        name: opts.name,
+        description: opts.description,
+        url: opts.url,
+        isPartOf: { "@type": "WebSite", "@id": WEBSITE_ID, name: SITE.name, url: SITE.url },
+        about: orgRef(),
+        ...(opts.locale && { inLanguage: HTML_LANG[opts.locale] }),
     };
 }
 
-/** Schema.org FAQPage */
+/**
+ * Schema.org FAQPage — only for pages where every answer is in the
+ * rendered HTML (Google requires the content to be visible on the page).
+ */
 export function faqSchema(questions: { question: string; answer: string }[]) {
     return {
         "@context": "https://schema.org",

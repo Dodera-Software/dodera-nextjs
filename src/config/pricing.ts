@@ -12,6 +12,16 @@ export interface PricingTier {
     note?: string;
 }
 
+/** The published prices as numbers, for structured data and llms.txt. Keep in sync with the tiers below. */
+export const PRICE_FACTS = {
+    currency: "EUR",
+    hourly: { min: 20, max: 80 },
+    taskFrom: 50,
+    projectFrom: 300,
+    projectUpTo: 30000,
+    retainerFrom: 150,
+} as const;
+
 export const PRICING_TIERS: PricingTier[] = [
     {
         icon: Clock,
@@ -48,7 +58,7 @@ export const PRICING_TIERS: PricingTier[] = [
         rate: "300 - 30,000+ EUR",
         rateSub: "per project",
         description:
-            "Priced upfront. We've shipped projects under 300 EUR and above 30,000 EUR - scope sets the price.",
+            "Priced upfront. Projects start at 300 EUR and go above 30,000 EUR - scope sets the price. Smaller jobs fit the per-task model.",
         includes: [
             "Discovery & scoping call",
             "Fixed price, no surprise invoices",
