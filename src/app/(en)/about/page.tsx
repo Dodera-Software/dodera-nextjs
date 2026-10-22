@@ -4,6 +4,7 @@ import { Footer } from "@/components/Footer";
 import { JsonLd } from "@/components/JsonLd";
 import { ScrollManager } from "@/components/ScrollManager";
 import { AboutPageContent } from "./AboutPageContent";
+import { FounderSection } from "@/components/FounderSection";
 import { SITE } from "@/config/seo";
 import { ABOUT_META } from "./seo";
 import { FAQ } from "./faq";
@@ -67,7 +68,7 @@ export default function AboutPage() {
             <ScrollManager />
             <Navbar />
             <main>
-                <AboutPageContent />
+                <AboutPageContent founderSlot={<FounderSection locale="en" />} />
             </main>
             <Footer />
         </div>

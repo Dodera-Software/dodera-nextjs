@@ -12,7 +12,9 @@ export async function register() {
     if (process.env.NEXT_RUNTIME !== "nodejs" || process.env.NODE_ENV !== "production") return;
     if (!process.env.DATABASE_URL) return;
 
-    const path = await import("node:path");
+    // "path", not "node:path": Turbopack names the chunk after the specifier,
+    // and a ":" in a filename breaks the standalone copy step on Windows.
+    const path = await import("path");
     const { Pool } = await import("pg");
     const { drizzle } = await import("drizzle-orm/node-postgres");
     const { migrate } = await import("drizzle-orm/node-postgres/migrator");

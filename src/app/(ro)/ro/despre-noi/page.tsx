@@ -6,6 +6,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { PageHero, ProseSection, FaqList } from "@/components/PageHero";
 import { PricingSection } from "@/components/PricingSection";
+import { FounderSection } from "@/components/FounderSection";
 import { SITE } from "@/config/seo";
 import { SERVICE_PATHS, STATIC_PATHS } from "@/i18n/paths";
 import { absoluteUrl, alternatesFor } from "@/i18n/routes";
@@ -112,8 +113,10 @@ export default function AboutPageRo() {
                     <p>
                         Fie că aveți nevoie de un partener tehnic pe termen lung, fie de o echipă care să livreze o singură funcționalitate importantă, ne adaptăm la ritmul și la obiectivele dumneavoastră.
                     </p>
-                    {/* TODO(phase 4 / owner): founder bio, photo and LinkedIn — needs the founder's real details. */}
                 </ProseSection>
+
+                {/* TODO(owner): fill SITE.founder in config/seo.ts (name, role, LinkedIn, bio, photo) — the section appears automatically. */}
+                <FounderSection locale="ro" />
 
                 <section aria-labelledby="valori" className="bg-card/30 py-16">
                     <div className="mx-auto max-w-5xl px-6">

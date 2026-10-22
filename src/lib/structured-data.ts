@@ -16,6 +16,7 @@
 import { SITE, SERVICE_AREA, DEFAULT_META } from "@/config/seo";
 import { PRICE_FACTS } from "@/config/pricing";
 import { HTML_LANG, type Locale } from "@/i18n/config";
+import { isOrganizationByline } from "@/config/authors";
 
 /* ── Ids & helpers ───────────────────────────────────────── */
 
@@ -140,8 +141,9 @@ export function businessSchema(opts: { description?: string } = {}) {
             founder: {
                 "@type": "Person",
                 name: founder.name,
-                jobTitle: founder.jobTitle,
+                jobTitle: founder.jobTitle.en,
                 sameAs: [founder.linkedin],
+                ...(founder.photo && { image: `${SITE.url}${founder.photo}` }),
             },
         }),
         areaServed: areaServed(),
@@ -197,6 +199,8 @@ export function serviceSchema(opts: {
     description: string;
     url: string;
     serviceType?: string;
+    /** Limit areaServed to one city (local pages); defaults to every city served plus Romania. */
+    city?: { name: string; county: string };
 }) {
     return {
         "@context": "https://schema.org",
@@ -207,7 +211,13 @@ export function serviceSchema(opts: {
         url: opts.url,
         serviceType: opts.serviceType ?? opts.name,
         provider: orgRef(),
-        areaServed: areaServed(),
+        areaServed: opts.city
+            ? {
+                "@type": "City",
+                name: opts.city.name,
+                containedInPlace: { "@type": "AdministrativeArea", name: `Județul ${opts.city.county}` },
+            }
+            : areaServed(),
         offers: pricingOffers(),
     };
 }
@@ -245,8 +255,8 @@ export function articleSchema(opts: {
     locale?: Locale;
 }) {
     // A post signed with a person's name gets a Person author; posts with no
-    // byline (or signed by the company) are attributed to the organization.
-    const isPerson = !!opts.authorName && opts.authorName.trim() !== SITE.name;
+    // byline, or signed by the company ("Dodera Team"), go to the organization.
+    const isPerson = !isOrganizationByline(opts.authorName);
 
     return {
         "@context": "https://schema.org",
@@ -268,6 +278,56 @@ export function articleSchema(opts: {
         publisher: { ...orgRef(), logo: logoObject() },
         mainEntityOfPage: { "@type": "WebPage", "@id": opts.url },
         ...(opts.locale && { inLanguage: HTML_LANG[opts.locale] }),
+    };
+}
+
+/* ── Schema.org Article (case study) ───────────────────────── */
+export function caseStudySchema(opts: {
+    headline: string;
+    description: string;
+    url: string;
+    industry: string;
+    locale: Locale;
+}) {
+    return {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        headline: opts.headline,
+        description: opts.description,
+        url: opts.url,
+        about: opts.industry,
+        author: orgRef(),
+        publisher: { ...orgRef(), logo: logoObject() },
+        mainEntityOfPage: { "@type": "WebPage", "@id": opts.url },
+        image: `${SITE.url}${SITE.ogImage}`,
+        inLanguage: HTML_LANG[opts.locale],
+    };
+}
+
+/* ── Schema.org ProfilePage (blog author) ─────────────────── */
+export function authorProfileSchema(opts: {
+    name: string;
+    url: string;
+    jobTitle?: string;
+    description?: string;
+    sameAs?: string[];
+    image?: string;
+}) {
+    return {
+        "@context": "https://schema.org",
+        "@type": "ProfilePage",
+        url: opts.url,
+        mainEntity: {
+            "@type": "Person",
+            "@id": `${opts.url}#person`,
+            name: opts.name,
+            url: opts.url,
+            ...(opts.jobTitle && { jobTitle: opts.jobTitle }),
+            ...(opts.description && { description: opts.description }),
+            ...(opts.image && { image: opts.image }),
+            ...(opts.sameAs?.length && { sameAs: opts.sameAs }),
+            worksFor: orgRef(),
+        },
     };
 }
 

@@ -5,9 +5,14 @@ import { PrismicPreviewBar } from "@/components/PrismicPreviewBar";
 import { HTML_LANG, type Locale } from "@/i18n/config";
 import { LocaleProvider } from "@/i18n/LocaleProvider";
 
-/* latin-ext carries the Romanian diacritics (ș, ț, ă, â, î). */
+/*
+ * One Inter instance for every locale. `subsets` only picks the *preloaded*
+ * files; latin-ext (ș, ț, ă, â, î) stays in the CSS and loads on demand on
+ * Romanian pages. (A second instance with latin-ext preloaded made Romanian
+ * pages download that file twice — two @font-face rules for one family.)
+ */
 const inter = Inter({
-  subsets: ["latin", "latin-ext"],
+  subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
 });

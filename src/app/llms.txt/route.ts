@@ -2,6 +2,9 @@ import { SITE, SERVICE_AREA } from "@/config/seo";
 import { PRICE_FACTS } from "@/config/pricing";
 import { SERVICE_PAGES } from "@/config/services";
 import { SERVICE_PAGES_RO } from "@/config/services.ro";
+import { getLocation } from "@/config/locations.ro";
+import { CASE_STUDIES } from "@/config/case-studies";
+import { getDictionary } from "@/i18n/dictionaries";
 import { ROUTES, absoluteUrl, type PageId, type StaticPageId } from "@/i18n/routes";
 import type { Locale } from "@/i18n/config";
 
@@ -21,9 +24,17 @@ const PAGE_TITLES: Record<StaticPageId, Record<Locale, string>> = {
     blog: { en: "Blog", ro: "Blog" },
     careers: { en: "Careers", ro: "Cariere" },
     privacy: { en: "Privacy policy", ro: "Politica de confidențialitate" },
+    locations: { en: "Locations", ro: "Orașe în care lucrăm" },
+    caseStudies: { en: "Case studies", ro: "Studii de caz" },
+    webSatuMare: { en: "Web development in Satu Mare", ro: "Dezvoltare soluții web în Satu Mare" },
 };
 
 function pageTitle(id: PageId, locale: Locale): string {
+    if (id.startsWith("location:")) return getLocation(id.slice("location:".length))?.city ?? id;
+    if (id.startsWith("case:")) {
+        const items = locale === "ro" ? getDictionary("ro").caseStudies.items : CASE_STUDIES;
+        return items.find((c) => c.id === id.slice("case:".length))?.headline ?? id;
+    }
     if (id.startsWith("service:")) {
         const key = id.slice("service:".length);
         return (locale === "ro" ? SERVICE_PAGES_RO[key] : SERVICE_PAGES[key])?.heroLabel ?? id;

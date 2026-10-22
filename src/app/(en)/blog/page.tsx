@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { BlogPageContent } from "./BlogPageContent";
 import { SITE } from "@/config/seo";
-import { alternatesFor } from "@/i18n/routes";
+import { absoluteUrl, alternatesFor, hreflangFor } from "@/i18n/routes";
 import { BLOG_META } from "./seo";
 import { JsonLd } from "@/components/JsonLd";
 import { breadcrumbSchema, collectionPageSchema } from "@/lib/structured-data";
@@ -10,11 +10,19 @@ import { Footer } from "@/components/Footer";
 import { ScrollManager } from "@/components/ScrollManager";
 import { getAllPosts } from "@/lib/cms";
 
-export const metadata: Metadata = {
+export async function generateMetadata(): Promise<Metadata> {
+    // hreflang to /ro/blog only once Romanian posts exist (it is noindex while empty).
+    const hasRo = (await getAllPosts("ro")).length > 0;
+    const alternates = hasRo
+        ? { canonical: absoluteUrl("/blog"), languages: hreflangFor({ en: "/blog", ro: "/ro/blog" }) }
+        : alternatesFor("blog", "en");
+    return { ...BASE_METADATA, alternates };
+}
+
+const BASE_METADATA: Metadata = {
     title: BLOG_META.title,
     description: BLOG_META.description,
     keywords: [...BLOG_META.keywords],
-    alternates: alternatesFor("blog", "en"),
     openGraph: {
         title: BLOG_META.title,
         description: BLOG_META.description,

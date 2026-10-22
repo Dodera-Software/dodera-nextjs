@@ -1,16 +1,31 @@
 export interface CaseStudy {
+    /** Stable id, shared by both languages; keys CASE_STUDY_PATHS in i18n/paths.ts. */
+    id: "freight-automation" | "saas-reporting" | "clinic-booking";
     industry: string;
     client: string;
     headline: string;
+    /** Page title when the headline is too long for search results (≤42 chars + " | Dodera Software"). */
+    seoTitle?: string;
     problem: string;
     solution: string;
     metric: string;
     metricLabel: string;
     tags: string[];
+    /** Build time, only when known. */
+    timeline?: string;
+    /** Client quote with name, role and company — only real, approved quotes. */
+    quote?: { text: string; author: string; role: string };
 }
+
+/*
+ * TODO(owner): for each case study — a client quote (name, role, company,
+ * approval to publish), the build time for the B2B SaaS and clinic projects,
+ * and, if the client agrees, the company name and a link.
+ */
 
 export const CASE_STUDIES: CaseStudy[] = [
     {
+        id: "freight-automation",
         industry: "Logistics & Operations",
         client: "Mid-size freight forwarding company",
         headline: "400 orders a day, processed by hand",
@@ -21,8 +36,10 @@ export const CASE_STUDIES: CaseStudy[] = [
         metric: "94%",
         metricLabel: "reduction in manual processing time",
         tags: ["Automation", "n8n", "API Integration", "ERP"],
+        timeline: "7 weeks",
     },
     {
+        id: "saas-reporting",
         industry: "SaaS / Internal Tools",
         client: "B2B software company, 80 employees",
         headline: "3 days a week lost to building one report",
@@ -35,9 +52,11 @@ export const CASE_STUDIES: CaseStudy[] = [
         tags: ["Web App", "Salesforce", "Dashboard", "React"],
     },
     {
+        id: "clinic-booking",
         industry: "Healthcare Services",
         client: "Multi-location clinic group",
         headline: "Booking system that crashed every other week",
+        seoTitle: "Clinic Booking Platform Case Study",
         problem:
             "Their off-the-shelf booking platform went down an average of twice a month. Each outage meant lost appointments, angry patients, and staff fielding phone calls for hours. They had no visibility into what was breaking or when.",
         solution:

@@ -43,8 +43,10 @@ export interface Dictionary {
         emailAria: string;
         visitAria: string;
         location: string;
+        country: string;
         openInMaps: string;
         phoneLabel: string;
+        phoneDisplay: string;
     };
     newsletter: {
         placeholder: string;
@@ -79,6 +81,7 @@ export interface Dictionary {
         titleB: string;
         problem: string;
         solution: string;
+        readMore: string;
         items: CaseStudy[];
     };
     services: {
@@ -186,6 +189,7 @@ export interface Dictionary {
         caseStudyProblem: string;
         caseStudySolution: string;
         caseStudyResult: string;
+        readCaseStudy: string;
     };
     notFound: {
         title: string;

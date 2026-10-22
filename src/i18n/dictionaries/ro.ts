@@ -9,6 +9,7 @@
 
 import { Cpu, Code2, FileText, Monitor, Search, Layers, Zap, Handshake, Clock, CheckSquare, SquareCheckBig, Briefcase } from "lucide-react";
 import { SERVICE_PATHS, STATIC_PATHS } from "@/i18n/paths";
+import { SITE } from "@/config/seo";
 import type { Dictionary } from "./types";
 
 const svc = (key: string) => SERVICE_PATHS[key].ro!;
@@ -25,8 +26,7 @@ export const ro: Dictionary = {
         services: "Servicii",
         links: [
             { label: "Despre noi", href: STATIC_PATHS.about.ro },
-            // TODO(phase 5): /ro/blog once Romanian posts exist; until then the English blog.
-            { label: "Blog", href: "/blog" },
+            { label: "Blog", href: "/ro/blog" },
             { label: "Cariere", href: STATIC_PATHS.careers.ro },
             { label: "Contact", href: STATIC_PATHS.contact.ro },
         ],
@@ -58,7 +58,10 @@ export const ro: Dictionary = {
                 links: [
                     { label: "Despre noi", href: STATIC_PATHS.about.ro },
                     { label: "Cum lucrăm", href: "/ro#process" },
-                    { label: "Blog", href: "/blog" },
+                    { label: "Studii de caz", href: STATIC_PATHS.caseStudies.ro },
+                    { label: "Orașe în care lucrăm", href: STATIC_PATHS.locations.ro },
+                    { label: "Soluții web Satu Mare", href: STATIC_PATHS.webSatuMare.ro },
+                    { label: "Blog", href: "/ro/blog" },
                     { label: "Cariere", href: STATIC_PATHS.careers.ro },
                     { label: "Contact", href: STATIC_PATHS.contact.ro },
                 ],
@@ -80,8 +83,10 @@ export const ro: Dictionary = {
         emailAria: "Trimiteți-ne un email la",
         visitAria: "Vizitați",
         location: "Satu Mare, România",
+        country: "România",
         openInMaps: "Deschideți în Google Maps",
         phoneLabel: "Sunați-ne",
+        phoneDisplay: SITE.phone,
     },
     newsletter: {
         placeholder: "Adresa de email",
@@ -122,11 +127,14 @@ export const ro: Dictionary = {
         titleB: "Rezultate măsurabile.",
         problem: "Problema",
         solution: "Cum am rezolvat",
+        readMore: "Citiți studiul de caz",
         items: [
             {
+                id: "freight-automation",
                 industry: "Logistică și operațiuni",
                 client: "Companie de expediții de mărfuri de talie medie",
                 headline: "400 de comenzi pe zi, procesate manual",
+                seoTitle: "Automatizarea a 400 de comenzi pe zi",
                 problem:
                     "Echipa de operațiuni copia zilnic datele despre transporturi între trei sisteme: peste 400 de comenzi, de mână. Erorile scăpau în fiecare săptămână, penalitățile de la clienți se adunau, iar doi angajați seniori plecaseră deja. Furnizorul existent estimase 18 luni pentru rezolvare.",
                 solution:
@@ -134,11 +142,14 @@ export const ro: Dictionary = {
                 metric: "94%",
                 metricLabel: "reducere a timpului de procesare manuală",
                 tags: ["Automatizare", "n8n", "Integrare API", "ERP"],
+                timeline: "7 săptămâni",
             },
             {
+                id: "saas-reporting",
                 industry: "SaaS / Instrumente interne",
                 client: "Companie de software B2B, 80 de angajați",
                 headline: "3 zile pe săptămână pierdute pentru un singur raport",
+                seoTitle: "Dashboard de raportare pentru SaaS B2B",
                 problem:
                     "În fiecare luni, echipa comercială extrăgea date din Salesforce, dintr-un spreadsheet și din două dashboard-uri interne și le asambla manual într-un raport gata abia miercuri. Conducerea lua decizii pe cifre vechi de patru zile.",
                 solution:
@@ -148,9 +159,11 @@ export const ro: Dictionary = {
                 tags: ["Aplicație web", "Salesforce", "Dashboard", "React"],
             },
             {
+                id: "clinic-booking",
                 industry: "Servicii medicale",
                 client: "Grup de clinici cu mai multe locații",
                 headline: "Un sistem de programări care cădea din două în două săptămâni",
+                seoTitle: "Platformă de programări pentru clinici",
                 problem:
                     "Platforma de programări cumpărată „la cheie” cădea în medie de două ori pe lună. Fiecare întrerupere însemna programări pierdute, pacienți nemulțumiți și personal care răspundea ore întregi la telefon, fără să știe ce anume se strică și când.",
                 solution:
@@ -414,6 +427,7 @@ export const ro: Dictionary = {
         caseStudyProblem: "Problema",
         caseStudySolution: "Ce am construit",
         caseStudyResult: "Rezultat",
+        readCaseStudy: "Citiți studiul de caz complet",
     },
     notFound: {
         title: "Pagina nu a fost găsită",
