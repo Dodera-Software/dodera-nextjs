@@ -47,6 +47,15 @@ export interface ServicePageSection {
     bullets?: string[];
     /** Keywords to visually highlight in the content paragraph. */
     highlights?: string[];
+    /** Internal links shown under the section. */
+    links?: { label: string; href: string }[];
+}
+
+export interface ServicePagePricing {
+    intro: string;
+    items: { label: string; price: string; note?: string }[];
+    /** Small print under the table. */
+    footnote?: string;
 }
 
 export interface ServicePageFAQ {
@@ -81,6 +90,10 @@ export interface ServicePageData {
     childServices?: ChildServiceCard[];
     faqs: ServicePageFAQ[];
     relatedServices: { label: string; href: string }[];
+    /** Price block rendered after the content sections. */
+    pricing?: ServicePagePricing;
+    /** Index into the locale's case studies, rendered as a short case study. */
+    caseStudy?: number;
 }
 
 // ── Blog ────────────────────────────────────────────────

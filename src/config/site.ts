@@ -45,7 +45,10 @@ export const COMPANY = {
     phone: "0748 650 469",
     address: "Strada Banat 1, 440043 Satu Mare",
     location: "Romania · International",
-    hours: "Open 24 hours",
+    /* Was "Open 24 hours", which isn't true. TODO(owner): real hours, e.g.
+     * "Mon–Fri 09:00–17:00" (keep in sync with SITE.openingHours in config/seo.ts).
+     * The footer hides the line while this is null. */
+    hours: null as string | null,
     tagline:
         "Custom software and AI development from Romania, serving clients internationally.",
 } as const;
@@ -75,7 +78,7 @@ export const SERVICES: Service[] = [
         description:
             "Fast, personalized and responsive websites built to rank and convert. We cover everything from design and performance to technical SEO, so your site works as hard as your team does.",
         tags: ["Brand Design", "Landing Pages", "Conversion"],
-        image: "/presentation-website.png",
+        image: "/presentation-website.webp",
         highlights: [
             { label: "Business Showcase Sites", href: "/services/presentation-websites/business-showcase-sites" },
         ],
@@ -102,7 +105,7 @@ export const SERVICES: Service[] = [
         description:
             "Your codebase, processes, and internal knowledge turned into structured, AI-ready documentation - making information easy to find and use, for both your team and your tools.",
         tags: ["Knowledge Indexing", "AI Context", "Documentation"],
-        image: "/technical-documentation.png",
+        image: "/technical-documentation.webp",
         highlights: [
             { label: "Documentation Systems", href: "/services/technical-documentation/documentation-systems" },
         ],

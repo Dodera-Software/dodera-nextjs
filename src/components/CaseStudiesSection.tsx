@@ -3,10 +3,11 @@
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { SectionHeading } from "@/components/SectionHeading";
-import { CASE_STUDIES } from "@/config/case-studies";
 import { fadeInUp, fadeInUpLg, viewportOnce, stagger } from "@/lib/animations";
+import { useDict } from "@/i18n/LocaleProvider";
 
 export function CaseStudiesSection() {
+    const t = useDict().caseStudies;
     return (
         <section
             id="case-studies"
@@ -16,13 +17,13 @@ export function CaseStudiesSection() {
             <div className="absolute inset-0 grid-bg" />
 
             <div className="relative z-10 mx-auto max-w-7xl px-6">
-                <SectionHeading label="Case Studies" id="case-studies-heading">
-                    Real problems.{" "}
-                    <span className="text-primary">Measurable results.</span>
+                <SectionHeading label={t.label} id="case-studies-heading">
+                    {t.titleA}{" "}
+                    <span className="text-primary">{t.titleB}</span>
                 </SectionHeading>
 
                 <div className="flex flex-col gap-8">
-                    {CASE_STUDIES.map((cs, i) => {
+                    {t.items.map((cs, i) => {
                         const isEven = i % 2 === 0;
                         return (
                             <motion.article
@@ -70,7 +71,7 @@ export function CaseStudiesSection() {
                                             <div className="mb-2 flex items-center gap-2">
                                                 <span className="h-px flex-1 bg-border/70" />
                                                 <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
-                                                    The Problem
+                                                    {t.problem}
                                                 </span>
                                                 <span className="h-px flex-1 bg-border/70" />
                                             </div>
@@ -99,7 +100,7 @@ export function CaseStudiesSection() {
                                             <div className="mb-2 flex items-center gap-2">
                                                 <span className="h-px flex-1 bg-border/70" />
                                                 <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
-                                                    How We Fixed It
+                                                    {t.solution}
                                                 </span>
                                                 <span className="h-px flex-1 bg-border/70" />
                                             </div>
@@ -117,6 +118,7 @@ export function CaseStudiesSection() {
                                             >
                                                 {cs.metric}
                                             </span>
+                                            {" "}
                                             <span className="mb-1 text-sm font-medium leading-snug text-foreground/80">
                                                 {cs.metricLabel}
                                             </span>

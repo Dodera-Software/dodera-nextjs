@@ -4,12 +4,38 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Menu, X } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 import { SocialIconList } from "@/components/SocialIconList";
-import { SERVICES, NAV_LINKS } from "@/config/site";
+import { useDict, useLocale } from "@/i18n/LocaleProvider";
+import { switchLocalePath } from "@/i18n/paths";
+import { HTML_LANG } from "@/i18n/config";
+
+/** Link to the same page in the other language. */
+function LanguageSwitch({ className, onClick }: { className?: string; onClick?: () => void }) {
+    const locale = useLocale();
+    const t = useDict().languageSwitch;
+    const pathname = usePathname() ?? "/";
+    const target = locale === "en" ? "ro" : "en";
+    return (
+        <Link
+            href={switchLocalePath(pathname, target)}
+            hrefLang={HTML_LANG[target]}
+            lang={HTML_LANG[target]}
+            aria-label={t.ariaLabel}
+            onClick={onClick}
+            className={className}
+        >
+            {t.label}
+        </Link>
+    );
+}
 
 export function Navbar() {
+    const { nav: t, services, links, breadcrumb } = useDict();
+    const SERVICES = services.items;
+    const NAV_LINKS = t.links;
     const [megaOpen, setMegaOpen] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
     const [mobileServiceOpen, setMobileServiceOpen] = useState<number | null>(null);
@@ -52,20 +78,26 @@ export function Navbar() {
     }, [mobileOpen]);
 
     return (
-        <nav ref={navRef} aria-label="Main navigation" className="fixed inset-x-0 top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
+        <nav ref={navRef} aria-label={t.mainNavigation} className="fixed inset-x-0 top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
             <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
                 {/* Logo */}
-                <Logo />
+                <Logo href={links.home} label={`Dodera Software - ${breadcrumb.home}`} />
 
                 {/* Desktop Nav */}
                 <div className="hidden items-center gap-8 md:flex">
                     <div onMouseEnter={openMega} onMouseLeave={closeMega}>
-                        <button className="flex items-center gap-1 text-sm font-medium text-foreground/70 transition-colors hover:text-foreground">
-                            Services
+                        <Link
+                            href={links.services.includes("#") ? "/services" : links.services}
+                            aria-haspopup="true"
+                            aria-expanded={megaOpen}
+                            className="flex items-center gap-1 text-sm font-medium text-foreground/70 transition-colors hover:text-foreground"
+                        >
+                            {t.services}
                             <ChevronDown
+                                aria-hidden="true"
                                 className={`size-3.5 transition-transform ${megaOpen ? "rotate-180" : ""}`}
                             />
-                        </button>
+                        </Link>
                     </div>
 
                     {NAV_LINKS.map((link) => (
@@ -78,10 +110,12 @@ export function Navbar() {
                         </Link>
                     ))}
 
+                    <LanguageSwitch className="text-sm font-semibold text-foreground/70 transition-colors hover:text-foreground" />
+
                     <SocialIconList size="sm" />
 
                     <Button size="sm" asChild>
-                        <Link href="/#contact">Get Started</Link>
+                        <Link href={links.contact}>{t.getStarted}</Link>
                     </Button>
                 </div>
 
@@ -91,7 +125,7 @@ export function Navbar() {
                     size="icon"
                     className="md:hidden"
                     onClick={() => { setMobileOpen(!mobileOpen); setMobileServiceOpen(null); }}
-                    aria-label={mobileOpen ? "Close menu" : "Open menu"}
+                    aria-label={mobileOpen ? t.closeMenu : t.openMenu}
                     aria-expanded={mobileOpen}
                 >
                     {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
@@ -158,9 +192,13 @@ export function Navbar() {
                         className="overflow-hidden border-t border-border/50 bg-card/95 backdrop-blur-xl md:hidden"
                     >
                         <div className="space-y-1 px-6 py-5">
-                            <p className="mb-3 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-                                Services
-                            </p>
+                            <Link
+                                href={links.services.includes("#") ? "/services" : links.services}
+                                onClick={() => setMobileOpen(false)}
+                                className="mb-3 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground hover:text-foreground"
+                            >
+                                {t.services}
+                            </Link>
                             {SERVICES.map((s, i) => (
                                 <div key={s.title}>
                                     <div className="flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-accent">
@@ -179,7 +217,7 @@ export function Navbar() {
                                         </Link>
                                         <button
                                             onClick={() => setMobileServiceOpen(mobileServiceOpen === i ? null : i)}
-                                            aria-label={mobileServiceOpen === i ? "Collapse subservices" : "Expand subservices"}
+                                            aria-label={mobileServiceOpen === i ? t.collapseSub : t.expandSub}
                                             className="ml-auto shrink-0 p-1 text-muted-foreground transition-colors hover:text-foreground"
                                         >
                                             <ChevronDown
@@ -228,12 +266,16 @@ export function Navbar() {
 
                             <div className="pt-3">
                                 <Button className="w-full" size="sm" asChild>
-                                    <Link href="/#contact" onClick={() => setMobileOpen(false)}>Get Started</Link>
+                                    <Link href={links.contact} onClick={() => setMobileOpen(false)}>{t.getStarted}</Link>
                                 </Button>
                             </div>
 
-                            {/* Social Media Icons - Mobile */}
-                            <div className="flex justify-center pt-4">
+                            {/* Language + social icons - Mobile */}
+                            <div className="flex items-center justify-center gap-6 pt-4">
+                                <LanguageSwitch
+                                    onClick={() => setMobileOpen(false)}
+                                    className="text-sm font-semibold text-muted-foreground hover:text-foreground"
+                                />
                                 <SocialIconList />
                             </div>
                         </div>

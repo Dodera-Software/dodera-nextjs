@@ -7,27 +7,29 @@ import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SectionHeading } from "@/components/SectionHeading";
-import { SERVICES } from "@/config/site";
 import { fadeInUpLg, viewportOnce, stagger } from "@/lib/animations";
+import { useDict } from "@/i18n/LocaleProvider";
 
 export function ServicesSection() {
+    const { services: t, links } = useDict();
+    const SERVICES = t.items;
     return (
         <section id="services" aria-labelledby="services-heading" className="relative py-32">
 
             <div className="relative z-10 mx-auto max-w-7xl px-6">
-                <SectionHeading label="What We Build" id="services-heading">
-                    Engineering that <span className="text-primary">ships</span>
+                <SectionHeading label={t.label} id="services-heading">
+                    {t.titleA} <span className="text-primary">{t.titleB}</span>
                 </SectionHeading>
 
                 <p className="mx-auto mb-16 -mt-8 max-w-2xl text-center text-base leading-relaxed text-muted-foreground">
-                    If it&apos;s digital, we can build it. We bring the right expertise to every project, and when a challenge falls outside our stack, we take ownership of finding and managing the right people to deliver it.
+                    {t.intro}
                 </p>
 
                 {/* Featured service — Software Development */}
                 {(() => {
                     const featured = SERVICES[0];
                     return (
-                        <Link href={featured.href} aria-label={`Explore our ${featured.title} service`} className="mb-6 block">
+                        <Link href={featured.href} aria-label={t.exploreAria(featured.title)} className="mb-6 block">
                             <motion.div
                                 variants={fadeInUpLg}
                                 initial="hidden"
@@ -59,7 +61,7 @@ export function ServicesSection() {
                                     <div className="flex flex-col justify-center p-8 md:p-10">
                                         <div className="mb-4 flex items-center gap-3">
                                             <Badge className="border-primary/40 bg-primary/10 text-[11px] font-semibold uppercase tracking-wider text-primary">
-                                                Core Service
+                                                {t.core}
                                             </Badge>
                                         </div>
                                         <h3 className="mb-2 text-2xl font-bold tracking-tight sm:text-3xl">
@@ -89,7 +91,7 @@ export function ServicesSection() {
                                             ))}
                                         </ul>
                                         <span className="inline-flex items-center gap-1 text-sm font-medium text-primary transition-colors group-hover:text-primary/80">
-                                            Learn More
+                                            {t.learnMore}
                                             <ArrowRight className="size-4" />
                                         </span>
                                     </div>
@@ -102,7 +104,7 @@ export function ServicesSection() {
                 {/* Remaining services */}
                 <div className="grid gap-6 md:grid-cols-3">
                     {SERVICES.slice(1).map((s, i) => (
-                        <Link key={s.title} href={s.href} aria-label={`Explore our ${s.title} service`}>
+                        <Link key={s.title} href={s.href} aria-label={t.exploreAria(s.title)}>
                             <motion.div
                                 variants={fadeInUpLg}
                                 initial="hidden"
@@ -147,7 +149,7 @@ export function ServicesSection() {
                                         ))}
                                     </div>
                                     <span className="mt-auto inline-flex items-center gap-1 text-sm font-medium text-primary transition-colors group-hover:text-primary/80">
-                                        Learn More
+                                        {t.learnMore}
                                         <ArrowRight className="size-4" />
                                     </span>
                                 </div>
@@ -166,8 +168,8 @@ export function ServicesSection() {
                     className="mt-12 flex justify-center"
                 >
                     <Button size="lg" asChild>
-                        <Link href="/#contact">
-                            Let's Discuss
+                        <Link href={links.contact}>
+                            {t.cta}
                             <ArrowRight className="ml-1 size-4" />
                         </Link>
                     </Button>

@@ -2,16 +2,11 @@
 
 import { motion } from "framer-motion";
 import { fadeInUp, fadeInUpLg, viewportOnce, stagger } from "@/lib/animations";
-
-const CLIENT_INDUSTRIES = [
-    { emoji: "🏥", sector: "Healthcare" },
-    { emoji: "⚖️", sector: "Legal Services" },
-    { emoji: "🚁", sector: "Drone & Aerospace" },
-    { emoji: "💪", sector: "Fitness & Wellness" },
-    { emoji: "🏢", sector: "Software Companies" },
-];
+import { useDict, useLocale } from "@/i18n/LocaleProvider";
 
 export function NotableClients() {
+    const t = useDict().industries;
+    const locale = useLocale();
     return (
         <section aria-labelledby="clients-heading" className="relative border-b border-border/50 py-20">
             <div className="absolute inset-0 grid-bg" />
@@ -24,23 +19,29 @@ export function NotableClients() {
                     className="mb-4 text-center text-xs font-semibold uppercase tracking-widest text-muted-foreground"
                     id="clients-heading"
                 >
-                    Industries served
+                    {t.label}
                 </motion.p>
 
-                <motion.p
-                    variants={fadeInUp}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={viewportOnce}
-                    transition={{ duration: 0.4, delay: 0.1 }}
-                    className="mb-12 text-center text-sm text-muted-foreground"
-                >
-                    Backed by a{" "}
-                    <span className="font-semibold text-foreground">35+ member workflow team</span> — full-time engineers, long-term collaborators, and trusted specialists, all pulling in the same direction.
-                </motion.p>
+                {/* TODO(owner): "35+ member" is not backed by data yet (see the SEO report).
+                    Kept on the English page until confirmed; left out of the Romanian page. */}
+                {locale === "en" ? (
+                    <motion.p
+                        variants={fadeInUp}
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={viewportOnce}
+                        transition={{ duration: 0.4, delay: 0.1 }}
+                        className="mb-12 text-center text-sm text-muted-foreground"
+                    >
+                        Backed by a{" "}
+                        <span className="font-semibold text-foreground">35+ member workflow team</span> — full-time engineers, long-term collaborators, and trusted specialists, all pulling in the same direction.
+                    </motion.p>
+                ) : (
+                    <div className="mb-12" />
+                )}
 
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-                    {CLIENT_INDUSTRIES.map((client, i) => (
+                    {t.items.map((client, i) => (
                         <motion.div
                             key={client.sector}
                             variants={fadeInUpLg}

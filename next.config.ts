@@ -46,6 +46,23 @@ const nextConfig: NextConfig = {
    */
   skipTrailingSlashRedirect: true,
 
+  /* ── One root layout per locale ──────────────────────────
+   * (en) and (ro) each have their own root layout so <html lang> is right;
+   * unmatched URLs then need app/global-not-found.tsx.
+   */
+  experimental: {
+    globalNotFound: true,
+  },
+
+  /* ── Permanent redirects for moved URLs ───────────────── */
+  async redirects() {
+    return [
+      // Service images re-encoded as WebP (1.9 MB / 0.8 MB PNG → ~30–40 KB).
+      { source: "/technical-documentation.png", destination: "/technical-documentation.webp", statusCode: 301 },
+      { source: "/presentation-website.png", destination: "/presentation-website.webp", statusCode: 301 },
+    ];
+  },
+
   /* ── Security headers applied to every route ─────────── */
   async headers() {
     return [

@@ -6,10 +6,12 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Terminal } from "@/components/Terminal";
 import { fadeInUp, fadeInUpLg } from "@/lib/animations";
+import { useDict } from "@/i18n/LocaleProvider";
 
 export function HeroSection() {
+    const { hero: t, links } = useDict();
     return (
-        <section aria-label="Hero" className="relative min-h-[100dvh] w-full overflow-hidden">
+        <section aria-label={t.ariaLabel} className="relative min-h-[100dvh] w-full overflow-hidden">
             {/* Grid background */}
             <div className="absolute inset-0 grid-bg" />
 
@@ -17,17 +19,13 @@ export function HeroSection() {
                 <div className="grid w-full gap-10 lg:grid-cols-2 lg:gap-16 items-center">
                     {/* Left - Copy */}
                     <div className="flex flex-col gap-5 text-center lg:text-left items-center lg:items-start">
-                        <motion.h1
-                            variants={fadeInUp}
-                            initial="hidden"
-                            animate="visible"
-                            transition={{ duration: 0.4, delay: 0.08 }}
-                            className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl"
-                        >
-                            Software that
+                        {/* Plain h1, no entrance animation: it is the LCP element and
+                            must be visible in the server HTML, not after hydration. */}
+                        <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
+                            {t.titleA}{" "}
                             <br />
-                            <span className="text-primary">Means Business.</span>
-                        </motion.h1>
+                            <span className="text-primary">{t.titleB}</span>
+                        </h1>
 
                         <motion.p
                             variants={fadeInUp}
@@ -36,7 +34,7 @@ export function HeroSection() {
                             transition={{ duration: 0.4, delay: 0.16 }}
                             className="max-w-lg text-base sm:text-lg leading-relaxed text-muted-foreground"
                         >
-                            We offer IT consulting and solutions in AI infrastructure, SaaS development, technical documentation and custom business websites for startups and modern enterprises.
+                            {t.text}
                         </motion.p>
 
                         <motion.div
@@ -47,13 +45,13 @@ export function HeroSection() {
                             className="flex flex-wrap justify-center gap-3 lg:justify-start"
                         >
                             <Button size="lg" asChild>
-                                <Link href="/#contact">
-                                    Start a Project
+                                <Link href={links.contact}>
+                                    {t.primaryCta}
                                     <ArrowRight className="ml-1 size-4" />
                                 </Link>
                             </Button>
                             <Button variant="outline" size="lg" asChild>
-                                <Link href="/#services">View Services</Link>
+                                <Link href={links.services}>{t.secondaryCta}</Link>
                             </Button>
                         </motion.div>
                     </div>
