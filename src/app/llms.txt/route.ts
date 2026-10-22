@@ -1,8 +1,7 @@
-import { SITE, SERVICE_AREA } from "@/config/seo";
+import { SITE } from "@/config/seo";
 import { PRICE_FACTS } from "@/config/pricing";
 import { SERVICE_PAGES } from "@/config/services";
 import { SERVICE_PAGES_RO } from "@/config/services.ro";
-import { getLocation } from "@/config/locations.ro";
 import { CASE_STUDIES } from "@/config/case-studies";
 import { getDictionary } from "@/i18n/dictionaries";
 import { ROUTES, absoluteUrl, type PageId, type StaticPageId } from "@/i18n/routes";
@@ -24,13 +23,10 @@ const PAGE_TITLES: Record<StaticPageId, Record<Locale, string>> = {
     blog: { en: "Blog", ro: "Blog" },
     careers: { en: "Careers", ro: "Cariere" },
     privacy: { en: "Privacy policy", ro: "Politica de confidențialitate" },
-    locations: { en: "Locations", ro: "Orașe în care lucrăm" },
     caseStudies: { en: "Case studies", ro: "Studii de caz" },
-    webSatuMare: { en: "Web development in Satu Mare", ro: "Dezvoltare soluții web în Satu Mare" },
 };
 
 function pageTitle(id: PageId, locale: Locale): string {
-    if (id.startsWith("location:")) return getLocation(id.slice("location:".length))?.city ?? id;
     if (id.startsWith("case:")) {
         const items = locale === "ro" ? getDictionary("ro").caseStudies.items : CASE_STUDIES;
         return items.find((c) => c.id === id.slice("case:".length))?.headline ?? id;
@@ -51,12 +47,11 @@ function pageList(locale: Locale): string {
 
 export function GET() {
     const p = PRICE_FACTS;
-    const cities = SERVICE_AREA.map((c) => c.name).join(", ");
     const hasRomanian = Object.values(ROUTES).some((r) => r.paths.ro);
 
     const body = `# ${SITE.name}
 
-> ${SITE.name} (${SITE.legalName}) is a software development company based in ${SITE.address.city}, Romania. We build custom web applications, presentation websites, AI agents and workflow automations for companies in Romania and abroad, at a fixed price per project or per hour, with a weekly demo of working software.
+> ${SITE.name} (${SITE.legalName}) is a software development company from Romania. We build custom web applications, presentation websites, AI agents and workflow automations for companies in Romania and abroad, at a fixed price per project or per hour, with a weekly demo of working software.
 
 ## Services
 
@@ -74,9 +69,8 @@ export function GET() {
 
 ## Location and area served
 
-- Address: ${SITE.address.street}, ${SITE.address.postalCode} ${SITE.address.city}, Romania
-- In-person meetings in ${SITE.address.city}; remote delivery everywhere else
-- Cities served: ${cities}, and clients across Romania and internationally
+- Clients across Romania and internationally; delivery is remote, with a weekly demo
+- Registered office: ${SITE.address.street}, ${SITE.address.postalCode} ${SITE.address.city}, Romania
 - Languages: Romanian, English
 
 ## Contact
@@ -98,7 +92,7 @@ ${pageList("en")}
 ${hasRomanian ? `
 ## Pe scurt, în română
 
-Dodera Software este o firmă de dezvoltare software din Satu Mare care construiește aplicații web, site-uri de prezentare, agenți AI și automatizări n8n pentru companii din toată România. Preț fix pe proiect de la ${p.projectFrom} EUR, pe sarcină de la ${p.taskFrom} EUR, pe oră ${p.hourly.min}–${p.hourly.max} EUR, abonament de la ${p.retainerFrom} EUR/lună. Întâlniri față în față în Satu Mare; în rest, de la distanță.
+Dodera Software este o firmă de dezvoltare software din România care construiește aplicații web, site-uri de prezentare, agenți AI și automatizări n8n pentru companii din toată România. Preț fix pe proiect de la ${p.projectFrom} EUR, pe sarcină de la ${p.taskFrom} EUR, pe oră ${p.hourly.min}–${p.hourly.max} EUR, abonament de la ${p.retainerFrom} EUR/lună. Lucrăm cu clienți din România și din străinătate, de la distanță, cu demo săptămânal.
 
 ## Pagini cheie (Română)
 

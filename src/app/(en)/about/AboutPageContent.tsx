@@ -15,7 +15,7 @@ import { FAQ } from "./faq";
 const ABOUT_STATS: { label: string; value: string }[] = [
     { label: "Founded", value: "2023" },
     { label: "Projects from", value: "€300" },
-    { label: "Based in", value: "Satu Mare" },
+    { label: "Based in", value: "Romania" },
 ];
 
 const ABOUT_VALUES = [
@@ -32,8 +32,8 @@ const ABOUT_VALUES = [
         body: "No black boxes. You get clear communication, weekly updates, and direct access to the engineers working on your product.",
     },
     {
-        title: "Local and Remote",
-        body: "Based in Satu Mare, Romania. We meet local clients in person and work remotely with everyone else, in English or Romanian, at competitive European rates.",
+        title: "International Reach",
+        body: "Based in Romania, we work with clients in Romania and abroad, fully async across time zones. English or Romanian, at competitive European rates.",
     },
 ] as const;
 

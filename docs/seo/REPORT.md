@@ -8,6 +8,8 @@
 
 Merge #81 first. Nothing has been merged.
 
+> **Change of focus (22 Oct 2026, owner decision):** the site targets **Romania and international clients**, not Satu Mare. The city pages (`/ro/locatii`, 6 cities) and `/ro/dezvoltare-solutii-web-satu-mare` were removed, with 301 redirects to `/ro/servicii` and `/ro/servicii/site-uri-de-prezentare`. The structured-data service area is now Romania + Worldwide. Titles and intros no longer mention a city. The registered address stays in the footer, contact page and structured data, because it's a legal fact. Sections below that describe the city pages are kept as history.
+
 ---
 
 ## 1. What changed

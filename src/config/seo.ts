@@ -72,15 +72,14 @@ export const SITE = {
     favicon: "/favicon.ico",
 } as const;
 
-/** Cities we serve (local pages, JSON-LD areaServed). */
-export const SERVICE_AREA = [
-    { name: "Satu Mare", county: "Satu Mare" },
-    { name: "Carei", county: "Satu Mare" },
-    { name: "Baia Mare", county: "Maramureș" },
-    { name: "Zalău", county: "Sălaj" },
-    { name: "Oradea", county: "Bihor" },
-    { name: "Cluj-Napoca", county: "Cluj" },
-] as const;
+/**
+ * Where we work: clients across Romania and internationally (remote).
+ * The registered address is in Satu Mare, but the site does not target a city.
+ */
+export const SERVICE_AREA = {
+    country: "Romania",
+    international: true,
+} as const;
 
 /** Default meta used when a page doesn't override values (also the layout fallback). */
 export const DEFAULT_META = {

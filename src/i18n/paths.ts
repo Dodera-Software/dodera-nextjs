@@ -18,15 +18,8 @@ export const STATIC_PATHS = {
     blog: { en: "/blog" },
     careers: { en: "/careers", ro: "/ro/cariere" },
     privacy: { en: "/privacy-policy", ro: "/ro/politica-de-confidentialitate" },
-    locations: { ro: "/ro/locatii" },
     caseStudies: { en: "/case-studies", ro: "/ro/studii-de-caz" },
-    webSatuMare: { ro: "/ro/dezvoltare-solutii-web-satu-mare" },
 } satisfies Record<string, LocalePaths>;
-
-/** City pages (Romanian only), keyed by slug — see config/locations.ro.ts. */
-export const LOCATION_SLUGS = ["satu-mare", "carei", "baia-mare", "zalau", "oradea", "cluj-napoca"] as const;
-
-export const locationPath = (slug: string) => `/ro/locatii/${slug}`;
 
 /** Case-study pages, keyed by case-study id (config/case-studies.ts). */
 export const CASE_STUDY_PATHS: Record<string, LocalePaths> = {
@@ -101,7 +94,6 @@ const ALL_PATHS: LocalePaths[] = [
     ...Object.values(STATIC_PATHS),
     ...Object.values(SERVICE_PATHS),
     ...Object.values(CASE_STUDY_PATHS),
-    ...LOCATION_SLUGS.map((s) => ({ ro: locationPath(s) })),
 ];
 
 /** Locale implied by a pathname. */

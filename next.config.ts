@@ -60,6 +60,10 @@ const nextConfig: NextConfig = {
       // Service images re-encoded as WebP (1.9 MB / 0.8 MB PNG → ~30–40 KB).
       { source: "/technical-documentation.png", destination: "/technical-documentation.webp", statusCode: 301 },
       { source: "/presentation-website.png", destination: "/presentation-website.webp", statusCode: 301 },
+      // City pages were removed when the focus moved from Satu Mare to Romania + international.
+      { source: "/ro/locatii", destination: "/ro/servicii", statusCode: 301 },
+      { source: "/ro/locatii/:city", destination: "/ro/servicii", statusCode: 301 },
+      { source: "/ro/dezvoltare-solutii-web-satu-mare", destination: "/ro/servicii/site-uri-de-prezentare", statusCode: 301 },
     ];
   },
 

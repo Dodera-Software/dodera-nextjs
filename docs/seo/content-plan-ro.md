@@ -6,7 +6,7 @@ Propuneri, nu articole scrise. Fiecare răspunde la o întrebare pe care o pune 
 - Prețurile sunt doar cele publicate pe site: proiect cu preț fix de la 300 EUR, sarcină de la 50 EUR, 20–80 EUR/oră, abonament de la 150 EUR/lună. Duratele sunt doar cele deja afirmate pe site.
 - Unde lipsește un interval de preț pe tip de proiect (de ex. „site de prezentare: X–Y EUR”), completați-l înainte de publicare. Fără cifre inventate.
 - Autor cu nume real (pagină de autor + schema Person). Articolul se publică în Prismic, în locale-ul `ro-ro`.
-- Fiecare articol trimite către pagina de serviciu potrivită, iar acolo unde e relevant și către `/ro/dezvoltare-solutii-web-satu-mare` sau `/ro/locatii/...`.
+- Fiecare articol trimite către pagina de serviciu potrivită. Accentul este pe România și pe clienții internaționali, nu pe un oraș anume.
 - Un singur H1, H2-uri formulate ca întrebări (bune pentru extragerea răspunsurilor), un tabel acolo unde există o comparație.
 
 ---
@@ -15,7 +15,7 @@ Propuneri, nu articole scrise. Fiecare răspunde la o întrebare pe care o pune 
 - **Interogare țintă:** cât costă un site de prezentare · preț site prezentare · cost site firmă
 - **Răspuns rapid:** La Dodera Software, un site de prezentare cu preț fix pornește de la 300 EUR și se livrează de obicei în 2–6 săptămâni. Prețul final depinde de numărul de pagini, de design, de integrări (programări, CRM) și de cine scrie textele. Mentenanța după lansare este opțională, de la 150 EUR pe lună.
 - **Structură:** Ce influențează prețul · Șablon vs design personalizat · Ce trebuie să includă prețul (SEO tehnic, CMS, SSL, viteză) · Costuri ascunse (domeniu, hosting, texte, poze) · Cât durează · Întrebări de pus unei agenții
-- **Linkuri:** /ro/servicii/site-uri-de-prezentare, /ro/dezvoltare-solutii-web-satu-mare
+- **Linkuri:** /ro/servicii/site-uri-de-prezentare
 - **TODO(owner):** interval tipic de preț pentru un site de 5–10 pagini
 
 ## 2. Cât costă un agent AI personalizat
@@ -34,19 +34,19 @@ Propuneri, nu articole scrise. Fiecare răspunde la o întrebare pe care o pune 
 - **Interogare țintă:** cost MVP aplicație web · cât costă o aplicație web · dezvoltare MVP preț
 - **Răspuns rapid:** Un MVP pentru o aplicație web durează de obicei 4–8 săptămâni și se construiește cu preț fix, de la 300 EUR la Dodera Software. Prețul crește cu numărul de tipuri de utilizatori, cu plățile și cu integrările; primiți prețul exact după prima săptămână de stabilire a scopului.
 - **Structură:** Ce intră într-un MVP (și ce nu) · Factorii de cost · Calendar tipic pe săptămâni · Cum tăiați scopul fără să pierdeți valoarea · Ce se întâmplă după lansare
-- **Linkuri:** /ro/servicii/dezvoltare-software/mvp, /ro/locatii/cluj-napoca
+- **Linkuri:** /ro/servicii/dezvoltare-software/mvp
 
-## 5. Cum alegeți o firmă de dezvoltare software în Satu Mare
-- **Interogare țintă:** firmă dezvoltare software Satu Mare · firmă IT Satu Mare · programatori Satu Mare
-- **Răspuns rapid:** Alegeți o firmă care vă dă un preț fix în scris înainte de început, vă arată progresul în fiecare săptămână și vă predă codul sursă la final. În Satu Mare, Dodera Software lucrează astfel, cu biroul pe Strada Banat 1 și cu întâlniri față în față.
-- **Structură:** 7 întrebări de pus înainte de a semna · Semnale de alarmă · Local vs la distanță · Cum verificați referințele · Lista de verificare descărcabilă
-- **Linkuri:** /ro/locatii/satu-mare, /ro/dezvoltare-solutii-web-satu-mare, /ro/contact
+## 5. Cum alegeți o firmă de dezvoltare software în România
+- **Interogare țintă:** firmă dezvoltare software România · firmă IT România · outsourcing software România
+- **Răspuns rapid:** Alegeți o firmă care vă dă un preț fix în scris înainte de început, vă arată progresul în fiecare săptămână și vă predă codul sursă la final. Dodera Software lucrează astfel, cu clienți din România și din străinătate.
+- **Structură:** 7 întrebări de pus înainte de a semna · Semnale de alarmă · Firmă din România vs outsourcing în altă țară · Cum verificați referințele · Lista de verificare descărcabilă
+- **Linkuri:** /ro/contact, /ro/studii-de-caz
 
 ## 6. Magazin online personalizat sau platformă gata făcută?
 - **Interogare țintă:** magazin online personalizat · cât costă un magazin online · Shopify vs magazin custom
 - **Răspuns rapid:** O platformă gata făcută este mai ieftină la început, dar vă limitează regulile de preț, de livrare și integrările. Un magazin online personalizat are sens când aveți logică proprie (B2B, stocuri pe mai multe depozite, configuratoare) și se construiește cu preț fix, de la 300 EUR în sus, în funcție de complexitate.
 - **Structură:** Tabel comparativ · Costul total pe 3 ani · Când trebuie neapărat personalizat · Integrare cu facturarea și stocurile · Pași de migrare
-- **Linkuri:** /ro/servicii/dezvoltare-software, /ro/locatii/baia-mare
+- **Linkuri:** /ro/servicii/dezvoltare-software
 - **TODO(owner):** interval tipic de preț pentru un magazin online
 
 ## 7. Preț fix sau plata pe oră: cum se plătește dezvoltarea software
@@ -59,13 +59,13 @@ Propuneri, nu articole scrise. Fiecare răspunde la o întrebare pe care o pune 
 - **Interogare țintă:** automatizare procese firmă mică · ce pot automatiza în firmă
 - **Răspuns rapid:** Începeți cu procesele repetate zilnic, cu reguli clare: preluarea comenzilor din email, facturarea, reamintirile pentru clienți, rapoartele săptămânale și sincronizarea datelor între aplicații. O automatizare simplă poate fi o sarcină cu preț fix, de la 50 EUR.
 - **Structură:** Cum identificați candidații (frecvență × timp × erori) · Cele 5 automatizări, fiecare cu un exemplu · Ce nu merită automatizat · Cum măsurați rezultatul
-- **Linkuri:** /ro/servicii/dezvoltare-ai/automatizari-ai-n8n, /ro/locatii/carei
+- **Linkuri:** /ro/servicii/dezvoltare-ai/automatizari-ai-n8n
 
 ## 9. Agent AI în limba română pentru relațiile cu clienții: ce poate și ce nu
 - **Interogare țintă:** chatbot AI în română · agent AI suport clienți
 - **Răspuns rapid:** Modelele actuale înțeleg și scriu bine în română, deci un agent AI poate răspunde la întrebările frecvente și poate prelua cereri simple. Pentru cazurile neclare sau cu risc, un agent bun predă conversația unui om, cu tot contextul.
 - **Structură:** Ce sarcini preia bine · Unde greșește · Cum se testează în română · Tonul și limitele · GDPR
-- **Linkuri:** /ro/servicii/dezvoltare-ai/agenti-ai-personalizati, /ro/locatii/oradea
+- **Linkuri:** /ro/servicii/dezvoltare-ai/agenti-ai-personalizati
 
 ## 10. Cât durează să faceți un site de prezentare și ce îl întârzie
 - **Interogare țintă:** cât durează un site de prezentare · în cât timp se face un site
@@ -80,11 +80,11 @@ Propuneri, nu articole scrise. Fiecare răspunde la o întrebare pe care o pune 
 - **Linkuri:** /ro/servicii/dezvoltare-ai
 - **Notă:** cereți o verificare juridică înainte de publicare
 
-## 12. Ce pagini trebuie să aibă un site ca să apară în Google la căutările locale
-- **Interogare țintă:** SEO local site firmă · cum apare firma în Google Satu Mare
+## 12. Ce pagini trebuie să aibă un site ca să apară în Google
+- **Interogare țintă:** SEO site firmă · cum apare firma în Google
 - **Răspuns rapid:** Un site care vrea să apară la căutările locale are nevoie de o pagină pentru fiecare serviciu important, de o pagină de contact cu nume, adresă și telefon identice cu cele din Google Business Profile și de date structurate cu adresa firmei. Viteza pe telefon contează la fel de mult ca textul.
 - **Structură:** Structura recomandată · NAP și Google Business Profile · Date structurate · Recenzii · Greșeli frecvente
-- **Linkuri:** /ro/servicii/site-uri-de-prezentare, /ro/dezvoltare-solutii-web-satu-mare
+- **Linkuri:** /ro/servicii/site-uri-de-prezentare
 
 ## 13. De la Excel la o aplicație web: când merită și cum se face
 - **Interogare țintă:** aplicație web în loc de Excel · aplicație pentru gestiune firmă
@@ -102,7 +102,7 @@ Propuneri, nu articole scrise. Fiecare răspunde la o întrebare pe care o pune 
 - **Interogare țintă:** documentație tehnică software · bază de cunoștințe internă firmă
 - **Răspuns rapid:** Documentația tehnică merită investiția când integrarea unui coleg nou durează prea mult sau când o singură persoană știe cum funcționează un sistem. Un proiect de documentare cu preț fix pornește de la 300 EUR, în funcție de dimensiunea codului și a documentelor existente.
 - **Structură:** Semnale că vă lipsește documentația · Ce se documentează primul · Documentație pregătită pentru AI · Cum rămâne actualizată
-- **Linkuri:** /ro/servicii/documentatie-tehnica, /ro/locatii/zalau
+- **Linkuri:** /ro/servicii/documentatie-tehnica
 
 ---
 

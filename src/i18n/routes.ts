@@ -16,7 +16,7 @@ import type { Metadata } from "next";
 import { SITE } from "@/config/seo";
 import { SERVICE_PAGE_SLUGS } from "@/config/services";
 import { DEFAULT_LOCALE, HTML_LANG, LOCALES, type Locale } from "./config";
-import { CASE_STUDY_PATHS, LOCATION_SLUGS, SERVICE_PATHS, STATIC_PATHS, locationPath } from "./paths";
+import { CASE_STUDY_PATHS, SERVICE_PATHS, STATIC_PATHS } from "./paths";
 
 export interface PageRoute {
     paths: Partial<Record<Locale, string>>;
@@ -85,18 +85,6 @@ const STATIC_ROUTES = {
         changeFrequency: "monthly",
         priority: 0.8,
     },
-    locations: {
-        paths: STATIC_PATHS.locations,
-        sources: ["src/app/(ro)/ro/locatii/page.tsx", "src/config/locations.ro.ts"],
-        changeFrequency: "monthly",
-        priority: 0.8,
-    },
-    webSatuMare: {
-        paths: STATIC_PATHS.webSatuMare,
-        sources: ["src/app/(ro)/ro/dezvoltare-solutii-web-satu-mare/page.tsx"],
-        changeFrequency: "monthly",
-        priority: 0.9,
-    },
     privacy: {
         paths: STATIC_PATHS.privacy,
         sources: ["src/app/(en)/privacy-policy/page.tsx", "src/app/(ro)/ro/politica-de-confidentialitate/page.tsx"],
@@ -107,9 +95,8 @@ const STATIC_ROUTES = {
 
 export type StaticPageId = keyof typeof STATIC_ROUTES;
 export type ServicePageId = `service:${string}`;
-export type LocationPageId = `location:${string}`;
 export type CaseStudyPageId = `case:${string}`;
-export type PageId = StaticPageId | ServicePageId | LocationPageId | CaseStudyPageId;
+export type PageId = StaticPageId | ServicePageId | CaseStudyPageId;
 
 function serviceRoute(key: string): PageRoute {
     return {
@@ -132,17 +119,6 @@ export const ROUTES: Record<PageId, PageRoute> = {
                 sources: ["src/config/case-studies.ts", "src/i18n/dictionaries/ro.ts", "src/components/CaseStudyPage.tsx"],
                 changeFrequency: "yearly",
                 priority: 0.7,
-            } satisfies PageRoute,
-        ]),
-    ),
-    ...Object.fromEntries(
-        LOCATION_SLUGS.map((slug) => [
-            `location:${slug}`,
-            {
-                paths: { ro: locationPath(slug) },
-                sources: ["src/config/locations.ro.ts", "src/app/(ro)/ro/locatii/[oras]/page.tsx"],
-                changeFrequency: "monthly",
-                priority: 0.8,
             } satisfies PageRoute,
         ]),
     ),

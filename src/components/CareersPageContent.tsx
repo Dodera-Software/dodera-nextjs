@@ -53,7 +53,7 @@ const WHY_ITEMS_RO = [
     },
     {
         title: "Lucru de la distanță",
-        body: "Lucrați de unde sunteți cel mai productiv. Suntem obișnuiți să colaborăm la distanță, iar în Satu Mare ne putem vedea și la birou.",
+        body: "Lucrați de unde sunteți cel mai productiv. Suntem obișnuiți să colaborăm la distanță, în fusuri orare diferite.",
     },
     {
         title: "Proiecte care contează",
@@ -91,8 +91,8 @@ const COPY = {
     ro: {
         eyebrow: "Cariere",
         titleA: "Alăturați-vă echipei",
-        titleB: "din Satu Mare.",
-        lead: "Dodera Software este o firmă de dezvoltare software din Satu Mare: o echipă mică și concentrată de ingineri și designeri cărora le pasă de calitate și de responsabilitate. Lucrăm repede, comunicăm deschis și construim produse pentru clienți din România și din străinătate.",
+        titleB: "",
+        lead: "Suntem o echipă mică și concentrată de ingineri și designeri cărora le pasă cu adevărat de calitate și de responsabilitate. Lucrăm repede, comunicăm deschis și construim lucruri care contează pentru clienți din întreaga lume. Dacă sunteți pasionat de tehnologie, locul dumneavoastră este aici.",
         openTitle: "Posturi disponibile",
         noneTitle: "Momentan nu avem posturi deschise",
         noneText: "Nu avem posturi deschise în acest moment. Dacă aveți o abilitate care vă diferențiază și credeți că vă potriviți în echipă, scrieți-ne. Ne-ar face plăcere să vă cunoaștem.",

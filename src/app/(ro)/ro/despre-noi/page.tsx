@@ -51,7 +51,7 @@ const VALUES = [
 const FAQ = [
     {
         question: "Unde își are sediul Dodera Software?",
-        answer: "Sediul nostru este în Satu Mare, pe Strada Banat 1. Lucrăm cu clienți din Satu Mare și din împrejurimi și față în față, iar cu firmele din restul României și din străinătate lucrăm de la distanță, prin apeluri video și demo-uri săptămânale.",
+        answer: "Suntem o firmă din România și lucrăm cu clienți din țară și din străinătate. Toată colaborarea se desfășoară de la distanță, prin apeluri video, comunicare clară și demo-uri săptămânale.",
     },
     {
         question: "Ce dimensiune au proiectele pe care le preluați?",
@@ -99,8 +99,8 @@ export default function AboutPageRo() {
                 <PageHero
                     eyebrow="Despre noi"
                     id="about-ro-heading"
-                    title={<>Firmă IT din Satu Mare, <span className="text-primary">din 2023.</span></>}
-                    lead="Dodera Software este o firmă de dezvoltare software din Satu Mare, fondată în 2023, care construiește aplicații web, site-uri de prezentare, agenți AI și automatizări pentru companii din toată România. Lucrăm pe oră, pe sarcină sau pe proiect, cu preț fix stabilit de la început."
+                    title={<>Firmă de software din România, <span className="text-primary">din 2023.</span></>}
+                    lead="Dodera Software este o firmă de dezvoltare software din România, fondată în 2023, care construiește aplicații web, site-uri de prezentare, agenți AI și automatizări pentru clienți din țară și din străinătate. Lucrăm pe oră, pe sarcină sau pe proiect, cu preț fix stabilit de la început."
                 />
 
                 <ProseSection id="cine-suntem" title="Cine suntem">
@@ -145,7 +145,7 @@ export default function AboutPageRo() {
                         <Link href={svc("software-development/enterprise-platforms")}>platforme enterprise</Link>.
                     </p>
                     <p>
-                        <Link href={svc("presentation-websites")}>Site-uri de prezentare</Link> rapide, optimizate pentru Google, pentru firme din Satu Mare și din toată țara.
+                        <Link href={svc("presentation-websites")}>Site-uri de prezentare</Link> rapide, optimizate pentru Google, pentru firme din România și din străinătate.
                     </p>
                     <p>
                         <Link href={svc("ai-development/custom-ai-agents")}>Agenți AI personalizați</Link> și{" "}
@@ -156,13 +156,13 @@ export default function AboutPageRo() {
                     </p>
                 </ProseSection>
 
-                <ProseSection id="unde-suntem" title="Unde ne găsiți" muted>
+                <ProseSection id="unde-suntem" title="Date de contact" muted>
                     <p>
                         <strong>{SITE.legalName}</strong>, {SITE.address.street}, {SITE.address.postalCode} {SITE.address.city}, România.
                         Telefon <a href={`tel:${SITE.phoneE164}`}>{SITE.phone}</a>, email <a href={`mailto:${SITE.email}`}>{SITE.email}</a>.
                     </p>
                     <p>
-                        Nr. Reg. Com. {SITE.registrationNumber}, CUI {SITE.taxId}. Pentru clienții din Satu Mare și din împrejurimi ne întâlnim și față în față; cu cei din Baia Mare, Oradea, Zalău, Cluj-Napoca, Carei și din restul țării lucrăm de la distanță.
+                        Nr. Reg. Com. {SITE.registrationNumber}, CUI {SITE.taxId}. Lucrăm de la distanță cu clienți din România și din străinătate.
                     </p>
                     <p>
                         <Link href={STATIC_PATHS.contact.ro}>Scrieți-ne sau sunați-ne</Link>; prima discuție este gratuită.
