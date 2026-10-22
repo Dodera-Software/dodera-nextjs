@@ -571,6 +571,7 @@ export const SERVICE_PAGES_RO: Record<string, ServicePageData> = {
                 links: [
                     { label: "Site de prezentare pentru firme", href: svc("presentation-websites/business-showcase-sites") },
                     { label: "Magazine online și aplicații web", href: svc("software-development") },
+                    { label: "Soluții web pentru firme din Satu Mare", href: "/ro/dezvoltare-solutii-web-satu-mare" },
                 ],
             },
         ],

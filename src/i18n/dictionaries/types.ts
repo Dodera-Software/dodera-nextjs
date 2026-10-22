@@ -43,8 +43,10 @@ export interface Dictionary {
         emailAria: string;
         visitAria: string;
         location: string;
+        country: string;
         openInMaps: string;
         phoneLabel: string;
+        phoneDisplay: string;
     };
     newsletter: {
         placeholder: string;

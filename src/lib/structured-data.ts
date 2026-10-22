@@ -197,6 +197,8 @@ export function serviceSchema(opts: {
     description: string;
     url: string;
     serviceType?: string;
+    /** Limit areaServed to one city (local pages); defaults to every city served plus Romania. */
+    city?: { name: string; county: string };
 }) {
     return {
         "@context": "https://schema.org",
@@ -207,7 +209,13 @@ export function serviceSchema(opts: {
         url: opts.url,
         serviceType: opts.serviceType ?? opts.name,
         provider: orgRef(),
-        areaServed: areaServed(),
+        areaServed: opts.city
+            ? {
+                "@type": "City",
+                name: opts.city.name,
+                containedInPlace: { "@type": "AdministrativeArea", name: `Județul ${opts.city.county}` },
+            }
+            : areaServed(),
         offers: pricingOffers(),
     };
 }

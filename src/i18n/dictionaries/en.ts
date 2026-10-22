@@ -6,6 +6,7 @@
 import { COMPANY, SERVICES, PROCESS_STEPS, NAV_LINKS, FOOTER_LINK_GROUPS } from "@/config/site";
 import { PRICING_TIERS } from "@/config/pricing";
 import { CASE_STUDIES } from "@/config/case-studies";
+import { SITE } from "@/config/seo";
 import type { Dictionary } from "./types";
 
 export const en: Dictionary = {
@@ -43,8 +44,10 @@ export const en: Dictionary = {
         emailAria: "Send us an email at",
         visitAria: "Visit",
         location: COMPANY.location,
+        country: "Romania",
         openInMaps: "Open in Google Maps",
         phoneLabel: "Call us",
+        phoneDisplay: SITE.phoneIntl,
     },
     newsletter: {
         placeholder: "Enter your email",

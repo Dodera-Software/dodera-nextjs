@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
-import { Globe, Mail, MapPin, Heart, Clock } from "lucide-react";
+import { Globe, Mail, MapPin, Heart, Clock, Phone } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { NewsletterForm } from "@/components/NewsletterForm";
 import { SocialIconList } from "@/components/SocialIconList";
 import { COMPANY } from "@/config/site";
+import { SITE } from "@/config/seo";
 import { useDict } from "@/i18n/LocaleProvider";
 
 export function Footer() {
@@ -29,6 +30,34 @@ export function Footer() {
 
                         <SocialIconList className="mb-6" />
 
+                        {/* NAP — name, address, phone: identical to the contact page, the
+                            JSON-LD and the Google Business Profile (all from config/seo.ts). */}
+                        <address className="mb-3 space-y-3 text-sm not-italic">
+                            <p className="font-semibold text-foreground/80">{SITE.name}</p>
+                            <div className="flex items-start gap-2 text-foreground/70">
+                                <MapPin className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+                                <span>
+                                    {SITE.address.street}, {SITE.address.postalCode} {SITE.address.city}, {t.country}
+                                    <a
+                                        href={SITE.googleBusinessProfile ?? SITE.mapsUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="block text-xs text-primary hover:underline"
+                                    >
+                                        {t.openInMaps}
+                                    </a>
+                                </span>
+                            </div>
+                            <a
+                                href={`tel:${SITE.phoneE164}`}
+                                aria-label={`${t.phoneLabel}: ${t.phoneDisplay}`}
+                                className="flex items-center gap-2 text-foreground/70 transition-colors hover:text-foreground"
+                            >
+                                <Phone className="size-4" aria-hidden="true" />
+                                {t.phoneDisplay}
+                            </a>
+                        </address>
+
                         <div className="space-y-3 text-sm">
                             <a
                                 href={`mailto:${COMPANY.email}`}
@@ -48,10 +77,6 @@ export function Footer() {
                                 <Globe className="size-4" />
                                 {COMPANY.url.replace("https://", "")}
                             </a>
-                            <div className="flex items-center gap-2 text-foreground/70">
-                                <MapPin className="size-4 shrink-0" />
-                                {t.location}
-                            </div>
                             {COMPANY.hours && (
                                 <div className="flex items-center gap-2 text-foreground/70">
                                     <Clock className="size-4" />

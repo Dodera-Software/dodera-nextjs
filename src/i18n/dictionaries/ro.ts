@@ -9,6 +9,7 @@
 
 import { Cpu, Code2, FileText, Monitor, Search, Layers, Zap, Handshake, Clock, CheckSquare, SquareCheckBig, Briefcase } from "lucide-react";
 import { SERVICE_PATHS, STATIC_PATHS } from "@/i18n/paths";
+import { SITE } from "@/config/seo";
 import type { Dictionary } from "./types";
 
 const svc = (key: string) => SERVICE_PATHS[key].ro!;
@@ -58,6 +59,8 @@ export const ro: Dictionary = {
                 links: [
                     { label: "Despre noi", href: STATIC_PATHS.about.ro },
                     { label: "Cum lucrăm", href: "/ro#process" },
+                    { label: "Orașe în care lucrăm", href: STATIC_PATHS.locations.ro },
+                    { label: "Soluții web Satu Mare", href: STATIC_PATHS.webSatuMare.ro },
                     { label: "Blog", href: "/blog" },
                     { label: "Cariere", href: STATIC_PATHS.careers.ro },
                     { label: "Contact", href: STATIC_PATHS.contact.ro },
@@ -80,8 +83,10 @@ export const ro: Dictionary = {
         emailAria: "Trimiteți-ne un email la",
         visitAria: "Vizitați",
         location: "Satu Mare, România",
+        country: "România",
         openInMaps: "Deschideți în Google Maps",
         phoneLabel: "Sunați-ne",
+        phoneDisplay: SITE.phone,
     },
     newsletter: {
         placeholder: "Adresa de email",
