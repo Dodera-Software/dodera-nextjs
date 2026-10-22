@@ -8,19 +8,59 @@ import { Button } from "@/components/ui/button";
 import type { BlogPost } from "@/types";
 import { fadeInUp, fadeInUpLg } from "@/lib/animations";
 import { TableOfContents, extractHeadings, injectHeadingIds } from "@/components/TableOfContents";
+import { useLocale } from "@/i18n/LocaleProvider";
+import { authorPath } from "@/config/authors";
+
+const COPY = {
+    en: {
+        dateLocale: "en-US",
+        back: "Back to Blog",
+        backHref: "/blog",
+        updated: "Updated",
+        header: "Article header",
+        image: "Featured image",
+        body: "Article body",
+        comingSoon: "Full article content coming soon.",
+        comingSoonSub: "This post will be available once our CMS is connected.",
+        ctaA: "Want us to build",
+        ctaB: "your next project?",
+        ctaText: "We write about engineering because we live it every day. If you like how we think, you'll love how we build.",
+        ctaButton: "Start a Project",
+        contact: "/#contact",
+        moreBy: "More articles by",
+    },
+    ro: {
+        dateLocale: "ro-RO",
+        back: "Înapoi la blog",
+        backHref: "/ro/blog",
+        updated: "Actualizat",
+        header: "Antetul articolului",
+        image: "Imaginea articolului",
+        body: "Conținutul articolului",
+        comingSoon: "Conținutul complet al articolului apare în curând.",
+        comingSoonSub: "",
+        ctaA: "Vreți să construim",
+        ctaB: "următorul dumneavoastră proiect?",
+        ctaText: "Scriem despre dezvoltare software pentru că o facem în fiecare zi. Dacă vă place cum gândim, o să vă placă și cum construim.",
+        ctaButton: "Începeți un proiect",
+        contact: "/ro/contact",
+        moreBy: "Mai multe articole de",
+    },
+} as const;
 
 export interface BlogPostContentProps {
     post: BlogPost;
 }
 
 export function BlogPostContent({ post }: BlogPostContentProps) {
+    const t = COPY[useLocale()];
     const processedBody = post.body ? injectHeadingIds(post.body) : undefined;
     const headings = post.body ? extractHeadings(post.body).filter((h) => h.level <= 2) : [];
 
     return (
         <>
             {/* ── Header ──────────────────────────────────── */}
-            <section aria-label="Article header" className="relative pb-12 pt-20 md:pt-32">
+            <section aria-label={t.header} className="relative pb-12 pt-20 md:pt-32">
                 <div className="absolute inset-0 grid-bg" />
 
                 <div className="relative z-10 mx-auto max-w-3xl px-6">
@@ -31,11 +71,11 @@ export function BlogPostContent({ post }: BlogPostContentProps) {
                         transition={{ duration: 0.4 }}
                     >
                         <Link
-                            href="/blog"
+                            href={t.backHref}
                             className="mb-8 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
                         >
                             <ArrowLeft className="size-4" />
-                            Back to Blog
+                            {t.back}
                         </Link>
                     </motion.div>
 
@@ -55,7 +95,7 @@ export function BlogPostContent({ post }: BlogPostContentProps) {
                             className="flex items-center gap-1.5 text-xs text-muted-foreground"
                         >
                             <Calendar className="size-3" />
-                            {new Date(post.date).toLocaleDateString("en-US", {
+                            {new Date(post.date).toLocaleDateString(t.dateLocale, {
                                 year: "numeric",
                                 month: "long",
                                 day: "numeric",
@@ -67,8 +107,8 @@ export function BlogPostContent({ post }: BlogPostContentProps) {
                                 className="flex items-center gap-1.5 text-xs text-primary/80"
                             >
                                 <Calendar className="size-3" />
-                                Updated{" "}
-                                {new Date(post.updatedAt).toLocaleDateString("en-US", {
+                                {t.updated}{" "}
+                                {new Date(post.updatedAt).toLocaleDateString(t.dateLocale, {
                                     year: "numeric",
                                     month: "long",
                                     day: "numeric",
@@ -141,7 +181,18 @@ export function BlogPostContent({ post }: BlogPostContentProps) {
                                 </div>
                             )}
                             <div>
-                                <p className="text-sm font-medium">{post.author.name}</p>
+                                {post.author.slug ? (
+                                    <Link
+                                        href={authorPath(post.author.slug)}
+                                        rel="author"
+                                        title={`${t.moreBy} ${post.author.name}`}
+                                        className="text-sm font-medium hover:text-primary hover:underline"
+                                    >
+                                        {post.author.name}
+                                    </Link>
+                                ) : (
+                                    <p className="text-sm font-medium">{post.author.name}</p>
+                                )}
                                 {post.author.bio && (
                                     <p className="text-xs text-muted-foreground">{post.author.bio}</p>
                                 )}
@@ -153,7 +204,7 @@ export function BlogPostContent({ post }: BlogPostContentProps) {
 
             {/* ── Featured Image ───────────────────────────── */}
             {post.image && (
-                <section aria-label="Featured image" className="relative">
+                <section aria-label={t.image} className="relative">
                     <div className="mx-auto max-w-4xl px-6">
                         <motion.div
                             variants={fadeInUpLg}
@@ -177,7 +228,7 @@ export function BlogPostContent({ post }: BlogPostContentProps) {
             )}
 
             {/* ── Body ────────────────────────────────────── */}
-            <section aria-label="Article body" className="relative py-16">
+            <section aria-label={t.body} className="relative py-16">
                 <div className="mx-auto max-w-3xl px-6">
                     {headings.length >= 2 && (
                         <motion.div
@@ -208,10 +259,10 @@ export function BlogPostContent({ post }: BlogPostContentProps) {
                     ) : (
                         <div className="rounded-xl border border-border bg-card p-12 text-center">
                             <p className="text-lg text-muted-foreground">
-                                Full article content coming soon.
+                                {t.comingSoon}
                             </p>
                             <p className="mt-2 text-sm text-muted-foreground/60">
-                                This post will be available once our CMS is connected.
+                                {t.comingSoonSub}
                             </p>
                         </div>
                     )}
@@ -226,16 +277,15 @@ export function BlogPostContent({ post }: BlogPostContentProps) {
                         id="post-cta"
                         className="mb-6 text-3xl font-bold tracking-tight sm:text-4xl"
                     >
-                        Want us to build{" "}
-                        <span className="text-primary">your next project?</span>
+                        {t.ctaA}{" "}
+                        <span className="text-primary">{t.ctaB}</span>
                     </h2>
                     <p className="mx-auto mb-8 max-w-xl text-lg leading-relaxed text-muted-foreground">
-                        We write about engineering because we live it every day. If you like
-                        how we think, you&apos;ll love how we build.
+                        {t.ctaText}
                     </p>
                     <Button size="lg" asChild>
-                        <Link href="/#contact">
-                            Start a Project
+                        <Link href={t.contact}>
+                            {t.ctaButton}
                         </Link>
                     </Button>
                 </div>

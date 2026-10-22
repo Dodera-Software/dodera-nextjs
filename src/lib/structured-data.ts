@@ -16,6 +16,7 @@
 import { SITE, SERVICE_AREA, DEFAULT_META } from "@/config/seo";
 import { PRICE_FACTS } from "@/config/pricing";
 import { HTML_LANG, type Locale } from "@/i18n/config";
+import { isOrganizationByline } from "@/config/authors";
 
 /* ── Ids & helpers ───────────────────────────────────────── */
 
@@ -254,8 +255,8 @@ export function articleSchema(opts: {
     locale?: Locale;
 }) {
     // A post signed with a person's name gets a Person author; posts with no
-    // byline (or signed by the company) are attributed to the organization.
-    const isPerson = !!opts.authorName && opts.authorName.trim() !== SITE.name;
+    // byline, or signed by the company ("Dodera Team"), go to the organization.
+    const isPerson = !isOrganizationByline(opts.authorName);
 
     return {
         "@context": "https://schema.org",
@@ -300,6 +301,33 @@ export function caseStudySchema(opts: {
         mainEntityOfPage: { "@type": "WebPage", "@id": opts.url },
         image: `${SITE.url}${SITE.ogImage}`,
         inLanguage: HTML_LANG[opts.locale],
+    };
+}
+
+/* ── Schema.org ProfilePage (blog author) ─────────────────── */
+export function authorProfileSchema(opts: {
+    name: string;
+    url: string;
+    jobTitle?: string;
+    description?: string;
+    sameAs?: string[];
+    image?: string;
+}) {
+    return {
+        "@context": "https://schema.org",
+        "@type": "ProfilePage",
+        url: opts.url,
+        mainEntity: {
+            "@type": "Person",
+            "@id": `${opts.url}#person`,
+            name: opts.name,
+            url: opts.url,
+            ...(opts.jobTitle && { jobTitle: opts.jobTitle }),
+            ...(opts.description && { description: opts.description }),
+            ...(opts.image && { image: opts.image }),
+            ...(opts.sameAs?.length && { sameAs: opts.sameAs }),
+            worksFor: orgRef(),
+        },
     };
 }
 

@@ -26,8 +26,7 @@ export const ro: Dictionary = {
         services: "Servicii",
         links: [
             { label: "Despre noi", href: STATIC_PATHS.about.ro },
-            // TODO(phase 5): /ro/blog once Romanian posts exist; until then the English blog.
-            { label: "Blog", href: "/blog" },
+            { label: "Blog", href: "/ro/blog" },
             { label: "Cariere", href: STATIC_PATHS.careers.ro },
             { label: "Contact", href: STATIC_PATHS.contact.ro },
         ],
@@ -62,7 +61,7 @@ export const ro: Dictionary = {
                     { label: "Studii de caz", href: STATIC_PATHS.caseStudies.ro },
                     { label: "Orașe în care lucrăm", href: STATIC_PATHS.locations.ro },
                     { label: "Soluții web Satu Mare", href: STATIC_PATHS.webSatuMare.ro },
-                    { label: "Blog", href: "/blog" },
+                    { label: "Blog", href: "/ro/blog" },
                     { label: "Cariere", href: STATIC_PATHS.careers.ro },
                     { label: "Contact", href: STATIC_PATHS.contact.ro },
                 ],

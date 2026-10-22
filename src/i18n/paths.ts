@@ -92,7 +92,12 @@ export const SERVICE_PATHS: Record<string, LocalePaths> = {
     },
 };
 
+/* The blog listing: /ro/blog only joins the route map (hreflang, sitemap)
+ * once Romanian posts exist, but the language switcher can always use it. */
+const BLOG_SWITCH: LocalePaths = { en: "/blog", ro: "/ro/blog" };
+
 const ALL_PATHS: LocalePaths[] = [
+    BLOG_SWITCH,
     ...Object.values(STATIC_PATHS),
     ...Object.values(SERVICE_PATHS),
     ...Object.values(CASE_STUDY_PATHS),

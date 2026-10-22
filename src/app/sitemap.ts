@@ -4,6 +4,9 @@ import { getAllPosts } from "@/lib/cms";
 import { LOCALES } from "@/i18n/config";
 import { ROUTES, absoluteUrl, hreflangFor, type PageId } from "@/i18n/routes";
 import LASTMOD from "@/config/lastmod.json";
+import { AUTHORS, authorPath } from "@/config/authors";
+import { NOINDEX_POST_SLUGS, blogPostPath } from "@/config/blog-seo";
+import type { BlogPost } from "@/types";
 
 /**
  * Programmatic sitemap — served at /sitemap.xml.
@@ -15,7 +18,7 @@ import LASTMOD from "@/config/lastmod.json";
  * rather than the request time.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const posts = await getAllPosts();
+    const [posts, postsRo] = await Promise.all([getAllPosts("en"), getAllPosts("ro")]);
     const lastmod = LASTMOD as Partial<Record<PageId, string>>;
 
     /* ── Pages from the route map (static + services) ──────── */
@@ -36,12 +39,39 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         });
     });
 
-    /* ── Blog posts ────────────────────────────────────────── */
-    const blogPosts: MetadataRoute.Sitemap = posts.map((post) => ({
-        url: `${SITE.url}/blog/${post.slug}`,
-        lastModified: new Date(post.updatedAt ?? post.date),
+    /* ── Blog posts (both languages, paired via Prismic alternate_languages) ── */
+    const postEntry = (post: BlogPost, locale: "en" | "ro") => {
+        const languages = hreflangFor({
+            [locale]: blogPostPath(post.slug, locale),
+            ...Object.fromEntries((post.alternates ?? []).map((a) => [a.locale, blogPostPath(a.slug, a.locale)])),
+        });
+        return {
+            url: absoluteUrl(blogPostPath(post.slug, locale)),
+            lastModified: new Date(post.updatedAt ?? post.date),
+            changeFrequency: "monthly" as const,
+            priority: 0.6,
+            ...(languages && { alternates: { languages } }),
+        };
+    };
+    const indexable = (p: BlogPost) => !NOINDEX_POST_SLUGS.includes(p.slug);
+    const blogPosts: MetadataRoute.Sitemap = [
+        ...posts.filter(indexable).map((p) => postEntry(p, "en")),
+        ...postsRo.filter(indexable).map((p) => postEntry(p, "ro")),
+    ];
+
+    /* ── Romanian blog listing — only once it has posts (it is noindex while empty) ── */
+    if (postsRo.length > 0) {
+        const languages = hreflangFor({ en: "/blog", ro: "/ro/blog" });
+        pages.push({ url: absoluteUrl("/ro/blog"), changeFrequency: "weekly", priority: 0.8, ...(languages && { alternates: { languages } }) });
+        const blogEn = pages.find((p) => p.url === absoluteUrl("/blog"));
+        if (blogEn && languages) blogEn.alternates = { languages };
+    }
+
+    /* ── Author pages ──────────────────────────────────────── */
+    const authorPages: MetadataRoute.Sitemap = AUTHORS.map((a) => ({
+        url: absoluteUrl(authorPath(a.slug)),
         changeFrequency: "monthly" as const,
-        priority: 0.6,
+        priority: 0.4,
     }));
 
     // The blog listing changes whenever a post does.
@@ -51,5 +81,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         if (blog) blog.lastModified = new Date(newestPost);
     }
 
-    return [...pages, ...blogPosts];
+    return [...pages, ...blogPosts, ...authorPages];
 }

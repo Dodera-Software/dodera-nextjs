@@ -4,10 +4,13 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { JsonLd } from "@/components/JsonLd";
 import { ScrollManager } from "@/components/ScrollManager";
-import { BlogPostContent } from "./BlogPostContent";
+import { BlogPostContent } from "@/components/BlogPostContent";
 import { getPostBySlug, getAllPostSlugs } from "@/lib/cms";
 import { SITE } from "@/config/seo";
 import { breadcrumbSchema, articleSchema } from "@/lib/structured-data";
+import { NOINDEX_POST_SLUGS, blogPostPath } from "@/config/blog-seo";
+import { authorPath } from "@/config/authors";
+import { absoluteUrl, hreflangFor } from "@/i18n/routes";
 
 /* ── Static params for SSG ────────────────────────────────── */
 export async function generateStaticParams() {
@@ -33,7 +36,17 @@ export async function generateMetadata({
         title,
         description,
         keywords: post.tags,
-        alternates: { canonical: `/blog/${post.slug}` },
+        alternates: {
+            canonical: absoluteUrl(blogPostPath(post.slug)),
+            ...(() => {
+                const languages = hreflangFor({
+                    en: blogPostPath(post.slug),
+                    ...Object.fromEntries((post.alternates ?? []).map((a) => [a.locale, blogPostPath(a.slug, a.locale)])),
+                });
+                return languages ? { languages } : {};
+            })(),
+        },
+        ...(NOINDEX_POST_SLUGS.includes(post.slug) && { robots: { index: false, follow: true } }),
         openGraph: {
             title,
             description,
@@ -78,6 +91,7 @@ export default async function BlogPostPage({ params }: PageProps) {
             dateModified: post.updatedAt,
             image: post.image,
             authorName: post.author?.name,
+            authorUrl: post.author?.slug ? absoluteUrl(authorPath(post.author.slug)) : undefined,
             locale: "en",
         }),
     ];

@@ -127,6 +127,10 @@ export interface BlogPost {
         metaDescription?: string;
         ogImage?: string;
     };
+    /** Site locale of this post ("en" | "ro"). */
+    locale?: "en" | "ro";
+    /** The same post in other languages (Prismic alternate_languages), for hreflang. */
+    alternates?: { locale: "en" | "ro"; slug: string }[];
 }
 
 // ── Process ─────────────────────────────────────────────

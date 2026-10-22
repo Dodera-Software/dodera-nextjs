@@ -15,6 +15,20 @@ import { createClient } from "@/lib/prismic";
 import type { BlogPost } from "@/types";
 import type { BlogPostDocument } from "@/types/prismic";
 import { BLOG_POSTS, TAG_NORMALIZER } from "@/config/blog";
+import { getAuthorByName } from "@/config/authors";
+import type { Locale } from "@/i18n/config";
+
+/*
+ * Prismic locale per site locale. Romanian posts live in the "ro-ro" locale,
+ * which has to be added in the Prismic repository settings
+ * (TODO(owner)); translations are linked to their English original there,
+ * which gives each post its hreflang pair.
+ */
+const PRISMIC_LANG: Record<Locale, string> = { en: "en-us", ro: "ro-ro" };
+
+function siteLocale(prismicLang: string): Locale | undefined {
+    return (Object.keys(PRISMIC_LANG) as Locale[]).find((l) => PRISMIC_LANG[l] === prismicLang);
+}
 
 /* ── Helpers ───────────────────────────────────────────── */
 
@@ -55,9 +69,14 @@ function mapPrismicPost(doc: BlogPostDocument): BlogPost {
         author: d.author_name
             ? {
                 name: d.author_name,
+                slug: getAuthorByName(d.author_name)?.slug,
                 avatar: d.author_avatar?.url ?? undefined,
             }
             : undefined,
+        locale: siteLocale(doc.lang),
+        alternates: (doc.alternate_languages ?? [])
+            .map((a) => ({ locale: siteLocale(a.lang), slug: a.uid }))
+            .filter((a): a is { locale: Locale; slug: string } => !!a.locale && !!a.slug),
         image: d.featured_image?.url ?? undefined,
         body: (() => {
             const html = prismic.asHTML(d.body);
@@ -78,18 +97,21 @@ function mapPrismicPost(doc: BlogPostDocument): BlogPost {
 }
 
 /* ── All posts (listing page) ──────────────────────────── */
-export async function getAllPosts(): Promise<BlogPost[]> {
-    if (!isPrismicConfigured()) return BLOG_POSTS;
+export async function getAllPosts(locale: Locale = "en"): Promise<BlogPost[]> {
+    // The placeholder posts are English; there is no Romanian fallback content.
+    const fallback = locale === "en" ? BLOG_POSTS : [];
+    if (!isPrismicConfigured()) return fallback;
 
     try {
         const client = createClient();
         const docs = await client.getAllByType<BlogPostDocument>("blog_post", {
+            lang: PRISMIC_LANG[locale],
             orderings: [
                 { field: "my.blog_post.date", direction: "desc" },
             ],
         });
 
-        if (docs.length === 0) return BLOG_POSTS;
+        if (docs.length === 0) return fallback;
 
         const mapped = docs.map(mapPrismicPost);
 
@@ -103,21 +125,23 @@ export async function getAllPosts(): Promise<BlogPost[]> {
         return mapped;
     } catch (err) {
         console.error("[cms] Failed to fetch posts from Prismic:", err);
-        return BLOG_POSTS;
+        return fallback;
     }
 }
 
 /* ── Single post by slug ───────────────────────────────── */
-export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
+export async function getPostBySlug(slug: string, locale: Locale = "en"): Promise<BlogPost | null> {
+    if (locale === "ro" && !isPrismicConfigured()) return null;
     if (!isPrismicConfigured()) {
         return BLOG_POSTS.find((p) => p.slug === slug) ?? null;
     }
 
     try {
         const client = createClient();
-        const doc = await client.getByUID<BlogPostDocument>("blog_post", slug);
+        const doc = await client.getByUID<BlogPostDocument>("blog_post", slug, { lang: PRISMIC_LANG[locale] });
         return mapPrismicPost(doc);
     } catch (err) {
+        if (locale === "ro") return null;
         // Document not found — fall back to static data
         if (
             err instanceof prismic.NotFoundError ||
@@ -131,19 +155,18 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
 }
 
 /* ── All slugs (for generateStaticParams) ──────────────── */
-export async function getAllPostSlugs(): Promise<string[]> {
-    if (!isPrismicConfigured()) {
-        return BLOG_POSTS.map((p) => p.slug);
-    }
+export async function getAllPostSlugs(locale: Locale = "en"): Promise<string[]> {
+    const fallback = locale === "en" ? BLOG_POSTS.map((p) => p.slug) : [];
+    if (!isPrismicConfigured()) return fallback;
 
     try {
         const client = createClient();
-        const docs = await client.getAllByType<BlogPostDocument>("blog_post");
+        const docs = await client.getAllByType<BlogPostDocument>("blog_post", { lang: PRISMIC_LANG[locale] });
         const prismicSlugs = docs.map((d) => d.uid).filter(Boolean) as string[];
-        return prismicSlugs.length > 0 ? prismicSlugs : BLOG_POSTS.map((p) => p.slug);
+        return prismicSlugs.length > 0 ? prismicSlugs : fallback;
     } catch (err) {
         console.error("[cms] Failed to fetch slugs from Prismic:", err);
-        return BLOG_POSTS.map((p) => p.slug);
+        return fallback;
     }
 }
 
