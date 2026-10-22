@@ -42,7 +42,7 @@ export const ro: Dictionary = {
         ariaLabel: "Read in English",
     },
     footer: {
-        tagline: "Dezvoltare software și AI din Satu Mare, pentru companii din România și din străinătate.",
+        tagline: "Dezvoltare software și AI personalizată, din România, pentru clienți din toată lumea.",
         groups: [
             {
                 heading: "Servicii",
@@ -99,20 +99,20 @@ export const ro: Dictionary = {
         success: "Abonare reușită!",
     },
     hero: {
-        titleA: "Dezvoltare software, site-uri și agenți AI",
-        titleB: "din Satu Mare, pentru toată România.",
-        text: "Dodera Software este o firmă de dezvoltare software din Satu Mare care construiește aplicații web, site-uri de prezentare și agenți AI pentru companii din toată România. Lucrăm cu preț fix pe proiect, de la 300 EUR, sau pe oră, între 20 și 80 EUR, și vă arătăm în fiecare săptămână o versiune funcțională.",
+        titleA: "Software care",
+        titleB: "aduce rezultate.",
+        text: "Oferim consultanță IT și soluții de infrastructură AI, dezvoltare SaaS, documentație tehnică și site-uri de prezentare personalizate pentru startupuri și companii moderne.",
         primaryCta: "Începeți un proiect",
         secondaryCta: "Vedeți serviciile",
         ariaLabel: "Prezentare",
     },
     trustedBy: {
-        label: "Lucrăm cu tehnologii folosite în toată lumea, precum",
+        label: "Folosim tehnologii de încredere la nivel global, precum",
         findUs: "Ne găsiți pe:",
         ariaLabel: "Tehnologii",
     },
     industries: {
-        label: "Domenii în care am lucrat",
+        label: "Domenii în care lucrăm",
         items: [
             { emoji: "🏥", sector: "Sănătate" },
             { emoji: "⚖️", sector: "Servicii juridice" },
@@ -176,9 +176,9 @@ export const ro: Dictionary = {
     },
     services: {
         label: "Ce construim",
-        titleA: "Software care",
-        titleB: "ajunge în producție",
-        intro: "Dacă este digital, îl putem construi. Aducem expertiza potrivită în fiecare proiect, iar când o cerință iese din aria noastră tehnică, ne ocupăm noi de găsirea și coordonarea oamenilor potriviți.",
+        titleA: "Inginerie care",
+        titleB: "livrează",
+        intro: "Dacă e digital, îl putem construi. Aducem expertiza potrivită în fiecare proiect, iar când o provocare iese din aria noastră tehnică, ne asumăm găsirea și coordonarea oamenilor potriviți pentru a o livra.",
         core: "Serviciu principal",
         learnMore: "Aflați mai multe",
         exploreAria: (title) => `Aflați mai multe despre ${title}`,
@@ -189,11 +189,11 @@ export const ro: Dictionary = {
                 title: "Dezvoltare software",
                 subtitle: "De la idee la lansare",
                 description:
-                    "Aplicații web personalizate, construite pe tehnologii moderne (Laravel, Next.js, Node.js și altele). De la MVP-uri pentru startupuri până la platforme complete și magazine online, ne ocupăm de tot procesul de livrare.",
+                    "Aplicații web personalizate, construite pe tehnologii moderne (Laravel, Next.js, Node.js și altele). De la MVP-uri în fază incipientă la platforme complete, ne ocupăm de întreaga livrare.",
                 tags: ["Laravel", "Nuxt", "Vue.js", "React"],
                 image: "/software-development.jpg",
                 highlights: [
-                    { label: "MVP – produs minim viabil", href: svc("software-development/mvp-to-market") },
+                    { label: "De la MVP la piață", href: svc("software-development/mvp-to-market") },
                     { label: "Platforme enterprise", href: svc("software-development/enterprise-platforms") },
                     { label: "Produse SaaS", href: svc("software-development/saas-products") },
                 ],
@@ -202,37 +202,37 @@ export const ro: Dictionary = {
             {
                 icon: Monitor,
                 title: "Site-uri de prezentare",
-                subtitle: "Site-uri care aduc clienți",
+                subtitle: "Site-uri care impresionează și convertesc",
                 description:
-                    "Site-uri rapide, personalizate și adaptate pentru mobil, construite să apară în Google și să transforme vizitatorii în clienți. Ne ocupăm de design, viteză și SEO tehnic.",
-                tags: ["Design de brand", "Landing page", "Conversii"],
+                    "Site-uri rapide, personalizate și responsive, construite să se poziționeze bine și să convertească. Acoperim totul, de la design și performanță până la SEO tehnic, ca site-ul să muncească la fel de mult ca echipa dumneavoastră.",
+                tags: ["Design de brand", "Landing page-uri", "Conversie"],
                 image: "/presentation-website.webp",
                 highlights: [
-                    { label: "Site de prezentare pentru firme", href: svc("presentation-websites/business-showcase-sites") },
+                    { label: "Site-uri de prezentare pentru firme", href: svc("presentation-websites/business-showcase-sites") },
                 ],
                 href: svc("presentation-websites"),
             },
             {
                 icon: Cpu,
                 title: "Dezvoltare AI",
-                subtitle: "Agenți AI și automatizări",
+                subtitle: "Fluxuri inteligente și agenți",
                 description:
-                    "Agenți AI și fluxuri automatizate care folosesc modele de la OpenAI, Anthropic și alții. Le conectăm la instrumentele și datele pe care le folosiți deja, ca să preia operațiuni complexe fără muncă manuală.",
-                tags: ["Automatizări", "Agenți AI", "Optimizarea proceselor"],
+                    "Agenți AI și fluxuri automatizate care folosesc modele LLM de la OpenAI, Anthropic și alții. Îi conectăm la instrumentele și datele dumneavoastră existente, ca să ruleze operațiuni complexe fără intervenție manuală.",
+                tags: ["Automatizarea fluxurilor", "Agenți AI", "Optimizarea proceselor"],
                 image: "/ai-development.jpg",
                 highlights: [
                     { label: "Agenți AI personalizați", href: svc("ai-development/custom-ai-agents") },
-                    { label: "Automatizări AI cu n8n", href: svc("ai-development/ai-powered-automations") },
+                    { label: "Automatizări cu AI", href: svc("ai-development/ai-powered-automations") },
                 ],
                 href: svc("ai-development"),
             },
             {
                 icon: FileText,
                 title: "Documentație tehnică",
-                subtitle: "Sisteme de cunoștințe",
+                subtitle: "Sisteme de cunoștințe și indexare",
                 description:
                     "Codul, procesele și cunoștințele interne transformate în documentație structurată, pregătită pentru AI: ușor de găsit și de folosit, atât de echipa dumneavoastră, cât și de instrumentele pe care le folosiți.",
-                tags: ["Indexare", "Context pentru AI", "Documentație"],
+                tags: ["Indexarea cunoștințelor", "Context pentru AI", "Documentație"],
                 image: "/technical-documentation.webp",
                 highlights: [
                     { label: "Sisteme de documentare", href: svc("technical-documentation/documentation-systems") },
@@ -248,27 +248,27 @@ export const ro: Dictionary = {
         steps: [
             {
                 icon: Search,
-                title: "Înțelegem ce vreți să obțineți",
+                title: "Înțelegem viziunea dumneavoastră",
                 description:
-                    "Prin câteva sesiuni structurate legăm obiectivele dumneavoastră de rezultate măsurabile, astfel încât scopul proiectului este clar înainte să planificăm prima linie de cod.",
+                    "Sesiuni structurate de analiză leagă obiectivele dumneavoastră de rezultate măsurabile, astfel încât scopul este stabilit înainte să planificăm prima linie de cod.",
             },
             {
                 icon: Layers,
-                title: "Proiectăm soluția",
+                title: "Proiectăm planul",
                 description:
-                    "Alegem tehnologiile după dimensiunea proiectului dumneavoastră, nu după preferințele noastre. API-urile, modelele de date și interfețele dintre componente sunt documentate și aprobate înainte de primul commit.",
+                    "Tehnologiile sunt alese pentru dimensiunea dumneavoastră, nu a noastră. API-urile, modelele de date și interfețele dintre componente sunt documentate și aprobate înainte de primul commit.",
             },
             {
                 icon: Zap,
                 title: "Construim și iterăm",
                 description:
-                    "Publicăm săptămânal pe un mediu de test, ca să verificați versiuni reale, nu machete. Blocajele sunt semnalate din timp, deci fără surprize la termen.",
+                    "Publicăm săptămânal pe mediul de test, ca să testați versiuni reale, nu machete. Blocajele sunt semnalate din timp, fără surprize la termen.",
             },
             {
                 icon: Handshake,
                 title: "Lansăm și oferim suport",
                 description:
-                    "Lansarea vine cu proceduri de operare, monitorizare și o perioadă de stabilizare. Nu doar o arhivă cu cod predată în ultima zi.",
+                    "Lansarea vine cu proceduri de operare, dashboard-uri de monitorizare și o perioadă de stabilizare. Nu doar o arhivă ZIP predată și «baftă».",
             },
         ],
     },
@@ -320,7 +320,7 @@ export const ro: Dictionary = {
             {
                 icon: Briefcase,
                 name: "Abonament lunar",
-                tagline: "Implicare pe termen lung",
+                tagline: "Responsabilitate completă",
                 rate: "de la 150 EUR",
                 rateSub: "pe lună",
                 description: "Dezvoltare continuă, la cerere: lucru pe produs, funcționalități noi sau mentenanță.",
@@ -340,7 +340,7 @@ export const ro: Dictionary = {
     team: {
         label: "Echipa",
         titleA: "Construit de oameni cărora",
-        titleB: "le pasă",
+        titleB: "le pasă cu adevărat",
         disciplines: [
             { emoji: "⚙️", label: "Dezvoltare backend" },
             { emoji: "🖥️", label: "Dezvoltare frontend" },
@@ -351,12 +351,12 @@ export const ro: Dictionary = {
         ],
     },
     cta: {
-        label: "Aveți un proiect?",
-        titleA: "Spuneți-ne ce vreți să construiți.",
-        titleB: "Restul e treaba noastră.",
+        label: "Gata să construim?",
+        titleA: "Nu mai căutați talente.",
+        titleB: "Începeți să livrați cod.",
         textBefore: "Programați o discuție",
         free: "gratuită",
-        textAfter: "de 30 de minute. Analizăm proiectul și vă spunem exact ce este nevoie ca să ajungă în producție.",
+        textAfter: "de 30 de minute despre arhitectură. Analizăm proiectul și vă spunem exact ce este nevoie ca să-l lansați.",
     },
     contactForm: {
         formAria: "Formular de contact pentru solicitări de proiect către Dodera Software",

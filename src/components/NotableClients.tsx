@@ -37,8 +37,8 @@ export function NotableClients() {
                         </>
                     ) : (
                         <>
-                            În spatele fiecărui proiect stă o{" "}
-                            <span className="font-semibold text-foreground">echipă dedicată</span> de ingineri, colaboratori pe termen lung și specialiști de încredere.
+                            Susținuți de o{" "}
+                            <span className="font-semibold text-foreground">echipă dedicată</span> de ingineri, colaboratori pe termen lung și specialiști de încredere, care trag cu toții în aceeași direcție.
                         </>
                     )}
                 </motion.p>
