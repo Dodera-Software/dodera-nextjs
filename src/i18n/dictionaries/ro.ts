@@ -176,8 +176,8 @@ export const ro: Dictionary = {
     },
     services: {
         label: "Ce construim",
-        titleA: "Inginerie care",
-        titleB: "livrează",
+        titleA: "Tehnologie care",
+        titleB: "funcționează",
         intro: "Dacă e digital, îl putem construi. Aducem expertiza potrivită în fiecare proiect, iar când o provocare iese din aria noastră tehnică, ne asumăm găsirea și coordonarea oamenilor potriviți pentru a o livra.",
         core: "Serviciu principal",
         learnMore: "Aflați mai multe",
@@ -193,7 +193,7 @@ export const ro: Dictionary = {
                 tags: ["Laravel", "Nuxt", "Vue.js", "React"],
                 image: "/software-development.jpg",
                 highlights: [
-                    { label: "De la MVP la piață", href: svc("software-development/mvp-to-market") },
+                    { label: "De la MVP la lansare", href: svc("software-development/mvp-to-market") },
                     { label: "Platforme enterprise", href: svc("software-development/enterprise-platforms") },
                     { label: "Produse SaaS", href: svc("software-development/saas-products") },
                 ],
@@ -202,9 +202,9 @@ export const ro: Dictionary = {
             {
                 icon: Monitor,
                 title: "Site-uri de prezentare",
-                subtitle: "Site-uri care impresionează și convertesc",
+                subtitle: "Site-uri care impresionează și aduc clienți",
                 description:
-                    "Site-uri rapide, personalizate și responsive, construite să se poziționeze bine și să convertească. Acoperim totul, de la design și performanță până la SEO tehnic, ca site-ul să muncească la fel de mult ca echipa dumneavoastră.",
+                    "Site-uri rapide, personalizate și responsive, construite să apară bine în Google și să aducă clienți. Ne ocupăm de tot, de la design și performanță până la SEO tehnic, ca site-ul să lucreze pentru dumneavoastră.",
                 tags: ["Design de brand", "Landing page-uri", "Conversie"],
                 image: "/presentation-website.webp",
                 highlights: [
@@ -254,7 +254,7 @@ export const ro: Dictionary = {
             },
             {
                 icon: Layers,
-                title: "Proiectăm planul",
+                title: "Stabilim arhitectura",
                 description:
                     "Tehnologiile sunt alese pentru dimensiunea dumneavoastră, nu a noastră. API-urile, modelele de date și interfețele dintre componente sunt documentate și aprobate înainte de primul commit.",
             },
@@ -268,7 +268,7 @@ export const ro: Dictionary = {
                 icon: Handshake,
                 title: "Lansăm și oferim suport",
                 description:
-                    "Lansarea vine cu proceduri de operare, dashboard-uri de monitorizare și o perioadă de stabilizare. Nu doar o arhivă ZIP predată și «baftă».",
+                    "Lansarea vine cu proceduri de operare, dashboard-uri de monitorizare și o perioadă de stabilizare. Nu doar o arhivă cu cod predată în ultima zi.",
             },
         ],
     },
@@ -352,8 +352,8 @@ export const ro: Dictionary = {
     },
     cta: {
         label: "Gata să construim?",
-        titleA: "Nu mai căutați talente.",
-        titleB: "Începeți să livrați cod.",
+        titleA: "Nu mai căutați programatori.",
+        titleB: "Începeți să construiți.",
         textBefore: "Programați o discuție",
         free: "gratuită",
         textAfter: "de 30 de minute despre arhitectură. Analizăm proiectul și vă spunem exact ce este nevoie ca să-l lansați.",
