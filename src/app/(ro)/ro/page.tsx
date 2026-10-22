@@ -40,8 +40,8 @@ export const metadata: Metadata = {
 /*
  * Pagina principală în română. Aceleași secțiuni ca varianta engleză,
  * cu o excepție: secțiunea de testimoniale lipsește până când avem
- * recenzii verificabile (nume, rol, companie, link).
- * TODO(owner): testimoniale verificate → apoi <TestimonialsSection />.
+ * recenzii verificabile (nume, rol, companie, link) — la fel ca pe varianta
+ * engleză, unde secțiunea se ascunde singură cât timp nu există.
  */
 export default function HomePageRo() {
     return (

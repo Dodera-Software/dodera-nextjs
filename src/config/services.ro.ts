@@ -10,8 +10,8 @@
  * - duratele sunt cele deja afirmate pe site-ul în engleză;
  * - fără cifre sau afirmații pe care nu le putem susține (vezi raportul SEO).
  *
- * TODO(owner): intervale de preț tipice pe fiecare tip de proiect (ex. „site de
- * prezentare: X–Y EUR”). Până atunci, paginile folosesc modelul general de preț.
+ * Prețurile sunt modelul general publicat (decizia proprietarului, 22 oct.
+ * 2026): fără intervale separate pe tip de proiect.
  */
 
 import type { ServicePageData, ServicePagePricing } from "@/types";

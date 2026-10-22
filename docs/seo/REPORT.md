@@ -206,3 +206,29 @@ Owner decision: replace unsupported numbers with honest wording ("dedicated team
 - Unknown URLs under `/services/...`, `/ro/...` and similar return a correct 404 (noindex), but the page body renders client-side. Production does the same today.
 - The city pages give no road distances. The routing services weren't reachable to verify them, and I didn't want to guess.
 - All three case studies are anonymous, as they already were on the site. Named clients with links (with their permission) would carry much more weight.
+
+---
+
+## 8. Status at the end of 22 Oct 2026
+
+**Merged and live:** #81 (technical SEO + Romanian site) and #82 (phases 3–6).
+
+**Open, waiting for Denis's approval. Merge in this order:**
+1. **#83:** unsupported claims replaced ("dedicated team", verified About facts, no invented figures). Founding date is 25 Oct 2023. Six news posts are set to noindex.
+2. **#84:** the Romanian homepage mirrors the English text, in natural Romanian ("Software care aduce rezultate", "Tehnologie care funcționează", "Nu mai căutați programatori. Începeți să construiți.").
+3. **#85:** the site targets Romania + international clients. City pages are removed (301 → /ro/servicii), no page title or description mentions Satu Mare, structured data lists Romania + Worldwide, there are no duplicated brand names in titles, and dead code with the old "35+" figures is deleted.
+
+**Settled by the owner, no further action:**
+- prices: the published model, with no per-service ranges
+- client quotes: not needed for now
+- testimonials: stay hidden until verified
+- Search Console and Bing: sitemap already submitted
+
+**Still open, outside the code:**
+- **Prismic:** add the Romanian locale (Settings → Translations & locales → `ro-ro`). The code is ready, and `/ro/blog` goes live in search with the first post.
+- **LinkedIn:** change the headquarters from Cluj-Napoca to the registered address, so the company details match everywhere.
+- **Google Business Profile:** in progress. When it exists, put its link in `src/config/seo.ts` `googleBusinessProfile`.
+- **Founder and opening hours:** not public anywhere, so they stay hidden. Fill `founder` / `openingHours` in `src/config/seo.ts` if you ever want them shown.
+- **Romanian privacy policy:** a legal review of the translation.
+
+**How to measure (from about mid-November):** in Google Search Console, track impressions, clicks and indexed pages for `/ro`, plus the hreflang report. Each month, ask ChatGPT, Perplexity and Gemini questions such as "firmă dezvoltare software România" or "who builds AI agents in Romania" and note whether Dodera is mentioned.
