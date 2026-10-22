@@ -81,6 +81,7 @@ export interface Dictionary {
         titleB: string;
         problem: string;
         solution: string;
+        readMore: string;
         items: CaseStudy[];
     };
     services: {
@@ -188,6 +189,7 @@ export interface Dictionary {
         caseStudyProblem: string;
         caseStudySolution: string;
         caseStudyResult: string;
+        readCaseStudy: string;
     };
     notFound: {
         title: string;

@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState, useRef } from "react";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { motion } from "framer-motion";
 import { fadeIn, viewportOnce } from "@/lib/animations";
-import { TESTIMONIALS } from "@/config/testimonials";
+import { VERIFIED_TESTIMONIALS as TESTIMONIALS } from "@/config/testimonials";
 
 
 function StarRating({ rating }: { rating: number }) {
@@ -25,7 +25,13 @@ function StarRating({ rating }: { rating: number }) {
     );
 }
 
+/** Renders nothing until at least one testimonial is verified (config/testimonials.ts). */
 export function TestimonialsSection() {
+    if (TESTIMONIALS.length === 0) return null;
+    return <TestimonialsCarousel />;
+}
+
+function TestimonialsCarousel() {
     const autoplayRef = useRef(
         Autoplay({ delay: 4500, stopOnInteraction: true })
     );
@@ -159,6 +165,9 @@ export function TestimonialsSection() {
                                             </p>
                                             <p className="text-xs text-muted-foreground">
                                                 {t.role}
+                                                {t.company && <>, {t.url ? (
+                                                    <a href={t.url} target="_blank" rel="noopener noreferrer" className="underline-offset-2 hover:underline">{t.company}</a>
+                                                ) : t.company}</>}
                                             </p>
                                         </div>
                                     </div>

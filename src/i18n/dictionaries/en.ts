@@ -88,6 +88,7 @@ export const en: Dictionary = {
         titleB: "Measurable results.",
         problem: "The Problem",
         solution: "How We Fixed It",
+        readMore: "Read the case study",
         items: CASE_STUDIES,
     },
     services: {
@@ -208,6 +209,7 @@ export const en: Dictionary = {
         caseStudyProblem: "The problem",
         caseStudySolution: "What we built",
         caseStudyResult: "Result",
+        readCaseStudy: "Read the full case study",
     },
     notFound: {
         title: "Page Not Found",

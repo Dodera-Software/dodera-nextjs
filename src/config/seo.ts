@@ -18,8 +18,12 @@ export interface OpeningHours {
 
 export interface Founder {
     name: string;
-    jobTitle: string;
+    jobTitle: { en: string; ro: string };
     linkedin: string;
+    /** 2–4 sentences of real experience: years, past roles, notable work. */
+    bio: { en: string; ro: string };
+    /** Square photo in /public, e.g. "/team/founder.jpg". Initials are shown until it exists. */
+    photo?: string;
 }
 
 export const SITE = {

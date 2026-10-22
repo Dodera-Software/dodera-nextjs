@@ -106,7 +106,7 @@ function StatsRow() {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-export function AboutPageContent() {
+export function AboutPageContent({ founderSlot }: { founderSlot?: React.ReactNode } = {}) {
     return (
         <>
             {/* ── Hero ────────────────────────────────────────────────────── */}
@@ -217,6 +217,8 @@ export function AboutPageContent() {
                     </div>
                 </div>
             </section>
+
+            {founderSlot}
 
             {/* ── What We Build ───────────────────────────────────────────── */}
             <section aria-labelledby="capabilities-heading" className="relative py-24">

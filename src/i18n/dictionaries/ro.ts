@@ -59,6 +59,7 @@ export const ro: Dictionary = {
                 links: [
                     { label: "Despre noi", href: STATIC_PATHS.about.ro },
                     { label: "Cum lucrăm", href: "/ro#process" },
+                    { label: "Studii de caz", href: STATIC_PATHS.caseStudies.ro },
                     { label: "Orașe în care lucrăm", href: STATIC_PATHS.locations.ro },
                     { label: "Soluții web Satu Mare", href: STATIC_PATHS.webSatuMare.ro },
                     { label: "Blog", href: "/blog" },
@@ -127,11 +128,14 @@ export const ro: Dictionary = {
         titleB: "Rezultate măsurabile.",
         problem: "Problema",
         solution: "Cum am rezolvat",
+        readMore: "Citiți studiul de caz",
         items: [
             {
+                id: "freight-automation",
                 industry: "Logistică și operațiuni",
                 client: "Companie de expediții de mărfuri de talie medie",
                 headline: "400 de comenzi pe zi, procesate manual",
+                seoTitle: "Automatizarea a 400 de comenzi pe zi",
                 problem:
                     "Echipa de operațiuni copia zilnic datele despre transporturi între trei sisteme: peste 400 de comenzi, de mână. Erorile scăpau în fiecare săptămână, penalitățile de la clienți se adunau, iar doi angajați seniori plecaseră deja. Furnizorul existent estimase 18 luni pentru rezolvare.",
                 solution:
@@ -139,11 +143,14 @@ export const ro: Dictionary = {
                 metric: "94%",
                 metricLabel: "reducere a timpului de procesare manuală",
                 tags: ["Automatizare", "n8n", "Integrare API", "ERP"],
+                timeline: "7 săptămâni",
             },
             {
+                id: "saas-reporting",
                 industry: "SaaS / Instrumente interne",
                 client: "Companie de software B2B, 80 de angajați",
                 headline: "3 zile pe săptămână pierdute pentru un singur raport",
+                seoTitle: "Dashboard de raportare pentru SaaS B2B",
                 problem:
                     "În fiecare luni, echipa comercială extrăgea date din Salesforce, dintr-un spreadsheet și din două dashboard-uri interne și le asambla manual într-un raport gata abia miercuri. Conducerea lua decizii pe cifre vechi de patru zile.",
                 solution:
@@ -153,9 +160,11 @@ export const ro: Dictionary = {
                 tags: ["Aplicație web", "Salesforce", "Dashboard", "React"],
             },
             {
+                id: "clinic-booking",
                 industry: "Servicii medicale",
                 client: "Grup de clinici cu mai multe locații",
                 headline: "Un sistem de programări care cădea din două în două săptămâni",
+                seoTitle: "Platformă de programări pentru clinici",
                 problem:
                     "Platforma de programări cumpărată „la cheie” cădea în medie de două ori pe lună. Fiecare întrerupere însemna programări pierdute, pacienți nemulțumiți și personal care răspundea ore întregi la telefon, fără să știe ce anume se strică și când.",
                 solution:
@@ -419,6 +428,7 @@ export const ro: Dictionary = {
         caseStudyProblem: "Problema",
         caseStudySolution: "Ce am construit",
         caseStudyResult: "Rezultat",
+        readCaseStudy: "Citiți studiul de caz complet",
     },
     notFound: {
         title: "Pagina nu a fost găsită",

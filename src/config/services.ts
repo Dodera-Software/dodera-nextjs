@@ -107,6 +107,7 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
                 answer: "Yes. We offer maintenance and support packages that include monitoring, updates, and improvements to ensure your AI solution continues to perform optimally as your business evolves.",
             },
         ],
+        caseStudy: 0,
         relatedServices: [
             { label: "Custom AI Agents", href: "/services/ai-development/custom-ai-agents" },
             { label: "AI Powered Automations", href: "/services/ai-development/ai-powered-automations" },
@@ -268,6 +269,7 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
                 answer: "Absolutely. We offer maintenance and support packages that include monitoring, performance optimization, and iterative improvements based on usage analytics. Your automations get smarter over time.",
             },
         ],
+        caseStudy: 0,
         relatedServices: [
             { label: "AI Development", href: "/services/ai-development" },
             { label: "Custom AI Agents", href: "/services/ai-development/custom-ai-agents" },
@@ -381,6 +383,7 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
                 answer: "Absolutely. Our team structure is flexible. We can ramp up additional engineers for time-sensitive milestones and scale down during maintenance phases, ensuring you only pay for the capacity you need.",
             },
         ],
+        caseStudy: 2,
         relatedServices: [
             { label: "MVP to Market", href: "/services/software-development/mvp-to-market" },
             { label: "Enterprise Platforms", href: "/services/software-development/enterprise-platforms" },
@@ -555,6 +558,7 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
                 answer: "We produce comprehensive technical documentation, API references, architecture decision records (ADRs), and runbooks. We also conduct hands-on training sessions with your internal team during the handover phase.",
             },
         ],
+        caseStudy: 1,
         relatedServices: [
             { label: "Software Development", href: "/services/software-development" },
             { label: "SaaS Products", href: "/services/software-development/saas-products" },
@@ -650,6 +654,7 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
                 answer: "Most of our SaaS clients engage us for ongoing development beyond the initial launch. We typically structure this as a monthly retainer covering feature development, bug fixes, performance optimization, and infrastructure management.",
             },
         ],
+        caseStudy: 1,
         relatedServices: [
             { label: "Software Development", href: "/services/software-development" },
             { label: "MVP to Market", href: "/services/software-development/mvp-to-market" },

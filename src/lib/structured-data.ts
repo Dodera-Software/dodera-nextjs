@@ -140,8 +140,9 @@ export function businessSchema(opts: { description?: string } = {}) {
             founder: {
                 "@type": "Person",
                 name: founder.name,
-                jobTitle: founder.jobTitle,
+                jobTitle: founder.jobTitle.en,
                 sameAs: [founder.linkedin],
+                ...(founder.photo && { image: `${SITE.url}${founder.photo}` }),
             },
         }),
         areaServed: areaServed(),
@@ -276,6 +277,29 @@ export function articleSchema(opts: {
         publisher: { ...orgRef(), logo: logoObject() },
         mainEntityOfPage: { "@type": "WebPage", "@id": opts.url },
         ...(opts.locale && { inLanguage: HTML_LANG[opts.locale] }),
+    };
+}
+
+/* ── Schema.org Article (case study) ───────────────────────── */
+export function caseStudySchema(opts: {
+    headline: string;
+    description: string;
+    url: string;
+    industry: string;
+    locale: Locale;
+}) {
+    return {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        headline: opts.headline,
+        description: opts.description,
+        url: opts.url,
+        about: opts.industry,
+        author: orgRef(),
+        publisher: { ...orgRef(), logo: logoObject() },
+        mainEntityOfPage: { "@type": "WebPage", "@id": opts.url },
+        image: `${SITE.url}${SITE.ogImage}`,
+        inLanguage: HTML_LANG[opts.locale],
     };
 }
 

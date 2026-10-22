@@ -1,13 +1,17 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { SectionHeading } from "@/components/SectionHeading";
 import { fadeInUp, fadeInUpLg, viewportOnce, stagger } from "@/lib/animations";
-import { useDict } from "@/i18n/LocaleProvider";
+import { useDict, useLocale } from "@/i18n/LocaleProvider";
+import { CASE_STUDY_PATHS } from "@/i18n/paths";
 
 export function CaseStudiesSection() {
     const t = useDict().caseStudies;
+    const locale = useLocale();
     return (
         <section
             id="case-studies"
@@ -123,6 +127,14 @@ export function CaseStudiesSection() {
                                                 {cs.metricLabel}
                                             </span>
                                         </div>
+                                        <Link
+                                            href={CASE_STUDY_PATHS[cs.id][locale]!}
+                                            className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+                                        >
+                                            {t.readMore}
+                                            <span className="sr-only">: {cs.headline}</span>
+                                            <ArrowRight className="size-4" aria-hidden="true" />
+                                        </Link>
                                     </div>
                                 </div>
                             </motion.article>

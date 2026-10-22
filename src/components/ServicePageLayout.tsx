@@ -15,7 +15,8 @@ import { fadeInUp, fadeInUpLg, viewportOnce, stagger } from "@/lib/animations";
 import type { ServicePageData } from "@/types";
 import { N8nIcon } from "@/components/icons/N8nIcon";
 import { Breadcrumb, BreadcrumbItem } from "@/components/Breadcrumb";
-import { useDict } from "@/i18n/LocaleProvider";
+import { useDict, useLocale } from "@/i18n/LocaleProvider";
+import { CASE_STUDY_PATHS } from "@/i18n/paths";
 
 /** Wraps matched keywords in a red/primary span for visual emphasis. */
 function highlightContent(content: string, highlights?: string[]) {
@@ -72,6 +73,7 @@ export interface ServicePageLayoutProps {
  */
 export function ServicePageLayout({ data, parentLabel, parentHref, servicesHref = "/services" }: ServicePageLayoutProps) {
     const { servicePage: t, breadcrumb, links, caseStudies } = useDict();
+    const locale = useLocale();
     const caseStudy = data.caseStudy !== undefined ? caseStudies.items[data.caseStudy] : undefined;
     return (
         <>
@@ -313,6 +315,15 @@ export function ServicePageLayout({ data, parentLabel, parentHref, servicesHref 
                             <span className="text-2xl font-extrabold text-primary">{caseStudy.metric}</span>{" "}
                             <span className="text-foreground/80">{caseStudy.metricLabel}</span>
                         </p>
+                        {CASE_STUDY_PATHS[caseStudy.id]?.[locale] && (
+                            <Link
+                                href={CASE_STUDY_PATHS[caseStudy.id][locale]!}
+                                className="mt-6 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+                            >
+                                {t.readCaseStudy}
+                                <ArrowRight className="size-4" aria-hidden="true" />
+                            </Link>
+                        )}
                     </div>
                 </section>
             )}
