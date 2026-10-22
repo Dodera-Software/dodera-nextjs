@@ -73,7 +73,7 @@ export async function generateImageUrl(
         url = `data:image/png;base64,${b64}`;
     } else if (requestedModel === "dall-e-2") {
         // dall-e-2 only supports up to 1024x1024; all our sizes fall back to 1024x1024 except the square
-        const dall2Size: "1024x1024" = "1024x1024";
+        const dall2Size = "1024x1024" as const;
         const response = await openai.images.generate({
             model: requestedModel,
             prompt: imagePrompt,

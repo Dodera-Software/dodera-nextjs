@@ -40,7 +40,7 @@ export function JobOpeningsTable({
         return (
             <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border py-20 text-center text-muted-foreground">
                 <Briefcase className="w-8 h-8" />
-                <p className="text-sm">No job openings yet. Click "Add Position" to create one.</p>
+                <p className="text-sm">No job openings yet. Click &quot;Add Position&quot; to create one.</p>
             </div>
         );
     }

@@ -33,7 +33,7 @@ const COPY = {
         lead: (cs: CaseStudy) =>
             `Dodera Software built this for a ${cs.client.charAt(0).toLowerCase()}${cs.client.slice(1)}${cs.timeline ? ` in ${cs.timeline}` : ""}. Result: ${cs.metric} ${cs.metricLabel}.`,
         hubTitle: "Case studies",
-        hubLead: "Real problems we solved for clients, with the stack, the timeline and the measurable result. Client names are withheld at their request.",
+        hubLead: "Real problems we solved for clients, with the stack, the timeline and the measurable result.",
         readCase: "Read the case study",
     },
     ro: {
@@ -56,7 +56,7 @@ const COPY = {
         lead: (cs: CaseStudy) =>
             `Studiu de caz Dodera Software, ${cs.industry.toLowerCase()}. Client: ${cs.client.charAt(0).toLowerCase()}${cs.client.slice(1)}${cs.timeline ? `; proiect livrat în ${cs.timeline}` : ""}. Rezultat: ${cs.metric} ${cs.metricLabel}.`,
         hubTitle: "Studii de caz",
-        hubLead: "Probleme reale pe care le-am rezolvat pentru clienți, cu tehnologiile folosite, durata și rezultatul măsurabil. Numele clienților nu sunt publicate, la cererea lor.",
+        hubLead: "Probleme reale pe care le-am rezolvat pentru clienți, cu tehnologiile folosite, durata și rezultatul măsurabil.",
         readCase: "Citiți studiul de caz",
     },
 } as const;
@@ -84,6 +84,14 @@ function serviceLabel(locale: Locale, key: string) {
 
 export function caseStudyLead(locale: Locale, cs: CaseStudy) {
     return COPY[locale].lead(cs);
+}
+
+/** Meta description (≤155 chars): client and result. */
+export function caseStudyDescription(locale: Locale, cs: CaseStudy) {
+    const client = `${cs.client.charAt(0).toLowerCase()}${cs.client.slice(1)}`;
+    return locale === "ro"
+        ? `Studiu de caz: ${client}. Rezultat: ${cs.metric} ${cs.metricLabel}.`
+        : `Case study: ${client}. Result: ${cs.metric} ${cs.metricLabel}.`;
 }
 
 /** Full case-study page body. Server component. */

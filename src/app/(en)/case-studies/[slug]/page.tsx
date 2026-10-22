@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { JsonLd } from "@/components/JsonLd";
-import { CaseStudyPage, caseStudyLead } from "@/components/CaseStudyPage";
+import { CaseStudyPage, caseStudyDescription } from "@/components/CaseStudyPage";
 import { CASE_STUDIES } from "@/config/case-studies";
 import { SITE } from "@/config/seo";
 import { CASE_STUDY_PATHS, STATIC_PATHS } from "@/i18n/paths";
@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const cs = find((await params).slug);
     if (!cs) return {};
     const title = cs.seoTitle ?? cs.headline;
-    const description = caseStudyLead("en", cs);
+    const description = caseStudyDescription("en", cs);
     return {
         title,
         description,
@@ -48,7 +48,7 @@ export default async function CaseStudyPageEn({ params }: PageProps) {
                         { name: "Case Studies", url: absoluteUrl(STATIC_PATHS.caseStudies.en) },
                         { name: cs.headline, url },
                     ]),
-                    caseStudySchema({ headline: cs.headline, description: caseStudyLead("en", cs), url, industry: cs.industry, locale: "en" }),
+                    caseStudySchema({ headline: cs.headline, description: caseStudyDescription("en", cs), url, industry: cs.industry, locale: "en" }),
                 ]}
             />
             <Navbar />

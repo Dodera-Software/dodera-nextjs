@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { JsonLd } from "@/components/JsonLd";
-import { CaseStudyPage, caseStudyLead } from "@/components/CaseStudyPage";
+import { CaseStudyPage, caseStudyDescription } from "@/components/CaseStudyPage";
 import { SITE } from "@/config/seo";
 import { getDictionary } from "@/i18n/dictionaries";
 import { CASE_STUDY_PATHS, STATIC_PATHS } from "@/i18n/paths";
@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const cs = find((await params).slug);
     if (!cs) return {};
     const title = cs.seoTitle ?? cs.headline;
-    const description = caseStudyLead("ro", cs);
+    const description = caseStudyDescription("ro", cs);
     return {
         title,
         description,
@@ -49,7 +49,7 @@ export default async function CaseStudyPageRo({ params }: PageProps) {
                         { name: "Studii de caz", url: absoluteUrl(STATIC_PATHS.caseStudies.ro) },
                         { name: cs.headline, url },
                     ]),
-                    caseStudySchema({ headline: cs.headline, description: caseStudyLead("ro", cs), url, industry: cs.industry, locale: "ro" }),
+                    caseStudySchema({ headline: cs.headline, description: caseStudyDescription("ro", cs), url, industry: cs.industry, locale: "ro" }),
                 ]}
             />
             <Navbar />

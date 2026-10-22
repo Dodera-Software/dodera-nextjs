@@ -1,5 +1,4 @@
 import type { MetadataRoute } from "next";
-import { SITE } from "@/config/seo";
 import { getAllPosts } from "@/lib/cms";
 import { LOCALES } from "@/i18n/config";
 import { ROUTES, absoluteUrl, hreflangFor, type PageId } from "@/i18n/routes";
