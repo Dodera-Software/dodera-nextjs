@@ -39,7 +39,7 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
                 content:
                     "Artificial intelligence is no longer a futuristic concept - it's a competitive necessity. Businesses that adopt AI-driven workflows see measurable gains in efficiency, accuracy, and speed-to-market. Whether you need to automate data processing, build conversational agents, or create intelligent decision-support systems, our team delivers production-ready solutions built on proven architectures.",
                 bullets: [
-                    "Reduce manual workload by up to 80% with intelligent automation",
+                    "Cut manual workload - one automation we built reduced manual processing by 94%",
                     "Make data-driven decisions faster with AI-powered analytics",
                     "Scale operations without proportionally scaling headcount",
                     "Improve customer experience with 24/7 AI-powered interactions",
@@ -172,7 +172,7 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
         faqs: [
             {
                 question: "Can AI agents replace human employees?",
-                answer: "AI agents are designed to augment your team, not replace it. They handle repetitive, time-consuming tasks so your people can focus on strategic, creative, and relationship-driven work. Most clients see their agents handling 60–80% of routine queries while humans manage complex escalations.",
+                answer: "AI agents are designed to augment your team, not replace it. They handle repetitive, time-consuming tasks so your people can focus on strategic, creative, and relationship-driven work. Routine queries go to the agent; people handle the complex escalations, with full context.",
             },
             {
                 question: "Can AI agents integrate with our existing systems?",
@@ -355,7 +355,7 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
             {
                 iconName: "Building2",
                 label: "Enterprise Platforms",
-                description: "Platforms built for scale. We architect enterprise systems that handle millions of transactions and meet strict compliance and availability standards.",
+                description: "Platforms built for scale. We architect enterprise systems that handle high transaction volumes and meet strict compliance and availability standards.",
                 href: "/services/software-development/enterprise-platforms",
             },
             {
@@ -376,7 +376,7 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
             },
             {
                 question: "How do you handle project management?",
-                answer: "We use agile methodology with 2-week sprints, daily standups, and weekly client demos. You'll have full visibility into progress through our project board, and a dedicated project manager serves as your single point of contact.",
+                answer: "We work in short sprints with a weekly client demo on a staging environment. You'll have full visibility into progress through our project board and a single point of contact for the whole project.",
             },
             {
                 question: "Can you scale the team up or down as needed?",
@@ -479,7 +479,7 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
         parentSlug: "software-development",
         metaTitle: "Enterprise Platform Development - Scalable & Secure",
         metaDescription:
-            "We build enterprise-grade platforms that handle millions of transactions, meet compliance standards, and scale with your business. .NET, Laravel, and modern cloud architecture.",
+            "We build enterprise-grade platforms that handle high transaction volumes, meet compliance standards, and scale with your business. .NET, Laravel, and modern cloud architecture.",
         keywords: [
             "enterprise platform development",
             "enterprise software",
@@ -493,7 +493,7 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
         heroTitle: "Platforms Built for",
         heroHighlight: "Enterprise Scale.",
         heroDescription:
-            "We architect and build enterprise platforms that handle millions of transactions, meet strict compliance requirements, and scale effortlessly with your growth.",
+            "We architect and build enterprise platforms that handle high transaction volumes, meet strict compliance requirements, and scale with your growth.",
         sections: [
             {
                 title: "What is an Enterprise Platform?",
@@ -504,7 +504,7 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
                     "High-volume transaction processing and data management",
                     "Integrations with ERP, CRM, HR, and legacy systems",
                     "Role-based access control and full audit logging",
-                    "Built to compliance standards (SOC 2, GDPR, HIPAA)",
+                    "Designed for GDPR and the controls other standards require",
                 ],
             },
             {
@@ -513,7 +513,7 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
                     "Enterprise platforms require a fundamentally different approach than startups or small applications. We bring deep experience in building systems that serve thousands of concurrent users, process mission-critical data, and meet the security, compliance, and availability standards that enterprise clients demand.",
                 bullets: [
                     "Microservices and event-driven architectures",
-                    "99.9%+ uptime with multi-region deployment",
+                    "High availability, with multi-region deployment when you need it",
                     "Horizontal scaling and auto-provisioning",
                     "Role-based access control and audit logging",
                 ],
@@ -528,7 +528,7 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
                 content:
                     "We engineer for performance from day one. Our platforms are load-tested, stress-tested, and chaos-engineered to ensure they perform under the most demanding conditions. We implement comprehensive observability stacks (Prometheus, Grafana, Sentry) so you always know exactly how your system is performing.",
                 bullets: [
-                    "Sub-200ms API response times at scale",
+                    "Fast API responses, verified with load tests",
                     "Automated failover and disaster recovery",
                     "Real-time monitoring and alerting",
                     "Automated scaling based on demand patterns",
@@ -547,7 +547,7 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
             },
             {
                 question: "What compliance standards do you build for?",
-                answer: "We have experience building platforms that meet SOC 2 Type II, GDPR, HIPAA, and PCI-DSS requirements. We implement the necessary controls from the architecture phase, not as an afterthought.",
+                answer: "We design for GDPR from the architecture up, and implement the controls other standards such as SOC 2, HIPAA or PCI-DSS require - access control, audit logging, encryption - from the start, not as an afterthought.",
             },
             {
                 question: "Can you take over an existing enterprise codebase?",
@@ -602,7 +602,7 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
             {
                 title: "SaaS Architecture Done Right",
                 content:
-                    "Building a SaaS product is fundamentally different from building a one-off application. You need multi-tenancy, subscription management, usage metering, role-based access, and an operational layer for onboarding, billing, and customer support. We've built these systems multiple times and know where the pitfalls are.",
+                    "Building a SaaS product is fundamentally different from building a one-off application. You need multi-tenancy, subscription management, usage metering, role-based access, and an operational layer for onboarding, billing, and customer support. We know where the pitfalls are and design for them from day one.",
                 bullets: [
                     "Multi-tenant architecture with data isolation",
                     "Stripe / Paddle subscription billing integration",
@@ -633,7 +633,7 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
             {
                 title: "From Launch to Scale",
                 content:
-                    "Launching is just step one. We offer ongoing development partnerships that include feature development, performance optimization, and infrastructure scaling as your user base grows. Our clients typically engage us for 6–18 months of post-launch iteration and growth engineering.",
+                    "Launching is just step one. We offer ongoing development partnerships that include feature development, performance optimization, and infrastructure scaling as your user base grows. You can continue with us on a monthly retainer for post-launch iteration and growth engineering.",
             },
         ],
         faqs: [
@@ -647,7 +647,7 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
             },
             {
                 question: "Can you build both B2B and B2C SaaS?",
-                answer: "Absolutely. We've built both B2B platforms (with organization management, SSO, and compliance features) and B2C products (with consumer onboarding, freemium tiers, and viral growth mechanics).",
+                answer: "Absolutely. We build both B2B platforms (with organization management, SSO, and compliance features) and B2C products (with consumer onboarding, freemium tiers, and viral growth mechanics).",
             },
             {
                 question: "What about ongoing development after launch?",
@@ -692,8 +692,8 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
                 content:
                     "In a competitive digital landscape, your website is often the first - and most critical - touchpoint with potential clients. A generic template site signals mediocrity; a custom, strategically designed presentation website signals credibility, expertise, and attention to detail. We build websites that reinforce your brand narrative and guide visitors toward the action you want them to take.",
                 bullets: [
-                    "First impressions formed in under 50 milliseconds",
-                    "Professional design increases trust and conversion rates by 38%",
+                    "A first impression that builds trust in seconds",
+                    "Professional design that earns trust and turns visitors into enquiries",
                     "Mobile-first experience reaching users on every device",
                     "SEO-optimised structure driving organic discovery",
                 ],
@@ -813,9 +813,9 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
             {
                 title: "Performance & Quality Assurance",
                 content:
-                    "Every showcase site we ship passes our rigorous quality benchmark: Lighthouse scores of 95+ across performance, accessibility, and SEO; cross-browser and cross-device testing; sub-2-second load times on mobile; and full WCAG 2.1 accessibility compliance. Premium presentation demands premium engineering.",
+                    "Every showcase site we ship goes through the same quality checks: we aim for Lighthouse scores of 90+ across performance, accessibility, and SEO; cross-browser and cross-device testing; sub-2-second load times on mobile; and full WCAG 2.1 accessibility compliance. Premium presentation demands premium engineering.",
                 bullets: [
-                    "Lighthouse performance score 95+",
+                    "Lighthouse performance target: 90+",
                     "Core Web Vitals: LCP < 2.5s, CLS < 0.1, INP < 200ms",
                     "Mobile, tablet, and desktop testing across major browsers",
                     "Accessibility-first semantic HTML and ARIA attributes",
@@ -880,7 +880,7 @@ export const SERVICE_PAGES: Record<string, ServicePageData> = {
                 content:
                     "Poor documentation is one of the biggest hidden costs in software organizations. It leads to duplicated effort, longer onboarding times, tribal knowledge silos, and slower development velocity. We build documentation systems that solve these problems systematically - not just writing docs, but creating the infrastructure that keeps them alive and useful.",
                 bullets: [
-                    "Reduce new developer onboarding time by 50–70%",
+                    "Faster onboarding for new developers",
                     "Eliminate tribal knowledge silos and single points of failure",
                     "Enable AI-powered search across your entire knowledge base",
                     "Improve code quality through architecture documentation",

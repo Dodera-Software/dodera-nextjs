@@ -22,23 +22,26 @@ export function NotableClients() {
                     {t.label}
                 </motion.p>
 
-                {/* TODO(owner): "35+ member" is not backed by data yet (see the SEO report).
-                    Kept on the English page until confirmed; left out of the Romanian page. */}
-                {locale === "en" ? (
-                    <motion.p
-                        variants={fadeInUp}
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={viewportOnce}
-                        transition={{ duration: 0.4, delay: 0.1 }}
-                        className="mb-12 text-center text-sm text-muted-foreground"
-                    >
-                        Backed by a{" "}
-                        <span className="font-semibold text-foreground">35+ member workflow team</span> — full-time engineers, long-term collaborators, and trusted specialists, all pulling in the same direction.
-                    </motion.p>
-                ) : (
-                    <div className="mb-12" />
-                )}
+                <motion.p
+                    variants={fadeInUp}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={viewportOnce}
+                    transition={{ duration: 0.4, delay: 0.1 }}
+                    className="mb-12 text-center text-sm text-muted-foreground"
+                >
+                    {locale === "en" ? (
+                        <>
+                            Backed by a{" "}
+                            <span className="font-semibold text-foreground">dedicated team</span> of engineers, long-term collaborators and trusted specialists, all pulling in the same direction.
+                        </>
+                    ) : (
+                        <>
+                            În spatele fiecărui proiect stă o{" "}
+                            <span className="font-semibold text-foreground">echipă dedicată</span> de ingineri, colaboratori pe termen lung și specialiști de încredere.
+                        </>
+                    )}
+                </motion.p>
 
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
                     {t.items.map((client, i) => (

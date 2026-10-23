@@ -23,14 +23,10 @@ export function TeamSection() {
                     transition={{ duration: 0.4, delay: 0.1 }}
                     className="-mt-8 mb-14 text-base leading-relaxed text-muted-foreground"
                 >
-                    {/* TODO(owner): "35+ member" and "7–10+ years" are not backed by data yet
-                        (see the SEO report). Kept in English until confirmed; the Romanian
-                        text states only what is known. */}
                     {locale === "en" ? (
                         <>
-                            We started in <span className="font-semibold text-foreground">2023</span> as a team of dedicated, enthusiastic software engineers — and that energy never left. Today our{" "}
-                            <span className="font-semibold text-foreground">35+ member</span> workflow team covers every layer of a product, including in-house engineers, designers, QA specialists, and the external collaborators we rely on to deliver. Most members carry{" "}
-                            <span className="font-semibold text-foreground">7–10+ years</span> of hands-on industry experience.
+                            We started in <span className="font-semibold text-foreground">2023</span>, in Satu Mare, as a team of dedicated, enthusiastic software engineers — and that energy never left. Today our{" "}
+                            <span className="font-semibold text-foreground">dedicated team</span> covers every layer of a product: engineers, designers, QA specialists, and the external collaborators we rely on to deliver.
                         </>
                     ) : (
                         <>

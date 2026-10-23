@@ -150,65 +150,54 @@ Phase 6 restores the original font setup (`subsets: ["latin"]`), which avoids pr
 
 ---
 
-## 4. TODOs you need to fill in
+## 4. Facts: what was verified, what stays hidden
 
-Anything missing is hidden on the site, not shown as placeholder text. Search the code for `TODO(owner)`.
+Rule: only facts confirmed from a reliable source go on the site; anything else stays hidden (never shown as placeholder text). Checked on 22 Oct 2026:
 
-| What | Where |
-|---|---|
-| Real opening hours (footer, contact page, JSON-LD) | `src/config/seo.ts` `openingHours`, `src/config/site.ts` `COMPANY.hours` |
-| Founder: name, role, LinkedIn, 2–4 sentence bio, photo | `src/config/seo.ts` `founder` (+ photo in `/public`) |
-| Google Business Profile link | `src/config/seo.ts` `googleBusinessProfile` |
-| Exact map pin (currently street-level, from OpenStreetMap) | `src/config/seo.ts` `geo` |
-| Typical price ranges per project type (site, shop, web app, AI agent) | `src/config/services.ro.ts` (header), content plan articles 1 and 6 |
-| Client quotes, build time for the SaaS and clinic projects, client names/links if allowed | `src/config/case-studies.ts`, `src/i18n/dictionaries/ro.ts` |
-| Case studies for websites, AI agents, documentation, MVP, and Maramureș | `src/config/services.ro.ts`, `src/config/locations.ro.ts` |
-| Verified testimonials (name, role, company, link) | `src/config/testimonials.ts` |
-| Author role, bio, LinkedIn, photo | `src/config/authors.ts` |
-| Google Search Console verification token (or verify by DNS) | `src/lib/site-metadata.ts` |
-| Social profiles: confirm LinkedIn `/company/dodera-software/`, Instagram `@doderasoft`, X `@doderasoft`, and whether there is a Facebook page | `src/config/seo.ts` `social` |
-| Legal review of the Romanian privacy policy translation | `/ro/politica-de-confidentialitate` |
-| Which posts to noindex or merge | `docs/seo/blog-audit.md` → `src/config/blog-seo.ts` |
-
----
-
-## 5. Claims flagged
-
-These are claims the site makes that nothing supports. They are **still on the English pages**, left out of the Romanian ones, and I have not removed them from English. Tell me which are true, and I'll remove or replace the rest.
-
-| Claim | Where | Proposed replacement |
+| Fact | Source | Result |
 |---|---|---|
-| "35+ member workflow team" | home `NotableClients` and `TeamSection` | "A core team of N engineers, plus trusted specialists we bring in when a project needs them." (real N) |
-| "Most members carry 7–10+ years" | home `TeamSection` | Real experience, e.g. "Our senior engineers have X+ years each." |
-| About stats "20+ AI applications, 50+ web applications, 99% client satisfaction" | `/about` | Real counts, or remove the counter row |
-| "Every engineer on our roster is senior level" | `/about` | "Senior engineers lead every project." |
-| Stats "5.0 client satisfaction, 0 post-launch incidents, 100% on-time" | `config/stats.ts` (not rendered) | Delete, or source them |
-| 5 testimonials with first name + role only, two contradicting the case studies | `config/testimonials.ts` (now hidden) | Real reviews with company and link |
-| "From startups in Western Europe to enterprises in North America" | `/about` FAQ | Where your clients actually are |
-| "Experience building to SOC 2 Type II, GDPR, HIPAA, PCI-DSS" | `/services/software-development/enterprise-platforms` | "We design for GDPR from the architecture up and implement the controls other standards require." |
-| "99.9%+ uptime multi-region", "Sub-200ms API response times" | enterprise page | Describe the approach (load tests, monitoring) without numbers |
-| "Handle millions of transactions" | enterprise meta + card | "Built to scale with your load." |
-| "Reduce manual workload by up to 80%", "60–80% of routine queries" | AI pages | Cite the real case: "94% less manual processing for a freight forwarder." |
-| "Professional design increases conversion by 38%", "first impressions in 50 ms", "onboarding 50–70% faster" | websites and documentation pages | Remove the numbers, or cite a source |
-| "Lighthouse 95+ on every site" | business sites page | "We aim for 90+." (the Romanian page already says this) |
-| Terminal "247 tests / 99.99% uptime / 3 regions" | home hero (decorative) | Fine as decoration, or tone down |
+| Legal name, CUI 49004234, J30/958/2023, CAEN 6201, active | registry ([targetare.ro](https://targetare.ro/49004234/dodera-software-srl)) | ✅ on the site |
+| Founded **25 October 2023** | registry | ✅ JSON-LD `foundingDate: 2023-10-25` (was "2024") |
+| Registered address Str. Banat nr. 1, **ap. 2**, Satu Mare | registry | site shows "Strada Banat 1" — fine for NAP as long as Google Business Profile uses the same form |
+| Team size | LinkedIn: **2–10 employees** | "35+" removed → "dedicated team" |
+| Founder name / bio | not public (registry masks the administrator; LinkedIn names no founder) | founder section stays hidden |
+| Opening hours | not published anywhere | stays hidden (footer, contact page, JSON-LD) |
+| Prices | published on the site | ✅ used as-is; no per-service ranges needed |
+| Client quotes | — | not needed for now (owner decision) |
+| Google Business Profile | in progress (owner) | add the link to `src/config/seo.ts` `googleBusinessProfile` when it exists |
 
----
+⚠️ **LinkedIn says the headquarters is "Cluj Napoca"**, while the company is registered and presented everywhere else in Satu Mare. For local SEO the name/address must be identical everywhere — update the LinkedIn headquarters to Strada Banat 1, Satu Mare (and use the same on Clutch, GoodFirms, DesignRush and the Business Profile).
 
-## 6. What you need to do outside the code
+## 5. Claims — resolved
 
-1. **Merge in order:** PR #81, then #82. After deploying, open `/ro`, `/sitemap.xml`, `/robots.txt` and `/llms.txt` on production.
-2. **Google Business Profile:** create and verify it at Strada Banat 1, 440043 Satu Mare, with exactly the same name, address and phone: "Dodera Software", "Strada Banat 1, 440043 Satu Mare", "0748 650 469".
-   - Category: Software company; also add Website designer.
-   - Add the service area cities, your hours and photos.
-   - Put the profile link in `googleBusinessProfile`.
-3. **Google Search Console** (domain property) and **Bing Webmaster Tools:** submit `https://doderasoft.com/sitemap.xml`. Use URL Inspection to request indexing for `/ro`, `/ro/servicii`, `/ro/dezvoltare-solutii-web-satu-mare` and `/ro/locatii/satu-mare`. Watch the hreflang report.
-4. **Directory profiles with identical company details:** Clutch, GoodFirms, DesignRush, and the LinkedIn company page. Use the same name, address, phone, website, founding year 2023, services and price model everywhere.
-5. **Reviews:** ask 5–10 real clients for a Google review. With their permission, add them as verified testimonials.
-6. **Prismic:** add the `ro-ro` locale (Settings → Translations & locales). Publish the first articles from the content plan in Romanian, linking each to its English original where one exists.
-7. **Content:** about one article a week from `docs/seo/content-plan-ro.md`, starting with 1, 5, 4, 2, 3.
+Owner decision: replace unsupported numbers with honest wording ("dedicated team" etc.). Done in both languages:
 
----
+| Was | Now |
+|---|---|
+| "35+ member workflow team" (home, twice) | "a dedicated team of engineers, long-term collaborators and trusted specialists" |
+| "Most members carry 7–10+ years of experience" | removed |
+| About counters "20+ AI apps · 50+ web apps · 99% satisfaction" | verified facts: "2023 founded · €300 projects from · Satu Mare based in" |
+| "Every engineer on our roster is senior level" | "Experienced engineers lead every project." |
+| "From startups in Western Europe to enterprises in North America" | "Based in Satu Mare … clients in Romania and abroad; in person locally, remote otherwise" |
+| "We have helped several founders…", "shipped products in fintech, …, media" | "We build MVPs in 4–8 weeks…", "Our published case studies cover logistics, B2B software and healthcare" |
+| "Experience building to SOC 2 Type II, GDPR, HIPAA, PCI-DSS" | "We design for GDPR from the architecture up and implement the controls other standards require" |
+| "99.9%+ uptime", "Sub-200ms API responses", "millions of transactions" | "High availability…", "Fast API responses, verified with load tests", "high transaction volumes" |
+| "up to 80%", "60–80% of routine queries" | the real case study (94%) / no figure |
+| "38% conversion", "first impression in 50 ms", "onboarding 50–70% faster" | wording without figures |
+| "Lighthouse 95+" | "we aim for 90+" |
+| "dedicated project manager, daily standups", "6–18 months post-launch", "we've built both B2B and B2C" | weekly demo + single point of contact, monthly retainer option, "we build both" |
+| 5 unverifiable testimonials | hidden (unchanged); not needed for now |
+
+`src/config/stats.ts` still holds old figures but is not rendered anywhere.
+
+## 6. Outside the code — status
+
+1. ✅ PRs #81 and #82 approved and merged.
+2. ✅ Sitemap submitted in Google Search Console and Bing Webmaster Tools (owner).
+3. ⏳ Google Business Profile — in progress; same NAP as the site; add its link to the config afterwards.
+4. ⏳ **LinkedIn headquarters → Satu Mare** (see above); Clutch, GoodFirms, DesignRush with identical details.
+5. ⏳ Prismic: add the `ro-ro` locale (Settings → Translations & locales), then publish from `docs/seo/content-plan-ro.md`.
+6. Decide the blog noindex/merge list (`docs/seo/blog-audit.md`).
 
 ## 7. Known limitations
 
