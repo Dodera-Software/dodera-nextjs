@@ -3,7 +3,7 @@
 export const FAQ = [
     {
         q: "Where is Dodera Software based?",
-        a: "We are based in Satu Mare, Romania (Strada Banat 1) and work with clients in Romania and abroad. Clients in Satu Mare can meet us in person; everyone else works with us remotely, with a weekly demo and clear async communication.",
+        a: "We are based in Romania and work with clients in Romania and internationally. All work is delivered remotely, with a weekly demo and clear async communication.",
     },
     {
         q: "What size of projects do you take on?",

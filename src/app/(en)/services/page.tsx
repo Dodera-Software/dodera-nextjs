@@ -47,7 +47,7 @@ export default function ServicesPage() {
                         eyebrow: "Services",
                         title: "What we build",
                         intro:
-                            "Dodera Software is a software development company in Satu Mare, Romania. We build web applications, presentation websites, AI agents and automations for companies in Romania and abroad, priced per hour, per task or as a fixed-price project.",
+                            "Dodera Software is a software development company from Romania. We build web applications, presentation websites, AI agents and automations for companies in Romania and abroad, priced per hour, per task or as a fixed-price project.",
                         subServices: "Includes",
                         learnMore: "Learn more",
                         ctaTitle: "Not sure which one you need?",

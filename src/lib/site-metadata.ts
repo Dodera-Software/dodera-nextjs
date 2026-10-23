@@ -37,8 +37,6 @@ export function baseMetadata(locale: Locale, meta: { title: string; description:
         },
         manifest: "/manifest.webmanifest",
         category: "technology",
-        // TODO(owner): add the Google Search Console verification token here
-        // (verification: { google: "..." }) or verify via DNS.
     };
 }
 

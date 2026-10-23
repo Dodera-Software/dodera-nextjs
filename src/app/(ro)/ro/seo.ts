@@ -8,9 +8,9 @@
  */
 
 export const RO_DEFAULT_META = {
-    title: "Dezvoltare software Satu Mare | Dodera Software",
+    title: "Firmă de dezvoltare software România | Dodera Software",
     description:
-        "Firmă de dezvoltare software din Satu Mare: aplicații web, site-uri de prezentare, agenți AI și automatizări n8n. Preț fix de la 300 EUR.",
+        "Firmă de dezvoltare software din România: aplicații web, site-uri de prezentare, agenți AI și automatizări n8n, pentru clienți din țară și din străinătate.",
 } as const;
 
 export const RO_META = {
@@ -18,22 +18,22 @@ export const RO_META = {
     services: {
         title: "Servicii de dezvoltare software și AI",
         description:
-            "Aplicații web, MVP și SaaS, site-uri de prezentare, agenți AI, automatizări n8n și documentație tehnică, de la o firmă IT din Satu Mare.",
+            "Aplicații web, MVP și SaaS, site-uri de prezentare, agenți AI, automatizări n8n și documentație tehnică, de la o firmă de software din România.",
     },
     about: {
-        title: "Despre noi – firmă IT din Satu Mare",
+        title: "Despre noi – firmă de software din România",
         description:
-            "Dodera Software este o firmă IT din Satu Mare, fondată în 2023, care construiește aplicații web, site-uri și agenți AI pentru companii din România.",
+            "Dodera Software, firmă de software din România fondată în 2023: aplicații web, site-uri și agenți AI pentru clienți din țară și din străinătate.",
     },
     contact: {
-        title: "Contact – firmă IT Satu Mare",
+        title: "Contact – firmă de software din România",
         description:
-            "Contactați Dodera Software: Strada Banat 1, Satu Mare, telefon 0748 650 469, office@doderasoft.com. Discuția inițială este gratuită.",
+            "Contactați Dodera Software: 0748 650 469, office@doderasoft.com. Lucrăm cu clienți din România și din străinătate; prima discuție e gratuită.",
     },
     careers: {
-        title: "Cariere IT în Satu Mare",
+        title: "Cariere în IT, de la distanță",
         description:
-            "Locuri de muncă în IT la Dodera Software, Satu Mare: programatori, designeri și ingineri AI. Trimiteți-ne CV-ul și vă contactăm.",
+            "Locuri de muncă în IT la Dodera Software, de la distanță: programatori, designeri și ingineri AI. Trimiteți-ne CV-ul și vă contactăm.",
     },
     privacy: {
         title: "Politica de confidențialitate",

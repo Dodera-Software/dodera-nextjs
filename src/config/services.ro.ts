@@ -10,8 +10,8 @@
  * - duratele sunt cele deja afirmate pe site-ul în engleză;
  * - fără cifre sau afirmații pe care nu le putem susține (vezi raportul SEO).
  *
- * TODO(owner): intervale de preț tipice pe fiecare tip de proiect (ex. „site de
- * prezentare: X–Y EUR”). Până atunci, paginile folosesc modelul general de preț.
+ * Prețurile sunt modelul general publicat (decizia proprietarului, 22 oct.
+ * 2026): fără intervale separate pe tip de proiect.
  */
 
 import type { ServicePageData, ServicePagePricing } from "@/types";
@@ -45,12 +45,12 @@ export const SERVICE_PAGES_RO: Record<string, ServicePageData> = {
     "software-development": {
         slug: "dezvoltare-software",
         ogImage: "/og-images/og-software-development.png",
-        metaTitle: "Dezvoltare software Satu Mare și România",
+        metaTitle: "Dezvoltare software în România",
         metaDescription:
-            "Firmă de dezvoltare software din Satu Mare: aplicații web, MVP-uri, SaaS și magazine online pentru firme din România. Preț fix de la 300 EUR.",
+            "Firmă de dezvoltare software din România: aplicații web, MVP-uri, SaaS și magazine online, pentru clienți din țară și din străinătate. De la 300 EUR.",
         keywords: [
-            "dezvoltare software Satu Mare",
-            "firmă IT Satu Mare",
+            "dezvoltare software România",
+            "firmă IT România",
             "dezvoltare aplicații web",
             "firmă dezvoltare software România",
             "software personalizat",
@@ -61,7 +61,7 @@ export const SERVICE_PAGES_RO: Record<string, ServicePageData> = {
         heroTitle: "Dezvoltare software și aplicații web",
         heroHighlight: "pentru companii din România.",
         heroDescription:
-            "Dodera Software este o firmă de dezvoltare software din Satu Mare care construiește aplicații web personalizate, MVP-uri, produse SaaS și platforme interne pentru companii din toată România. Lucrăm cu preț fix pe proiect, de la 300 EUR, sau pe oră, între 20 și 80 EUR, iar în fiecare săptămână vedeți o versiune funcțională.",
+            "Dodera Software este o firmă de dezvoltare software din România care construiește aplicații web personalizate, MVP-uri, produse SaaS și platforme interne pentru clienți din țară și din străinătate. Lucrăm cu preț fix pe proiect, de la 300 EUR, sau pe oră, între 20 și 80 EUR, iar în fiecare săptămână vedeți o versiune funcțională.",
         sections: [
             {
                 title: "Ce înseamnă software personalizat",
@@ -111,9 +111,9 @@ export const SERVICE_PAGES_RO: Record<string, ServicePageData> = {
                 ],
             },
             {
-                title: "În Satu Mare sau de la distanță",
+                title: "Clienți din România și din străinătate",
                 content:
-                    "Biroul nostru este în Satu Mare, pe Strada Banat 1, așa că pentru clienții din oraș și din împrejurimi ne putem întâlni față în față la începutul proiectului și la momentele importante. Cu firmele din Baia Mare, Oradea, Zalău, Cluj-Napoca sau din restul țării lucrăm de la distanță: apeluri video, un board de proiect la care aveți acces și demo-uri săptămânale. Comunicăm în română sau în engleză, cum preferați.",
+                    "Lucrăm cu companii din toată România și din străinătate, de la distanță: apeluri video, un board de proiect la care aveți acces și demo-uri săptămânale. Comunicăm în română sau în engleză, cum preferați, și ne adaptăm la programul și la instrumentele echipei dumneavoastră.",
             },
         ],
         childServices: [
@@ -163,8 +163,8 @@ export const SERVICE_PAGES_RO: Record<string, ServicePageData> = {
                 answer: "Da. Putem aduce ingineri în plus pentru etapele cu termene strânse și putem reduce echipa în perioadele de mentenanță, astfel încât plătiți doar capacitatea de care aveți nevoie.",
             },
             {
-                question: "Lucrați doar cu firme din Satu Mare?",
-                answer: "Nu. Avem biroul în Satu Mare, unde ne putem întâlni față în față, dar lucrăm cu companii din toată România și din străinătate. Pentru clienții din alte orașe totul se desfășoară de la distanță: apeluri video, acces la board-ul proiectului și demo săptămânal.",
+                question: "Lucrați doar cu firme din România?",
+                answer: "Nu. Lucrăm cu companii din toată România și din străinătate. Colaborarea se desfășoară de la distanță: apeluri video, acces la board-ul proiectului și demo săptămânal, în română sau în engleză.",
             },
         ],
         relatedServices: [
@@ -192,7 +192,7 @@ export const SERVICE_PAGES_RO: Record<string, ServicePageData> = {
         heroTitle: "Dezvoltare MVP:",
         heroHighlight: "de la idee la primii utilizatori.",
         heroDescription:
-            "Dodera Software construiește MVP-uri pentru startupuri și companii din Satu Mare și din toată România: prima versiune funcțională a produsului, gata de testat cu utilizatori reali în 4–8 săptămâni. Lucrăm cu preț fix stabilit după o discuție gratuită, iar codul rămâne baza produsului final.",
+            "Dodera Software construiește MVP-uri pentru startupuri și companii din România și din străinătate: prima versiune funcțională a produsului, gata de testat cu utilizatori reali în 4–8 săptămâni. Lucrăm cu preț fix stabilit după o discuție gratuită, iar codul rămâne baza produsului final.",
         sections: [
             {
                 title: "Ce este un MVP",
@@ -306,7 +306,7 @@ export const SERVICE_PAGES_RO: Record<string, ServicePageData> = {
         heroTitle: "Platforme enterprise",
         heroHighlight: "construite pentru operațiunile dumneavoastră.",
         heroDescription:
-            "Dodera Software proiectează și dezvoltă platforme enterprise pentru companii medii și mari din România: sisteme interne care leagă departamentele, se integrează cu ERP-ul și CRM-ul și înlocuiesc procesele manuale. Lucrăm din Satu Mare, livrăm etapizat și stabilim un preț fix pentru fiecare etapă.",
+            "Dodera Software proiectează și dezvoltă platforme enterprise pentru companii medii și mari din România: sisteme interne care leagă departamentele, se integrează cu ERP-ul și CRM-ul și înlocuiesc procesele manuale. Livrăm etapizat și stabilim un preț fix pentru fiecare etapă.",
         sections: [
             {
                 title: "Ce este o platformă enterprise",
@@ -506,12 +506,12 @@ export const SERVICE_PAGES_RO: Record<string, ServicePageData> = {
     "presentation-websites": {
         slug: "site-uri-de-prezentare",
         ogImage: "/og-images/og-presentation-websites.png",
-        metaTitle: "Creare site-uri de prezentare Satu Mare",
+        metaTitle: "Creare site-uri de prezentare pentru firme",
         metaDescription:
-            "Web design și creare site-uri de prezentare în Satu Mare: rapide, optimizate SEO, ușor de actualizat. Livrare în 2–6 săptămâni, cu preț fix.",
+            "Web design și creare site-uri de prezentare: rapide, optimizate SEO, ușor de actualizat. Livrare în 2–6 săptămâni, cu preț fix de la 300 EUR.",
         keywords: [
-            "creare site Satu Mare",
-            "web design Satu Mare",
+            "creare site",
+            "web design",
             "site de prezentare",
             "creare site-uri de prezentare",
             "magazin online",
@@ -520,9 +520,9 @@ export const SERVICE_PAGES_RO: Record<string, ServicePageData> = {
         canonical: svc("presentation-websites"),
         heroLabel: "Site-uri de prezentare",
         heroTitle: "Creare site-uri de prezentare",
-        heroHighlight: "și web design în Satu Mare.",
+        heroHighlight: "și web design pentru firme.",
         heroDescription:
-            "Dodera Software creează site-uri de prezentare pentru firme din Satu Mare și din toată România: design personalizat, încărcare rapidă și SEO tehnic inclus. Un site de prezentare se livrează de obicei în 2–6 săptămâni, cu preț fix stabilit după o discuție gratuită; proiectele pornesc de la 300 EUR.",
+            "Dodera Software creează site-uri de prezentare pentru firme din România și din străinătate: design personalizat, încărcare rapidă și SEO tehnic inclus. Un site de prezentare se livrează de obicei în 2–6 săptămâni, cu preț fix stabilit după o discuție gratuită; proiectele pornesc de la 300 EUR.",
         sections: [
             {
                 title: "De ce contează site-ul de prezentare",
@@ -571,7 +571,6 @@ export const SERVICE_PAGES_RO: Record<string, ServicePageData> = {
                 links: [
                     { label: "Site de prezentare pentru firme", href: svc("presentation-websites/business-showcase-sites") },
                     { label: "Magazine online și aplicații web", href: svc("software-development") },
-                    { label: "Soluții web pentru firme din Satu Mare", href: "/ro/dezvoltare-solutii-web-satu-mare" },
                 ],
             },
         ],
@@ -614,8 +613,8 @@ export const SERVICE_PAGES_RO: Record<string, ServicePageData> = {
                 answer: "Un site pe șablon arată ca alte sute de site-uri, iar vizitatorii observă asta. Noi pornim de la firma, clienții și obiectivele dumneavoastră și construim designul și structura în jurul lor, cu viteză și SEO tehnic incluse.",
             },
             {
-                question: "Ne putem întâlni în Satu Mare?",
-                answer: "Da. Pentru clienții din Satu Mare și din împrejurimi putem face discuția inițială și prezentarea designului la birou, pe Strada Banat 1, sau la sediul dumneavoastră. Cu clienții din alte orașe lucrăm la distanță, prin apeluri video.",
+                question: "Lucrați și cu firme din străinătate?",
+                answer: "Da. Lucrăm de la distanță cu clienți din România și din străinătate, în română sau în engleză. Discuția inițială, prezentarea designului și predarea au loc prin apel video.",
             },
         ],
         relatedServices: [
@@ -643,7 +642,7 @@ export const SERVICE_PAGES_RO: Record<string, ServicePageData> = {
         heroTitle: "Site de prezentare pentru firme",
         heroHighlight: "care vă prezintă exact cum trebuie.",
         heroDescription:
-            "Dodera Software creează site-uri de prezentare pentru firme din Satu Mare și din toată România: site-uri de mai multe pagini care prezintă serviciile, echipa și proiectele și transformă vizitatorii în cereri de ofertă. Le construim cu preț fix, de la 300 EUR, de obicei în 4–6 săptămâni.",
+            "Dodera Software creează site-uri de prezentare pentru firme din România și din străinătate: site-uri de mai multe pagini care prezintă serviciile, echipa și proiectele și transformă vizitatorii în cereri de ofertă. Le construim cu preț fix, de la 300 EUR, de obicei în 4–6 săptămâni.",
         sections: [
             {
                 title: "Ce este un site de prezentare pentru firme",
@@ -758,7 +757,7 @@ export const SERVICE_PAGES_RO: Record<string, ServicePageData> = {
         heroTitle: "Agenți AI și automatizări",
         heroHighlight: "care preiau munca repetitivă.",
         heroDescription:
-            "Dodera Software dezvoltă agenți AI personalizați și automatizări cu n8n pentru companii din Satu Mare și din toată România. Le conectăm la instrumentele pe care le folosiți deja, de la email și ERP până la CRM, ca să preia munca repetitivă. Proiectele au preț fix, de la 300 EUR, iar o automatizare simplă poate fi gata în 2–4 săptămâni.",
+            "Dodera Software dezvoltă agenți AI personalizați și automatizări cu n8n pentru companii din România și din străinătate. Le conectăm la instrumentele pe care le folosiți deja, de la email și ERP până la CRM, ca să preia munca repetitivă. Proiectele au preț fix, de la 300 EUR, iar o automatizare simplă poate fi gata în 2–4 săptămâni.",
         sections: [
             {
                 title: "De ce să folosiți AI în firmă",
@@ -1096,7 +1095,7 @@ export const SERVICE_PAGES_RO: Record<string, ServicePageData> = {
         heroTitle: "Documentație tehnică",
         heroHighlight: "care chiar este folosită.",
         heroDescription:
-            "Dodera Software transformă codul, procesele și documentele interne ale companiilor din România în documentație tehnică structurată și în baze de cunoștințe pregătite pentru AI. Lucrăm din Satu Mare, cu clienți din toată țara, cu preț fix pe proiect, de la 300 EUR.",
+            "Dodera Software transformă codul, procesele și documentele interne ale companiilor din România în documentație tehnică structurată și în baze de cunoștințe pregătite pentru AI. Lucrăm cu clienți din România și din străinătate, cu preț fix pe proiect, de la 300 EUR.",
         sections: [
             {
                 title: "De ce contează documentația",

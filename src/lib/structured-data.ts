@@ -57,11 +57,11 @@ function postalAddress() {
     };
 }
 
-/** The cities from config/seo.ts SERVICE_AREA plus Romania. */
+/** Romania plus international clients (config/seo.ts SERVICE_AREA). */
 export function areaServed() {
     return [
-        ...SERVICE_AREA.map((c) => ({ "@type": "City", name: c.name })),
-        { "@type": "Country", name: "Romania" },
+        { "@type": "Country", name: SERVICE_AREA.country },
+        ...(SERVICE_AREA.international ? [{ "@type": "Place", name: "Worldwide" }] : []),
     ];
 }
 
@@ -153,7 +153,6 @@ export function businessSchema(opts: { description?: string } = {}) {
             email: SITE.email,
             telephone: SITE.phoneE164,
             contactType: "sales",
-            areaServed: "RO",
             availableLanguage: ["en", "ro"],
         },
         sameAs: SOCIAL_URLS,
@@ -199,8 +198,6 @@ export function serviceSchema(opts: {
     description: string;
     url: string;
     serviceType?: string;
-    /** Limit areaServed to one city (local pages); defaults to every city served plus Romania. */
-    city?: { name: string; county: string };
 }) {
     return {
         "@context": "https://schema.org",
@@ -211,13 +208,7 @@ export function serviceSchema(opts: {
         url: opts.url,
         serviceType: opts.serviceType ?? opts.name,
         provider: orgRef(),
-        areaServed: opts.city
-            ? {
-                "@type": "City",
-                name: opts.city.name,
-                containedInPlace: { "@type": "AdministrativeArea", name: `Județul ${opts.city.county}` },
-            }
-            : areaServed(),
+        areaServed: areaServed(),
         offers: pricingOffers(),
     };
 }

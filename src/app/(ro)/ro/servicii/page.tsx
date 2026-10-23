@@ -47,7 +47,7 @@ export default function ServicesPageRo() {
                         eyebrow: "Servicii",
                         title: "Servicii de dezvoltare software, site-uri și AI",
                         intro:
-                            "Dodera Software este o firmă de dezvoltare software din Satu Mare care construiește aplicații web, site-uri de prezentare, agenți AI și automatizări pentru companii din toată România. Lucrăm cu preț fix pe proiect, de la 300 EUR, pe sarcină, de la 50 EUR, sau pe oră, între 20 și 80 EUR.",
+                            "Dodera Software este o firmă de dezvoltare software din România care construiește aplicații web, site-uri de prezentare, agenți AI și automatizări pentru clienți din țară și din străinătate. Lucrăm cu preț fix pe proiect, de la 300 EUR, pe sarcină, de la 50 EUR, sau pe oră, între 20 și 80 EUR.",
                         subServices: "Include",
                         learnMore: "Aflați mai multe",
                         ctaTitle: "Nu știți exact de ce aveți nevoie?",

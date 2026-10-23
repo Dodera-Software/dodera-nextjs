@@ -5,7 +5,7 @@
  */
 
 export const CAREERS_META = {
-    title: "Careers - Join the Dodera Software Team",
+    title: "Careers - Join the Team",
     description:
         "We are always on the lookout for talented engineers and designers to join our team. Check back here for open positions or reach out directly.",
     keywords: [

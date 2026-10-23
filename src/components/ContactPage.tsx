@@ -8,7 +8,7 @@ const COPY = {
     en: {
         eyebrow: "Contact",
         title: "Contact Dodera Software",
-        lead: "Dodera Software is a software development company at Strada Banat 1, Satu Mare, Romania. Call +40 748 650 469 or email office@doderasoft.com; the first call, where we scope your project, is free.",
+        lead: "Dodera Software is a software development company from Romania, working with clients in Romania and internationally. Call +40 748 650 469 or email office@doderasoft.com; the first call, where we scope your project, is free.",
         detailsTitle: "Contact details",
         address: "Address",
         phone: "Phone",
@@ -20,16 +20,15 @@ const COPY = {
         taxId: "Tax ID (CUI)",
         howTitle: "How we work with you",
         how: [
-            "In Satu Mare we can meet in person, at our office or at yours.",
-            "Everywhere else in Romania and abroad we work remotely: video calls, a shared project board and a weekly demo.",
+            "We work remotely with clients in Romania and abroad: video calls, a shared project board and a weekly demo.",
             "We reply to every message within 24 hours on working days.",
         ],
         formTitle: "Tell us about your project",
     },
     ro: {
         eyebrow: "Contact",
-        title: "Contact Dodera Software, Satu Mare",
-        lead: "Dodera Software este o firmă de dezvoltare software cu sediul pe Strada Banat 1, Satu Mare. Ne puteți suna la 0748 650 469 sau ne puteți scrie la office@doderasoft.com; prima discuție, în care stabilim scopul proiectului, este gratuită.",
+        title: "Contact Dodera Software",
+        lead: "Dodera Software este o firmă de dezvoltare software din România, care lucrează cu clienți din țară și din străinătate. Ne puteți suna la 0748 650 469 sau ne puteți scrie la office@doderasoft.com; prima discuție, în care stabilim scopul proiectului, este gratuită.",
         detailsTitle: "Date de contact",
         address: "Adresă",
         phone: "Telefon",
@@ -41,8 +40,7 @@ const COPY = {
         taxId: "CUI",
         howTitle: "Cum lucrăm cu dumneavoastră",
         how: [
-            "În Satu Mare ne putem întâlni față în față, la biroul nostru sau la sediul dumneavoastră.",
-            "Cu firmele din restul țării și din străinătate lucrăm de la distanță: apeluri video, un board de proiect comun și demo săptămânal.",
+            "Lucrăm de la distanță cu clienți din România și din străinătate: apeluri video, un board de proiect comun și demo săptămânal.",
             "Răspundem la fiecare mesaj în cel mult 24 de ore, în zilele lucrătoare.",
         ],
         formTitle: "Spuneți-ne despre proiect",

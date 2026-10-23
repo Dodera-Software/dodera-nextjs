@@ -7,9 +7,9 @@ import { SITE } from "@/config/seo";
 import { alternatesFor } from "@/i18n/routes";
 import { breadcrumbSchema, businessSchema } from "@/lib/structured-data";
 
-const TITLE = "Contact - Software Company in Satu Mare";
+const TITLE = "Contact - Software Company in Romania";
 const DESCRIPTION =
-    "Contact Dodera Software: Strada Banat 1, Satu Mare, Romania · +40 748 650 469 · office@doderasoft.com. The first call to scope your project is free.";
+    "Contact Dodera Software, a software company from Romania working with clients worldwide: +40 748 650 469 · office@doderasoft.com. The first call is free.";
 
 export const metadata: Metadata = {
     title: TITLE,

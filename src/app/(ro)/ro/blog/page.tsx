@@ -54,7 +54,7 @@ export default async function BlogPageRo() {
                     eyebrow="Blog"
                     id="blog-ro-heading"
                     title="Blog despre software, AI și site-uri"
-                    lead="Articole în română despre dezvoltare software, agenți AI, automatizări și site-uri de prezentare, scrise de echipa Dodera Software din Satu Mare, cu prețuri reale și exemple din proiectele noastre."
+                    lead="Articole în română despre dezvoltare software, agenți AI, automatizări și site-uri de prezentare, scrise de echipa Dodera Software, cu prețuri reale și exemple din proiectele noastre."
                 />
                 <section className="pb-24">
                     <div className="mx-auto max-w-3xl px-6">

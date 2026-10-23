@@ -18,9 +18,9 @@ export interface CaseStudy {
 }
 
 /*
- * TODO(owner): for each case study — a client quote (name, role, company,
- * approval to publish), the build time for the B2B SaaS and clinic projects,
- * and, if the client agrees, the company name and a link.
+ * Client quotes are not needed for now (owner, 22 Oct 2026); the `quote`
+ * field renders automatically if one is added later. Build time is only
+ * shown where it is known (freight project).
  */
 
 export const CASE_STUDIES: CaseStudy[] = [
