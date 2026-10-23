@@ -25,12 +25,13 @@ export function TeamSection() {
                 >
                     {locale === "en" ? (
                         <>
-                            We started in <span className="font-semibold text-foreground">2023</span>, in Satu Mare, as a team of dedicated, enthusiastic software engineers — and that energy never left. Today our{" "}
+                            We started in <span className="font-semibold text-foreground">2023</span> as a team of dedicated, enthusiastic software engineers — and that energy never left. Today our{" "}
                             <span className="font-semibold text-foreground">dedicated team</span> covers every layer of a product: engineers, designers, QA specialists, and the external collaborators we rely on to deliver.
                         </>
                     ) : (
                         <>
-                            Am pornit în <span className="font-semibold text-foreground">2023</span>, la Satu Mare, ca o echipă de ingineri software pasionați, iar energia aceea a rămas. Acoperim fiecare strat al unui produs: backend, frontend, design, testare, AI și infrastructură. Acolo unde proiectul o cere, lucrăm cu colaboratori externi de încredere, iar coordonarea rămâne la noi.
+                            Am pornit în <span className="font-semibold text-foreground">2023</span> ca o echipă de ingineri software dedicați și entuziaști, iar energia aceea nu a dispărut. Astăzi,{" "}
+                            <span className="font-semibold text-foreground">echipa noastră dedicată</span> acoperă fiecare strat al unui produs: ingineri, designeri, specialiști QA și colaboratorii externi pe care ne bazăm ca să livrăm.
                         </>
                     )}
                 </motion.p>
