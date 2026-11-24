@@ -1,9 +1,11 @@
+import Script from "next/script";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "sonner";
 import { PrismicPreviewBar } from "@/components/PrismicPreviewBar";
 import { HTML_LANG, type Locale } from "@/i18n/config";
 import { LocaleProvider } from "@/i18n/LocaleProvider";
+import { ANALYTICS } from "@/config/analytics";
 
 /*
  * One Inter instance for every locale. `subsets` only picks the *preloaded*
@@ -56,6 +58,13 @@ export function RootDocument({
           />
         </TooltipProvider>
         <PrismicPreviewBar />
+        <Script
+          src={ANALYTICS.src}
+          data-website-id={ANALYTICS.websiteId}
+          data-domains={ANALYTICS.domains}
+          data-do-not-track="true"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );
