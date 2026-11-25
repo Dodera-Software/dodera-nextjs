@@ -173,7 +173,7 @@ export function ServicePageLayout({ data, parentLabel, parentHref, servicesHref 
             {caseStudy && (
                 <SplitSlide id={ServiceSlide.CaseStudy} label={t.caseStudyTitle} title={caseStudy.headline} eyebrow={`${t.caseStudyTitle} · ${caseStudy.industry}`} tone={SlideTone.Glow}>
                     <div className="reveal flex items-end gap-6">
-                        <p className="display bg-gradient-to-b from-foreground to-foreground/40 bg-clip-text text-[clamp(4.5rem,9vw,8rem)] leading-none text-transparent">{caseStudy.metric}</p>
+                        <p className="display text-gradient-metal text-[clamp(4.5rem,9vw,8rem)] leading-none">{caseStudy.metric}</p>
                         <p className="max-w-[24ch] pb-3 text-sm text-foreground/70">{caseStudy.metricLabel}</p>
                     </div>
                     <div className="mt-12 grid gap-10 md:grid-cols-2">

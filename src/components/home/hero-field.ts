@@ -9,6 +9,7 @@ import {
     ShaderMaterial,
     WebGLRenderer,
 } from "three";
+import { isLite } from "@/components/deck/perf-probe";
 
 export interface HeroFieldOptions {
     markSrc: string;
@@ -25,6 +26,10 @@ const FIELD = {
     fov: 32,
     cameraZ: 9,
     pixelRatioCap: 1.75,
+    litePixelRatio: 1,
+    minPixelRatio: 0.75,
+    slowFrameMs: 22,
+    slowFramesBeforeDownscale: 45,
     pointSize: 78,
     pointerEase: 0.06,
     palette: { ink: "#f2f0f5", brand: "#ff2f57", deep: "#d0102e", ember: "#ff5a3c" },
@@ -130,6 +135,9 @@ export class HeroField {
     private running = false;
     private visible = true;
     private start = performance.now();
+    private ratioCap: number = FIELD.pixelRatioCap;
+    private lastFrame = 0;
+    private slowFrames = 0;
     private pointer = { x: 0, y: 0, tx: 0, ty: 0 };
     private resizeObserver: ResizeObserver;
     private intersectionObserver: IntersectionObserver;
@@ -244,6 +252,7 @@ export class HeroField {
         const shouldRun = Boolean(this.points) && this.visible && !document.hidden && this.material.uniforms.uExit.value < 0.999;
         if (shouldRun === this.running) return;
         this.running = shouldRun;
+        this.lastFrame = 0;
         if (shouldRun) this.frame = requestAnimationFrame(this.tick);
         else cancelAnimationFrame(this.frame);
     };
@@ -251,7 +260,8 @@ export class HeroField {
     private resize() {
         const { clientWidth: w, clientHeight: h } = this.canvas;
         if (!w || !h) return;
-        const ratio = Math.min(window.devicePixelRatio || 1, FIELD.pixelRatioCap);
+        const cap = isLite() ? Math.min(this.ratioCap, FIELD.litePixelRatio) : this.ratioCap;
+        const ratio = Math.min(window.devicePixelRatio || 1, cap);
         this.renderer.setPixelRatio(ratio);
         this.renderer.setSize(w, h, false);
         this.material.uniforms.uPixelRatio.value = ratio * (h / 900);
@@ -268,9 +278,21 @@ export class HeroField {
         this.points.position.y = this.camera.aspect > 1.2 ? 0.45 : 0.9;
     }
 
+    private adapt(now: number) {
+        const dt = this.lastFrame ? now - this.lastFrame : 0;
+        this.lastFrame = now;
+        this.slowFrames = dt > FIELD.slowFrameMs ? this.slowFrames + 1 : Math.max(0, this.slowFrames - 1);
+        if (this.slowFrames < FIELD.slowFramesBeforeDownscale || this.ratioCap <= FIELD.minPixelRatio) return;
+        this.slowFrames = 0;
+        this.ratioCap = Math.max(FIELD.minPixelRatio, Math.min(this.ratioCap, window.devicePixelRatio || 1) - 0.5);
+        this.resize();
+    }
+
     private tick = () => {
         if (!this.running) return;
-        const t = (performance.now() - this.start) / 1000;
+        const now = performance.now();
+        this.adapt(now);
+        const t = (now - this.start) / 1000;
         this.material.uniforms.uTime.value = t;
         const p = this.pointer;
         p.x += (p.tx - p.x) * FIELD.pointerEase;

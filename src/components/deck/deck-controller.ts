@@ -66,6 +66,7 @@ export class DeckController {
             box.el.removeAttribute("data-in");
             box.inner?.style.removeProperty("transform");
             box.inner?.style.removeProperty("transform-origin");
+            box.inner?.style.removeProperty("will-change");
             box.veil?.style.removeProperty("opacity");
         }
         this.slideListeners.clear();
@@ -191,6 +192,7 @@ export class DeckController {
         if (box.inner) {
             box.inner.style.transformOrigin = `50% ${-box.stickyTop + vh / 2}px`;
             box.inner.style.transform = t > 0 ? `scale(${1 - (1 - MOTION.cover.scale) * t})` : "";
+            box.inner.style.willChange = t > 0 && t < 1 ? "transform" : "";
         }
         if (box.veil) box.veil.style.opacity = (MOTION.cover.dim * t).toFixed(3);
         const radius = MOTION.cover.radiusPx * (1 - t);

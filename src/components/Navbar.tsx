@@ -78,7 +78,7 @@ export function Navbar() {
     }, [mobileOpen]);
 
     return (
-        <nav ref={navRef} aria-label={t.mainNavigation} className="fixed inset-x-0 top-0 z-50 border-b border-foreground/[0.06] bg-background/55 backdrop-blur-xl backdrop-saturate-150">
+        <nav ref={navRef} aria-label={t.mainNavigation} className="site-nav fixed inset-x-0 top-0 z-50 border-b border-foreground/[0.06] bg-background/55 backdrop-blur-xl backdrop-saturate-150">
             <div className="wrap flex h-16 items-center justify-between">
                 {/* Logo */}
                 <Logo href={links.home} label={`Dodera Software - ${breadcrumb.home}`} />

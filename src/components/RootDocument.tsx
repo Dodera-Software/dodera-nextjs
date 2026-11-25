@@ -6,7 +6,7 @@ import { PrismicPreviewBar } from "@/components/PrismicPreviewBar";
 import { HTML_LANG, type Locale } from "@/i18n/config";
 import { LocaleProvider } from "@/i18n/LocaleProvider";
 import { ANALYTICS } from "@/config/analytics";
-import { MOTION_QUERY, MotionMode, Theme, WEBGL_CLASS } from "@/config/theme";
+import { LITE_CLASS, MOTION_QUERY, MotionMode, PERF, Theme, WEBGL_CLASS } from "@/config/theme";
 
 const inter = Inter({
     subsets: ["latin"],
@@ -33,7 +33,7 @@ const NOTIFICATIONS_LABEL: Record<Locale, string> = {
     ro: "Notificări",
 };
 
-const motionScript = `(function(){var d=document.documentElement,c=navigator.connection;if(!matchMedia(${JSON.stringify(MOTION_QUERY)}).matches||(c&&c.saveData))return;d.classList.add(${JSON.stringify(MotionMode.Full)});try{var g=document.createElement("canvas").getContext("webgl2");if(g){d.classList.add(${JSON.stringify(WEBGL_CLASS)});var x=g.getExtension("WEBGL_lose_context");x&&x.loseContext()}}catch(e){}})()`;
+const motionScript = `(function(){var d=document.documentElement,c=navigator.connection,n=navigator;if((n.hardwareConcurrency||8)<=${PERF.liteCores}||(n.deviceMemory||8)<=${PERF.liteMemoryGb})d.classList.add(${JSON.stringify(LITE_CLASS)});if(!matchMedia(${JSON.stringify(MOTION_QUERY)}).matches||(c&&c.saveData))return;d.classList.add(${JSON.stringify(MotionMode.Full)});try{var g=document.createElement("canvas").getContext("webgl2");if(g){d.classList.add(${JSON.stringify(WEBGL_CLASS)});var x=g.getExtension("WEBGL_lose_context");x&&x.loseContext()}}catch(e){}})()`;
 
 export function RootDocument({
     locale,

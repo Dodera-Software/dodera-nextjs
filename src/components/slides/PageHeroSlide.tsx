@@ -36,7 +36,7 @@ export function PageHeroSlide({ id, label, title, highlight, description, breadc
                             {highlight && (
                                 <>
                                     {" "}
-                                    <span className="bg-gradient-to-r from-brand-bright to-[hsl(20_100%_70%)] bg-clip-text pr-[0.04em] text-transparent">{highlight}</span>
+                                    <span className="text-gradient-brand">{highlight}</span>
                                 </>
                             )}
                         </h1>

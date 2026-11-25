@@ -29,7 +29,7 @@ export function StudioSlide() {
                 <div className="flex flex-col">
                     <SlideHeading id="studio-heading" eyebrow={t.label} title={t.titleA} continuation={t.titleB} lede={t.text} size="md" />
                     <div className="reveal mt-10 flex items-end gap-6">
-                        <p className="display bg-gradient-to-br from-brand-bright to-brand-deep bg-clip-text text-[clamp(4rem,8vw,7rem)] leading-[0.8] text-transparent">{COMPANY.foundedYear}</p>
+                        <p className="display text-gradient-ember text-[clamp(4rem,8vw,7rem)] leading-[0.8]">{COMPANY.foundedYear}</p>
                         <p className="pb-2 font-mono text-xs uppercase tracking-[0.1em] text-muted-foreground">
                             {t.foundedLabel}
                             <br />

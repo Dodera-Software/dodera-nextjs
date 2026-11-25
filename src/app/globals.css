@@ -159,6 +159,30 @@
     text-wrap: pretty;
   }
 
+  .text-gradient {
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+    padding-inline-end: 0.08em;
+  }
+
+  .text-gradient-brand {
+    @apply text-gradient;
+    background-image: linear-gradient(90deg, hsl(var(--brand-bright)), hsl(20 100% 70%));
+  }
+
+  .text-gradient-metal {
+    @apply text-gradient;
+    background-image: linear-gradient(180deg, hsl(var(--foreground)), hsl(var(--foreground) / 0.42));
+  }
+
+  .text-gradient-ember {
+    @apply text-gradient;
+    background-image: linear-gradient(135deg, hsl(var(--brand-bright)), hsl(var(--brand-deep)));
+  }
+
   .glass {
     background: hsl(var(--card) / 0.55);
     border: 1px solid hsl(var(--foreground) / 0.09);
@@ -174,8 +198,7 @@
     position: absolute;
     inset: 0;
     pointer-events: none;
-    opacity: 0.06;
-    mix-blend-mode: overlay;
+    opacity: 0.035;
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
   }
 }
@@ -209,9 +232,6 @@
     overflow: clip;
   }
 
-  html.motion .deck-slide__inner {
-    will-change: transform, filter;
-  }
 
   .deck-slide__veil {
     position: absolute;
@@ -379,6 +399,52 @@ html.webgl .hero-poster {
 
   html.motion .products-visual {
     transform-origin: 50% 50%;
-    will-change: transform, opacity, filter;
+    will-change: transform, opacity;
+  }
+}
+
+html.lite .glass,
+html.lite .site-nav {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+html.lite .glass {
+  background: hsl(var(--card) / 0.96);
+}
+
+html.lite .site-nav {
+  background: hsl(var(--background) / 0.96);
+}
+
+html.lite .grain {
+  display: none;
+}
+
+html.lite .deck-slide + .deck-slide {
+  box-shadow: 0 -1px 0 hsl(var(--foreground) / 0.08);
+}
+
+html.lite.motion .deck-slide .reveal {
+  filter: none;
+  transition-property: opacity, transform;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    html.lite:not(.motion) .reveal {
+      animation-name: reveal-lite;
+    }
+  }
+}
+
+@keyframes reveal-lite {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }

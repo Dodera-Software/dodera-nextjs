@@ -63,7 +63,6 @@ export const en: Dictionary = {
         success: "Subscribed!",
     },
     hero: {
-        eyebrow: "Software studio · Romania · Since 2023",
         titleA: "Software that",
         titleB: "means business.",
         text: "We design, build and run custom software, AI agents and websites for startups and modern companies. We ship products of our own, too, so we know what it takes to put one in front of real people.",

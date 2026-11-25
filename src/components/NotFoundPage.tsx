@@ -26,7 +26,7 @@ export function NotFoundPage({ alternate }: { alternate?: NotFoundAlternate }) {
                 </div>
                 <div className="grain" aria-hidden="true" />
                 <div className="wrap relative py-32">
-                    <p aria-hidden="true" className="display bg-gradient-to-r from-brand-bright to-[hsl(20_100%_70%)] bg-clip-text text-[clamp(7rem,22vw,18rem)] leading-[0.8] text-transparent">
+                    <p aria-hidden="true" className="display text-gradient-brand text-[clamp(7rem,22vw,18rem)] leading-[0.8]">
                         404
                     </p>
                     <h1 className="display-md mt-8">{t.title}</h1>
