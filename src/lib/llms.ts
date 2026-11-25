@@ -1,18 +1,39 @@
 import { PRODUCTS } from "@/config/products";
+import { blogPostPath } from "@/config/blog";
+import { SITE } from "@/config/seo";
 import { SERVICE_PAGES } from "@/config/services";
 import { SERVICE_PAGES_RO } from "@/config/services.ro";
 import { CASE_STUDY_PATHS, PRODUCT_PATHS, SERVICE_PATHS } from "@/i18n/paths";
 import { getDictionary } from "@/i18n/dictionaries";
 import { absoluteUrl } from "@/i18n/routes";
 import type { Locale } from "@/i18n/config";
-import type { ServicePageData } from "@/types";
+import type { BlogPost, ServicePageData } from "@/types";
+
+export type LlmsPost = BlogPost & { markdown: string };
+
+export const LLMS_LATEST_POSTS = 10;
 
 const SERVICE_DATA: Record<Locale, Record<string, ServicePageData>> = { en: SERVICE_PAGES, ro: SERVICE_PAGES_RO };
 
-const LABELS: Record<Locale, { products: string; services: string; caseStudies: string; faq: string; problem: string; solution: string; result: string; pricing: string }> = {
-    en: { products: "Our products", services: "Services", caseStudies: "Case studies", faq: "Questions", problem: "Problem", solution: "What we built", result: "Result", pricing: "Pricing" },
-    ro: { products: "Produsele noastre", services: "Servicii", caseStudies: "Studii de caz", faq: "Întrebări", problem: "Problema", solution: "Ce am construit", result: "Rezultat", pricing: "Prețuri" },
+const LABELS: Record<Locale, { products: string; services: string; caseStudies: string; faq: string; problem: string; solution: string; result: string; pricing: string; blog: string; latest: string; sources: string }> = {
+    en: { products: "Our products", services: "Services", caseStudies: "Case studies", faq: "Questions", problem: "Problem", solution: "What we built", result: "Result", pricing: "Pricing", blog: "Blog", latest: "Latest articles", sources: "Sources" },
+    ro: { products: "Produsele noastre", services: "Servicii", caseStudies: "Studii de caz", faq: "Întrebări", problem: "Problema", solution: "Ce am construit", result: "Rezultat", pricing: "Prețuri", blog: "Blog", latest: "Articole recente", sources: "Surse" },
 };
+
+const postUrl = (post: BlogPost) => absoluteUrl(blogPostPath(post.slug, post.locale));
+const postDate = (post: BlogPost) => post.date.slice(0, 10);
+const absoluteLinks = (markdown: string) => markdown.replace(/\]\(\//g, `](${SITE.url}/`);
+
+export function latestPostsMarkdown(posts: LlmsPost[], locale: Locale): string {
+    return [`## ${LABELS[locale].latest}`, ...posts.slice(0, LLMS_LATEST_POSTS).map((post) => `- [${post.title}](${postUrl(post)}) (${postDate(post)}): ${post.excerpt}`)].join("\n");
+}
+
+function postMarkdown(post: LlmsPost, locale: Locale): string {
+    const sources = post.sources.length ? `#### ${LABELS[locale].sources}\n\n${post.sources.map((s) => `- [${s.title}](${s.url})`).join("\n")}` : "";
+    return [`### ${post.title}`, `URL: ${postUrl(post)}`, `${postDate(post)} · ${post.category} · ${post.author.name}`, post.excerpt, absoluteLinks(post.markdown).replace(/^## /gm, "#### ").replace(/^### /gm, "##### "), sources]
+        .filter(Boolean)
+        .join("\n\n");
+}
 
 export const MARKDOWN_HEADERS = {
     "Content-Type": "text/markdown; charset=utf-8",
@@ -65,7 +86,7 @@ export function caseStudiesMarkdown(locale: Locale): string {
         .join("\n\n");
 }
 
-export function fullMarkdown(locale: Locale): string {
+export function fullMarkdown(locale: Locale, posts: LlmsPost[]): string {
     const t = LABELS[locale];
     const dict = getDictionary(locale);
     return [
@@ -77,5 +98,6 @@ export function fullMarkdown(locale: Locale): string {
         servicesMarkdown(locale),
         `## ${t.caseStudies}`,
         caseStudiesMarkdown(locale),
+        ...(posts.length ? [`## ${t.blog}`, posts.map((post) => postMarkdown(post, locale)).join("\n\n---\n\n")] : []),
     ].join("\n\n");
 }

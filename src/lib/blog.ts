@@ -74,3 +74,8 @@ export async function loadBlogPost(slug: string, locale: Locale): Promise<BlogPo
     if (post) return post;
     return (await verifyAdminSession()) ? getDraftPost(slug, locale) : null;
 }
+
+export async function getIndexedPostSources(locale: Locale): Promise<(BlogPost & { markdown: string })[]> {
+    const rows = await loadPublished();
+    return rows.filter((row) => row.locale === locale && row.indexed).map((row) => ({ ...toPost(row, rows, ""), markdown: row.body }));
+}

@@ -7,9 +7,9 @@ import { PRODUCTS } from "@/config/products";
 import { getDictionary } from "@/i18n/dictionaries";
 import { ROUTES, absoluteUrl, type PageId, type StaticPageId } from "@/i18n/routes";
 import type { Locale } from "@/i18n/config";
-import { MARKDOWN_HEADERS, productsMarkdown } from "@/lib/llms";
-
-export const dynamic = "force-static";
+import { connection } from "next/server";
+import { getIndexedPostSources } from "@/lib/blog";
+import { MARKDOWN_HEADERS, latestPostsMarkdown, productsMarkdown } from "@/lib/llms";
 
 const PAGE_TITLES: Record<StaticPageId, Record<Locale, string>> = {
     home: { en: "Home", ro: "Acasă" },
@@ -45,7 +45,9 @@ function pageList(locale: Locale): string {
         .join("\n");
 }
 
-export function GET() {
+export async function GET() {
+    await connection();
+    const [postsEn, postsRo] = await Promise.all([getIndexedPostSources("en"), getIndexedPostSources("ro")]);
     const p = PRICE_FACTS;
     const hasRomanian = Object.values(ROUTES).some((r) => r.paths.ro);
 
@@ -97,6 +99,7 @@ ${productsMarkdown("en")}
 ## Key pages (English)
 
 ${pageList("en")}
+${postsEn.length ? `\n${latestPostsMarkdown(postsEn, "en")}\n` : ""}
 ${hasRomanian ? `
 ## Pe scurt, în română
 
@@ -109,6 +112,7 @@ ${productsMarkdown("ro")}
 ## Pagini cheie (Română)
 
 ${pageList("ro")}
+${postsRo.length ? `\n${latestPostsMarkdown(postsRo, "ro")}\n` : ""}
 ` : ""}`;
 
     return new Response(body, { headers: MARKDOWN_HEADERS });
