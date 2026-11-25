@@ -7,7 +7,7 @@ const eslintConfig = defineConfig([
   ...nextTs,
   {
     files: ["src/components/RootDocument.tsx"],
-    rules: { "@next/next/no-before-interactive-script-outside-document": "off" },
+    rules: { "@next/next/no-head-element": "off" },
   },
   // Override default ignores of eslint-config-next.
   globalIgnores([

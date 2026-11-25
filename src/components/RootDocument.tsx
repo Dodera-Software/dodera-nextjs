@@ -46,6 +46,7 @@ export function RootDocument({
 }>) {
     return (
         <html lang={HTML_LANG[locale]} data-theme={theme} suppressHydrationWarning>
+            <head>{theme === Theme.Dark && <script dangerouslySetInnerHTML={{ __html: motionScript }} />}</head>
             <body className={`${inter.variable} ${monaSans.variable} ${jetbrainsMono.variable} font-sans antialiased bg-background text-foreground`}>
                 <link rel="describedby" type="text/markdown" href="/llms.txt" title="llms.txt" />
                 <link rel="describedby" type="text/markdown" href="/llms-full.txt" title="llms-full.txt" />
@@ -63,11 +64,6 @@ export function RootDocument({
                         }}
                     />
                 </TooltipProvider>
-                {theme === Theme.Dark && (
-                    <Script id="motion-mode" strategy="beforeInteractive">
-                        {motionScript}
-                    </Script>
-                )}
                 <PrismicPreviewBar />
                 <Script
                     src={ANALYTICS.src}
