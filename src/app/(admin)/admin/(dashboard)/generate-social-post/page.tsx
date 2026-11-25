@@ -1,764 +1,256 @@
-﻿"use client";
+"use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
-import {
-    Loader2,
-    Search,
-    ExternalLink,
-    Copy,
-    Check,
-    RefreshCw,
-    Sparkles,
-    AlertTriangle,
-    ChevronRight,
-    CalendarDays,
-    Tag,
-    Send,
-    BookOpen,
-    Plus,
-    Trash2,
-    ChevronDown,
-    ChevronUp,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import Image from "next/image";
+import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { AlertTriangle, CalendarDays, Clock, ExternalLink, Loader2, RefreshCw, Send, Sparkles, Tag } from "lucide-react";
+import { AdminPage } from "@/components/admin/AdminPage";
+import { AdminPanel } from "@/components/admin/AdminPanel";
+import { BlogPostCommand } from "@/components/admin/BlogPostCommand";
+import { EmptyState } from "@/components/admin/EmptyState";
+import { StyleExamples } from "@/components/admin/social/StyleExamples";
+import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { PLATFORMS, getPlatformShareUrl, type SocialPlatform } from "./platforms";
-import type { SocialBlogPost } from "@/types/admin";
-import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { Button } from "@/components/ui/button";
+import { CopyButton } from "@/components/ui/copy-button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SOCIAL_PLATFORMS, SocialPlatform } from "@/config/social-post";
+import { StatusTone } from "@/config/ui";
+import { useAdminMutation } from "@/hooks/use-admin";
+import { adminCommon } from "@/i18n/admin/common";
+import { socialCopy as copy } from "@/i18n/admin/social";
+import { blogPostsQuery } from "@/lib/admin-queries";
+import { adminFetch } from "@/lib/admin-api";
+import { formatDateShort } from "@/lib/format";
+import type { AdminBlogPost } from "@/types/admin";
 
-/* ── Types ─────────────────────────────────────────────────── */
-
-export interface GeneratedItem {
+interface GenerateRequest {
+    post: AdminBlogPost;
     platform: SocialPlatform;
-    post: string;
-    loading: boolean;
-    error?: string;
 }
 
-export interface ExampleItem {
-    id: number;
-    content: string;
+const FEATURED_IMAGE = { width: 1200, height: 630 };
+
+function resultKey(slug: string, platform: SocialPlatform): string {
+    return `${slug}:${platform}`;
 }
 
-/* ── Component ──────────────────────────────────────────────── */
+function ArticleSummary({ post }: { post: AdminBlogPost }) {
+    return (
+        <AdminPanel
+            title={post.title}
+            description={post.excerpt || undefined}
+            actions={
+                <Button asChild variant="ghost" size="icon" className="size-8 rounded-full text-muted-foreground">
+                    <a href={post.url} target="_blank" rel="noopener noreferrer" aria-label={copy.article.open} title={copy.article.open}>
+                        <ExternalLink />
+                    </a>
+                </Button>
+            }
+        >
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
+                {post.category && <Badge tone={StatusTone.Neutral}>{post.category}</Badge>}
+                {post.read_time && (
+                    <span className="inline-flex items-center gap-1.5">
+                        <Clock className="size-3.5" />
+                        {post.read_time}
+                    </span>
+                )}
+                {post.date && (
+                    <span className="inline-flex items-center gap-1.5">
+                        <CalendarDays className="size-3.5" />
+                        {formatDateShort(post.date)}
+                    </span>
+                )}
+                {post.tags.length > 0 && (
+                    <span className="inline-flex flex-wrap items-center gap-1.5">
+                        <Tag className="size-3.5" />
+                        {post.tags.map((tag) => (
+                            <span key={tag} className="rounded-full bg-foreground/[0.05] px-2 py-0.5">
+                                {tag}
+                            </span>
+                        ))}
+                    </span>
+                )}
+            </div>
+        </AdminPanel>
+    );
+}
 
 export default function GenerateSocialPostPage() {
-    /* posts */
-    const [posts, setPosts] = useState<SocialBlogPost[]>([]);
-    const [postsLoading, setPostsLoading] = useState(true);
-    const [postsError, setPostsError] = useState<string | null>(null);
-    const [search, setSearch] = useState("");
+    const [selected, setSelected] = useState<AdminBlogPost | null>(null);
+    const [platform, setPlatform] = useState<SocialPlatform | null>(null);
+    const [results, setResults] = useState<Record<string, string>>({});
 
-    /* selection */
-    const [selected, setSelected] = useState<SocialBlogPost | null>(null);
+    const posts = useQuery(blogPostsQuery);
 
-    /* generation */
-    const [activePlatform, setActivePlatform] = useState<SocialPlatform | null>(null);
-    const [generated, setGenerated] = useState<Partial<Record<SocialPlatform, GeneratedItem>>>({});
-    const [generating, setGenerating] = useState(false);
-
-    /* copy / share state */
-    const [copied, setCopied] = useState(false);
-    const [shared, setShared] = useState(false);
-    const outputRef = useRef<HTMLDivElement>(null);
-
-    /* examples */
-    const [examples, setExamples] = useState<Partial<Record<SocialPlatform, ExampleItem[]>>>({});
-    const [examplesLoading, setExamplesLoading] = useState<Partial<Record<SocialPlatform, boolean>>>({});
-    const [examplesOpen, setExamplesOpen] = useState(false);
-    const [newExampleText, setNewExampleText] = useState("");
-    const [addingExample, setAddingExample] = useState(false);
-    const [deletingExampleId, setDeletingExampleId] = useState<number | null>(null);
-    const [expandedExampleIds, setExpandedExampleIds] = useState<Set<number>>(new Set());
-
-    /* ── Fetch posts ─────────────────────────────────────────── */
-    useEffect(() => {
-        setPostsLoading(true);
-        fetch("/api/admin/blog-posts")
-            .then((r) => r.json())
-            .then((data) => {
-                if (data.status === "success") {
-                    setPosts(data.posts);
-                } else {
-                    setPostsError(data.message ?? "Failed to load posts.");
-                }
-            })
-            .catch(() => setPostsError("Network error — could not load blog posts."))
-            .finally(() => setPostsLoading(false));
-    }, []);
-
-    /* ── Fetch examples for a platform ──────────────────────── */
-    const fetchExamples = useCallback(async (platform: SocialPlatform) => {
-        if (examples[platform] !== undefined) return; // already loaded
-        setExamplesLoading((prev) => ({ ...prev, [platform]: true }));
-        try {
-            const res = await fetch(`/api/admin/social-post-examples?platform=${platform}`);
-            const data = await res.json();
-            if (data.status === "success") {
-                setExamples((prev) => ({ ...prev, [platform]: data.examples }));
-            }
-        } finally {
-            setExamplesLoading((prev) => ({ ...prev, [platform]: false }));
-        }
-    }, [examples]);
-
-    /* ── Add example ─────────────────────────────────────────── */
-    const handleAddExample = useCallback(async () => {
-        if (!activePlatform || !newExampleText.trim() || addingExample) return;
-        setAddingExample(true);
-        try {
-            const res = await fetch("/api/admin/social-post-examples", {
+    const generate = useAdminMutation({
+        mutationFn: ({ post, platform }: GenerateRequest) =>
+            adminFetch<{ post: string }>("/api/admin/social-post", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ platform: activePlatform, content: newExampleText.trim() }),
-            });
-            const data = await res.json();
-            if (data.status === "success") {
-                setExamples((prev) => ({
-                    ...prev,
-                    [activePlatform]: [...(prev[activePlatform] ?? []), data.example],
-                }));
-                setNewExampleText("");
-            }
-        } finally {
-            setAddingExample(false);
-        }
-    }, [activePlatform, newExampleText, addingExample]);
-
-    /* ── Delete example ──────────────────────────────────────── */
-    const handleDeleteExample = useCallback(async (platform: SocialPlatform, id: number) => {
-        setDeletingExampleId(id);
-        try {
-            await fetch(`/api/admin/social-post-examples/${id}`, { method: "DELETE" });
-            setExamples((prev) => ({
-                ...prev,
-                [platform]: (prev[platform] ?? []).filter((e) => e.id !== id),
-            }));
-        } finally {
-            setDeletingExampleId(null);
-        }
-    }, []);
-
-    /* ── Filter posts by search ──────────────────────────────── */
-    const filtered = posts.filter((p) => {
-        if (!search.trim()) return true;
-        const q = search.toLowerCase();
-        return (
-            p.title.toLowerCase().includes(q) ||
-            p.excerpt.toLowerCase().includes(q) ||
-            p.category.toLowerCase().includes(q) ||
-            p.tags.some((t) => t.toLowerCase().includes(q))
-        );
+                json: {
+                    platform,
+                    blog: {
+                        title: post.title,
+                        excerpt: post.excerpt,
+                        category: post.category,
+                        tags: post.tags,
+                        url: post.url,
+                        body_plain: post.body_plain,
+                    },
+                },
+            }),
+        silentError: true,
+        onSuccess: (data, { post, platform }) => setResults((prev) => ({ ...prev, [resultKey(post.slug, platform)]: data.post })),
     });
 
-    /* ── Generate ────────────────────────────────────────────── */
-    const generate = useCallback(
-        async (platform: SocialPlatform) => {
-            if (!selected || generating) return;
-            setActivePlatform(platform);
-            setGenerating(true);
+    function run(next: SocialPlatform) {
+        if (!selected) return;
+        generate.mutate({ post: selected, platform: next });
+    }
 
-            // Set loading state for this platform
-            setGenerated((prev) => ({
-                ...prev,
-                [platform]: { platform, post: "", loading: true },
-            }));
+    function choosePlatform(next: SocialPlatform) {
+        setPlatform(next);
+        if (selected && !results[resultKey(selected.slug, next)]) run(next);
+    }
 
-            // Scroll to output
-            setTimeout(() => outputRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 100);
+    async function share(text: string) {
+        if (!selected || !platform) return;
+        const config = SOCIAL_PLATFORMS.find((p) => p.id === platform);
+        if (!config) return;
+        await navigator.clipboard.writeText(text).catch(() => undefined);
+        toast.success(copy.output.shared(copy.platform[platform].label));
+        window.open(config.shareUrl(selected.url), "_blank", "noopener,noreferrer");
+    }
 
-            try {
-                const res = await fetch("/api/admin/social-post", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        platform,
-                        blog: {
-                            title: selected.title,
-                            excerpt: selected.excerpt,
-                            category: selected.category,
-                            tags: selected.tags,
-                            url: selected.url,
-                            body_plain: selected.body_plain,
-                        },
-                    }),
-                });
-
-                const data = await res.json();
-
-                if (!res.ok || data.status !== "success") {
-                    setGenerated((prev) => ({
-                        ...prev,
-                        [platform]: {
-                            platform,
-                            post: "",
-                            loading: false,
-                            error: data.message ?? "Generation failed.",
-                        },
-                    }));
-                    return;
-                }
-
-                setGenerated((prev) => ({
-                    ...prev,
-                    [platform]: { platform, post: data.post, loading: false },
-                }));
-            } catch {
-                setGenerated((prev) => ({
-                    ...prev,
-                    [platform]: {
-                        platform,
-                        post: "",
-                        loading: false,
-                        error: "Request failed. Check the server logs.",
-                    },
-                }));
-            } finally {
-                setGenerating(false);
-            }
-        },
-        [selected, generating],
-    );
-
-    /* ── Copy ────────────────────────────────────────────────── */
-    const handleCopy = useCallback(async (text: string) => {
-        try {
-            await navigator.clipboard.writeText(text);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-        } catch {
-            // fallback
-        }
-    }, []);
-
-    /* ── Open in platform (copy text + redirect) ─────────────── */
-    const handleOpenInPlatform = useCallback(async (platform: SocialPlatform, text: string, articleUrl: string) => {
-        try {
-            await navigator.clipboard.writeText(text);
-        } catch { /* ignore */ }
-        setShared(true);
-        setTimeout(() => setShared(false), 2500);
-        window.open(getPlatformShareUrl(platform, articleUrl), "_blank", "noopener,noreferrer");
-    }, []);
-
-    /* ── Select a post ───────────────────────────────────────── */
-    const handleSelect = (post: SocialBlogPost) => {
-        setSelected(post);
-        setGenerated({});
-        setActivePlatform(null);
-        setShared(false);
-        setCopied(false);
-    };
-
-    /* ── Regenerate helper ───────────────────────────────────── */
-    const generateSocialPostRegenerate = useCallback((platform: SocialPlatform) => {
-        setShared(false);
-        setCopied(false);
-        setGenerated((prev) => {
-            const next = { ...prev };
-            delete next[platform];
-            return next;
-        });
-        generate(platform);
-    }, [generate]);
-
-    /* ── Active generated content ────────────────────────────── */
-    const activeItem = activePlatform ? generated[activePlatform] : null;
-
-    /* ── Format date ─────────────────────────────────────────── */
-    const fmt = (d: string | null) =>
-        d
-            ? new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-            : null;
+    const currentKey = selected && platform ? resultKey(selected.slug, platform) : null;
+    const forCurrent = (request: GenerateRequest | undefined) =>
+        !!request && resultKey(request.post.slug, request.platform) === currentKey;
+    const pending = generate.isPending && forCurrent(generate.variables);
+    const failed = generate.isError && forCurrent(generate.variables);
+    const text = currentKey ? results[currentKey] : undefined;
+    const label = platform ? copy.platform[platform].label : "";
 
     return (
-        <div className="flex flex-col gap-6">
-            <AdminPageHeader
-                title="Generate Social Post"
-                subtitle="Select a published blog post and generate platform-ready social content with AI"
-            />
+        <AdminPage eyebrow={copy.eyebrow} title={copy.title} description={copy.description}>
+            <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,24rem)_minmax(0,1fr)]">
+                <AdminPanel title={copy.posts.title} flush className="lg:sticky lg:top-6">
+                    <BlogPostCommand
+                        posts={posts.data}
+                        loading={posts.isPending}
+                        error={posts.error}
+                        selected={selected?.slug}
+                        onSelect={(post) => {
+                            setSelected(post);
+                            setPlatform(null);
+                        }}
+                        placeholder={copy.posts.search}
+                        empty={copy.posts.empty}
+                        count={copy.posts.count}
+                        listClassName="max-h-[28rem]"
+                    />
+                </AdminPanel>
 
-            <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-6 items-start">
-
-                {/* ── Left: Post selector ───────────────────────────────── */}
-                <div className="rounded-xl border border-border bg-card overflow-hidden flex flex-col">
-                    <div className="px-4 pt-4 pb-3 border-b border-border">
-                        <p className="text-sm font-semibold mb-2">Published Posts</p>
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
-                            <Input
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                placeholder="Search by title, category, tag…"
-                                className="h-8 pl-8 text-xs"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="overflow-y-auto max-h-[480px]">
-                        {postsLoading && (
-                            <div className="flex items-center justify-center gap-2 py-10 text-muted-foreground">
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                                <span className="text-sm">Loading posts…</span>
-                            </div>
-                        )}
-
-                        {postsError && (
-                            <div className="flex items-start gap-2 m-4 p-3 rounded-lg bg-destructive/10 border border-destructive/20">
-                                <AlertTriangle className="w-4 h-4 text-destructive flex-shrink-0 mt-0.5" />
-                                <p className="text-xs text-destructive">{postsError}</p>
-                            </div>
-                        )}
-
-                        {!postsLoading && !postsError && filtered.length === 0 && (
-                            <p className="text-center text-sm text-muted-foreground py-10">
-                                {search ? "No posts match your search." : "No published posts found."}
-                            </p>
-                        )}
-
-                        {!postsLoading && !postsError && filtered.map((post) => {
-                            const isSelected = selected?.slug === post.slug;
-                            return (
-                                <button
-                                    key={post.slug}
-                                    onClick={() => handleSelect(post)}
-                                    className={`w-full text-left px-4 py-3 border-b border-border last:border-0 transition-colors flex items-start gap-3 group
-                                        ${isSelected
-                                            ? "bg-primary/8 border-l-2 border-l-primary"
-                                            : "hover:bg-muted/40 border-l-2 border-l-transparent"
-                                        }`}
-                                >
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2 mb-0.5">
-                                            {post.category && (
-                                                <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 font-normal shrink-0">
-                                                    {post.category}
-                                                </Badge>
-                                            )}
-                                            {post.date && (
-                                                <span className="text-[10px] text-muted-foreground shrink-0">{fmt(post.date)}</span>
-                                            )}
-                                        </div>
-                                        <p className={`text-sm font-medium leading-snug truncate ${isSelected ? "text-primary" : ""}`}>
-                                            {post.title}
-                                        </p>
-                                        {post.excerpt && (
-                                            <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2 leading-relaxed">
-                                                {post.excerpt}
-                                            </p>
-                                        )}
-                                    </div>
-                                    <ChevronRight className={`w-3.5 h-3.5 flex-shrink-0 mt-1 transition-colors ${isSelected ? "text-primary" : "text-muted-foreground/40 group-hover:text-muted-foreground"}`} />
-                                </button>
-                            );
-                        })}
-                    </div>
-
-                    {!postsLoading && posts.length > 0 && (
-                        <div className="px-4 py-2 border-t border-border">
-                            <p className="text-[10px] text-muted-foreground">
-                                {filtered.length} of {posts.length} post{posts.length !== 1 ? "s" : ""}
-                            </p>
-                        </div>
-                    )}
-                </div>
-
-                {/* ── Right: Generation panel ───────────────────────────── */}
-                <div className="flex flex-col gap-4">
-
-                    {/* No post selected — empty state */}
-                    {!selected && (
-                        <div className="rounded-xl border border-border bg-card flex flex-col items-center justify-center py-16 px-6 text-center gap-4">
-                            <div className="w-14 h-14 rounded-2xl bg-primary/10 ring-1 ring-primary/20 flex items-center justify-center">
-                                <Sparkles className="w-6 h-6 text-primary opacity-80" />
-                            </div>
-                            <div>
-                                <p className="text-sm font-semibold">Select a blog post</p>
-                                <p className="text-xs text-muted-foreground mt-1 max-w-xs">
-                                    Pick any published article from the list and instantly generate LinkedIn, Facebook, or Instagram content.
-                                </p>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Post selected */}
-                    {selected && (
+                <div className="min-w-0 space-y-6">
+                    {!selected ? (
+                        <AdminPanel>
+                            <EmptyState icon={Sparkles} title={copy.pick.title} description={copy.pick.description} />
+                        </AdminPanel>
+                    ) : (
                         <>
-                            {/* Post preview card */}
-                            <div className="rounded-xl border border-border bg-card p-4 space-y-3">
-                                <div className="flex items-start justify-between gap-3">
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex flex-wrap items-center gap-2 mb-1">
-                                            {selected.category && (
-                                                <Badge variant="secondary" className="text-xs px-2">
-                                                    {selected.category}
-                                                </Badge>
-                                            )}
-                                            {selected.read_time && (
-                                                <span className="text-xs text-muted-foreground">{selected.read_time}</span>
-                                            )}
-                                            {selected.date && (
-                                                <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                                                    <CalendarDays className="w-3 h-3" />
-                                                    {fmt(selected.date)}
-                                                </span>
-                                            )}
-                                        </div>
-                                        <h2 className="text-base font-semibold leading-snug">{selected.title}</h2>
-                                        {selected.excerpt && (
-                                            <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{selected.excerpt}</p>
-                                        )}
-                                        {selected.tags.length > 0 && (
-                                            <div className="flex flex-wrap items-center gap-1.5 mt-2">
-                                                <Tag className="w-3 h-3 text-muted-foreground/60" />
-                                                {selected.tags.map((t) => (
-                                                    <span key={t} className="text-xs text-muted-foreground bg-muted/50 px-1.5 py-0.5 rounded">
-                                                        {t}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
-                                    <a
-                                        href={selected.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="shrink-0 text-muted-foreground hover:text-foreground transition-colors"
-                                        title="Open article"
-                                    >
-                                        <ExternalLink className="w-4 h-4" />
-                                    </a>
-                                </div>
-                            </div>
+                            <ArticleSummary post={selected} />
 
-                            {/* Platform buttons */}
-                            <div className="rounded-xl border border-border bg-card p-4 space-y-3">
-                                <div>
-                                    <p className="text-sm font-semibold">Choose a platform</p>
-                                    <p className="text-xs text-muted-foreground mt-0.5">
-                                        Each platform has its own AI agent tuned for that audience and format
-                                    </p>
+                            <AdminPanel title={copy.platforms.title} description={copy.platforms.description} flush>
+                                <div className="space-y-5 p-6">
+                                    <Tabs value={platform ?? ""} onValueChange={(value) => choosePlatform(value as SocialPlatform)}>
+                                        <TabsList className="flex h-auto w-full flex-wrap sm:w-auto">
+                                            {SOCIAL_PLATFORMS.map(({ id, icon: Icon }) => (
+                                                <TabsTrigger key={id} value={id} disabled={generate.isPending} className="flex-1 sm:flex-none">
+                                                    {generate.isPending && generate.variables?.platform === id ? <Loader2 className="animate-spin" /> : <Icon />}
+                                                    {copy.platform[id].label}
+                                                    {results[resultKey(selected.slug, id)] && <span className="size-1.5 rounded-full bg-emerald-400" aria-label={copy.platforms.ready} />}
+                                                </TabsTrigger>
+                                            ))}
+                                        </TabsList>
+                                    </Tabs>
+                                    {platform && <p className="text-sm text-muted-foreground">{copy.platform[platform].description}</p>}
                                 </div>
 
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                    {PLATFORMS.map((p) => {
-                                        const isActive = activePlatform === p.id;
-                                        const isLoading = generating && activePlatform === p.id;
-                                        const hasResult = !!generated[p.id]?.post;
-
-                                        return (
-                                            <button
-                                                key={p.id}
-                                                onClick={() => {
-                                                    setActivePlatform(p.id);
-                                                    setShared(false);
-                                                    setCopied(false);
-                                                    fetchExamples(p.id);
-                                                    if (!generated[p.id]?.post) {
-                                                        generate(p.id);
-                                                    }
-                                                }}
-                                                disabled={generating}
-                                                className={`relative flex items-center gap-3 rounded-lg border px-4 py-3 text-sm font-medium transition-all text-left
-                                                    ${isActive ? p.activeColor : p.color}
-                                                    disabled:opacity-50 disabled:cursor-not-allowed`}
-                                            >
-                                                <span className="w-7 h-7 rounded-full bg-current/10 ring-1 ring-current/20 flex items-center justify-center shrink-0 select-none" aria-hidden>
-                                                    {isLoading ? (
-                                                        <Loader2 className="w-3 h-3 animate-spin" />
-                                                    ) : (
-                                                        <p.Icon className="w-3.5 h-3.5" />
-                                                    )}
-                                                </span>
-                                                <div className="min-w-0">
-                                                    <div className="flex items-center gap-2">
-                                                        <span>{p.label}</span>
-                                                        {hasResult && !isLoading && (
-                                                            <span className="text-[10px] font-normal opacity-70 bg-current/10 rounded px-1 py-0 leading-4">
-                                                                ready
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                    <p className={`text-[11px] font-normal mt-0.5 leading-tight ${isActive ? "opacity-80" : "opacity-60"}`}>
-                                                        {p.description}
-                                                    </p>
+                                {platform && (
+                                    <div className="space-y-5 border-t border-foreground/[0.07] p-6">
+                                        <div className="flex flex-wrap items-center justify-between gap-3">
+                                            <h3 className="inline-flex items-center gap-2 font-display text-base font-semibold">
+                                                <Sparkles className="size-4 text-brand-bright" />
+                                                {copy.output.title(label)}
+                                            </h3>
+                                            {text && !pending && (
+                                                <div className="flex items-center gap-2">
+                                                    <Button variant="ghost" size="sm" className="rounded-full" onClick={() => run(platform)} disabled={generate.isPending}>
+                                                        <RefreshCw />
+                                                        {copy.output.regenerate}
+                                                    </Button>
+                                                    <CopyButton value={text} />
                                                 </div>
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-
-                            {/* Examples manager */}
-                            {activePlatform && (
-                                <div className="rounded-xl border border-border bg-card overflow-hidden">
-                                    <button
-                                        type="button"
-                                        onClick={() => setExamplesOpen((v) => !v)}
-                                        className="w-full flex items-center justify-between gap-3 px-4 py-3 hover:bg-muted/30 transition-colors"
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            <BookOpen className="w-3.5 h-3.5 text-muted-foreground" />
-                                            <span className="text-sm font-semibold">Style Examples</span>
-                                            {(() => {
-                                                const count = examples[activePlatform]?.length ?? 0;
-                                                return count > 0 ? (
-                                                    <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full font-medium">
-                                                        {count}
-                                                    </span>
-                                                ) : null;
-                                            })()}
+                                            )}
                                         </div>
-                                        <div className="flex items-center gap-1.5">
-                                            <span className="text-[11px] text-muted-foreground">
-                                                {examplesOpen ? "Hide" : "Manage AI style references"}
-                                            </span>
-                                            {examplesOpen
-                                                ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground" />
-                                                : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />}
-                                        </div>
-                                    </button>
 
-                                    {examplesOpen && (
-                                        <div className="border-t border-border p-4 space-y-4">
-                                            <p className="text-xs text-muted-foreground leading-relaxed">
-                                                Paste real {PLATFORMS.find(p => p.id === activePlatform)?.label} posts that performed well.
-                                                The AI will mirror their hook style, rhythm and CTA structure — it will never copy content.
+                                        {pending ? (
+                                            <p className="flex items-center justify-center gap-3 py-8 text-sm text-muted-foreground">
+                                                <Loader2 className="size-4 animate-spin text-brand-bright" />
+                                                {copy.output.generating}
                                             </p>
-
-                                            {/* Add new example */}
-                                            <div className="space-y-2">
-                                                <textarea
-                                                    value={newExampleText}
-                                                    onChange={(e) => setNewExampleText(e.target.value)}
-                                                    placeholder={`Paste a ${PLATFORMS.find(p => p.id === activePlatform)?.label} post here…`}
-                                                    rows={5}
-                                                    className="w-full text-sm px-3 py-2 rounded-lg border border-border bg-background resize-none focus:outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground"
-                                                />
-                                                <Button
-                                                    size="sm"
-                                                    className="gap-1.5"
-                                                    disabled={!newExampleText.trim() || addingExample}
-                                                    onClick={handleAddExample}
-                                                >
-                                                    {addingExample
-                                                        ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                                        : <Plus className="w-3.5 h-3.5" />}
-                                                    Add Example
-                                                </Button>
-                                            </div>
-
-                                            {/* Existing examples */}
-                                            {examplesLoading[activePlatform] ? (
-                                                <div className="flex items-center gap-2 py-4 text-muted-foreground">
-                                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                                    <span className="text-xs">Loading examples…</span>
+                                        ) : failed ? (
+                                            <Alert tone={StatusTone.Danger} icon={AlertTriangle}>
+                                                <div className="space-y-3">
+                                                    <div>
+                                                        <p className="font-medium">{copy.output.failed}</p>
+                                                        <p className="text-xs text-muted-foreground">{generate.error?.message}</p>
+                                                    </div>
+                                                    <Button variant="glass" size="sm" className="rounded-full" onClick={() => run(platform)}>
+                                                        <RefreshCw />
+                                                        {adminCommon.actions.retry}
+                                                    </Button>
                                                 </div>
-                                            ) : (
+                                            </Alert>
+                                        ) : text ? (
+                                            <>
+                                                <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">{text}</p>
+                                                {selected.image && (
+                                                    <figure className="overflow-hidden rounded-2xl border border-foreground/10">
+                                                        <Image
+                                                            src={selected.image}
+                                                            alt={selected.title}
+                                                            unoptimized
+                                                            {...FEATURED_IMAGE}
+                                                            className="h-auto w-full object-cover"
+                                                        />
+                                                        <figcaption className="flex items-center justify-between gap-3 border-t border-foreground/10 px-4 py-2.5 font-mono text-[0.68rem] uppercase tracking-[0.08em] text-muted-foreground">
+                                                            {copy.output.featuredImage}
+                                                            <a href={selected.image} target="_blank" rel="noopener noreferrer" className="text-brand-bright hover:underline">
+                                                                {copy.output.openImage}
+                                                            </a>
+                                                        </figcaption>
+                                                    </figure>
+                                                )}
                                                 <div className="space-y-2">
-                                                    {(examples[activePlatform] ?? []).length === 0 ? (
-                                                        <p className="text-xs text-muted-foreground italic py-2">
-                                                            No examples yet — add your first one above.
-                                                        </p>
-                                                    ) : (
-                                                        (examples[activePlatform] ?? []).map((ex) => {
-                                                            const isExpanded = expandedExampleIds.has(ex.id);
-                                                            return (
-                                                                <div
-                                                                    key={ex.id}
-                                                                    className="group relative rounded-lg border border-border bg-muted/20 px-3 py-2.5 pr-9"
-                                                                >
-                                                                    <pre className={`text-xs leading-relaxed whitespace-pre-wrap font-sans text-foreground/80 ${isExpanded ? "" : "line-clamp-4"}`}>
-                                                                        {ex.content}
-                                                                    </pre>
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={() =>
-                                                                            setExpandedExampleIds((prev) => {
-                                                                                const next = new Set(prev);
-                                                                                if (isExpanded) next.delete(ex.id);
-                                                                                else next.add(ex.id);
-                                                                                return next;
-                                                                            })
-                                                                        }
-                                                                        className="mt-1.5 flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
-                                                                    >
-                                                                        {isExpanded
-                                                                            ? <><ChevronUp className="w-3 h-3" /> Collapse</>
-                                                                            : <><ChevronDown className="w-3 h-3" /> Expand</>}
-                                                                    </button>
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={() => handleDeleteExample(activePlatform, ex.id)}
-                                                                        disabled={deletingExampleId === ex.id}
-                                                                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive disabled:opacity-40"
-                                                                        title="Delete example"
-                                                                    >
-                                                                        {deletingExampleId === ex.id
-                                                                            ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                                                            : <Trash2 className="w-3.5 h-3.5" />}
-                                                                    </button>
-                                                                </div>
-                                                            );
-                                                        })
-                                                    )}
+                                                    <Button size="sm" className="w-full rounded-full" onClick={() => share(text)}>
+                                                        <Send />
+                                                        {copy.output.share(label)}
+                                                    </Button>
+                                                    <p className="text-center text-xs text-muted-foreground">{copy.output.shareHint(label)}</p>
                                                 </div>
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-
-                            {/* Generated output */}
-                            {activePlatform && (
-                                <div ref={outputRef} className="rounded-xl border border-border bg-card overflow-hidden">
-                                    {/* Output header */}
-                                    <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-border bg-muted/20">
-                                        <div className="flex items-center gap-2">
-                                            <Sparkles className="w-3.5 h-3.5 text-primary" />
-                                            <p className="text-sm font-semibold capitalize">
-                                                {PLATFORMS.find((p) => p.id === activePlatform)?.label} Post
-                                            </p>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            {activeItem?.post && !activeItem.loading && (
-                                                <>
-                                                    <Button
-                                                        size="sm"
-                                                        variant="ghost"
-                                                        className="h-7 gap-1.5 text-xs"
-                                                        onClick={() => generateSocialPostRegenerate(activePlatform)}
-                                                        disabled={generating}
-                                                    >
-                                                        <RefreshCw className="w-3 h-3" />
-                                                        Regenerate
-                                                    </Button>
-                                                    <Button
-                                                        size="sm"
-                                                        variant="outline"
-                                                        className="h-7 gap-1.5 text-xs"
-                                                        onClick={() => handleCopy(activeItem.post)}
-                                                    >
-                                                        {copied ? (
-                                                            <>
-                                                                <Check className="w-3 h-3 text-green-500" />
-                                                                Copied!
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                <Copy className="w-3 h-3" />
-                                                                Copy
-                                                            </>
-                                                        )}
-                                                    </Button>
-                                                </>
-                                            )}
-                                        </div>
+                                            </>
+                                        ) : null}
                                     </div>
+                                )}
 
-                                    {/* Output body */}
-                                    <div className="p-4 space-y-4">
-                                        {activeItem?.loading && (
-                                            <div className="flex items-center gap-3 py-6 justify-center text-muted-foreground">
-                                                <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                                                <span className="text-sm">AI is crafting your post…</span>
-                                            </div>
-                                        )}
-
-                                        {activeItem?.error && !activeItem.loading && (
-                                            <div className="flex items-start gap-2.5 p-3 rounded-lg bg-destructive/10 border border-destructive/20">
-                                                <AlertTriangle className="w-4 h-4 text-destructive flex-shrink-0 mt-0.5" />
-                                                <div>
-                                                    <p className="text-sm font-medium text-destructive">Generation failed</p>
-                                                    <p className="text-xs text-muted-foreground mt-0.5">{activeItem.error}</p>
-                                                    <Button
-                                                        size="sm"
-                                                        variant="outline"
-                                                        className="mt-3 h-7 text-xs gap-1.5"
-                                                        onClick={() => generate(activePlatform)}
-                                                        disabled={generating}
-                                                    >
-                                                        <RefreshCw className="w-3 h-3" />
-                                                        Try again
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {activeItem?.post && !activeItem.loading && (() => {
-                                            const meta = PLATFORMS.find((p) => p.id === activePlatform)!;
-                                            return (
-                                                <>
-                                                    {/* Post text */}
-                                                    <pre className="whitespace-pre-wrap text-sm leading-relaxed font-sans text-foreground">
-                                                        {activeItem.post}
-                                                    </pre>
-
-                                                    {/* Blog image — shown for Facebook & Instagram */}
-                                                    {meta.showImage && selected?.image && (
-                                                        <div className="rounded-lg overflow-hidden border border-border">
-                                                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                                                            <img
-                                                                src={selected.image}
-                                                                alt={selected.title}
-                                                                loading="lazy"
-                                                                decoding="async"
-                                                                className="w-full h-auto object-cover"
-                                                            />
-                                                            <div className="px-3 py-2 bg-muted/40 border-t border-border flex items-center gap-1.5">
-                                                                <span className="text-[10px] text-muted-foreground">Featured image</span>
-                                                                <a
-                                                                    href={selected.image}
-                                                                    target="_blank"
-                                                                    rel="noopener noreferrer"
-                                                                    className="text-[10px] text-primary hover:underline ml-auto"
-                                                                >
-                                                                    Open original
-                                                                </a>
-                                                            </div>
-                                                        </div>
-                                                    )}
-
-                                                    {/* Post to platform button */}
-                                                    <div className="pt-1">
-                                                        <button
-                                                            onClick={() => handleOpenInPlatform(activePlatform, activeItem.post, selected!.url)}
-                                                            className={`w-full flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all ${meta.shareColor}`}
-                                                        >
-                                                            {shared ? (
-                                                                <>
-                                                                    <Check className="w-4 h-4" />
-                                                                    Text copied — {meta.label} opening…
-                                                                </>
-                                                            ) : (
-                                                                <>
-                                                                    <Send className="w-4 h-4" />
-                                                                    Post to {meta.label}
-                                                                </>
-                                                            )}
-                                                        </button>
-                                                        <p className="text-[10px] text-muted-foreground text-center mt-1.5">
-                                                            Copies post text to clipboard, then opens {meta.label}
-                                                        </p>
-                                                    </div>
-                                                </>
-                                            );
-                                        })()}
-
-                                        {!activeItem && (
-                                            <div className="flex items-center justify-center py-8 text-muted-foreground">
-                                                <Loader2 className="w-4 h-4 animate-spin text-primary mr-2" />
-                                                <span className="text-sm">Starting generation…</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
+                                {platform && <StyleExamples key={platform} platform={platform} />}
+                            </AdminPanel>
                         </>
                     )}
                 </div>
             </div>
-        </div>
+        </AdminPage>
     );
 }

@@ -1,13 +1,9 @@
 import "server-only";
 import OpenAI from "openai";
 import { buildImagePrompt } from "@/app/api/generate-image/prompts";
-import { IMAGE_SIZES, type ImageSize } from "@/lib/image-sizes";
+import { DEFAULT_IMAGE_SIZE, ImageSize, isImageSize } from "@/lib/image-sizes";
+import { DEFAULT_IMAGE_MODEL, ImageModel, isImageModel } from "@/config/ai-models";
 import { getImageGenerationModel } from "@/lib/app-config";
-
-const VALID_SIZES = IMAGE_SIZES.map((s) => s.value);
-
-const VALID_MODELS = ["dall-e-3", "dall-e-2", "gpt-image-1"] as const;
-type ImageModel = (typeof VALID_MODELS)[number];
 
 /**
  * Generate an image via DALL-E and return its temporary CDN URL.
@@ -31,18 +27,14 @@ export async function generateImageUrl(
         throw new Error("OpenAI API key is not configured.");
     }
 
-    const requestedSize =
-        typeof body.size === "string" && VALID_SIZES.includes(body.size as ImageSize)
-            ? (body.size as ImageSize)
-            : "1792x1024";
+    const requestedSize = isImageSize(body.size) ? body.size : DEFAULT_IMAGE_SIZE;
 
     const configModel = await getImageGenerationModel();
-    const requestedModel: ImageModel =
-        typeof body.model === "string" && VALID_MODELS.includes(body.model as ImageModel)
-            ? (body.model as ImageModel)
-            : VALID_MODELS.includes(configModel as ImageModel)
-                ? (configModel as ImageModel)
-                : "dall-e-3";
+    const requestedModel = isImageModel(body.model)
+        ? body.model
+        : isImageModel(configModel)
+            ? configModel
+            : DEFAULT_IMAGE_MODEL;
 
     const openai = new OpenAI({ apiKey: openaiKey });
 
@@ -54,12 +46,12 @@ export async function generateImageUrl(
     // - gpt-image-1: no quality/response_format params, always returns b64_json
     let url: string | undefined;
 
-    if (requestedModel === "gpt-image-1") {
+    if (requestedModel === ImageModel.GptImage1) {
         // gpt-image-1 supports: 1024x1024, 1024x1536, 1536x1024, auto
         const gptSizeMap: Record<ImageSize, "1024x1024" | "1024x1536" | "1536x1024"> = {
-            "1792x1024": "1536x1024",
-            "1024x1024": "1024x1024",
-            "1024x1792": "1024x1536",
+            [ImageSize.Landscape]: "1536x1024",
+            [ImageSize.Square]: "1024x1024",
+            [ImageSize.Portrait]: "1024x1536",
         };
         const gptSize = gptSizeMap[requestedSize] ?? "1536x1024";
         const response = await openai.images.generate({
@@ -71,7 +63,7 @@ export async function generateImageUrl(
         const b64 = response.data?.[0]?.b64_json;
         if (!b64) throw new Error("OpenAI returned no image data.");
         url = `data:image/png;base64,${b64}`;
-    } else if (requestedModel === "dall-e-2") {
+    } else if (requestedModel === ImageModel.DallE2) {
         // dall-e-2 only supports up to 1024x1024; all our sizes fall back to 1024x1024 except the square
         const dall2Size = "1024x1024" as const;
         const response = await openai.images.generate({

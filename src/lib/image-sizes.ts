@@ -1,7 +1,13 @@
-export const IMAGE_SIZES = [
-    { value: "1792x1024", label: "1792 × 1024", note: "Landscape (default)" },
-    { value: "1024x1024", label: "1024 × 1024", note: "Square" },
-    { value: "1024x1792", label: "1024 × 1792", note: "Portrait" },
-] as const;
+export enum ImageSize {
+    Landscape = "1792x1024",
+    Square = "1024x1024",
+    Portrait = "1024x1792",
+}
 
-export type ImageSize = (typeof IMAGE_SIZES)[number]["value"];
+export const IMAGE_SIZES: ImageSize[] = [ImageSize.Landscape, ImageSize.Square, ImageSize.Portrait];
+
+export const DEFAULT_IMAGE_SIZE = ImageSize.Landscape;
+
+export function isImageSize(value: unknown): value is ImageSize {
+    return typeof value === "string" && (IMAGE_SIZES as string[]).includes(value);
+}

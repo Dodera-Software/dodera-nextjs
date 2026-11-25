@@ -1,451 +1,372 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import Link from "next/link";
+import { useEffect, type ReactNode } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useForm, useFormState } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
-    ArrowLeft,
+    ChevronDown,
     ExternalLink,
     Facebook,
     Instagram,
     Loader2,
     Mail,
     MapPin,
+    MoreHorizontal,
     Phone,
     Save,
     SquareKanban,
     Trash2,
 } from "lucide-react";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useConfirm } from "@/hooks/use-confirm";
-import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { AdminPage } from "@/components/admin/AdminPage";
+import { AdminPanel } from "@/components/admin/AdminPanel";
+import { EmptyState } from "@/components/admin/EmptyState";
+import { LeadBusinessFields, TextAreaField, TextField } from "@/components/admin/leads/LeadFormFields";
+import { LeadMessages } from "@/components/admin/leads/LeadMessages";
 import { LeadPreviewPanel } from "@/components/admin/leads/LeadPreviewPanel";
 import { LeadTimeline } from "@/components/admin/leads/LeadTimeline";
-import { OutreachRuleNote } from "@/components/admin/leads/OutreachRuleNote";
-import { LeadMessages } from "@/components/admin/leads/LeadMessages";
-import { LEAD_LIMITS, LEAD_STAGES } from "@/config/leads";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuRadioGroup,
+    DropdownMenuRadioItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Form } from "@/components/ui/form";
+import { Skeleton } from "@/components/ui/skeleton";
+import { AdminRoute } from "@/config/admin";
+import { isLeadStage, LEAD_LIMITS, LEAD_STAGES, stageDefinition, type LeadStage } from "@/config/leads";
+import { StatusTone } from "@/config/ui";
+import { useAdminMutation } from "@/hooks/use-admin";
+import { useConfirm } from "@/hooks/use-confirm";
+import { adminCommon } from "@/i18n/admin/common";
+import { leadsCopy as copy } from "@/i18n/admin/leads";
+import { AdminApiError, adminFetch } from "@/lib/admin-api";
+import { leadsQuery } from "@/lib/admin-queries";
 import { formatDateTime } from "@/lib/format";
-import { FOLLOW_UP_CLASSES, externalHref, followUpState, useLeadSuggestions } from "@/lib/leads-client";
+import { leadDetailSchema, leadDetailValues, type LeadDetailValues } from "@/lib/lead-forms";
+import { externalHref, FOLLOW_UP_TONE, followUpState, FollowUpState, leadQuery, patchLead, useLeadMutation } from "@/lib/leads-client";
 import type { LeadDetail } from "@/types/admin";
 
-/** Editable fields, as strings for the inputs. */
-type Form = {
-    name: string;
-    country: string;
-    city: string;
-    category: string;
-    facebook_url: string;
-    instagram_url: string;
-    google_maps_url: string;
-    contact_name: string;
-    email: string;
-    phone: string;
-    website: string;
-    value_eur: string;
-    follow_up_on: string;
-    next_step: string;
-    notes: string;
-};
+const BACK = { href: AdminRoute.Leads, label: copy.detail.back };
 
-function toForm(lead: LeadDetail): Form {
-    return {
-        name: lead.name,
-        country: lead.country ?? "",
-        city: lead.city ?? "",
-        category: lead.category ?? "",
-        facebook_url: lead.facebook_url ?? "",
-        instagram_url: lead.instagram_url ?? "",
-        google_maps_url: lead.google_maps_url ?? "",
-        contact_name: lead.contact_name ?? "",
-        email: lead.email ?? "",
-        phone: lead.phone ?? "",
-        website: lead.website ?? "",
-        value_eur: lead.value_eur === null ? "" : String(lead.value_eur),
-        follow_up_on: lead.follow_up_on ?? "",
-        next_step: lead.next_step ?? "",
-        notes: lead.notes ?? "",
-    };
+function isNotFound(error: unknown): boolean {
+    return error instanceof AdminApiError && error.status === 404;
 }
 
 export default function LeadPage() {
     const params = useParams<{ id: string }>();
-    const router = useRouter();
-    const confirm = useConfirm();
-    const suggestions = useLeadSuggestions();
     const leadId = Number(params.id);
+    const valid = Number.isInteger(leadId) && leadId > 0;
+    const lead = useQuery({
+        ...leadQuery(leadId),
+        enabled: valid,
+        retry: (count, error) => !isNotFound(error) && count < 1,
+    });
 
-    const [lead, setLead] = useState<LeadDetail | null>(null);
-    const [form, setForm] = useState<Form | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [notFound, setNotFound] = useState(false);
-    const [saving, setSaving] = useState(false);
-    const [movingStage, setMovingStage] = useState(false);
-    const [deleting, setDeleting] = useState(false);
+    if (!valid || isNotFound(lead.error)) {
+        return (
+            <AdminPage title={copy.title} back={BACK}>
+                <EmptyState icon={SquareKanban} title={copy.detail.notFound} className="rounded-3xl border border-foreground/10" />
+            </AdminPage>
+        );
+    }
 
-    /** Take a fresh lead from the server; keep unsaved edits unless told otherwise. */
-    const applyLead = useCallback((next: LeadDetail, resetForm = false) => {
-        setLead(next);
-        setForm((prev) => (prev === null || resetForm ? toForm(next) : prev));
-    }, []);
+    if (lead.isError) {
+        return (
+            <AdminPage title={copy.title} back={BACK}>
+                <EmptyState
+                    icon={SquareKanban}
+                    title={adminCommon.errors.loadFailed}
+                    action={
+                        <Button variant="glass" size="sm" className="rounded-full" onClick={() => lead.refetch()}>
+                            {adminCommon.actions.retry}
+                        </Button>
+                    }
+                    className="rounded-3xl border border-foreground/10"
+                />
+            </AdminPage>
+        );
+    }
 
-    const load = useCallback(async () => {
-        if (!Number.isInteger(leadId) || leadId <= 0) {
-            setNotFound(true);
-            setLoading(false);
-            return;
-        }
-        try {
-            const res = await fetch(`/api/admin/leads/${leadId}`);
-            if (res.status === 404) {
-                setNotFound(true);
-                return;
+    if (!lead.data) {
+        return (
+            <AdminPage title={<Skeleton className="h-10 w-64" />} back={BACK}>
+                <div className="grid gap-6 xl:grid-cols-5">
+                    <Skeleton className="h-[32rem] rounded-3xl xl:col-span-2" />
+                    <Skeleton className="h-[32rem] rounded-3xl xl:col-span-3" />
+                </div>
+            </AdminPage>
+        );
+    }
+
+    return <LeadView lead={lead.data} />;
+}
+
+function LeadView({ lead }: { lead: LeadDetail }) {
+    const router = useRouter();
+    const queryClient = useQueryClient();
+    const confirm = useConfirm();
+    const stage = stageDefinition(lead.stage);
+
+    const moveStage = useLeadMutation({
+        leadId: lead.id,
+        mutationFn: (next: LeadStage) => patchLead(lead.id, { stage: next }),
+    });
+
+    const remove = useAdminMutation({
+        mutationFn: () => adminFetch(`/api/admin/leads/${lead.id}`, { method: "DELETE" }),
+        success: copy.detail.delete.done,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: leadsQuery.queryKey, exact: true });
+            router.replace(AdminRoute.Leads);
+        },
+    });
+
+    async function onDelete() {
+        const ok = await confirm({
+            title: copy.detail.delete.title(lead.name),
+            description: lead.preview ? copy.detail.delete.withPreview : copy.detail.delete.withoutPreview,
+            confirmLabel: copy.detail.delete.action,
+        });
+        if (ok) remove.mutate();
+    }
+
+    return (
+        <AdminPage
+            back={BACK}
+            title={lead.name}
+            description={copy.detail.subtitle([
+                lead.category,
+                [lead.city, lead.country].filter(Boolean).join(", "),
+                copy.detail.added(formatDateTime(lead.created_at, "MMM d, yyyy"), lead.created_by),
+            ])}
+            actions={
+                <>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="glass" size="sm" className="rounded-full" disabled={moveStage.isPending} aria-label={copy.detail.stage}>
+                                {moveStage.isPending && <Loader2 className="animate-spin" />}
+                                <Badge tone={stage?.tone ?? StatusTone.Neutral} dot>
+                                    {stage?.label ?? lead.stage}
+                                </Badge>
+                                <ChevronDown className="text-muted-foreground" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-56">
+                            <DropdownMenuLabel>{copy.detail.stage}</DropdownMenuLabel>
+                            <DropdownMenuRadioGroup
+                                value={lead.stage}
+                                onValueChange={(value) => isLeadStage(value) && value !== lead.stage && moveStage.mutate(value)}
+                            >
+                                {LEAD_STAGES.map((s) => (
+                                    <DropdownMenuRadioItem key={s.id} value={s.id}>
+                                        <Badge tone={s.tone} dot className="border-transparent bg-transparent px-0">
+                                            {s.label}
+                                        </Badge>
+                                    </DropdownMenuRadioItem>
+                                ))}
+                            </DropdownMenuRadioGroup>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="size-9 rounded-full" aria-label={adminCommon.actions.more}>
+                                {remove.isPending ? <Loader2 className="animate-spin" /> : <MoreHorizontal />}
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem destructive onSelect={onDelete} disabled={remove.isPending}>
+                                <Trash2 />
+                                {copy.detail.delete.action}
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </>
             }
-            const data = await res.json();
-            if (data.status === "success") applyLead(data.data);
-            else toast.error(data.message ?? "Failed to load the lead");
-        } catch {
-            toast.error("Failed to load the lead");
-        } finally {
-            setLoading(false);
-        }
-    }, [leadId, applyLead]);
+        >
+            <div className="grid gap-6 xl:grid-cols-5">
+                <div className="space-y-6 xl:col-span-2">
+                    <LeadDetailForm lead={lead} />
+                    <LeadTimeline lead={lead} />
+                </div>
+                <div className="space-y-6 xl:col-span-3">
+                    <LeadMessages lead={lead} />
+                    <LeadPreviewPanel lead={lead} />
+                </div>
+            </div>
+        </AdminPage>
+    );
+}
+
+function LeadDetailForm({ lead }: { lead: LeadDetail }) {
+    const form = useForm<LeadDetailValues>({ resolver: zodResolver(leadDetailSchema), defaultValues: leadDetailValues(lead) });
+    const { isDirty } = useFormState({ control: form.control });
+
+    const save = useLeadMutation({
+        leadId: lead.id,
+        mutationFn: (values: LeadDetailValues) => patchLead(lead.id, values),
+        success: copy.detail.saved,
+    });
 
     useEffect(() => {
-        load();
-    }, [load]);
-
-    const dirty = useMemo(() => {
-        if (!lead || !form) return false;
-        const saved = toForm(lead);
-        return (Object.keys(form) as (keyof Form)[]).some((k) => form[k].trim() !== saved[k].trim());
-    }, [lead, form]);
-
-    // Warn before leaving the page with unsaved edits.
-    useEffect(() => {
-        if (!dirty) return;
+        if (!isDirty) return;
         const handler = (e: BeforeUnloadEvent) => e.preventDefault();
         window.addEventListener("beforeunload", handler);
         return () => window.removeEventListener("beforeunload", handler);
-    }, [dirty]);
+    }, [isDirty]);
 
-    const set = (key: keyof Form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-        setForm((prev) => (prev ? { ...prev, [key]: e.target.value } : prev));
-
-    async function patch(body: Record<string, unknown>): Promise<LeadDetail | null> {
-        const res = await fetch(`/api/admin/leads/${leadId}`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body),
-        });
-        const data = await res.json();
-        if (res.ok && data.status === "success") return data.data;
-        toast.error(data.message ?? "Failed to update the lead");
-        return null;
-    }
-
-    async function handleSave(e: React.FormEvent) {
-        e.preventDefault();
-        if (!form || saving) return;
-        setSaving(true);
-        try {
-            const updated = await patch(form);
-            if (updated) {
-                applyLead(updated, true);
-                toast.success("Saved");
-            }
-        } catch {
-            toast.error("Failed to update the lead");
-        } finally {
-            setSaving(false);
-        }
-    }
-
-    async function handleStage(stage: string) {
-        if (!lead || stage === lead.stage) return;
-        setMovingStage(true);
-        try {
-            const updated = await patch({ stage });
-            if (updated) applyLead(updated);
-        } catch {
-            toast.error("Failed to move the lead");
-        } finally {
-            setMovingStage(false);
-        }
-    }
-
-    async function handleDelete() {
-        if (!lead) return;
-        const ok = await confirm({
-            title: `Delete "${lead.name}"?`,
-            description: lead.preview
-                ? "The card and its timeline are removed. The preview project stays in Admin → Mockups — delete it there if it's no longer needed."
-                : "The card and its timeline are removed. This cannot be undone.",
-            confirmLabel: "Delete lead",
-        });
-        if (!ok) return;
-        setDeleting(true);
-        try {
-            const res = await fetch(`/api/admin/leads/${lead.id}`, { method: "DELETE" });
-            const data = await res.json();
-            if (res.ok && data.status === "success") {
-                toast.success("Lead deleted");
-                router.replace("/admin/leads");
-            } else {
-                toast.error(data.message ?? "Failed to delete the lead");
-                setDeleting(false);
-            }
-        } catch {
-            toast.error("Failed to delete the lead");
-            setDeleting(false);
-        }
-    }
-
-    if (loading) {
-        return (
-            <div className="py-16 flex justify-center">
-                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-            </div>
-        );
-    }
-
-    if (notFound || !lead || !form) {
-        return (
-            <div className="space-y-4">
-                <BackLink />
-                <div className="rounded-xl border border-border px-6 py-16 text-center text-muted-foreground">
-                    <SquareKanban className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                    This lead does not exist (anymore).
-                </div>
-            </div>
-        );
-    }
-
-    const stage = LEAD_STAGES.find((s) => s.id === lead.stage);
+    const followUp = lead.follow_up_on ? followUpState(lead.follow_up_on) : null;
 
     return (
-        <div className="space-y-6">
-            <BackLink />
-
-            <AdminPageHeader
-                title={lead.name}
-                subtitle={[
-                    lead.category,
-                    [lead.city, lead.country].filter(Boolean).join(", "),
-                    `added ${formatDateTime(lead.created_at, "MMM d, yyyy")}${lead.created_by ? ` by ${lead.created_by}` : ""}`,
-                ].filter(Boolean).join(" · ")}
-                actions={
-                    <>
-                        <Select value={lead.stage} onValueChange={handleStage} disabled={movingStage}>
-                            <SelectTrigger className="h-9 w-44" aria-label="Stage">
-                                <span className="flex items-center gap-2">
-                                    {movingStage ? (
-                                        <Loader2 className="w-3 h-3 animate-spin" />
-                                    ) : (
-                                        <span className={`w-2 h-2 rounded-full ${stage?.dot ?? "bg-muted"}`} />
-                                    )}
-                                    <SelectValue />
-                                </span>
-                            </SelectTrigger>
-                            <SelectContent>
-                                {LEAD_STAGES.map((s) => (
-                                    <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleDelete}
-                            disabled={deleting}
-                            className="h-9 text-destructive hover:text-destructive hover:bg-destructive/10"
-                        >
-                            {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                            Delete
-                        </Button>
-                    </>
-                }
-            />
-
-            <div className="grid gap-6 xl:grid-cols-5">
-                <div className="xl:col-span-2 space-y-6">
-                    {/* Business — the Notion columns */}
-                    <form onSubmit={handleSave} className="rounded-xl border border-border bg-card p-5 space-y-4">
-                        <div className="flex items-center justify-between gap-3">
-                            <p className="font-medium text-sm">Business</p>
-                            <div className="flex items-center gap-1">
-                                {lead.facebook_url && (
-                                    <IconLink href={lead.facebook_url} label="Open Facebook"><Facebook className="w-4 h-4" /></IconLink>
-                                )}
-                                {lead.instagram_url && (
-                                    <IconLink href={lead.instagram_url} label="Open Instagram"><Instagram className="w-4 h-4" /></IconLink>
-                                )}
-                                {lead.google_maps_url && (
-                                    <IconLink href={lead.google_maps_url} label="Open Google Maps"><MapPin className="w-4 h-4" /></IconLink>
-                                )}
-                                {lead.website && (
-                                    <IconLink href={lead.website} label="Open website"><ExternalLink className="w-4 h-4" /></IconLink>
-                                )}
-                                {lead.email && (
-                                    <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-                                        <a href={`mailto:${lead.email}`} title={`Email ${lead.email}`}>
-                                            <Mail className="w-4 h-4" />
-                                        </a>
-                                    </Button>
-                                )}
-                                {lead.phone && (
-                                    <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-                                        <a href={`tel:${lead.phone.replace(/\s+/g, "")}`} title={`Call ${lead.phone}`}>
-                                            <Phone className="w-4 h-4" />
-                                        </a>
-                                    </Button>
-                                )}
-                            </div>
+        <Form {...form}>
+            <form
+                onSubmit={form.handleSubmit((values) =>
+                    save.mutate(values, { onSuccess: (updated) => form.reset(leadDetailValues(updated)) }),
+                )}
+                noValidate
+            >
+                <AdminPanel
+                    title={copy.detail.business}
+                    actions={<ContactLinks lead={lead} />}
+                    footer={
+                        <div className="flex items-center justify-end gap-2">
+                            {isDirty && (
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="rounded-full"
+                                    onClick={() => form.reset(leadDetailValues(lead))}
+                                    disabled={save.isPending}
+                                >
+                                    {copy.detail.discard}
+                                </Button>
+                            )}
+                            <Button type="submit" size="sm" className="rounded-full" disabled={!isDirty || save.isPending}>
+                                {save.isPending ? <Loader2 className="animate-spin" /> : <Save />}
+                                {save.isPending ? adminCommon.actions.saving : adminCommon.actions.save}
+                            </Button>
                         </div>
-
-                        <div className="grid sm:grid-cols-2 gap-3">
-                            <div className="space-y-2">
-                                <Label htmlFor="country">Country *</Label>
-                                <Input id="country" list="lead-detail-countries" value={form.country} onChange={set("country")} required maxLength={LEAD_LIMITS.name} />
-                                <datalist id="lead-detail-countries">
-                                    {suggestions.countries.map((c) => <option key={c} value={c} />)}
-                                </datalist>
+                    }
+                >
+                    <div className="space-y-6">
+                        <LeadBusinessFields />
+                        <div className="space-y-4 border-t border-foreground/[0.07] pt-6">
+                            <p className="font-mono text-[0.68rem] uppercase tracking-[0.08em] text-muted-foreground">
+                                {copy.detail.contactDeal}
+                            </p>
+                            <div className="grid gap-3 sm:grid-cols-2">
+                                <TextField name="contact_name" label={copy.form.contactName} maxLength={LEAD_LIMITS.name} />
+                                <TextField name="email" type="email" label={copy.form.email} maxLength={LEAD_LIMITS.shortText} />
+                                <TextField name="phone" type="tel" label={copy.form.phone} maxLength={LEAD_LIMITS.phone} />
+                                <TextField
+                                    name="website"
+                                    label={copy.form.website}
+                                    placeholder={copy.form.websitePlaceholder}
+                                    maxLength={LEAD_LIMITS.url}
+                                />
+                                <TextField
+                                    name="value_eur"
+                                    type="number"
+                                    min={0}
+                                    step={100}
+                                    inputMode="numeric"
+                                    label={copy.form.value}
+                                    className="tabular-nums"
+                                />
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="city">City</Label>
-                                <Input id="city" list="lead-detail-cities" value={form.city} onChange={set("city")} maxLength={LEAD_LIMITS.name} />
-                                <datalist id="lead-detail-cities">
-                                    {suggestions.cities.map((c) => <option key={c} value={c} />)}
-                                </datalist>
-                            </div>
-                        </div>
-                        <OutreachRuleNote country={form.country} />
-                        <div className="space-y-2">
-                            <Label htmlFor="name">Business *</Label>
-                            <Input id="name" value={form.name} onChange={set("name")} required maxLength={LEAD_LIMITS.name} />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="category">Category *</Label>
-                            <Input id="category" list="lead-detail-categories" value={form.category} onChange={set("category")} required maxLength={LEAD_LIMITS.name} />
-                            <datalist id="lead-detail-categories">
-                                {suggestions.categories.map((c) => <option key={c} value={c} />)}
-                            </datalist>
-                        </div>
-                        <div className="grid sm:grid-cols-2 gap-3">
-                            <div className="space-y-2">
-                                <Label htmlFor="facebook_url">Facebook</Label>
-                                <Input id="facebook_url" value={form.facebook_url} onChange={set("facebook_url")} maxLength={LEAD_LIMITS.url} placeholder="Page link or name" />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="instagram_url">Instagram</Label>
-                                <Input id="instagram_url" value={form.instagram_url} onChange={set("instagram_url")} maxLength={LEAD_LIMITS.url} placeholder="@handle or link" />
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="google_maps_url">Google Maps *</Label>
-                            <Input id="google_maps_url" value={form.google_maps_url} onChange={set("google_maps_url")} required maxLength={LEAD_LIMITS.url} />
-                        </div>
-
-                        <p className="pt-2 font-medium text-sm">Contact &amp; deal</p>
-                        <div className="grid sm:grid-cols-2 gap-3">
-                            <div className="space-y-2">
-                                <Label htmlFor="contact_name">Contact person</Label>
-                                <Input id="contact_name" value={form.contact_name} onChange={set("contact_name")} maxLength={LEAD_LIMITS.name} />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="email">Email</Label>
-                                <Input id="email" type="email" value={form.email} onChange={set("email")} maxLength={LEAD_LIMITS.shortText} />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="phone">Phone</Label>
-                                <Input id="phone" type="tel" value={form.phone} onChange={set("phone")} maxLength={60} />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="website">Current website</Label>
-                                <Input id="website" value={form.website} onChange={set("website")} maxLength={LEAD_LIMITS.url} placeholder="if they have one" />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="value_eur">Est. value (€)</Label>
-                                <Input id="value_eur" type="number" min={0} step={100} inputMode="numeric" value={form.value_eur} onChange={set("value_eur")} />
-                            </div>
-                        </div>
-                        <div className="grid sm:grid-cols-[1fr_auto] gap-3">
-                            <div className="space-y-2">
-                                <Label htmlFor="next_step">Next step</Label>
-                                <Input id="next_step" value={form.next_step} onChange={set("next_step")} maxLength={LEAD_LIMITS.shortText} placeholder="Send the mock on Instagram" />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="follow_up_on" className="flex items-center gap-2">
-                                    Follow up on
-                                    {lead.follow_up_on && followUpState(lead.follow_up_on) !== "upcoming" && (
-                                        <span className={`px-1.5 rounded text-[11px] ${FOLLOW_UP_CLASSES[followUpState(lead.follow_up_on)]}`}>
-                                            {followUpState(lead.follow_up_on) === "today" ? "today" : "overdue"}
+                            <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+                                <TextField
+                                    name="next_step"
+                                    label={copy.form.nextStep}
+                                    placeholder={copy.form.nextStepPlaceholder}
+                                    maxLength={LEAD_LIMITS.shortText}
+                                />
+                                <TextField
+                                    name="follow_up_on"
+                                    type="date"
+                                    className="sm:w-44"
+                                    label={
+                                        <span className="flex items-center gap-2">
+                                            {copy.form.followUpOn}
+                                            {followUp && followUp !== FollowUpState.Upcoming && (
+                                                <Badge tone={FOLLOW_UP_TONE[followUp]} className="px-1.5 py-0 text-[0.65rem]">
+                                                    {followUp === FollowUpState.Today ? copy.followUp.todayShort : copy.followUp.overdue}
+                                                </Badge>
+                                            )}
                                         </span>
-                                    )}
-                                </Label>
-                                <Input id="follow_up_on" type="date" value={form.follow_up_on} onChange={set("follow_up_on")} className="sm:w-44" />
+                                    }
+                                />
                             </div>
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="notes">Notes</Label>
-                            <Textarea
-                                id="notes"
-                                value={form.notes}
-                                onChange={set("notes")}
+                            <TextAreaField
+                                name="notes"
+                                label={copy.form.notes}
+                                placeholder={copy.form.notesPlaceholder}
                                 maxLength={LEAD_LIMITS.notes}
-                                placeholder="What they need, photos collected, what they said…"
                                 className="min-h-[140px] text-sm"
                             />
                         </div>
+                    </div>
+                </AdminPanel>
+            </form>
+        </Form>
+    );
+}
 
-                        <div className="flex items-center justify-end gap-2">
-                            {dirty && (
-                                <Button type="button" variant="ghost" size="sm" onClick={() => setForm(toForm(lead))} disabled={saving}>
-                                    Discard
-                                </Button>
-                            )}
-                            <Button
-                                type="submit"
-                                size="sm"
-                                disabled={!dirty || saving || !form.name.trim() || !form.country.trim() || !form.category.trim() || !form.google_maps_url.trim()}
-                            >
-                                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                                {saving ? "Saving…" : "Save"}
-                            </Button>
-                        </div>
-                    </form>
-
-                    <LeadTimeline lead={lead} onChange={(next) => applyLead(next)} />
-                </div>
-
-                <div className="xl:col-span-3 space-y-6">
-                    <LeadMessages lead={lead} />
-                    <LeadPreviewPanel lead={lead} onChange={(next) => applyLead(next)} onReload={load} />
-                </div>
-            </div>
+function ContactLinks({ lead }: { lead: LeadDetail }) {
+    return (
+        <div className="flex items-center gap-1">
+            {lead.facebook_url && (
+                <IconLink href={externalHref(lead.facebook_url)} label={copy.card.open(copy.links.facebook)} external>
+                    <Facebook />
+                </IconLink>
+            )}
+            {lead.instagram_url && (
+                <IconLink href={externalHref(lead.instagram_url)} label={copy.card.open(copy.links.instagram)} external>
+                    <Instagram />
+                </IconLink>
+            )}
+            {lead.google_maps_url && (
+                <IconLink href={externalHref(lead.google_maps_url)} label={copy.card.open(copy.links.maps)} external>
+                    <MapPin />
+                </IconLink>
+            )}
+            {lead.website && (
+                <IconLink href={externalHref(lead.website)} label={copy.card.open(copy.links.website)} external>
+                    <ExternalLink />
+                </IconLink>
+            )}
+            {lead.email && (
+                <IconLink href={`mailto:${lead.email}`} label={copy.links.email(lead.email)}>
+                    <Mail />
+                </IconLink>
+            )}
+            {lead.phone && (
+                <IconLink href={`tel:${lead.phone.replace(/\s+/g, "")}`} label={copy.links.call(lead.phone)}>
+                    <Phone />
+                </IconLink>
+            )}
         </div>
     );
 }
 
-function IconLink({ href, label, children }: { href: string; label: string; children: React.ReactNode }) {
+function IconLink({ href, label, external, children }: { href: string; label: string; external?: boolean; children: ReactNode }) {
     return (
-        <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-            <a href={externalHref(href)} target="_blank" rel="noopener noreferrer" title={label} aria-label={label}>
+        <Button variant="ghost" size="icon" className="size-8 rounded-full text-muted-foreground hover:text-foreground" asChild>
+            <a
+                href={href}
+                title={label}
+                aria-label={label}
+                {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+            >
                 {children}
             </a>
         </Button>
-    );
-}
-
-function BackLink() {
-    return (
-        <Link href="/admin/leads" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="w-4 h-4" />
-            Back to Leads
-        </Link>
     );
 }

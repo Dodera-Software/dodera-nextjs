@@ -1,23 +1,38 @@
-/**
- * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║           SOCIAL POST AI — IDENTITY CONFIG                              ║
- * ╠══════════════════════════════════════════════════════════════════════════╣
- * ║  To edit the actual prompt text / writing rules, open the .txt files    ║
- * ║  next to the route:                                                      ║
- * ║    src/app/api/admin/social-post/linkedin-prompt.txt                    ║
- * ║    src/app/api/admin/social-post/facebook-prompt.txt                    ║
- * ║    src/app/api/admin/social-post/instagram-prompt.txt                   ║
- * ╚══════════════════════════════════════════════════════════════════════════╝
- */
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   AGENT IDENTITY
-   ───────────────────────────────────────────────────────────────────────────
-   Used as the {{COMPANY}} placeholder in all three prompt .txt files.
-   ═══════════════════════════════════════════════════════════════════════════ */
+import { Facebook, Instagram, Linkedin, type LucideIcon } from "lucide-react";
 
 export const AGENT_IDENTITY = {
-    /** One-line description of the company injected into every prompt. */
     company:
         "Dodera, a software development agency that specialises in automation, AI integrations, and custom web/mobile development",
 };
+
+export enum SocialPlatform {
+    LinkedIn = "linkedin",
+    Facebook = "facebook",
+    Instagram = "instagram",
+}
+
+export interface SocialPlatformConfig {
+    id: SocialPlatform;
+    icon: LucideIcon;
+    shareUrl: (articleUrl: string) => string;
+}
+
+export const SOCIAL_PLATFORMS: SocialPlatformConfig[] = [
+    {
+        id: SocialPlatform.LinkedIn,
+        icon: Linkedin,
+        shareUrl: () => "https://www.linkedin.com/feed/?shareActive=true",
+    },
+    {
+        id: SocialPlatform.Facebook,
+        icon: Facebook,
+        shareUrl: (articleUrl) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(articleUrl)}`,
+    },
+    {
+        id: SocialPlatform.Instagram,
+        icon: Instagram,
+        shareUrl: () => "https://www.instagram.com/",
+    },
+];
+
+export const SOCIAL_EXAMPLE_MIN_LENGTH = 10;

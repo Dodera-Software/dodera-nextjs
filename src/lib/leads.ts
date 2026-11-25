@@ -4,16 +4,19 @@ import { db } from "@/db";
 import { leadActivities, leads, mockupDeployments, mockupProjects } from "@/db/schema";
 import {
     LEAD_LIMITS,
+    LeadActivityKind,
+    LeadStage,
+    MockPolicy,
     mockPolicy,
     normalizeLink,
     normalizeSocial,
     OUTREACH_STAGES,
+    SocialKind,
     stageLabel,
-    type LeadStage,
 } from "@/config/leads";
 import { getProjectUrl } from "@/lib/mockups";
 import { slugify } from "@/config/mockups";
-import type { Lead, LeadActivity, LeadActivityKind, LeadDetail, LeadPreview } from "@/types/admin";
+import type { Lead, LeadActivity, LeadDetail, LeadPreview, LeadSuggestions, LinkableMockup } from "@/types/admin";
 
 /* ══════════════════════════════════════════════════════════════
  * Leads pipeline — server-side service behind Admin → Leads.
@@ -56,7 +59,7 @@ function serializeLead(row: LeadRow, preview: PreviewJoin): Lead {
         email: row.email,
         phone: row.phone,
         website: row.website,
-        stage: row.stage,
+        stage: row.stage as LeadStage,
         position: row.position,
         value_eur: row.valueEur,
         next_step: row.nextStep,
@@ -110,20 +113,12 @@ function selectLeads() {
 /** Newest timeline note of the lead — the card shows a marker when there is one. */
 const latestNoteSql = sql<string | null>`(
     select ${leadActivities.body} from ${leadActivities}
-    where ${leadActivities.leadId} = ${leads.id} and ${leadActivities.kind} = 'note'
+    where ${leadActivities.leadId} = ${leads.id} and ${leadActivities.kind} = ${LeadActivityKind.Note}
     order by ${leadActivities.createdAt} desc, ${leadActivities.id} desc
     limit 1
 )`;
 
 /* ── Existing mockups ──────────────────────────────────────── */
-
-export interface LinkableMockup extends LeadPreview {
-    slug: string;
-    client_name: string | null;
-    updated_at: string;
-    /** The lead this project is already linked to, if any. */
-    linked_lead: { id: number; name: string } | null;
-}
 
 /** Every Mockups project, for "Link an existing mockup" — newest first. */
 export async function listLinkableMockups(): Promise<LinkableMockup[]> {
@@ -211,7 +206,7 @@ export async function getLeadDetail(id: number): Promise<LeadDetail | null> {
 }
 
 /** Values already used, most common first — autocomplete for the add/edit forms. */
-export async function getLeadSuggestions(): Promise<{ countries: string[]; categories: string[]; cities: string[] }> {
+export async function getLeadSuggestions(): Promise<LeadSuggestions> {
     const distinct = async (column: typeof leads.country | typeof leads.category | typeof leads.city) => {
         const rows = await db
             .select({ value: column, n: sql<number>`count(*)::int` })
@@ -279,8 +274,8 @@ export function parseLeadInput(body: Record<string, unknown>, { creating }: { cr
         values.googleMapsUrl = link.slice(0, LEAD_LIMITS.url);
     }
     for (const [key, column, kind, label] of [
-        ["facebook_url", "facebookUrl", "facebook", "Facebook"],
-        ["instagram_url", "instagramUrl", "instagram", "Instagram"],
+        ["facebook_url", "facebookUrl", SocialKind.Facebook, "Facebook"],
+        ["instagram_url", "instagramUrl", SocialKind.Instagram, "Instagram"],
     ] as const) {
         if (!(key in body)) continue;
         const link = normalizeSocial(kind, typeof body[key] === "string" ? (body[key] as string) : "");
@@ -302,7 +297,7 @@ export function parseLeadInput(body: Record<string, unknown>, { creating }: { cr
         if (email && !EMAIL_RE.test(email)) return { ok: false, message: "That email address doesn't look right." };
         values.email = email;
     }
-    if ("phone" in body) values.phone = optionalText(body.phone, 60);
+    if ("phone" in body) values.phone = optionalText(body.phone, LEAD_LIMITS.phone);
     if ("next_step" in body) values.nextStep = optionalText(body.next_step, LEAD_LIMITS.shortText);
     if ("notes" in body) values.notes = optionalText(body.notes, LEAD_LIMITS.notes);
     if ("value_eur" in body) {
@@ -358,7 +353,7 @@ export async function createLead(
         .insert(leads)
         .values({ ...values, stage, position, createdBy })
         .returning({ id: leads.id });
-    await addActivity(row.id, "created", `Added to ${stageLabel(stage)}`, createdBy);
+    await addActivity(row.id, LeadActivityKind.Created, `Added to ${stageLabel(stage)}`, createdBy);
     return row.id;
 }
 
@@ -451,14 +446,14 @@ async function mockState(id: number) {
  * version is live, the link counts as sent.
  */
 async function afterStageChange(id: number, from: string, to: LeadStage, by: string): Promise<void> {
-    await addActivity(id, "stage", `Moved from ${stageLabel(from)} to ${stageLabel(to)}`, by);
-    if (to !== "contacted" || OUTREACH_STAGES.has(from)) return;
+    await addActivity(id, LeadActivityKind.Stage, `Moved from ${stageLabel(from)} to ${stageLabel(to)}`, by);
+    if (to !== LeadStage.Contacted || OUTREACH_STAGES.has(from)) return;
 
     const state = await mockState(id);
-    if (!state || state.sentAt || state.liveVersion === null || mockPolicy(state.country) !== "with-message") return;
+    if (!state || state.sentAt || state.liveVersion === null || mockPolicy(state.country) !== MockPolicy.WithMessage) return;
 
     await db.update(leads).set({ mockupSentAt: new Date() }).where(eq(leads.id, id));
-    await addActivity(id, "mock", `Mock v${state.liveVersion} sent with the first message`, by);
+    await addActivity(id, LeadActivityKind.Mock, `Mock v${state.liveVersion} sent with the first message`, by);
 }
 
 /** Record that the preview link was (or wasn't) sent to the business. Returns false when the lead is gone. */
@@ -473,7 +468,7 @@ export async function setMockupSent(id: number, sent: boolean, by: string): Prom
         .where(eq(leads.id, id));
     await addActivity(
         id,
-        "mock",
+        LeadActivityKind.Mock,
         sent
             ? `Mock${state.liveVersion !== null ? ` v${state.liveVersion}` : ""} sent to the business`
             : "Marked the mock as not sent",
@@ -513,6 +508,6 @@ export async function logDeploymentOnLeads(
     const linked = await db.select({ id: leads.id }).from(leads).where(eq(leads.mockupProjectId, projectId));
     if (linked.length === 0) return;
     const body = `Deployed preview v${version}${note ? ` — ${note}` : ""}`;
-    await db.insert(leadActivities).values(linked.map((l) => ({ leadId: l.id, kind: "deploy", body, createdBy: by })));
+    await db.insert(leadActivities).values(linked.map((l) => ({ leadId: l.id, kind: LeadActivityKind.Deploy, body, createdBy: by })));
     await db.update(leads).set({ updatedAt: new Date() }).where(inArray(leads.id, linked.map((l) => l.id)));
 }

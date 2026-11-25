@@ -1,503 +1,353 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useEditor, EditorContent } from "@tiptap/react";
+import { useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useForm, useWatch } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { toast } from "sonner";
+import { EditorContent, useEditor } from "@tiptap/react";
 import { NodeSelection } from "@tiptap/pm/state";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import Link from "@tiptap/extension-link";
 import TextAlign from "@tiptap/extension-text-align";
 import Placeholder from "@tiptap/extension-placeholder";
+import { AlertCircle, BookOpen, ChevronDown, Loader2, Paperclip, Send, UserCheck, Users, Wifi, X } from "lucide-react";
+import { AdminPage } from "@/components/admin/AdminPage";
+import { AdminPanel } from "@/components/admin/AdminPanel";
+import { BlogPostCommand } from "@/components/admin/BlogPostCommand";
 import { EmailImage } from "@/components/admin/email-image-extension";
-import {
-    Send,
-    Loader2,
-    Paperclip,
-    X,
-    Users,
-    UserCheck,
-    AlertCircle,
-    WifiIcon,
-    BookOpen,
-    Search,
-    ChevronDown,
-    ChevronUp,
-} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AdminQueryKey } from "@/config/admin";
+import { RecipientMode, SEND_TO_ALL, SMTP_VERIFY_ACTION } from "@/config/admin-email";
+import { ConfirmVariant, StatusTone } from "@/config/ui";
 import { useConfirm } from "@/hooks/use-confirm";
-import { toast } from "sonner";
-import type { BlogPostSummary, AttachedFile, BulkSendResult } from "@/types/admin";
-import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { useAdminMutation } from "@/hooks/use-admin";
+import { emailCopy } from "@/i18n/admin/email";
+import { blogPostsQuery } from "@/lib/admin-queries";
+import { adminFetch } from "@/lib/admin-api";
+import type { AdminBlogPost, AttachedFile, BulkSendResult, SmtpCheck } from "@/types/admin";
 import { EditorToolbar } from "./EditorToolbar";
 
-export default function SendEmailPage() {
-    const [recipientMode, setRecipientMode] = useState<"all" | "custom">("all");
-    const [customEmails, setCustomEmails] = useState("");
-    const [subject, setSubject] = useState("");
-    const [attachments, setAttachments] = useState<AttachedFile[]>([]);
-    const confirm = useConfirm();
-    const [sending, setSending] = useState(false);
-    const [smtpStatus, setSmtpStatus] = useState<"idle" | "checking" | "ok" | "fail">("idle");
-    const [smtpError, setSmtpError] = useState<string | null>(null);
-    const fileRef = useRef<HTMLInputElement>(null);
+const copy = emailCopy.send;
 
-    // ── Blog post picker ───────────────────────────────────
-    const [showBlogPicker, setShowBlogPicker] = useState(false);
-    const [blogPosts, setBlogPosts] = useState<BlogPostSummary[]>([]);
-    const [blogPostsLoading, setBlogPostsLoading] = useState(false);
-    const [blogSearch, setBlogSearch] = useState("");
-    const [blogPostsError, setBlogPostsError] = useState<string | null>(null);
+const MODE_ICON = { [RecipientMode.All]: Users, [RecipientMode.Custom]: UserCheck };
+
+function splitEmails(value: string): string[] {
+    return value.split(",").map((email) => email.trim()).filter(Boolean);
+}
+
+const schema = z
+    .object({
+        mode: z.enum(RecipientMode),
+        emails: z.string(),
+        subject: z.string().trim().min(1, copy.subject.required),
+        html: z.string().min(1, copy.body.required),
+        attachments: z.array(z.custom<AttachedFile>()),
+    })
+    .superRefine((values, ctx) => {
+        if (values.mode !== RecipientMode.Custom) return;
+        const emails = splitEmails(values.emails);
+        if (emails.length === 0) {
+            ctx.addIssue({ code: "custom", path: ["emails"], message: copy.recipients.required });
+            return;
+        }
+        const invalid = emails.find((email) => !z.email().safeParse(email).success);
+        if (invalid) ctx.addIssue({ code: "custom", path: ["emails"], message: copy.recipients.invalid(invalid) });
+    });
+
+type Values = z.infer<typeof schema>;
+
+const DEFAULTS: Values = { mode: RecipientMode.All, emails: "", subject: "", html: "", attachments: [] };
+
+function formatSize(bytes: number): string {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function verifySmtp(): Promise<SmtpCheck> {
+    return adminFetch<SmtpCheck>("/api/admin/send-email", { query: { action: SMTP_VERIFY_ACTION } });
+}
+
+function SmtpStatus() {
+    const smtp = useQuery({ queryKey: [AdminQueryKey.Smtp], queryFn: verifySmtp, retry: false });
+    if (smtp.isFetching) {
+        return (
+            <Badge tone={StatusTone.Neutral}>
+                <Loader2 className="animate-spin" />
+                {copy.smtp.checking}
+            </Badge>
+        );
+    }
+    if (smtp.data?.ok) {
+        return (
+            <Badge tone={StatusTone.Success} dot>
+                <Wifi />
+                {copy.smtp.ok}
+            </Badge>
+        );
+    }
+    return (
+        <button type="button" onClick={() => smtp.refetch()} title={smtp.error?.message}>
+            <Badge tone={StatusTone.Danger}>
+                <AlertCircle />
+                {copy.smtp.failed}
+            </Badge>
+        </button>
+    );
+}
+
+export default function SendEmailPage() {
+    const confirm = useConfirm();
+    const fileInput = useRef<HTMLInputElement>(null);
+    const [pickerOpen, setPickerOpen] = useState(false);
+    const form = useForm<Values>({ resolver: zodResolver(schema), defaultValues: DEFAULTS });
+
+    const posts = useQuery({ ...blogPostsQuery, enabled: pickerOpen });
 
     const editor = useEditor({
         immediatelyRender: false,
         extensions: [
             StarterKit,
             Underline,
-            Link.configure({ openOnClick: false, HTMLAttributes: { class: "text-primary underline" } }),
+            Link.configure({ openOnClick: false }),
             TextAlign.configure({ types: ["heading", "paragraph"] }),
-            Placeholder.configure({ placeholder: "Write your email message here…" }),
+            Placeholder.configure({ placeholder: copy.body.placeholder }),
             EmailImage,
         ],
         content: "",
         editorProps: {
-            attributes: {
-                class: "tiptap-editor prose prose-sm max-w-none focus:outline-none min-h-[300px] p-4",
-            },
+            attributes: { class: "tiptap-editor prose prose-sm max-w-none min-h-[320px] p-5 focus:outline-none sm:p-6" },
             handleClickOn(view, _pos, node, nodePos) {
-                if (node.type.name === "image") {
-                    const tr = view.state.tr.setSelection(
-                        NodeSelection.create(view.state.doc, nodePos),
-                    );
-                    view.dispatch(tr);
-                    return true;
-                }
-                return false;
+                if (node.type.name !== "image") return false;
+                view.dispatch(view.state.tr.setSelection(NodeSelection.create(view.state.doc, nodePos)));
+                return true;
             },
+        },
+        onUpdate: ({ editor: e }) => syncHtml(e.isEmpty ? "" : e.getHTML()),
+    });
+
+    function syncHtml(html: string) {
+        form.setValue("html", html, { shouldDirty: true, shouldValidate: form.formState.isSubmitted });
+    }
+
+    const send = useAdminMutation({
+        mutationFn: (values: Values) => {
+            const body = new FormData();
+            body.append("to", values.mode === RecipientMode.All ? SEND_TO_ALL : splitEmails(values.emails).join(", "));
+            body.append("subject", values.subject.trim());
+            body.append("html", values.html);
+            values.attachments.forEach((a) => body.append("files[]", a.file));
+            return adminFetch<{ data: BulkSendResult }>("/api/admin/send-email", { method: "POST", body }).then((r) => r.data);
+        },
+        onSuccess: (result, values) => {
+            if (result.accepted === 0) {
+                toast.error(copy.result.failed, { description: result.errors[0] ?? copy.result.allRejected });
+                return;
+            }
+            toast.success(copy.result.sent, {
+                description: copy.result.summary(result.accepted, result.totalRecipients, result.rejected),
+            });
+            form.reset({ ...DEFAULTS, mode: values.mode });
+            editor?.commands.clearContent();
         },
     });
 
-    // ── Blog posts fetch ────────────────────────────────────
-    const fetchBlogPosts = useCallback(async () => {
-        if (blogPosts.length > 0) return; // already loaded
-        setBlogPostsLoading(true);
-        setBlogPostsError(null);
-        try {
-            const res = await fetch("/api/admin/blog-posts");
-            const data = await res.json();
-            if (data.status === "success") {
-                setBlogPosts(data.posts);
-            } else {
-                setBlogPostsError(data.message ?? "Failed to load posts.");
-            }
-        } catch {
-            setBlogPostsError("Network error.");
-        } finally {
-            setBlogPostsLoading(false);
-        }
-    }, [blogPosts.length]);
-
-    function toggleBlogPicker() {
-        const next = !showBlogPicker;
-        setShowBlogPicker(next);
-        if (next) fetchBlogPosts();
-    }
-
-    function applyBlogPost(post: BlogPostSummary) {
-        if (!editor) return;
-        setSubject(`New Post: ${post.title}`);
-        const siteOrigin = "https://doderasoft.com";
-        const readMoreUrl = `${siteOrigin}/blog/${post.slug}`;
-        const html = [
-            `<p>Hey there,</p>`,
-            `<p>We just published a new article and we think you'll find it really valuable:</p>`,
-            `<h2>${post.title}</h2>`,
-            `<p>${post.excerpt}</p>`,
-            `<p><a href="${readMoreUrl}">Read the full article →</a></p>`,
-            `<p>Happy reading!<br/>The Dodera Team</p>`,
-        ].join("\n");
-        editor.commands.setContent(html);
-        setShowBlogPicker(false);
-        setBlogSearch("");
-    }
-
-    // ── SMTP verify ────────────────────────────────────────
-    const checkSmtp = useCallback(async () => {
-        setSmtpStatus("checking");
-        setSmtpError(null);
-        try {
-            const res = await fetch("/api/admin/send-email?action=verify");
-            const data = await res.json();
-            if (data.ok) {
-                setSmtpStatus("ok");
-            } else {
-                setSmtpStatus("fail");
-                setSmtpError(data.error ?? "Connection failed");
-            }
-        } catch {
-            setSmtpStatus("fail");
-            setSmtpError("Network error");
-        }
-    }, []);
-
-    useEffect(() => {
-        checkSmtp();
-    }, [checkSmtp]);
-
-    // ── Attachments ────────────────────────────────────────
-    function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-        const files = Array.from(e.target.files ?? []);
-        setAttachments((prev) => [
-            ...prev,
-            ...files.map((f) => ({ file: f, id: `${f.name}-${Date.now()}-${Math.random()}` })),
-        ]);
-        e.target.value = "";
-    }
-
-    function removeAttachment(id: string) {
-        setAttachments((prev) => prev.filter((a) => a.id !== id));
-    }
-
-    // ── Send ───────────────────────────────────────────────
-    async function handleSend(e: React.FormEvent) {
-        e.preventDefault();
-        if (!editor) return;
-
-        const html = editor.getHTML();
-        if (!html || html === "<p></p>") {
-            toast.error("Email body is empty.");
-            return;
-        }
-
-        const to = recipientMode === "all" ? "all" : customEmails.trim();
-        if (!to) {
-            toast.error("Please enter at least one recipient email.");
-            return;
-        }
-        if (!subject.trim()) {
-            toast.error("Subject is required.");
-            return;
-        }
-
+    async function onSubmit(values: Values) {
         const ok = await confirm({
-            title: "Send email",
+            title: copy.confirm.title,
             description:
-                recipientMode === "all"
-                    ? `Send "${subject}" to all subscribers? This cannot be undone.`
-                    : `Send "${subject}" to ${customEmails.trim()}? This cannot be undone.`,
-            confirmLabel: "Send",
-            variant: "default",
+                values.mode === RecipientMode.All
+                    ? copy.confirm.toAll(values.subject)
+                    : copy.confirm.toCustom(values.subject, splitEmails(values.emails).join(", ")),
+            confirmLabel: copy.confirm.action,
+            variant: ConfirmVariant.Default,
         });
-        if (ok) doSend();
+        if (ok) send.mutate(values);
     }
 
-    async function doSend() {
+    function applyBlogPost(post: AdminBlogPost) {
+        setPickerOpen(false);
         if (!editor) return;
-        const html = editor.getHTML();
-        const to = recipientMode === "all" ? "all" : customEmails.trim();
-        setSending(true);
-
-        try {
-            const form = new FormData();
-            form.append("to", to);
-            form.append("subject", subject.trim());
-            form.append("html", html);
-            attachments.forEach((a) => form.append("files[]", a.file));
-
-            const res = await fetch("/api/admin/send-email", {
-                method: "POST",
-                body: form,
-            });
-
-            const data = await res.json();
-
-            if (data.status === "success") {
-                const r = data.data as BulkSendResult;
-                if (r.accepted === 0) {
-                    const detail = r.errors[0] ?? "SMTP rejected all recipients.";
-                    toast.error("Failed to send email.", { description: detail });
-                } else {
-                    const description = `${r.accepted} / ${r.totalRecipients} delivered${r.rejected > 0 ? `, ${r.rejected} rejected` : ""
-                        }`;
-                    toast.success("Email sent!", { description });
-                    // Reset editor
-                    editor.commands.setContent("");
-                    setSubject("");
-                    setAttachments([]);
-                    if (recipientMode === "custom") setCustomEmails("");
-                }
-            } else {
-                toast.error(data.message ?? "Failed to send.");
-            }
-        } catch {
-            toast.error("Network error. Please try again.");
-        } finally {
-            setSending(false);
-        }
+        form.setValue("subject", copy.blog.subject(post.title), { shouldDirty: true, shouldValidate: form.formState.isSubmitted });
+        editor.commands.setContent(copy.blog.html(post));
+        syncHtml(editor.getHTML());
     }
 
-    // ── File size display ──────────────────────────────────
-    function formatSize(bytes: number): string {
-        if (bytes < 1024) return `${bytes} B`;
-        if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-        return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    function addFiles(event: React.ChangeEvent<HTMLInputElement>) {
+        const files = Array.from(event.target.files ?? []);
+        event.target.value = "";
+        form.setValue("attachments", [
+            ...form.getValues("attachments"),
+            ...files.map((file) => ({ file, id: `${file.name}-${file.lastModified}-${crypto.randomUUID()}` })),
+        ]);
     }
+
+    const mode = useWatch({ control: form.control, name: "mode" });
+    const attachments = useWatch({ control: form.control, name: "attachments" });
 
     return (
-        <div className="space-y-6">
-            <AdminPageHeader
-                title="Send Email"
-                subtitle="Compose and send rich HTML emails to subscribers"
-                actions={
-                    <div className="flex items-center gap-2">
-                        {smtpStatus === "checking" && (
-                            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                Checking SMTP…
-                            </span>
-                        )}
-                        {smtpStatus === "ok" && (
-                            <span className="flex items-center gap-1.5 text-xs text-emerald-500">
-                                <WifiIcon className="w-3.5 h-3.5" />
-                                SMTP connected
-                            </span>
-                        )}
-                        {smtpStatus === "fail" && (
-                            <span
-                                className="flex items-center gap-1.5 text-xs text-destructive cursor-pointer"
-                                title={smtpError ?? ""}
-                                onClick={checkSmtp}
-                            >
-                                <AlertCircle className="w-3.5 h-3.5" />
-                                SMTP error – retry
-                            </span>
-                        )}
-                    </div>
-                }
-            />
-
-            {/* Compose form */}
-            <form onSubmit={handleSend} className="space-y-5">
-                {/* Recipients */}
-                <div className="space-y-3">
-                    <Label>Recipients</Label>
-                    <div className="flex gap-2">
-                        <button
-                            type="button"
-                            onClick={() => setRecipientMode("all")}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${recipientMode === "all"
-                                ? "bg-primary/10 border-primary/40 text-primary"
-                                : "border-border text-muted-foreground hover:text-foreground hover:border-border/80"
-                                }`}
-                        >
-                            <Users className="w-4 h-4" />
-                            All Subscribers
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setRecipientMode("custom")}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${recipientMode === "custom"
-                                ? "bg-primary/10 border-primary/40 text-primary"
-                                : "border-border text-muted-foreground hover:text-foreground hover:border-border/80"
-                                }`}
-                        >
-                            <UserCheck className="w-4 h-4" />
-                            Specific Emails
-                        </button>
-                    </div>
-
-                    {recipientMode === "custom" && (
-                        <div>
-                            <Input
-                                placeholder="email@example.com, another@example.com"
-                                value={customEmails}
-                                onChange={(e) => setCustomEmails(e.target.value)}
-                                className="font-mono text-sm"
+        <AdminPage eyebrow={copy.eyebrow} title={copy.title} description={copy.description} actions={<SmtpStatus />}>
+            <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                    <AdminPanel>
+                        <div className="space-y-6">
+                            <FormField
+                                control={form.control}
+                                name="mode"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>{copy.recipients.label}</FormLabel>
+                                        <Tabs value={field.value} onValueChange={(value) => field.onChange(value as RecipientMode)}>
+                                            <TabsList className="flex w-full sm:inline-flex sm:w-auto">
+                                                {Object.values(RecipientMode).map((value) => {
+                                                    const Icon = MODE_ICON[value];
+                                                    return (
+                                                        <TabsTrigger key={value} value={value} className="flex-1 sm:flex-none">
+                                                            <Icon />
+                                                            {copy.recipients.modes[value]}
+                                                        </TabsTrigger>
+                                                    );
+                                                })}
+                                            </TabsList>
+                                        </Tabs>
+                                    </FormItem>
+                                )}
                             />
-                            <p className="text-xs text-muted-foreground mt-1">
-                                Separate multiple addresses with commas
-                            </p>
-                        </div>
-                    )}
-                </div>
-
-                {/* Subject */}
-                <div className="space-y-2">
-                    <Label htmlFor="subject">Subject</Label>
-                    <Input
-                        id="subject"
-                        placeholder="Your email subject…"
-                        value={subject}
-                        required
-                        onChange={(e) => setSubject(e.target.value)}
-                    />
-                </div>
-
-                {/* Rich editor */}
-                <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                        <Label>Body</Label>
-                        <button
-                            type="button"
-                            onClick={toggleBlogPicker}
-                            className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md border border-rose-500/50 bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:border-rose-500 hover:text-white transition-colors font-medium"
-                        >
-                            <BookOpen className="w-3.5 h-3.5" />
-                            Load from Blog Post
-                            {showBlogPicker ? (
-                                <ChevronUp className="w-3 h-3 ml-0.5" />
-                            ) : (
-                                <ChevronDown className="w-3 h-3 ml-0.5" />
+                            {mode === RecipientMode.Custom && (
+                                <FormField
+                                    control={form.control}
+                                    name="emails"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormControl>
+                                                <Input {...field} placeholder={copy.recipients.placeholder} className="font-mono text-sm" />
+                                            </FormControl>
+                                            <FormDescription>{copy.recipients.hint}</FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
                             )}
-                        </button>
-                    </div>
-
-                    {/* Blog post picker panel */}
-                    {showBlogPicker && (
-                        <div className="border border-border rounded-lg bg-background overflow-hidden">
-                            <div className="p-3 border-b border-border bg-muted/30">
-                                <div className="relative">
-                                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-                                    <input
-                                        type="text"
-                                        placeholder="Search blog posts…"
-                                        value={blogSearch}
-                                        onChange={(e) => setBlogSearch(e.target.value)}
-                                        className="w-full pl-8 pr-3 py-1.5 text-sm bg-background border border-border rounded-md focus:outline-none focus:ring-1 focus:ring-ring"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="max-h-64 overflow-y-auto divide-y divide-border">
-                                {blogPostsLoading && (
-                                    <div className="flex items-center justify-center gap-2 py-8 text-sm text-muted-foreground">
-                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                        Loading posts…
-                                    </div>
+                            <FormField
+                                control={form.control}
+                                name="subject"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>{copy.subject.label}</FormLabel>
+                                        <FormControl>
+                                            <Input {...field} placeholder={copy.subject.placeholder} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
                                 )}
-
-                                {blogPostsError && (
-                                    <div className="flex items-center gap-2 p-4 text-sm text-destructive">
-                                        <AlertCircle className="w-4 h-4" />
-                                        {blogPostsError}
-                                    </div>
-                                )}
-
-                                {!blogPostsLoading && !blogPostsError && blogPosts.length === 0 && (
-                                    <p className="text-sm text-muted-foreground text-center py-8">
-                                        No blog posts found.
-                                    </p>
-                                )}
-
-                                {!blogPostsLoading &&
-                                    blogPosts
-                                        .filter((p) =>
-                                            blogSearch.trim() === "" ||
-                                            p.title.toLowerCase().includes(blogSearch.toLowerCase()) ||
-                                            p.category.toLowerCase().includes(blogSearch.toLowerCase())
-                                        )
-                                        .map((post) => (
-                                            <button
-                                                key={post.slug}
-                                                type="button"
-                                                onClick={() => applyBlogPost(post)}
-                                                className="w-full text-left px-4 py-3 hover:bg-accent transition-colors group"
-                                            >
-                                                <div className="flex items-start justify-between gap-3">
-                                                    <div className="min-w-0">
-                                                        <p className="text-sm font-medium truncate group-hover:text-foreground">
-                                                            {post.title}
-                                                        </p>
-                                                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
-                                                            {post.excerpt}
-                                                        </p>
-                                                    </div>
-                                                    <span className="shrink-0 text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full whitespace-nowrap">
-                                                        {post.category}
-                                                    </span>
-                                                </div>
-                                            </button>
-                                        ))}
-                            </div>
+                            />
                         </div>
-                    )}
+                    </AdminPanel>
 
-                    <div className="border border-border rounded-lg overflow-hidden bg-background">
-                        <EditorToolbar editor={editor} />
-                        <EditorContent editor={editor} />
-                    </div>
-                </div>
-
-                {/* Attachments */}
-                <div className="space-y-2">
-                    <Label>Attachments</Label>
-                    <div
-                        className="border border-dashed border-border rounded-lg p-4 flex items-center gap-3 cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-colors"
-                        onClick={() => fileRef.current?.click()}
-                    >
-                        <Paperclip className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-sm text-muted-foreground">
-                            Click to attach files
-                        </span>
-                        <input
-                            ref={fileRef}
-                            type="file"
-                            multiple
-                            className="hidden"
-                            onChange={handleFileChange}
-                        />
-                    </div>
-
-                    {attachments.length > 0 && (
-                        <ul className="space-y-1.5">
-                            {attachments.map((a) => (
-                                <li
-                                    key={a.id}
-                                    className="flex items-center justify-between px-3 py-2 rounded-md bg-muted text-sm"
+                    <FormField
+                        control={form.control}
+                        name="html"
+                        render={() => (
+                            <FormItem className="space-y-0">
+                                <AdminPanel
+                                    title={copy.body.label}
+                                    flush
+                                    actions={
+                                        <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
+                                            <PopoverTrigger asChild>
+                                                <Button type="button" variant="glass" size="sm" className="rounded-full">
+                                                    <BookOpen />
+                                                    {copy.blog.trigger}
+                                                    <ChevronDown />
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent align="end" className="w-[min(26rem,calc(100vw-2rem))] p-0">
+                                                <BlogPostCommand
+                                                    posts={posts.data}
+                                                    loading={posts.isPending}
+                                                    error={posts.error}
+                                                    onSelect={applyBlogPost}
+                                                    placeholder={copy.blog.search}
+                                                    empty={copy.blog.empty}
+                                                    listClassName="max-h-80"
+                                                />
+                                            </PopoverContent>
+                                        </Popover>
+                                    }
                                 >
-                                    <div className="flex items-center gap-2 min-w-0">
-                                        <Paperclip className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                                        <span className="truncate">{a.file.name}</span>
-                                        <span className="text-muted-foreground shrink-0">
-                                            ({formatSize(a.file.size)})
-                                        </span>
-                                    </div>
-                                    <button
-                                        type="button"
-                                        onClick={() => removeAttachment(a.id)}
-                                        className="text-muted-foreground hover:text-destructive transition-colors ml-2"
-                                    >
-                                        <X className="w-3.5 h-3.5" />
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </div>
-
-                {/* Actions */}
-                <div className="flex items-center justify-between pt-2 border-t border-border">
-                    <p className="text-xs text-muted-foreground">
-                        Sent from: <span className="font-mono">news@doderasoft.com</span> via Zoho SMTP
-                    </p>
-                    <Button type="submit" disabled={sending || smtpStatus === "checking"} className="gap-2">
-                        {sending ? (
-                            <>
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                                Sending…
-                            </>
-                        ) : (
-                            <>
-                                <Send className="w-4 h-4" />
-                                Send Email
-                            </>
+                                    <EditorToolbar editor={editor} />
+                                    <FormControl>
+                                        <EditorContent editor={editor} className="bg-white" />
+                                    </FormControl>
+                                </AdminPanel>
+                                <div className="px-2 pt-2">
+                                    <FormMessage />
+                                </div>
+                            </FormItem>
                         )}
-                    </Button>
-                </div>
-            </form>
+                    />
 
+                    <AdminPanel
+                        title={copy.attachments.label}
+                        actions={
+                            <Button type="button" variant="glass" size="sm" className="rounded-full" onClick={() => fileInput.current?.click()}>
+                                <Paperclip />
+                                {copy.attachments.add}
+                            </Button>
+                        }
+                        flush={attachments.length === 0}
+                    >
+                        <input ref={fileInput} type="file" multiple className="hidden" onChange={addFiles} />
+                        {attachments.length > 0 && (
+                            <ul className="space-y-2">
+                                {attachments.map((a) => (
+                                    <li
+                                        key={a.id}
+                                        className="flex items-center justify-between gap-3 rounded-2xl border border-foreground/[0.07] bg-foreground/[0.02] px-4 py-2.5 text-sm"
+                                    >
+                                        <span className="flex min-w-0 items-center gap-2">
+                                            <Paperclip className="size-3.5 shrink-0 text-muted-foreground" />
+                                            <span className="truncate">{a.file.name}</span>
+                                            <span className="shrink-0 tabular-nums text-muted-foreground">{formatSize(a.file.size)}</span>
+                                        </span>
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            className="size-8 shrink-0 rounded-full text-muted-foreground hover:bg-red-400/10 hover:text-red-400"
+                                            aria-label={copy.attachments.remove(a.file.name)}
+                                            onClick={() =>
+                                                form.setValue(
+                                                    "attachments",
+                                                    attachments.filter((item) => item.id !== a.id),
+                                                )
+                                            }
+                                        >
+                                            <X />
+                                        </Button>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </AdminPanel>
 
-        </div>
+                    <div className="flex flex-col-reverse gap-4 border-t border-foreground/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
+                        <p className="font-mono text-[0.68rem] uppercase tracking-[0.08em] text-muted-foreground">{copy.sender}</p>
+                        <Button type="submit" size="sm" className="rounded-full" disabled={send.isPending || !editor}>
+                            {send.isPending ? <Loader2 className="animate-spin" /> : <Send />}
+                            {send.isPending ? copy.submitting : copy.submit}
+                        </Button>
+                    </div>
+                </form>
+            </Form>
+        </AdminPage>
     );
 }

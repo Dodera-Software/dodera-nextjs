@@ -10,7 +10,7 @@
  * Every message names the sender; where a country rule applies, it also
  * offers an easy way to say no (see the `include` lists in outreach-rules.ts).
  */
-import { mockPolicy } from "@/config/leads";
+import { LeadStage, MockPolicy, mockPolicy } from "@/config/leads";
 import { outreachRuleFor, PREVIEW_LINK_NOTE } from "@/config/outreach-rules";
 import type { Lead } from "@/types/admin";
 
@@ -54,9 +54,9 @@ export function suggestedMessage(lead: Lead, senderName: string | null): Outreac
     const country = lead.country?.trim() || "this country";
     const sign = signature(senderName);
 
-    if (lead.stage === "won" || lead.stage === "lost") return null;
+    if (lead.stage === LeadStage.Won || lead.stage === LeadStage.Lost) return null;
 
-    if (lead.stage === "interested" || lead.stage === "negotiation") {
+    if (lead.stage === LeadStage.Interested || lead.stage === LeadStage.Negotiation) {
         const alreadySent = Boolean(lead.mockup_sent_at);
         return {
             kind: "follow-up",
@@ -75,7 +75,7 @@ export function suggestedMessage(lead: Lead, senderName: string | null): Outreac
         };
     }
 
-    if (mockPolicy(lead.country) === "with-message") {
+    if (mockPolicy(lead.country) === MockPolicy.WithMessage) {
         return {
             kind: "A",
             title: "Message A — with the preview link",

@@ -1,0 +1,16 @@
+export const loginCopy = {
+    eyebrow: "Dodera Software",
+    title: "Sign in",
+    description: "Admin access for the Dodera team.",
+    email: "Email",
+    emailPlaceholder: "you@doderasoft.com",
+    emailInvalid: "Enter a valid email address.",
+    password: "Password",
+    passwordPlaceholder: "Your password",
+    passwordRequired: "Enter your password.",
+    showPassword: "Show password",
+    hidePassword: "Hide password",
+    submit: "Sign in",
+    submitting: "Signing in…",
+    back: "Back to the website",
+} as const;

@@ -1,257 +1,306 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { Editor, useEditorState } from "@tiptap/react";
 import {
-    AlignLeft,
     AlignCenter,
-    AlignRight,
     AlignJustify,
+    AlignLeft,
+    AlignRight,
+    Bold,
+    Code,
+    Heading1,
+    Heading2,
+    Heading3,
+    ImageIcon,
+    Italic,
+    Link as LinkIcon,
     List,
     ListOrdered,
-    Link as LinkIcon,
-    ImageIcon,
-    Trash2,
-    Undo,
+    Pilcrow,
     Redo,
+    Strikethrough,
+    Trash2,
+    Underline,
+    Undo,
+    type LucideIcon,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+    EMAIL_IMAGE_ALIGNS,
+    EMAIL_IMAGE_WIDTHS,
+    EmailImageAlign,
+    EmailImageWidth,
+    HEADING_LEVELS,
+    TEXT_ALIGNMENTS,
+    TextAlignment,
+    type HeadingLevel,
+} from "@/config/admin-email";
+import { emailCopy } from "@/i18n/admin/email";
+import { cn } from "@/lib/utils";
 
-// ─── ToolbarButton ────────────────────────────────────────────────────────────
+const copy = emailCopy.toolbar;
 
-export interface ToolbarButtonProps {
+const ALIGN_ICON: Record<TextAlignment, LucideIcon> = {
+    [TextAlignment.Left]: AlignLeft,
+    [TextAlignment.Center]: AlignCenter,
+    [TextAlignment.Right]: AlignRight,
+    [TextAlignment.Justify]: AlignJustify,
+};
+
+const IMAGE_ALIGN_ICON: Record<EmailImageAlign, LucideIcon> = {
+    [EmailImageAlign.None]: AlignLeft,
+    [EmailImageAlign.Left]: AlignLeft,
+    [EmailImageAlign.Center]: AlignCenter,
+    [EmailImageAlign.Right]: AlignRight,
+};
+
+const HEADING_ICON: Record<HeadingLevel, LucideIcon> = { 1: Heading1, 2: Heading2, 3: Heading3 };
+
+interface ToolbarButtonProps {
+    label: string;
     active?: boolean;
     disabled?: boolean;
-    onClick: () => void;
-    title: string;
-    children: React.ReactNode;
+    onClick?: () => void;
+    children: ReactNode;
+    className?: string;
 }
 
-export function ToolbarButton({ active, disabled, onClick, title, children }: ToolbarButtonProps) {
+function ToolbarButton({ label, active, disabled, onClick, children, className }: ToolbarButtonProps) {
     return (
-        <button
+        <Button
             type="button"
-            title={title}
+            variant="ghost"
+            size="icon"
+            title={label}
+            aria-label={label}
+            aria-pressed={active}
             disabled={disabled}
             onClick={onClick}
-            className={`w-8 h-8 flex items-center justify-center rounded transition-colors disabled:opacity-40 ${active
-                ? "bg-accent text-foreground font-semibold"
-                : "text-muted-foreground hover:text-foreground hover:bg-accent"
-                }`}
+            className={cn(
+                "h-8 w-8 rounded-full text-muted-foreground hover:bg-foreground/[0.06] hover:text-foreground",
+                active && "bg-foreground/[0.1] text-foreground",
+                className,
+            )}
         >
             {children}
-        </button>
+        </Button>
     );
 }
 
-// ─── ToolbarDivider ───────────────────────────────────────────────────────────
-
-export function ToolbarDivider() {
-    return <div className="w-px h-6 bg-border mx-1" />;
+function Divider() {
+    return <span className="mx-1 h-5 w-px bg-foreground/10" aria-hidden />;
 }
 
-// ─── EditorToolbar ────────────────────────────────────────────────────────────
+function LinkButton({ editor, active }: { editor: Editor; active: boolean }) {
+    const [open, setOpen] = useState(false);
+    const [url, setUrl] = useState("");
 
-export interface EditorToolbarProps {
-    editor: Editor | null;
-}
+    function onOpenChange(next: boolean) {
+        if (next) setUrl((editor.getAttributes("link").href as string | undefined) ?? copy.link.placeholder);
+        setOpen(next);
+    }
 
-export function EditorToolbar({ editor }: EditorToolbarProps) {
-    const editorState = useEditorState({
-        editor,
-        selector: (ctx) => ({
-            isImageActive: ctx.editor?.isActive("image") ?? false,
-            imageAttrs: ctx.editor?.getAttributes("image") ?? {},
-        }),
-    });
-
-    const isImageActive = editorState?.isImageActive ?? false;
-    const imageAttrs = editorState?.imageAttrs ?? {};
-
-    const setLink = useCallback(() => {
-        if (!editor) return;
-        const prev = editor.getAttributes("link").href as string | undefined;
-        const url = window.prompt("URL", prev ?? "https://");
-        if (url === null) return;
-        if (!url) {
-            editor.chain().focus().extendMarkRange("link").unsetLink().run();
-            return;
-        }
-        editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
-    }, [editor]);
-
-    const imageInputRef = useRef<HTMLInputElement>(null);
-
-    const insertImage = useCallback(() => {
-        imageInputRef.current?.click();
-    }, []);
-
-    const handleImageFile = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file || !editor) return;
-        const reader = new FileReader();
-        reader.onload = () => {
-            const src = reader.result as string;
-            editor.chain().focus().setImage({ src }).run();
-        };
-        reader.readAsDataURL(file);
-        // reset so the same file can be selected again
-        e.target.value = "";
-    }, [editor]);
-
-    if (!editor) return null;
+    function apply(event: React.FormEvent) {
+        event.preventDefault();
+        event.stopPropagation();
+        const chain = editor.chain().focus().extendMarkRange("link");
+        if (url.trim()) chain.setLink({ href: url.trim() }).run();
+        else chain.unsetLink().run();
+        setOpen(false);
+    }
 
     return (
-        <div className="flex flex-wrap items-center gap-0.5 p-2 border-b border-border bg-muted/40">
-            {/* History */}
-            <ToolbarButton title="Undo" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()}>
-                <Undo className="w-[18px] h-[18px]" />
-            </ToolbarButton>
-            <ToolbarButton title="Redo" onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()}>
-                <Redo className="w-[18px] h-[18px]" />
-            </ToolbarButton>
+        <Popover open={open} onOpenChange={onOpenChange}>
+            <PopoverTrigger asChild>
+                <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    title={copy.link.button}
+                    aria-label={copy.link.button}
+                    aria-pressed={active}
+                    className={cn(
+                        "h-8 w-8 rounded-full text-muted-foreground hover:bg-foreground/[0.06] hover:text-foreground",
+                        active && "bg-foreground/[0.1] text-foreground",
+                    )}
+                >
+                    <LinkIcon />
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80">
+                <form onSubmit={apply} className="space-y-3">
+                    <label className="block font-mono text-[0.68rem] uppercase tracking-[0.08em] text-muted-foreground" htmlFor="email-link-url">
+                        {copy.link.label}
+                    </label>
+                    <Input id="email-link-url" type="url" value={url} onChange={(e) => setUrl(e.target.value)} autoFocus />
+                    <div className="flex justify-end gap-2">
+                        {active && (
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="rounded-full"
+                                onClick={() => {
+                                    editor.chain().focus().extendMarkRange("link").unsetLink().run();
+                                    setOpen(false);
+                                }}
+                            >
+                                {copy.link.remove}
+                            </Button>
+                        )}
+                        <Button type="submit" size="sm" className="rounded-full">
+                            {copy.link.apply}
+                        </Button>
+                    </div>
+                </form>
+            </PopoverContent>
+        </Popover>
+    );
+}
 
-            <ToolbarDivider />
+export function EditorToolbar({ editor }: { editor: Editor | null }) {
+    const imageInput = useRef<HTMLInputElement>(null);
+    const state = useEditorState({
+        editor,
+        selector: ({ editor: e }) =>
+            e
+                ? {
+                    canUndo: e.can().undo(),
+                    canRedo: e.can().redo(),
+                    paragraph: e.isActive("paragraph"),
+                    headings: HEADING_LEVELS.map((level) => e.isActive("heading", { level })),
+                    bold: e.isActive("bold"),
+                    italic: e.isActive("italic"),
+                    underline: e.isActive("underline"),
+                    strike: e.isActive("strike"),
+                    code: e.isActive("code"),
+                    aligns: TEXT_ALIGNMENTS.map((align) => e.isActive({ textAlign: align })),
+                    bulletList: e.isActive("bulletList"),
+                    orderedList: e.isActive("orderedList"),
+                    link: e.isActive("link"),
+                    image: e.isActive("image"),
+                    imageAlign: (e.getAttributes("image").align as EmailImageAlign | undefined) ?? EmailImageAlign.None,
+                    imageWidth: (e.getAttributes("image").width as string | null | undefined) ?? null,
+                }
+                : null,
+    });
 
-            {/* Headings + paragraph */}
-            <ToolbarButton title="Paragraph" active={editor.isActive("paragraph")} onClick={() => editor.chain().focus().setParagraph().run()}>
-                <span className="text-sm font-semibold leading-none">P</span>
-            </ToolbarButton>
-            <ToolbarButton title="Heading 1" active={editor.isActive("heading", { level: 1 })} onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}>
-                <span className="text-sm font-semibold leading-none">H1</span>
-            </ToolbarButton>
-            <ToolbarButton title="Heading 2" active={editor.isActive("heading", { level: 2 })} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}>
-                <span className="text-sm font-semibold leading-none">H2</span>
-            </ToolbarButton>
-            <ToolbarButton title="Heading 3" active={editor.isActive("heading", { level: 3 })} onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}>
-                <span className="text-sm font-semibold leading-none">H3</span>
-            </ToolbarButton>
+    if (!editor || !state) return null;
 
-            <ToolbarDivider />
+    function onImageFile(event: React.ChangeEvent<HTMLInputElement>) {
+        const file = event.target.files?.[0];
+        event.target.value = "";
+        if (!file || !editor) return;
+        const reader = new FileReader();
+        reader.onload = () => editor.chain().focus().setImage({ src: reader.result as string }).run();
+        reader.readAsDataURL(file);
+    }
 
-            {/* Inline marks */}
-            <ToolbarButton title="Bold" active={editor.isActive("bold")} onClick={() => editor.chain().focus().toggleBold().run()}>
-                <span className="text-sm font-bold leading-none">B</span>
-            </ToolbarButton>
-            <ToolbarButton title="Italic" active={editor.isActive("italic")} onClick={() => editor.chain().focus().toggleItalic().run()}>
-                <span className="text-sm italic leading-none">I</span>
-            </ToolbarButton>
-            <ToolbarButton title="Underline" active={editor.isActive("underline")} onClick={() => editor.chain().focus().toggleUnderline().run()}>
-                <span className="text-sm underline leading-none">U</span>
-            </ToolbarButton>
-            <ToolbarButton title="Strikethrough" active={editor.isActive("strike")} onClick={() => editor.chain().focus().toggleStrike().run()}>
-                <span className="text-sm line-through leading-none">S</span>
-            </ToolbarButton>
-            <ToolbarButton title="Inline code" active={editor.isActive("code")} onClick={() => editor.chain().focus().toggleCode().run()}>
-                <span className="text-sm font-mono leading-none">&lt;/&gt;</span>
-            </ToolbarButton>
+    const chain = () => editor.chain().focus();
+    const imageAlign = state.imageAlign === EmailImageAlign.None ? EmailImageAlign.Left : state.imageAlign;
 
-            <ToolbarDivider />
-
-            {/* Alignment */}
-            <ToolbarButton title="Align left" active={editor.isActive({ textAlign: "left" })} onClick={() => editor.chain().focus().setTextAlign("left").run()}>
-                <AlignLeft className="w-[18px] h-[18px]" />
+    return (
+        <div role="toolbar" aria-label={copy.label} className="flex flex-wrap items-center gap-0.5 border-b border-foreground/10 bg-foreground/[0.03] p-2">
+            <ToolbarButton label={copy.undo} disabled={!state.canUndo} onClick={() => chain().undo().run()}>
+                <Undo />
             </ToolbarButton>
-            <ToolbarButton title="Align center" active={editor.isActive({ textAlign: "center" })} onClick={() => editor.chain().focus().setTextAlign("center").run()}>
-                <AlignCenter className="w-[18px] h-[18px]" />
+            <ToolbarButton label={copy.redo} disabled={!state.canRedo} onClick={() => chain().redo().run()}>
+                <Redo />
             </ToolbarButton>
-            <ToolbarButton title="Align right" active={editor.isActive({ textAlign: "right" })} onClick={() => editor.chain().focus().setTextAlign("right").run()}>
-                <AlignRight className="w-[18px] h-[18px]" />
+            <Divider />
+            <ToolbarButton label={copy.paragraph} active={state.paragraph} onClick={() => chain().setParagraph().run()}>
+                <Pilcrow />
             </ToolbarButton>
-            <ToolbarButton title="Justify" active={editor.isActive({ textAlign: "justify" })} onClick={() => editor.chain().focus().setTextAlign("justify").run()}>
-                <AlignJustify className="w-[18px] h-[18px]" />
+            {HEADING_LEVELS.map((level, index) => {
+                const Icon = HEADING_ICON[level];
+                return (
+                    <ToolbarButton key={level} label={copy.heading(level)} active={state.headings[index]} onClick={() => chain().toggleHeading({ level }).run()}>
+                        <Icon />
+                    </ToolbarButton>
+                );
+            })}
+            <Divider />
+            <ToolbarButton label={copy.bold} active={state.bold} onClick={() => chain().toggleBold().run()}>
+                <Bold />
             </ToolbarButton>
-
-            <ToolbarDivider />
-
-            {/* Lists */}
-            <ToolbarButton title="Bullet list" active={editor.isActive("bulletList")} onClick={() => editor.chain().focus().toggleBulletList().run()}>
-                <List className="w-[18px] h-[18px]" />
+            <ToolbarButton label={copy.italic} active={state.italic} onClick={() => chain().toggleItalic().run()}>
+                <Italic />
             </ToolbarButton>
-            <ToolbarButton title="Ordered list" active={editor.isActive("orderedList")} onClick={() => editor.chain().focus().toggleOrderedList().run()}>
-                <ListOrdered className="w-[18px] h-[18px]" />
+            <ToolbarButton label={copy.underline} active={state.underline} onClick={() => chain().toggleUnderline().run()}>
+                <Underline />
             </ToolbarButton>
-
-            <ToolbarDivider />
-
-            {/* Link */}
-            <ToolbarButton title="Set link" active={editor.isActive("link")} onClick={setLink}>
-                <LinkIcon className="w-[18px] h-[18px]" />
+            <ToolbarButton label={copy.strike} active={state.strike} onClick={() => chain().toggleStrike().run()}>
+                <Strikethrough />
             </ToolbarButton>
-
-            <ToolbarDivider />
-
-            {/* Image */}
-            <ToolbarButton title="Insert image from file" onClick={insertImage}>
-                <ImageIcon className="w-[18px] h-[18px]" />
+            <ToolbarButton label={copy.code} active={state.code} onClick={() => chain().toggleCode().run()}>
+                <Code />
             </ToolbarButton>
-            <input
-                ref={imageInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleImageFile}
-            />
+            <Divider />
+            {TEXT_ALIGNMENTS.map((align, index) => {
+                const Icon = ALIGN_ICON[align];
+                return (
+                    <ToolbarButton key={align} label={copy.align[align]} active={state.aligns[index]} onClick={() => chain().setTextAlign(align).run()}>
+                        <Icon />
+                    </ToolbarButton>
+                );
+            })}
+            <Divider />
+            <ToolbarButton label={copy.bulletList} active={state.bulletList} onClick={() => chain().toggleBulletList().run()}>
+                <List />
+            </ToolbarButton>
+            <ToolbarButton label={copy.orderedList} active={state.orderedList} onClick={() => chain().toggleOrderedList().run()}>
+                <ListOrdered />
+            </ToolbarButton>
+            <Divider />
+            <LinkButton editor={editor} active={state.link} />
+            <ToolbarButton label={copy.image.insert} onClick={() => imageInput.current?.click()}>
+                <ImageIcon />
+            </ToolbarButton>
+            <input ref={imageInput} type="file" accept="image/*" className="hidden" onChange={onImageFile} />
 
-            {/* Image size controls — only visible when an image node is selected */}
-            {isImageActive && (
+            {state.image && (
                 <>
-                    <ToolbarDivider />
-                    <span className="text-[11px] text-muted-foreground px-1 select-none">Align:</span>
+                    <Divider />
+                    <span className="px-1 font-mono text-[0.68rem] uppercase tracking-[0.08em] text-muted-foreground">{copy.image.align}</span>
+                    {EMAIL_IMAGE_ALIGNS.map((align) => {
+                        const Icon = IMAGE_ALIGN_ICON[align];
+                        return (
+                            <ToolbarButton
+                                key={align}
+                                label={copy.image.alignments[align]}
+                                active={imageAlign === align}
+                                onClick={() => chain().updateAttributes("image", { align }).run()}
+                            >
+                                <Icon />
+                            </ToolbarButton>
+                        );
+                    })}
+                    <Divider />
+                    <span className="px-1 font-mono text-[0.68rem] uppercase tracking-[0.08em] text-muted-foreground">{copy.image.size}</span>
+                    {EMAIL_IMAGE_WIDTHS.map((width) => {
+                        const value = width === EmailImageWidth.Full ? null : width;
+                        return (
+                            <ToolbarButton
+                                key={width}
+                                label={copy.image.widths[width].label}
+                                active={state.imageWidth === value}
+                                onClick={() => chain().updateAttributes("image", { width: value, height: null }).run()}
+                                className="w-auto min-w-8 px-2 text-xs font-semibold"
+                            >
+                                {copy.image.widths[width].short}
+                            </ToolbarButton>
+                        );
+                    })}
+                    <Divider />
                     <ToolbarButton
-                        title="Align left"
-                        active={(imageAttrs.align ?? "none") === "left" || (imageAttrs.align ?? "none") === "none"}
-                        onClick={() => editor.chain().focus().updateAttributes("image", { align: "left" }).run()}
+                        label={copy.image.remove}
+                        onClick={() => chain().deleteSelection().run()}
+                        className="hover:bg-red-400/10 hover:text-red-400"
                     >
-                        <AlignLeft className="w-[16px] h-[16px]" />
-                    </ToolbarButton>
-                    <ToolbarButton
-                        title="Align center"
-                        active={imageAttrs.align === "center"}
-                        onClick={() => editor.chain().focus().updateAttributes("image", { align: "center" }).run()}
-                    >
-                        <AlignCenter className="w-[16px] h-[16px]" />
-                    </ToolbarButton>
-                    <ToolbarButton
-                        title="Align right"
-                        active={imageAttrs.align === "right"}
-                        onClick={() => editor.chain().focus().updateAttributes("image", { align: "right" }).run()}
-                    >
-                        <AlignRight className="w-[16px] h-[16px]" />
-                    </ToolbarButton>
-                    <ToolbarDivider />
-                    <span className="text-[11px] text-muted-foreground px-1 select-none">Size:</span>
-                    {(
-                        [
-                            { label: "S", title: "Small (200 px)", width: "200" },
-                            { label: "M", title: "Medium (400 px)", width: "400" },
-                            { label: "L", title: "Large (600 px)", width: "600" },
-                            { label: "Full", title: "Full width", width: null },
-                        ] as { label: string; title: string; width: string | null }[]
-                    ).map(({ label, title, width }) => (
-                        <ToolbarButton
-                            key={label}
-                            title={title}
-                            active={
-                                (imageAttrs.width ?? null) ===
-                                (width ?? null)
-                            }
-                            onClick={() =>
-                                editor
-                                    .chain()
-                                    .focus()
-                                    .updateAttributes("image", { width, height: null })
-                                    .run()
-                            }
-                        >
-                            <span className="text-[11px] font-semibold leading-none">{label}</span>
-                        </ToolbarButton>
-                    ))}
-                    <ToolbarDivider />
-                    <ToolbarButton
-                        title="Remove image"
-                        onClick={() => editor.chain().focus().deleteSelection().run()}
-                    >
-                        <Trash2 className="w-[16px] h-[16px] text-destructive" />
+                        <Trash2 />
                     </ToolbarButton>
                 </>
             )}

@@ -16,7 +16,10 @@
  * entry for a new campaign.
  */
 
-export type OutreachApproach = "direct" | "ask-first";
+export enum OutreachApproach {
+    Direct = "direct",
+    AskFirst = "ask-first",
+}
 
 export interface OutreachSource {
     label: string;
@@ -42,7 +45,7 @@ export const OUTREACH_RULES: readonly OutreachRule[] = [
         code: "ES",
         name: "Spain",
         aliases: ["spain", "espana", "es"],
-        approach: "ask-first",
+        approach: OutreachApproach.AskFirst,
         rule:
             "Unsolicited promotional messages by email or an equivalent electronic channel (DMs included) are banned " +
             "unless the recipient asked for or expressly authorised them — this applies to companies too (LSSI art. 21).",
@@ -56,7 +59,7 @@ export const OUTREACH_RULES: readonly OutreachRule[] = [
         code: "IT",
         name: "Italy",
         aliases: ["italy", "italia", "it"],
-        approach: "ask-first",
+        approach: OutreachApproach.AskFirst,
         rule:
             "Promotional messages by email, SMS or social-network messages need the recipient's prior consent, companies " +
             "included (Privacy Code art. 130). The Garante explicitly covers private messages on Facebook.",
@@ -72,7 +75,7 @@ export const OUTREACH_RULES: readonly OutreachRule[] = [
         code: "RO",
         name: "Romania",
         aliases: ["romania", "ro"],
-        approach: "ask-first",
+        approach: OutreachApproach.AskFirst,
         rule:
             "Commercial communications by email or any other public electronic communication service need the " +
             "recipient's prior express consent — explicitly including companies (Law 506/2004, art. 12).",
@@ -83,7 +86,7 @@ export const OUTREACH_RULES: readonly OutreachRule[] = [
         code: "CH",
         name: "Switzerland",
         aliases: ["switzerland", "schweiz", "suisse", "svizzera", "ch"],
-        approach: "direct",
+        approach: OutreachApproach.Direct,
         rule:
             "Prior consent is required for mass advertising only (UWG art. 3 para. 1 let. o). Individually written " +
             "messages are fine, but each one must name the real sender and offer a free, easy way to refuse more.",
@@ -97,7 +100,7 @@ export const OUTREACH_RULES: readonly OutreachRule[] = [
         code: "NL",
         name: "Netherlands",
         aliases: ["netherlands", "the netherlands", "nederland", "holland", "nl"],
-        approach: "ask-first",
+        approach: OutreachApproach.AskFirst,
         rule:
             "The spam ban (Telecommunicatiewet art. 11.7) has covered companies as well as people since 2009: ads by " +
             "email, WhatsApp or other electronic messages need prior consent. ACM has fined B2B email senders.",
@@ -114,7 +117,7 @@ export const OUTREACH_RULES: readonly OutreachRule[] = [
         code: "AE",
         name: "United Arab Emirates",
         aliases: ["united arab emirates", "uae", "dubai", "ae"],
-        approach: "direct",
+        approach: OutreachApproach.Direct,
         rule: null,
         include: [],
         sources: [],
@@ -123,7 +126,7 @@ export const OUTREACH_RULES: readonly OutreachRule[] = [
         code: "US",
         name: "United States",
         aliases: ["united states", "united states of america", "usa", "us", "america"],
-        approach: "direct",
+        approach: OutreachApproach.Direct,
         rule: null,
         include: ["If you email them (CAN-SPAM): add your postal address and an opt-out line"],
         sources: [
@@ -134,7 +137,7 @@ export const OUTREACH_RULES: readonly OutreachRule[] = [
         code: "CA",
         name: "Canada",
         aliases: ["canada", "ca"],
-        approach: "ask-first",
+        approach: OutreachApproach.AskFirst,
         rule:
             "CASL needs consent for every commercial electronic message (email, DM, text), and a message asking for " +
             "consent counts as one. Consent is implied if the business published this address or account publicly, " +
@@ -155,7 +158,7 @@ export const OUTREACH_RULES: readonly OutreachRule[] = [
         code: "AU",
         name: "Australia",
         aliases: ["australia", "au", "aus"],
-        approach: "ask-first",
+        approach: OutreachApproach.AskFirst,
         rule:
             "The Spam Act 2003 needs consent for every commercial electronic message (email, SMS, instant message), " +
             "businesses included (s. 16). Consent can be inferred if the business published this address conspicuously, " +
@@ -176,7 +179,7 @@ export const OUTREACH_RULES: readonly OutreachRule[] = [
         code: "GB",
         name: "United Kingdom",
         aliases: ["united kingdom", "uk", "great britain", "britain", "england", "scotland", "wales", "northern ireland", "gb"],
-        approach: "direct",
+        approach: OutreachApproach.Direct,
         rule:
             "Limited companies and LLPs can be messaged without consent (DMs count as electronic mail). Sole traders " +
             "and most partnerships need consent first — check Companies House for Ltd / LLP.",
@@ -195,7 +198,7 @@ export const OUTREACH_RULES: readonly OutreachRule[] = [
         code: "DE",
         name: "Germany",
         aliases: ["germany", "deutschland", "de"],
-        approach: "ask-first",
+        approach: OutreachApproach.AskFirst,
         rule:
             "Advertising by email or electronic messages needs prior express consent from every recipient, businesses " +
             "included (UWG § 7(2)); the BGH counts even a business enquiry by email as advertising. A phone call to a " +
@@ -213,7 +216,7 @@ export const OUTREACH_RULES: readonly OutreachRule[] = [
         code: "AT",
         name: "Austria",
         aliases: ["austria", "osterreich", "at"],
-        approach: "ask-first",
+        approach: OutreachApproach.AskFirst,
         rule:
             "Electronic mail (incl. SMS) for direct marketing needs the recipient's prior consent, whether a person or a " +
             "company (TKG 2021 § 174). Hiding your identity is never allowed.",

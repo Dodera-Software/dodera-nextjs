@@ -1,66 +1,84 @@
-/**
- * Leads pipeline (Admin → Leads) — shared constants (safe for client and server).
- *
- * The outreach flow: find a business (New) → collect its photos and build a
- * mock site (Mockup) → send the first message (Contacted) → they reply
- * (Interested) → Negotiation → Won / Lost.
- *
- * The kanban board renders one column per stage, in this order. Stage ids are
- * stored in `leads.stage`, so renaming a label is free but changing an id
- * needs a data migration.
- */
+import { OUTREACH_RULES, outreachRuleFor, OutreachApproach } from "@/config/outreach-rules";
+import { StatusTone } from "@/config/ui";
 
-import { OUTREACH_RULES, outreachRuleFor } from "@/config/outreach-rules";
+export enum LeadStage {
+    New = "new",
+    Mockup = "mockup",
+    Contacted = "contacted",
+    Interested = "interested",
+    Negotiation = "negotiation",
+    Won = "won",
+    Lost = "lost",
+}
 
-export const LEAD_STAGES = [
-    { id: "new", label: "New", description: "Business found — collect photos, logo and info", dot: "bg-sky-400" },
-    { id: "mockup", label: "Mockup", description: "Building the mock site", dot: "bg-amber-400" },
-    { id: "contacted", label: "Contacted", description: "First message sent", dot: "bg-violet-400" },
-    { id: "interested", label: "Interested", description: "Replied and wants to know more", dot: "bg-orange-400" },
-    { id: "negotiation", label: "Negotiation", description: "Discussing scope and price", dot: "bg-pink-400" },
-    { id: "won", label: "Won", description: "Signed — hand over to delivery", dot: "bg-emerald-500" },
-    { id: "lost", label: "Lost", description: "Not moving forward", dot: "bg-zinc-400" },
-] as const;
+export enum LeadActivityKind {
+    Note = "note",
+    Created = "created",
+    Stage = "stage",
+    Deploy = "deploy",
+    Mock = "mock",
+}
 
-export type LeadStage = (typeof LEAD_STAGES)[number]["id"];
+export interface LeadStageDefinition {
+    id: LeadStage;
+    label: string;
+    description: string;
+    tone: StatusTone;
+}
 
-const STAGE_IDS = new Set<string>(LEAD_STAGES.map((s) => s.id));
+export const LEAD_STAGES: readonly LeadStageDefinition[] = [
+    { id: LeadStage.New, label: "New", description: "Business found — collect photos, logo and info", tone: StatusTone.Info },
+    { id: LeadStage.Mockup, label: "Mockup", description: "Building the mock site", tone: StatusTone.Warning },
+    { id: LeadStage.Contacted, label: "Contacted", description: "First message sent", tone: StatusTone.Brand },
+    { id: LeadStage.Interested, label: "Interested", description: "Replied and wants to know more", tone: StatusTone.Warning },
+    { id: LeadStage.Negotiation, label: "Negotiation", description: "Discussing scope and price", tone: StatusTone.Brand },
+    { id: LeadStage.Won, label: "Won", description: "Signed — hand over to delivery", tone: StatusTone.Success },
+    { id: LeadStage.Lost, label: "Lost", description: "Not moving forward", tone: StatusTone.Neutral },
+];
+
+const STAGE_IDS = new Set<string>(Object.values(LeadStage));
 
 export function isLeadStage(value: unknown): value is LeadStage {
     return typeof value === "string" && STAGE_IDS.has(value);
 }
 
-export function stageLabel(stage: string): string {
-    return LEAD_STAGES.find((s) => s.id === stage)?.label ?? stage;
+export function stageDefinition(stage: string): LeadStageDefinition | undefined {
+    return LEAD_STAGES.find((s) => s.id === stage);
 }
 
-/** Stages where the business has heard from us (the mock may or may not have been sent). */
-export const OUTREACH_STAGES = new Set<string>(["contacted", "interested", "negotiation", "won", "lost"]);
+export function stageLabel(stage: string): string {
+    return stageDefinition(stage)?.label ?? stage;
+}
 
-/* ── Mock policy per country ───────────────────────────────── */
+export const OUTREACH_STAGES: ReadonlySet<string> = new Set<string>([
+    LeadStage.Contacted,
+    LeadStage.Interested,
+    LeadStage.Negotiation,
+    LeadStage.Won,
+    LeadStage.Lost,
+]);
 
-/**
- * Whether the mock link goes with the first message ("with-message") or only
- * once the business replies positively ("on-request"). Comes from the
- * country's entry in OUTREACH_RULES; countries not listed there default to
- * "with-message".
- */
-export type MockPolicy = "with-message" | "on-request";
+export const CLOSED_STAGES: ReadonlySet<string> = new Set<string>([LeadStage.Won, LeadStage.Lost]);
+
+export enum MockPolicy {
+    WithMessage = "with-message",
+    OnRequest = "on-request",
+}
 
 export function mockPolicy(country: string | null | undefined): MockPolicy {
-    return outreachRuleFor(country)?.approach === "ask-first" ? "on-request" : "with-message";
+    return outreachRuleFor(country)?.approach === OutreachApproach.AskFirst ? MockPolicy.OnRequest : MockPolicy.WithMessage;
 }
 
-/** Suggestions for the Country field: the countries we contact. Anything else can be typed. */
 export const COMMON_COUNTRIES: readonly string[] = OUTREACH_RULES.map((r) => r.name);
 
-/* ── Links ─────────────────────────────────────────────────── */
-
-export type SocialKind = "facebook" | "instagram";
+export enum SocialKind {
+    Facebook = "facebook",
+    Instagram = "instagram",
+}
 
 const SOCIAL_BASE: Record<SocialKind, string> = {
-    facebook: "https://www.facebook.com/",
-    instagram: "https://www.instagram.com/",
+    [SocialKind.Facebook]: "https://www.facebook.com/",
+    [SocialKind.Instagram]: "https://www.instagram.com/",
 };
 
 const HANDLE_RE = /^[A-Za-z0-9._-]{1,100}$/;
@@ -75,10 +93,6 @@ function asUrl(raw: string): string | null {
     }
 }
 
-/**
- * "@pawsalon", "pawsalon", "instagram.com/pawsalon" or a full URL → a full
- * profile URL. Returns null for empty input and `false` when it can't be read.
- */
 export function normalizeSocial(kind: SocialKind, input: string): string | null | false {
     const raw = input.trim();
     if (!raw) return null;
@@ -87,7 +101,6 @@ export function normalizeSocial(kind: SocialKind, input: string): string | null 
     return asUrl(raw) ?? false;
 }
 
-/** Any link (Google Maps, website): adds https:// when missing. `false` when it isn't a link. */
 export function normalizeLink(input: string): string | null | false {
     const raw = input.trim();
     if (!raw) return null;
@@ -98,8 +111,8 @@ export const LEAD_LIMITS = {
     name: 120,
     shortText: 200,
     url: 1000,
+    phone: 60,
     notes: 10_000,
     activity: 2_000,
-    /** Estimated deal value in EUR (whole euros). */
     maxValue: 100_000_000,
 } as const;

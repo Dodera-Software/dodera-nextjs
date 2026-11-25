@@ -10,8 +10,22 @@ export const OPENAI_TEXT_MODELS = [
     { value: "gpt-5.2", label: "GPT-5.2" },
 ];
 
+export enum ImageModel {
+    DallE2 = "dall-e-2",
+    DallE3 = "dall-e-3",
+    GptImage1 = "gpt-image-1",
+}
+
+export const DEFAULT_IMAGE_MODEL = ImageModel.DallE3;
+
+export const IMAGE_MODEL_CONFIG_KEY = "image_generation_model";
+
 export const IMAGE_MODELS = [
-    { value: "dall-e-2", label: "DALL-E 2" },
-    { value: "dall-e-3", label: "DALL-E 3" },
-    { value: "gpt-image-1", label: "GPT Image 1" },
+    { value: ImageModel.DallE2, label: "DALL-E 2" },
+    { value: ImageModel.DallE3, label: "DALL-E 3" },
+    { value: ImageModel.GptImage1, label: "GPT Image 1" },
 ];
+
+export function isImageModel(value: unknown): value is ImageModel {
+    return typeof value === "string" && IMAGE_MODELS.some((model) => model.value === value);
+}

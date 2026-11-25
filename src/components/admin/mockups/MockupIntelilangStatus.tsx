@@ -1,41 +1,38 @@
 "use client";
 
-import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { BrainCircuit, Loader2 } from "lucide-react";
-import { toast } from "sonner";
-import type { MockupDeployment, MockupProjectDetail } from "@/types/admin";
+import { AdminQueryKey } from "@/config/admin";
+import { useAdminMutation } from "@/hooks/use-admin";
+import { mockupsCopy } from "@/i18n/admin/mockups";
+import { adminFetch } from "@/lib/admin-api";
+import { cn } from "@/lib/utils";
+import type { MockupDeployment } from "@/types/admin";
+
+const copy = mockupsCopy.intelilang;
 
 interface MockupIntelilangStatusProps {
     projectId: number;
     deployment: MockupDeployment;
-    /** InteliLang is set up in Settings; without it nothing can be sent. */
     connected: boolean;
-    onChange: (project: MockupProjectDetail) => void;
 }
 
-/** Whether one version reached InteliLang, and a way to send it (again). */
-export function MockupIntelilangStatus({ projectId, deployment, connected, onChange }: MockupIntelilangStatusProps) {
-    const [sending, setSending] = useState(false);
+export function MockupIntelilangStatus({ projectId, deployment, connected }: MockupIntelilangStatusProps) {
+    const queryClient = useQueryClient();
     const status = deployment.intelilang_status;
+    const failed = status === "failed";
 
-    async function send() {
-        setSending(true);
-        try {
-            const res = await fetch(`/api/admin/mockups/${projectId}/deployments/${deployment.id}/intelilang`, { method: "POST" });
-            const body = await res.json().catch(() => null);
-            if (body?.data) onChange(body.data);
-            if (body?.status === "success") toast.success(`Version ${deployment.version} sent to InteliLang`);
-            else toast.error(body?.message ?? "Not sent to InteliLang");
-        } finally {
-            setSending(false);
-        }
-    }
+    const send = useAdminMutation({
+        mutationFn: () => adminFetch(`/api/admin/mockups/${projectId}/deployments/${deployment.id}/intelilang`, { method: "POST" }),
+        invalidates: [AdminQueryKey.Mockups],
+        success: copy.done(deployment.version),
+    });
 
     if (status === "sent") {
         return (
-            <span className="inline-flex items-center gap-1 text-[11px] text-primary" title="InteliLang knows about this version">
-                <BrainCircuit className="w-3 h-3" />
-                In InteliLang
+            <span className="inline-flex items-center gap-1 text-[0.7rem] text-brand-bright" title={copy.sentHint}>
+                <BrainCircuit className="size-3" />
+                {copy.sent}
             </span>
         );
     }
@@ -43,13 +40,16 @@ export function MockupIntelilangStatus({ projectId, deployment, connected, onCha
     return (
         <button
             type="button"
-            onClick={send}
-            disabled={sending}
-            className={`inline-flex items-center gap-1 text-[11px] hover:underline disabled:opacity-60 ${status === "failed" ? "text-destructive" : "text-muted-foreground"}`}
-            title={status === "failed" ? "The last attempt failed. Send it again." : "Tell InteliLang about this version"}
+            onClick={() => send.mutate(undefined, { onError: () => queryClient.invalidateQueries({ queryKey: [AdminQueryKey.Mockups, projectId] }) })}
+            disabled={send.isPending}
+            title={failed ? copy.retryHint : copy.sendHint}
+            className={cn(
+                "inline-flex items-center gap-1 text-[0.7rem] transition-colors hover:text-foreground disabled:opacity-60",
+                failed ? "text-red-400" : "text-muted-foreground",
+            )}
         >
-            {sending ? <Loader2 className="w-3 h-3 animate-spin" /> : <BrainCircuit className="w-3 h-3" />}
-            {status === "failed" ? "InteliLang failed · retry" : "Send to InteliLang"}
+            {send.isPending ? <Loader2 className="size-3 animate-spin" /> : <BrainCircuit className="size-3" />}
+            {failed ? copy.retry : copy.send}
         </button>
     );
 }
