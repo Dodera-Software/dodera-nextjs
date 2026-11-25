@@ -6,6 +6,8 @@ lives in Postgres, accessed via [Drizzle ORM](https://orm.drizzle.team).
 Deployed on a Hetzner server with [Coolify](https://coolify.io) (Dockerfile
 build, see `MIGRATION.md` for the full setup/runbook).
 
+Design system, page patterns and code rules (for people and AI agents): [`AGENTS.md`](AGENTS.md).
+
 ## Getting Started
 
 ```bash
