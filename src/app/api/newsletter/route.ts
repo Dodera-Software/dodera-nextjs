@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { subscribers } from "@/db/schema";
 import { z } from "zod";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { RateLimitScope } from "@/config/rate-limit";
 import { getConfig } from "@/lib/app-config";
 import { sendEmail, buildSubscriberEmail, injectUnsubscribeFooter } from "@/lib/email-service";
 
@@ -34,7 +35,7 @@ export async function POST(request: NextRequest) {
 
         /* IP rate limit */
         const ip = getClientIp(request);
-        const { limited } = await checkRateLimit("newsletter", ip);
+        const { limited } = await checkRateLimit(RateLimitScope.Newsletter, ip);
         if (limited) {
             return NextResponse.json(
                 { status: "error", message: "Too many requests. Please try again later." },

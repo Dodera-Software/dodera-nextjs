@@ -26,7 +26,7 @@ export const settingsCopy = {
             [ConfigKey.ImageGenerationModel]: "Model used for AI image generation (e.g. dall-e-3 or gpt-image-1).",
             [ConfigKey.ContactFollowupDailyLimit]: "Max AI calls per day (UTC). 0 = unlimited.",
             [ConfigKey.ContactRateLimitMax]: "Max contact form submissions allowed per IP within the time window.",
-            [ConfigKey.ContactRateLimitWindowMinutes]: "Rolling window in minutes for the contact form IP rate limit.",
+            [ConfigKey.ContactRateLimitWindowMinutes]: "Window in minutes for the contact form IP rate limit.",
         } as Partial<Record<string, string>>,
     },
     intelilang: {

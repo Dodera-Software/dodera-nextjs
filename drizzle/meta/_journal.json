@@ -36,6 +36,20 @@
       "when": 1790673008236,
       "tag": "0004_leads_outreach",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1795622003890,
+      "tag": "0005_admin_security",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1795622004490,
+      "tag": "0006_drop_rate_limit_log",
+      "breakpoints": true
     }
   ]
 }

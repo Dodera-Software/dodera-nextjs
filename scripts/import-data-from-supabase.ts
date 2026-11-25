@@ -186,17 +186,6 @@ const TABLES: TableSpec[] = [
             createdAt: date(r.created_at) ?? new Date(),
         }),
     },
-    {
-        name: "rate_limit_log",
-        table: schema.rateLimitLog,
-        orderBy: "id",
-        identity: true,
-        map: (r) => ({
-            id: r.id,
-            key: r.key,
-            createdAt: date(r.created_at) ?? new Date(),
-        }),
-    },
 ];
 
 async function fetchAllRows(baseUrl: string, key: string, spec: TableSpec): Promise<Row[]> {

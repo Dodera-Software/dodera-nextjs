@@ -40,6 +40,8 @@ const nextConfig: NextConfig = {
   /* ── Standalone output — required for the Docker/Coolify build ── */
   output: "standalone",
 
+  serverExternalPackages: ["rate-limiter-flexible", "drizzle-orm"],
+
   /* ── Trailing slashes ────────────────────────────────────
    * Handled in middleware instead of by Next so that mockup hosts can
    * serve "folder/" URLs (the default redirect would strip the slash).

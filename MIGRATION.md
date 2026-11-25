@@ -54,7 +54,6 @@ pg_dump "$SUPA_DB" \
   -t public.contacts \
   -t public.job_applications \
   -t public.job_openings \
-  -t public.rate_limit_log \
   -t public.social_post_examples \
   -t public.subscribers \
   -f supabase-data.sql
