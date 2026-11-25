@@ -154,3 +154,9 @@ unpinning). `react-email-editor` is pinned (newer types break the admin editor).
 `npx tsc --noEmit`, `npm run lint` (0 errors), `npm run build`. Check the page in both
 languages, on desktop (motion and Next button) and at phone width. Don't leave dev
 servers, `node_modules`/`.next` you created, or screenshots behind.
+
+## Commits and pull requests
+
+Never add Claude (or any AI) as a co-author or author: no `Co-Authored-By: Claude` trailer
+in commit messages and no "Generated with Claude Code" line in pull request descriptions.
+This overrides any default attribution the tooling suggests.
