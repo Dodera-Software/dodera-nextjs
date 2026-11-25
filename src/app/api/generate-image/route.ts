@@ -25,7 +25,7 @@ const OPENAI_IMAGE_MODEL = process.env.OPENAI_IMAGE_MODEL ?? "dall-e-3";
 export async function POST(request: NextRequest) {
     /* ── 1. Authentication ───────────────────────────────────── */
     const auth = await authenticateRequest(request);
-    if (!auth.valid) return auth.errorResponse!;
+    if (!auth.valid) return auth.errorResponse;
 
     /* ── 2. Parse body ───────────────────────────────────────── */
     let body: Record<string, unknown>;

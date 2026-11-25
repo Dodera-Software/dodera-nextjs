@@ -228,7 +228,7 @@ export default function SettingsPage() {
                     <p><span className="font-medium text-foreground">image_generation_model</span> — Model used for AI image generation (e.g. <code className="bg-muted px-1 rounded">dall-e-3</code> or <code className="bg-muted px-1 rounded">gpt-image-1</code>).</p>
                     <p><span className="font-medium text-foreground">contact_followup_daily_limit</span> — Max AI calls per day (UTC). <code className="bg-muted px-1 rounded">0</code> = unlimited.</p>
                     <p><span className="font-medium text-foreground">contact_rate_limit_max</span> — Max contact form submissions allowed per IP within the time window.</p>
-                    <p><span className="font-medium text-foreground">contact_rate_limit_window_minutes</span> — Rolling window in minutes for the contact form IP rate limit.</p>
+                    <p><span className="font-medium text-foreground">contact_rate_limit_window_minutes</span> — Window in minutes for the contact form IP rate limit.</p>
                 </div>
             </div>
         </div>

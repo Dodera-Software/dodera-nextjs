@@ -1,14 +1,12 @@
 import "server-only";
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
+import { eq, sql } from "drizzle-orm";
+import { z } from "zod";
+import { db } from "@/db";
+import { adminUsers } from "@/db/schema";
 import type { AdminSession } from "@/types/admin";
 
-/**
- * Resolved lazily (not at module scope): the secret must not be needed
- * during `next build` — the Docker image builds without any secrets and
- * they are injected only at container runtime. Missing config still
- * fails loudly on the first real request in production.
- */
 let cachedJwtSecret: Uint8Array | null = null;
 function getJwtSecret(): Uint8Array {
     if (cachedJwtSecret) return cachedJwtSecret;
@@ -26,18 +24,18 @@ function getJwtSecret(): Uint8Array {
 }
 
 const COOKIE_NAME = "admin_session";
-const COOKIE_MAX_AGE = 60 * 60 * 24; // 24 hours
+const COOKIE_MAX_AGE = 60 * 60 * 24;
+const JWT_ALGORITHM = "HS256";
 
-/**
- * Create a signed JWT and set it as an httpOnly cookie.
- */
-export async function createAdminSession(user: AdminSession): Promise<string> {
-    const token = await new SignJWT({
-        id: user.id,
-        email: user.email,
-        name: user.name,
-    })
-        .setProtectedHeader({ alg: "HS256" })
+const sessionClaims = z.object({
+    sub: z.string().regex(/^\d+$/),
+    ver: z.number().int().positive(),
+});
+
+export async function createAdminSession(user: { id: number; sessionVersion: number }): Promise<void> {
+    const token = await new SignJWT({ ver: user.sessionVersion })
+        .setProtectedHeader({ alg: JWT_ALGORITHM })
+        .setSubject(String(user.id))
         .setIssuedAt()
         .setExpirationTime(`${COOKIE_MAX_AGE}s`)
         .sign(getJwtSecret());
@@ -50,36 +48,46 @@ export async function createAdminSession(user: AdminSession): Promise<string> {
         path: "/",
         maxAge: COOKIE_MAX_AGE,
     });
-
-    return token;
 }
 
-/**
- * Verify the admin session cookie and return the payload.
- * Returns null if the session is invalid or expired.
- */
-export async function verifyAdminSession(): Promise<AdminSession | null> {
-    const cookieStore = await cookies();
-    const token = cookieStore.get(COOKIE_NAME)?.value;
-
+async function readSessionClaims(): Promise<{ id: number; ver: number } | null> {
+    const token = (await cookies()).get(COOKIE_NAME)?.value;
     if (!token) return null;
-
     try {
-        const { payload } = await jwtVerify(token, getJwtSecret());
-        return {
-            id: payload.id as number,
-            email: payload.email as string,
-            name: payload.name as string,
-        };
+        const { payload } = await jwtVerify(token, getJwtSecret(), { algorithms: [JWT_ALGORITHM] });
+        const claims = sessionClaims.safeParse(payload);
+        return claims.success ? { id: Number(claims.data.sub), ver: claims.data.ver } : null;
     } catch {
         return null;
     }
 }
 
-/**
- * Destroy the admin session by clearing the cookie.
- */
+export async function verifyAdminSession(): Promise<AdminSession | null> {
+    const claims = await readSessionClaims();
+    if (!claims) return null;
+
+    const [user] = await db
+        .select({
+            id: adminUsers.id,
+            email: adminUsers.email,
+            name: adminUsers.name,
+            sessionVersion: adminUsers.sessionVersion,
+        })
+        .from(adminUsers)
+        .where(eq(adminUsers.id, claims.id))
+        .limit(1);
+
+    if (!user || user.sessionVersion !== claims.ver) return null;
+    return { id: user.id, email: user.email, name: user.name || "Admin" };
+}
+
 export async function destroyAdminSession(): Promise<void> {
-    const cookieStore = await cookies();
-    cookieStore.delete(COOKIE_NAME);
+    const session = await verifyAdminSession();
+    if (session) {
+        await db
+            .update(adminUsers)
+            .set({ sessionVersion: sql`${adminUsers.sessionVersion} + 1` })
+            .where(eq(adminUsers.id, session.id));
+    }
+    (await cookies()).delete(COOKIE_NAME);
 }

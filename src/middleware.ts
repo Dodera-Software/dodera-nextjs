@@ -1,27 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
-import { eq } from "drizzle-orm";
-import { db } from "@/db";
-import { apiTokens } from "@/db/schema";
 import {
     PROTECTED_API_ROUTES,
     PUBLIC_API_ROUTES,
 } from "@/config/api-auth";
 import { MOCKUP_INTERNAL_PREFIX, parseMockupHost } from "@/config/mockups";
+import { authenticateRequest } from "@/lib/api-auth";
 
-/* ── Helpers ─────────────────────────────────────────────────── */
-
-async function sha256(input: string): Promise<string> {
-    const encoded = new TextEncoder().encode(input);
-    const hashBuffer = await crypto.subtle.digest("SHA-256", encoded);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
-}
+const ADMIN_API_PREFIX = "/api/admin";
+const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
 
 function jsonError(message: string, status: number) {
     return NextResponse.json(
         { status: "error", message },
         { status },
     );
+}
+
+function isCrossOriginRequest(request: NextRequest): boolean {
+    const fetchSite = request.headers.get("sec-fetch-site");
+    if (fetchSite) return fetchSite !== "same-origin" && fetchSite !== "none";
+    const origin = request.headers.get("origin");
+    if (!origin) return false;
+    try {
+        return new URL(origin).host !== request.headers.get("host");
+    } catch {
+        return true;
+    }
 }
 
 /* ── Route matching ─────────────────────────────────────────── */
@@ -82,6 +86,14 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(location, 308);
     }
 
+    if (
+        (pathname === ADMIN_API_PREFIX || pathname.startsWith(`${ADMIN_API_PREFIX}/`)) &&
+        !SAFE_METHODS.has(request.method) &&
+        isCrossOriginRequest(request)
+    ) {
+        return jsonError("Cross-origin requests are not allowed.", 403);
+    }
+
     // --- Origin check for public contact endpoint ---
     // Browsers always send Origin on cross-site POSTs; reject anything that
     // isn't the site itself so scrapers/bots can't call the API directly.
@@ -107,68 +119,8 @@ export async function middleware(request: NextRequest) {
         return NextResponse.next();
     }
 
-    // --- Bearer token extraction ---
-    const authHeader = request.headers.get("authorization");
-
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-        return jsonError(
-            "Missing or malformed Authorization header. Expected: Bearer <token>",
-            401,
-        );
-    }
-
-    const plainToken = authHeader.slice(7);
-
-    if (!plainToken || plainToken.length < 10) {
-        return jsonError("Invalid token format.", 401);
-    }
-
-    // --- Token verification ---
-    const tokenHash = await sha256(plainToken);
-
-    let data: { id: number; name: string; expiresAt: Date | null; revokedAt: Date | null } | undefined;
-    try {
-        [data] = await db
-            .select({
-                id: apiTokens.id,
-                name: apiTokens.name,
-                expiresAt: apiTokens.expiresAt,
-                revokedAt: apiTokens.revokedAt,
-            })
-            .from(apiTokens)
-            .where(eq(apiTokens.tokenHash, tokenHash))
-            .limit(1);
-    } catch (err) {
-        console.error("Middleware: token lookup failed:", err);
-        return jsonError("Internal server configuration error.", 500);
-    }
-
-    if (!data) {
-        return jsonError("Invalid API token.", 401);
-    }
-
-    if (data.revokedAt) {
-        return jsonError("This API token has been revoked.", 401);
-    }
-
-    if (data.expiresAt && data.expiresAt < new Date()) {
-        return jsonError("This API token has expired.", 401);
-    }
-
-    // Update last_used_at (fire-and-forget)
-    db.update(apiTokens)
-        .set({ lastUsedAt: new Date() })
-        .where(eq(apiTokens.id, data.id))
-        .catch(() => {});
-
-    // Forward token metadata in headers so route handlers can access it
-    const requestHeaders = new Headers(request.headers);
-    requestHeaders.set("x-api-token-id", String(data.id));
-    requestHeaders.set("x-api-token-name", data.name);
-
-    return NextResponse.next({
-        request: { headers: requestHeaders },
-    });
+    const auth = await authenticateRequest(request);
+    return auth.valid ? NextResponse.next() : auth.errorResponse;
 }
 
 /* ── Matcher ────────────────────────────────────────────────── */

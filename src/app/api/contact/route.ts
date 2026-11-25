@@ -4,6 +4,7 @@ import { contacts } from "@/db/schema";
 import { z } from "zod";
 import { generateFollowUp, type LeadData } from "@/lib/contact-followup-service";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { RateLimitScope } from "@/config/rate-limit";
 
 /* ── Honeypot field name (must match ContactForm) ─────────── */
 const HONEYPOT_FIELD = "website_url";
@@ -127,7 +128,7 @@ export async function POST(request: NextRequest) {
 
         /* IP rate limit */
         const ip = getClientIp(request);
-        const { limited } = await checkRateLimit("contact", ip);
+        const { limited } = await checkRateLimit(RateLimitScope.Contact, ip);
         if (limited) {
             return NextResponse.json(
                 { status: "error", message: "Too many requests. Please try again later." },

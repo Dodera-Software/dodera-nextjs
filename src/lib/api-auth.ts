@@ -5,14 +5,9 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { apiTokens } from "@/db/schema";
 
-export interface AuthResult {
-    /** Whether the token is valid */
-    valid: boolean;
-    /** Token metadata (only set when valid) */
-    token?: { id: number; name: string };
-    /** Error response ready to return (only set when invalid) */
-    errorResponse?: NextResponse;
-}
+export type AuthResult =
+    | { valid: true; token: { id: number; name: string } }
+    | { valid: false; errorResponse: NextResponse };
 
 /**
  * Verify an API bearer token from the `Authorization` header.
