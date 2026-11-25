@@ -32,7 +32,7 @@ const OPENAI_MODEL = process.env.AUTO_POST_OPENAI_MODEL ?? "gpt-4o";
 export async function GET(request: NextRequest) {
     /* ── 1. Authentication ───────────────────────────────────── */
     const auth = await authenticateRequest(request);
-    if (!auth.valid) return auth.errorResponse!;
+    if (!auth.valid) return auth.errorResponse;
 
     /* ── 2. Query params ─────────────────────────────────────── */
     const { searchParams } = request.nextUrl;

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { create as contentDisposition } from "content-disposition";
 import { eq } from "drizzle-orm";
 import { verifyAdminSession } from "@/lib/admin-auth";
 import { db } from "@/db";
@@ -56,7 +57,8 @@ export async function GET(
         return new NextResponse(new Uint8Array(file.data), {
             headers: {
                 "Content-Type": file.contentType,
-                "Content-Disposition": `attachment; filename="${file.filename.replace(/"/g, "")}"`,
+                "Content-Disposition": contentDisposition(file.filename),
+                "X-Content-Type-Options": "nosniff",
                 "Content-Length": String(file.data.byteLength),
                 "Cache-Control": "private, no-store",
             },

@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { cvFiles, jobApplications } from "@/db/schema";
 import { cleanupExpiredApplications } from "@/lib/application-retention";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { RateLimitScope } from "@/config/rate-limit";
 import { EMAIL_RE } from "@/lib/validation";
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
@@ -19,7 +20,7 @@ const ALLOWED_EXTENSIONS = new Set([".pdf", ".doc", ".docx", ".rtf", ".odt", ".t
 
 export async function POST(request: NextRequest) {
     const ip = getClientIp(request);
-    const { limited } = await checkRateLimit("apply", ip);
+    const { limited } = await checkRateLimit(RateLimitScope.Apply, ip);
     if (limited) {
         return NextResponse.json(
             { status: "error", message: "Too many applications submitted. Please try again later." },
