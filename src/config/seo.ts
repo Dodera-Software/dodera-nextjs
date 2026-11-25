@@ -47,15 +47,7 @@ export const SITE = {
     mapsUrl: "https://www.google.com/maps/search/?api=1&query=Dodera+Software%2C+Strada+Banat+1%2C+440043+Satu+Mare",
     googleBusinessProfile: null as string | null,
     openingHours: { days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], opens: "09:00", closes: "18:00" } as OpeningHours | null,
-    founder: {
-        name: "Denis Dobra",
-        jobTitle: { en: "Founder", ro: "Fondator" },
-        profiles: ["https://github.com/denisdobra10"],
-        bio: {
-            en: "Denis founded Dodera Software in 2023 and leads its engineering and product work. Besides client projects, he is behind the studio's own products: Pipstep, doderminal, InteliLang and the video-kit plugin for Claude Code.",
-            ro: "Denis a fondat Dodera Software în 2023 și coordonează partea de inginerie și de produs. Pe lângă proiectele pentru clienți, se ocupă de produsele proprii ale studioului: Pipstep, doderminal, InteliLang și pluginul video-kit pentru Claude Code.",
-        },
-    } as Founder | null,
+    founder: null as Founder | null,
     social: {
         twitter: "@doderasoft",
         /* The URLs linked in the site header/footer (config/site.ts SOCIAL_LINKS). */

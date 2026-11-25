@@ -111,8 +111,8 @@ product = config entry + copy in both dictionaries + visuals + its two share ima
 
 ## Company facts
 
-`SITE` in `src/config/seo.ts` holds the founder (shown on About and in JSON-LD) and opening
-hours (contact page, JSON-LD). Testimonials (`config/testimonials.ts`) stay hidden until each
+`SITE` in `src/config/seo.ts` holds opening hours (contact page, JSON-LD) and an optional
+founder (left empty on purpose; when filled it shows on About and in JSON-LD). Testimonials (`config/testimonials.ts`) stay hidden until each
 has a real company and a public link; never invent client facts.
 
 ## Analytics
