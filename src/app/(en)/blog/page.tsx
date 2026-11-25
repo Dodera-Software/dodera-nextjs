@@ -1,13 +1,10 @@
 import type { Metadata } from "next";
-import { BlogPageContent } from "./BlogPageContent";
+import { BlogIndex } from "@/components/BlogIndex";
 import { SITE } from "@/config/seo";
 import { absoluteUrl, alternatesFor, hreflangFor } from "@/i18n/routes";
 import { BLOG_META } from "./seo";
 import { JsonLd } from "@/components/JsonLd";
 import { breadcrumbSchema, collectionPageSchema } from "@/lib/structured-data";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
-import { ScrollManager } from "@/components/ScrollManager";
 import { getAllPosts } from "@/lib/cms";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -47,7 +44,7 @@ export default async function BlogPage({ searchParams }: PageProps) {
     const activeTag = (Array.isArray(tag) ? tag[0] : tag) ?? "";
 
     return (
-        <div className="min-h-screen bg-background">
+        <>
             <JsonLd
                 data={[
                     breadcrumbSchema([
@@ -63,12 +60,7 @@ export default async function BlogPage({ searchParams }: PageProps) {
                     }),
                 ]}
             />
-            <ScrollManager />
-            <Navbar />
-            <main>
-                <BlogPageContent posts={posts} activeTag={activeTag} />
-            </main>
-            <Footer />
-        </div>
+            <BlogIndex posts={posts} activeTag={activeTag} />
+        </>
     );
 }

@@ -2,22 +2,6 @@ import type { LucideIcon } from "lucide-react";
 
 // ── Team ────────────────────────────────────────────────
 
-export interface TeamMember {
-    name: string;
-    role: string;
-    bio: string;
-    expertise: string[];
-    avatar?: string;
-}
-
-export interface EngagementModel {
-    title: string;
-    tagline: string;
-    description: string;
-    bestFor: string[];
-    icon: LucideIcon;
-}
-
 // ── Services ────────────────────────────────────────────
 
 export interface ServiceHighlight {
@@ -159,13 +143,6 @@ export interface SocialLink {
     label: string;
     href: string;
     icon: LucideIcon;
-}
-
-// ── Terminal ────────────────────────────────────────────
-
-export interface TerminalLine {
-    type: "input" | "output" | "success" | "error";
-    text: string;
 }
 
 // ── Breadcrumb ──────────────────────────────────────────

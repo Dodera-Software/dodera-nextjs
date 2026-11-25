@@ -1,149 +1,113 @@
 "use client";
 
 import Link from "next/link";
-import { Separator } from "@/components/ui/separator";
-import { Globe, Mail, MapPin, Heart, Clock, Phone } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Mail, MapPin, Phone } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 import { NewsletterForm } from "@/components/NewsletterForm";
 import { SocialIconList } from "@/components/SocialIconList";
 import { COMPANY } from "@/config/site";
+import { PRODUCTS } from "@/config/products";
 import { SITE } from "@/config/seo";
 import { useDict } from "@/i18n/LocaleProvider";
 
+const linkClass = "text-sm text-foreground/60 transition-colors hover:text-foreground";
+const headingClass = "font-mono text-xs uppercase tracking-[0.1em] text-muted-foreground";
+
 export function Footer() {
     const { footer: t, links, breadcrumb } = useDict();
-    const FOOTER_LINK_GROUPS = t.groups;
     return (
-        <footer role="contentinfo">
-            <Separator />
+        <footer className="relative overflow-hidden border-t border-foreground/[0.08] bg-background">
+            <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-[radial-gradient(60%_70%_at_50%_100%,hsl(var(--brand)/0.16),transparent_70%)]" />
+            <div className="wrap relative pt-24">
+                <div className="flex flex-wrap items-end justify-between gap-8 border-b border-foreground/[0.08] pb-14">
+                    <p className="display-md max-w-[18ch]">{t.cta}</p>
+                    <Button size="pill" asChild>
+                        <Link href={links.contact}>
+                            {t.contactButton}
+                            <ArrowRight aria-hidden="true" />
+                        </Link>
+                    </Button>
+                </div>
 
-            <div className="mx-auto max-w-7xl px-6 py-16">
-                <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-5">
-                    {/* Brand */}
-                    <div>
-                        <div className="mb-4">
-                            <Logo href={links.home} label={`Dodera Software - ${breadcrumb.home}`} />
-                        </div>
-                        <p className="mb-6 max-w-xs text-sm leading-relaxed text-muted-foreground">
-                            {t.tagline}
-                        </p>
-
-                        <SocialIconList className="mb-6" />
-
-                        {/* NAP — name, address, phone: identical to the contact page, the
-                            JSON-LD and the Google Business Profile (all from config/seo.ts). */}
-                        <address className="mb-3 space-y-3 text-sm not-italic">
-                            <p className="font-semibold text-foreground/80">{SITE.name}</p>
-                            <div className="flex items-start gap-2 text-foreground/70">
-                                <MapPin className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+                <div className="grid gap-14 py-16 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)]">
+                    <div className="space-y-6">
+                        <Logo href={links.home} label={`${SITE.name} - ${breadcrumb.home}`} />
+                        <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">{t.tagline}</p>
+                        <address className="space-y-3 text-sm not-italic text-foreground/70">
+                            <p className="flex items-start gap-3">
+                                <MapPin className="mt-0.5 size-4 shrink-0 text-brand-bright" aria-hidden="true" />
                                 <span>
                                     {SITE.address.street}, {SITE.address.postalCode} {SITE.address.city}, {t.country}
-                                    <a
-                                        href={SITE.googleBusinessProfile ?? SITE.mapsUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="block text-xs text-primary hover:underline"
-                                    >
+                                    <a href={SITE.googleBusinessProfile ?? SITE.mapsUrl} target="_blank" rel="noopener noreferrer" className="block text-xs text-brand-bright hover:underline">
                                         {t.openInMaps}
                                     </a>
                                 </span>
-                            </div>
-                            <a
-                                href={`tel:${SITE.phoneE164}`}
-                                aria-label={`${t.phoneLabel}: ${t.phoneDisplay}`}
-                                className="flex items-center gap-2 text-foreground/70 transition-colors hover:text-foreground"
-                            >
-                                <Phone className="size-4" aria-hidden="true" />
+                            </p>
+                            <a href={`tel:${SITE.phoneE164}`} aria-label={`${t.phoneLabel}: ${t.phoneDisplay}`} className="flex items-center gap-3 transition-colors hover:text-foreground">
+                                <Phone className="size-4 text-brand-bright" aria-hidden="true" />
                                 {t.phoneDisplay}
                             </a>
-                        </address>
-
-                        <div className="space-y-3 text-sm">
-                            <a
-                                href={`mailto:${COMPANY.email}`}
-                                aria-label={`${t.emailAria} ${COMPANY.email}`}
-                                className="flex items-center gap-2 text-foreground/70 transition-colors hover:text-foreground"
-                            >
-                                <Mail className="size-4" />
+                            <a href={`mailto:${COMPANY.email}`} aria-label={`${t.emailAria} ${COMPANY.email}`} className="flex items-center gap-3 transition-colors hover:text-foreground">
+                                <Mail className="size-4 text-brand-bright" aria-hidden="true" />
                                 {COMPANY.email}
                             </a>
-                            <a
-                                href={COMPANY.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                aria-label={`${t.visitAria} ${COMPANY.url}`}
-                                className="flex items-center gap-2 text-foreground/70 transition-colors hover:text-foreground"
-                            >
-                                <Globe className="size-4" />
-                                {COMPANY.url.replace("https://", "")}
-                            </a>
-                            {COMPANY.hours && (
-                                <div className="flex items-center gap-2 text-foreground/70">
-                                    <Clock className="size-4" />
-                                    {COMPANY.hours}
-                                </div>
-                            )}
-                            <div className="flex items-center gap-2 text-foreground/70">
-                                <span>🏛️</span>
-                                {t.foundedIn} {COMPANY.foundedYear}
-                            </div>
-                        </div>
+                        </address>
+                        <SocialIconList />
                     </div>
 
-                    {/* Link groups */}
-                    {FOOTER_LINK_GROUPS.map((group) => (
-                        <div key={group.heading}>
-                            <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                                {group.heading}
-                            </p>
-                            <ul className="space-y-2.5">
-                                {group.links.map((l) => (
-                                    <li key={l.label}>
-                                        {l.href.startsWith("/") || l.href.startsWith("/#") ? (
-                                            <Link
-                                                href={l.href}
-                                                className="text-sm text-foreground/60 transition-colors hover:text-foreground"
-                                            >
+                    <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+                        {t.groups.map((group) => (
+                            <nav key={group.heading} aria-label={group.heading}>
+                                <p className={headingClass}>{group.heading}</p>
+                                <ul className="mt-5 space-y-3">
+                                    {group.links.map((l) => (
+                                        <li key={l.label}>
+                                            <Link href={l.href} className={linkClass}>
                                                 {l.label}
                                             </Link>
-                                        ) : (
-                                            <a
-                                                href={l.href}
-                                                className="text-sm text-foreground/60 transition-colors hover:text-foreground"
-                                            >
-                                                {l.label}
-                                            </a>
-                                        )}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </nav>
+                        ))}
+                        <nav aria-label={t.productsHeading}>
+                            <p className={headingClass}>{t.productsHeading}</p>
+                            <ul className="mt-5 space-y-3">
+                                {PRODUCTS.map((product) => (
+                                    <li key={product.id}>
+                                        <a href={product.url} target="_blank" rel="noopener" className={`group inline-flex items-center gap-1 ${linkClass}`}>
+                                            {product.name}
+                                            <ArrowUpRight className="size-3.5 opacity-50 transition-opacity group-hover:opacity-100" aria-hidden="true" />
+                                        </a>
                                     </li>
                                 ))}
                             </ul>
+                        </nav>
+                        <div className="sm:col-span-2 lg:col-span-4">
+                            <p className={headingClass}>{t.newsletterHeading}</p>
+                            <p className="mt-3 text-sm text-foreground/60">{t.newsletterText}</p>
+                            <div className="mt-4 max-w-md">
+                                <NewsletterForm />
+                            </div>
                         </div>
-                    ))}
-
-                    {/* Newsletter */}
-                    <div>
-                        <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                            {t.newsletterHeading}
-                        </p>
-                        <p className="mb-4 text-sm text-foreground/60">
-                            {t.newsletterText}
-                        </p>
-                        <NewsletterForm />
                     </div>
                 </div>
             </div>
 
-            <Separator />
+            <p aria-hidden="true" className="display pointer-events-none relative -mb-[0.2em] select-none whitespace-nowrap text-center text-[clamp(5rem,21vw,20rem)] leading-[0.8] text-transparent [-webkit-text-stroke:1px_hsl(var(--foreground)/0.08)]">
+                DODERA
+            </p>
 
-            <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 py-6 sm:flex-row">
-                <p className="text-xs text-muted-foreground">
-                    &copy; {new Date().getFullYear()} {COMPANY.name}. {t.rights}
-                </p>
-                <p className="flex items-center gap-1 text-xs text-muted-foreground">
-                    {t.madeWith} <Heart className="size-3 animate-pulse fill-primary text-primary" aria-hidden="true" />
-                    <span className="sr-only">{t.love}</span> {t.by}
-                    {" "}<a href={COMPANY.url} target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-foreground">{COMPANY.name}</a>
-                </p>
+            <div className="relative border-t border-foreground/[0.08]">
+                <div className="wrap flex flex-col items-center justify-between gap-3 py-6 font-mono text-[11px] uppercase tracking-[0.08em] text-muted-foreground sm:flex-row">
+                    <p>
+                        &copy; {new Date().getFullYear()} {COMPANY.legalName} {t.rights}
+                    </p>
+                    <p>
+                        {t.location} · {t.foundedIn} {COMPANY.foundedYear}
+                    </p>
+                </div>
             </div>
         </footer>
     );

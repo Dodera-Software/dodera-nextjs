@@ -17,9 +17,6 @@ import {
     Handshake,
     Linkedin,
     Instagram,
-    Clock,
-    CheckSquare,
-    Briefcase,
 } from "lucide-react";
 
 import type {
@@ -27,9 +24,7 @@ import type {
     ProcessStep,
     NavLink,
     FooterLinkGroup,
-    TerminalLine,
     SocialLink,
-    EngagementModel,
 } from "@/types";
 
 // ── Company ─────────────────────────────────────────────
@@ -142,50 +137,6 @@ export const PROCESS_STEPS: ProcessStep[] = [
     },
 ];
 
-// ── Engagement Models ────────────────────────────────────────
-
-export const ENGAGEMENT_MODELS: EngagementModel[] = [
-    {
-        icon: Clock,
-        title: "Per Hour",
-        tagline: "Flexible & On-Demand",
-        description:
-            "Tap into senior engineering capacity exactly when you need it. Perfect for ongoing support, code reviews, technical audits, and iterative feature development.",
-        bestFor: [
-            "Ongoing maintenance & bug fixes",
-            "Technical audits & architecture reviews",
-            "Staff augmentation for existing teams",
-            "Ad-hoc feature work or integrations",
-        ],
-    },
-    {
-        icon: CheckSquare,
-        title: "Per Task",
-        tagline: "Scoped & Predictable",
-        description:
-            "Defined deliverable, fixed price. You specify what you need, we give you a clear estimate and timeline. No surprises, no scope creep - just results.",
-        bestFor: [
-            "Individual features or components",
-            "API integrations & third-party connections",
-            "Performance optimisations",
-            "One-off automation or AI workflows",
-        ],
-    },
-    {
-        icon: Briefcase,
-        title: "Per Project",
-        tagline: "End-to-End Ownership",
-        description:
-            "We own the entire journey from discovery to deployment. Ideal for greenfield builds and complete product launches where you want a dedicated engineering partner.",
-        bestFor: [
-            "New product or SaaS builds from scratch",
-            "Complete website or platform redesigns",
-            "Mobile app development (iOS, Android, PWA)",
-            "Full AI system implementation",
-        ],
-    },
-];
-
 // ── Navigation ───────────────────────────────────────────────
 
 export const NAV_LINKS: NavLink[] = [
@@ -233,27 +184,4 @@ export const FOOTER_LINK_GROUPS: FooterLinkGroup[] = [
     },
 ];
 
-// ── Trusted-by logos ────────────────────────────────────
-
-export const TRUSTED_LOGOS: string[] = [
-    "Vue",
-    "React",
-    "Next.js",
-    "Nuxt",
-    "Laravel",
-    "Vercel",
-    "Stripe",
-];
-
-// ── Terminal lines ──────────────────────────────────────
-
-export const TERMINAL_LINES: TerminalLine[] = [
-    { type: "input", text: "dodera deploy --target production" },
-    { type: "output", text: "▸ Building application..." },
-    { type: "output", text: "▸ Running 247 tests - all passed ✓" },
-    { type: "output", text: "▸ Optimizing bundle - 63% smaller" },
-    { type: "output", text: "▸ Deploying to 3 regions..." },
-    { type: "success", text: "✓ Deployed successfully in 4.2s" },
-    { type: "input", text: "dodera status" },
-    { type: "success", text: "✓ All systems operational - 99.99% uptime" },
-];
+export const TECH_STACK: readonly string[] = ["Laravel", "Next.js", "Nuxt", "Vue", "React", "Node.js", "Swift", "Postgres", "Docker", "Claude", "n8n", "Stripe"];

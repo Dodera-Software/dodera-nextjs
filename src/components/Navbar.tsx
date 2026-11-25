@@ -78,13 +78,13 @@ export function Navbar() {
     }, [mobileOpen]);
 
     return (
-        <nav ref={navRef} aria-label={t.mainNavigation} className="fixed inset-x-0 top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
-            <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
+        <nav ref={navRef} aria-label={t.mainNavigation} className="fixed inset-x-0 top-0 z-50 border-b border-foreground/[0.06] bg-background/55 backdrop-blur-xl backdrop-saturate-150">
+            <div className="wrap flex h-16 items-center justify-between">
                 {/* Logo */}
                 <Logo href={links.home} label={`Dodera Software - ${breadcrumb.home}`} />
 
                 {/* Desktop Nav */}
-                <div className="hidden items-center gap-8 md:flex">
+                <div className="hidden items-center gap-7 md:flex">
                     <div onMouseEnter={openMega} onMouseLeave={closeMega}>
                         <Link
                             href={links.services.includes("#") ? "/services" : links.services}
@@ -110,11 +110,9 @@ export function Navbar() {
                         </Link>
                     ))}
 
-                    <LanguageSwitch className="text-sm font-semibold text-foreground/70 transition-colors hover:text-foreground" />
+                    <LanguageSwitch className="font-mono text-xs font-semibold uppercase tracking-[0.1em] text-foreground/60 transition-colors hover:text-foreground" />
 
-                    <SocialIconList size="sm" />
-
-                    <Button size="sm" asChild>
+                    <Button size="sm" asChild className="h-9 rounded-full px-4">
                         <Link href={links.contact}>{t.getStarted}</Link>
                     </Button>
                 </div>
@@ -142,9 +140,9 @@ export function Navbar() {
                         transition={{ duration: 0.15 }}
                         onMouseEnter={openMega}
                         onMouseLeave={closeMega}
-                        className="absolute inset-x-0 top-full z-40 hidden border-b border-border bg-background/95 shadow-xl backdrop-blur-xl md:block"
+                        className="absolute inset-x-0 top-full z-40 hidden border-b border-foreground/[0.06] bg-background/90 shadow-2xl backdrop-blur-xl md:block"
                     >
-                        <div className="mx-auto max-w-7xl px-6 py-6">
+                        <div className="wrap py-8">
                             <div className="grid grid-cols-2 items-start gap-x-8 gap-y-6 lg:grid-cols-4">
                                 {SERVICES.map((s) => (
                                     <div key={s.title} className="flex flex-col items-start">

@@ -170,18 +170,3 @@ export async function getAllPostSlugs(locale: Locale = "en"): Promise<string[]> 
     }
 }
 
-/* ── Posts by category ─────────────────────────────────── */
-export async function getPostsByCategory(category: string): Promise<BlogPost[]> {
-    const posts = await getAllPosts();
-    return posts.filter(
-        (p) => p.category.toLowerCase() === category.toLowerCase(),
-    );
-}
-
-/* ── Posts by tag ──────────────────────────────────────── */
-export async function getPostsByTag(tag: string): Promise<BlogPost[]> {
-    const posts = await getAllPosts();
-    return posts.filter((p) =>
-        p.tags.some((t) => t.toLowerCase() === tag.toLowerCase()),
-    );
-}

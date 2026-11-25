@@ -189,12 +189,6 @@ export interface MockupProjectDetail extends MockupProject {
     deployments: MockupDeployment[];
 }
 
-export interface MockupFileInfo {
-    path: string;
-    content_type: string;
-    size: number;
-}
-
 /** GET /api/admin/intelilang — never includes the secret itself. */
 export interface IntelilangSettings {
     url: string;

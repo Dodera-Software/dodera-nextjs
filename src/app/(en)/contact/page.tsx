@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { JsonLd } from "@/components/JsonLd";
 import { ContactPage } from "@/components/ContactPage";
 import { SITE } from "@/config/seo";
@@ -27,7 +25,7 @@ export const metadata: Metadata = {
 
 export default function ContactPageEn() {
     return (
-        <div className="min-h-screen bg-background">
+        <>
             <JsonLd
                 data={[
                     breadcrumbSchema([
@@ -37,11 +35,7 @@ export default function ContactPageEn() {
                     businessSchema(),
                 ]}
             />
-            <Navbar />
-            <main>
-                <ContactPage locale="en" />
-            </main>
-            <Footer />
-        </div>
+            <ContactPage />
+        </>
     );
 }

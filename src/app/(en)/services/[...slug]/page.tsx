@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { ServicePageLayout } from "@/components/ServicePageLayout";
 import { JsonLd } from "@/components/JsonLd";
-import { ScrollManager } from "@/components/ScrollManager";
 import { SERVICE_PAGES, SERVICE_PAGE_SLUGS } from "@/config/services";
 import { SITE } from "@/config/seo";
 import { breadcrumbSchema, faqSchema, serviceSchema } from "@/lib/structured-data";
@@ -96,17 +93,9 @@ export default async function ServicePage({ params }: PageProps) {
     ];
 
     return (
-        <div className="min-h-screen bg-background">
+        <>
             <JsonLd data={structuredData} />
-            <ScrollManager />
-            <Navbar />
-            <main>
-                <ServicePageLayout
-                    data={data}
-                    parentLabel={data.parentSlug ? SERVICE_PAGES[data.parentSlug]?.heroLabel : undefined}
-                />
-            </main>
-            <Footer />
-        </div>
+            <ServicePageLayout data={data} parentLabel={data.parentSlug ? SERVICE_PAGES[data.parentSlug]?.heroLabel : undefined} />
+        </>
     );
 }

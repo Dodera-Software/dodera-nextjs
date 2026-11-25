@@ -6,12 +6,7 @@ import { CASE_STUDIES } from "@/config/case-studies";
 import { getDictionary } from "@/i18n/dictionaries";
 import { ROUTES, absoluteUrl, type PageId, type StaticPageId } from "@/i18n/routes";
 import type { Locale } from "@/i18n/config";
-
-/**
- * /llms.txt — a short Markdown brief for AI assistants and answer engines
- * (https://llmstxt.org). Built from the same config as the site, so prices,
- * contact details and page lists cannot drift from what the pages say.
- */
+import { MARKDOWN_HEADERS, productsMarkdown } from "@/lib/llms";
 
 export const dynamic = "force-static";
 
@@ -52,6 +47,14 @@ export function GET() {
     const body = `# ${SITE.name}
 
 > ${SITE.name} (${SITE.legalName}) is a software development company from Romania. We build custom web applications, presentation websites, AI agents and workflow automations for companies in Romania and abroad, at a fixed price per project or per hour, with a weekly demo of working software.
+
+Full content of every page, in English and Romanian: ${absoluteUrl("/llms-full.txt")}
+
+## Our products
+
+Products designed, built and run by our own team:
+
+${productsMarkdown("en")}
 
 ## Services
 
@@ -94,15 +97,14 @@ ${hasRomanian ? `
 
 Dodera Software este o firmă de dezvoltare software din România care construiește aplicații web, site-uri de prezentare, agenți AI și automatizări n8n pentru companii din toată România. Preț fix pe proiect de la ${p.projectFrom} EUR, pe sarcină de la ${p.taskFrom} EUR, pe oră ${p.hourly.min}–${p.hourly.max} EUR, abonament de la ${p.retainerFrom} EUR/lună. Lucrăm cu clienți din România și din străinătate, de la distanță, cu demo săptămânal.
 
+## Produsele noastre
+
+${productsMarkdown("ro")}
+
 ## Pagini cheie (Română)
 
 ${pageList("ro")}
 ` : ""}`;
 
-    return new Response(body, {
-        headers: {
-            "Content-Type": "text/markdown; charset=utf-8",
-            "Cache-Control": "public, max-age=3600",
-        },
-    });
+    return new Response(body, { headers: MARKDOWN_HEADERS });
 }

@@ -38,26 +38,21 @@ const STATIC_ROUTES = {
             "src/config/site.ts",
             "src/config/pricing.ts",
             "src/config/case-studies.ts",
-            "src/config/testimonials.ts",
-            "src/components/HeroSection.tsx",
-            "src/components/ServicesSection.tsx",
-            "src/components/ProcessSection.tsx",
-            "src/components/PricingSection.tsx",
-            "src/components/CaseStudiesSection.tsx",
-            "src/components/TeamSection.tsx",
+            "src/config/products.ts",
+            "src/components/home",
         ],
         changeFrequency: "weekly",
         priority: 1.0,
     },
     services: {
         paths: STATIC_PATHS.services,
-        sources: ["src/app/(en)/services/page.tsx", "src/app/(ro)/ro/servicii/page.tsx", "src/config/site.ts", "src/components/ServicesIndex.tsx"],
+        sources: ["src/app/(en)/services/page.tsx", "src/app/(ro)/ro/servicii/page.tsx", "src/config/site.ts", "src/components/ServicesIndex.tsx", "src/i18n/dictionaries"],
         changeFrequency: "monthly",
         priority: 0.9,
     },
     about: {
         paths: STATIC_PATHS.about,
-        sources: ["src/app/(ro)/ro/despre-noi/page.tsx", "src/app/(en)/about/page.tsx", "src/app/(en)/about/AboutPageContent.tsx", "src/app/(en)/about/seo.ts"],
+        sources: ["src/app/(ro)/ro/despre-noi/page.tsx", "src/app/(en)/about/page.tsx", "src/components/about", "src/app/(en)/about/seo.ts"],
         changeFrequency: "monthly",
         priority: 0.9,
     },
@@ -128,10 +123,6 @@ export const ROUTES: Record<PageId, PageRoute> = {
 
 export function absoluteUrl(path: string): string {
     return path === "/" ? SITE.url : `${SITE.url}${path}`;
-}
-
-export function pagePath(id: PageId, locale: Locale): string | undefined {
-    return ROUTES[id]?.paths[locale];
 }
 
 /** hreflang map ({ en, ro, x-default }) for a page, or undefined when it exists in one locale only. */

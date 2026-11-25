@@ -3,135 +3,123 @@
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { ArrowLeft, Check } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
 
-type State = "idle" | "loading" | "success" | "error";
+enum UnsubscribeState {
+    Idle = "idle",
+    Loading = "loading",
+    Success = "success",
+    Error = "error",
+}
+
+function Shell({ title, children }: { title: string; children: React.ReactNode }) {
+    return (
+        <>
+            <Navbar />
+            <main className="relative isolate flex min-h-[100svh] items-center overflow-hidden">
+                <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(50%_60%_at_50%_30%,hsl(var(--brand)/0.18),transparent_70%)]" />
+                <div className="grain" aria-hidden="true" />
+                <div className="wrap relative flex justify-center py-32">
+                    <div className="glass w-full max-w-lg rounded-3xl p-10 text-center">
+                        <h1 className="display-md">{title}</h1>
+                        {children}
+                    </div>
+                </div>
+            </main>
+            <Footer />
+        </>
+    );
+}
+
+function HomeLink() {
+    return (
+        <Button size="pill" variant="glass" asChild>
+            <Link href="/">
+                <ArrowLeft aria-hidden="true" />
+                Back to home
+            </Link>
+        </Button>
+    );
+}
 
 export default function UnsubscribeClient() {
     const searchParams = useSearchParams();
     const email = searchParams.get("email") ?? "";
     const token = searchParams.get("token") ?? "";
-
-    const [state, setState] = useState<State>("idle");
-    const [errorMessage, setErrorMessage] = useState<string>("");
-
-    const isValidParams = Boolean(email && token);
+    const [state, setState] = useState(UnsubscribeState.Idle);
+    const [errorMessage, setErrorMessage] = useState("");
 
     async function handleUnsubscribe() {
-        setState("loading");
+        setState(UnsubscribeState.Loading);
         setErrorMessage("");
-
         try {
             const res = await fetch("/api/newsletter/unsubscribe", {
                 method: "DELETE",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, token }),
             });
-
             const data = await res.json();
-
             if (!res.ok || data.status !== "success") {
                 setErrorMessage(data.message ?? "Something went wrong. Please try again.");
-                setState("error");
+                setState(UnsubscribeState.Error);
                 return;
             }
-
-            setState("success");
+            setState(UnsubscribeState.Success);
         } catch {
             setErrorMessage("Network error. Please check your connection and try again.");
-            setState("error");
+            setState(UnsubscribeState.Error);
         }
     }
 
-    /* ── Success state ─────────────────────────────────────────── */
-    if (state === "success") {
+    if (state === UnsubscribeState.Success) {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-background px-4">
-                <main className="max-w-md text-center">
-                    <div className="mb-6 flex justify-center">
-                        <span className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-3xl">
-                            ✓
-                        </span>
-                    </div>
-                    <h1 className="mb-3 text-2xl font-bold text-foreground">
-                        You&apos;ve been unsubscribed
-                    </h1>
-                    <p className="mb-8 text-muted-foreground">
-                        <span className="font-medium text-foreground">{email}</span> has been
-                        removed from our newsletter. You won&apos;t receive any further emails
-                        from us.
-                    </p>
-                    <Link
-                        href="/"
-                        className="inline-flex items-center gap-2 text-sm font-medium text-primary underline-offset-4 hover:underline"
-                    >
-                        &larr; Return to Home
-                    </Link>
-                </main>
-            </div>
-        );
-    }
-
-    /* ── Invalid / missing params ──────────────────────────────── */
-    if (!isValidParams) {
-        return (
-            <div className="flex min-h-screen items-center justify-center bg-background px-4">
-                <main className="max-w-md text-center">
-                    <h1 className="mb-3 text-2xl font-bold text-foreground">
-                        Invalid unsubscribe link
-                    </h1>
-                    <p className="mb-8 text-muted-foreground">
-                        This link appears to be incomplete or malformed. Please use the
-                        unsubscribe link from your email.
-                    </p>
-                    <Link
-                        href="/"
-                        className="inline-flex items-center gap-2 text-sm font-medium text-primary underline-offset-4 hover:underline"
-                    >
-                        &larr; Return to Home
-                    </Link>
-                </main>
-            </div>
-        );
-    }
-
-    /* ── Confirm state ─────────────────────────────────────────── */
-    return (
-        <div className="flex min-h-screen items-center justify-center bg-background px-4">
-            <main className="max-w-md text-center">
-                <h1 className="mb-3 text-2xl font-bold text-foreground">
-                    Unsubscribe from newsletter
-                </h1>
-                <p className="mb-2 text-muted-foreground">
-                    Are you sure you want to unsubscribe{" "}
-                    <span className="font-medium text-foreground">{email}</span> from the
-                    Dodera Software newsletter?
+            <Shell title="You've been unsubscribed">
+                <span className="mx-auto mt-8 grid size-14 place-items-center rounded-full border border-emerald-400/30 bg-emerald-400/10">
+                    <Check className="size-6 text-emerald-400" aria-hidden="true" />
+                </span>
+                <p className="mt-6 text-muted-foreground">
+                    <span className="font-medium text-foreground">{email}</span> has been removed from our newsletter. You won&apos;t receive any further emails from us.
                 </p>
-                <p className="mb-8 text-sm text-muted-foreground">
-                    You can always re-subscribe from our website.
-                </p>
-
-                {state === "error" && (
-                    <p className="mb-6 rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-                        {errorMessage}
-                    </p>
-                )}
-
-                <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-                    <button
-                        onClick={handleUnsubscribe}
-                        disabled={state === "loading"}
-                        className="inline-flex min-w-[160px] items-center justify-center rounded-md bg-destructive px-5 py-2.5 text-sm font-medium text-destructive-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                        {state === "loading" ? "Unsubscribing…" : "Yes, unsubscribe me"}
-                    </button>
-                    <Link
-                        href="/"
-                        className="inline-flex min-w-[160px] items-center justify-center rounded-md border border-border px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-accent"
-                    >
-                        Cancel
-                    </Link>
+                <div className="mt-8 flex justify-center">
+                    <HomeLink />
                 </div>
-            </main>
-        </div>
+            </Shell>
+        );
+    }
+
+    if (!email || !token) {
+        return (
+            <Shell title="Invalid unsubscribe link">
+                <p className="mt-6 text-muted-foreground">This link appears to be incomplete or malformed. Please use the unsubscribe link from your email.</p>
+                <div className="mt-8 flex justify-center">
+                    <HomeLink />
+                </div>
+            </Shell>
+        );
+    }
+
+    return (
+        <Shell title="Unsubscribe from newsletter">
+            <p className="mt-6 text-muted-foreground">
+                Are you sure you want to unsubscribe <span className="font-medium text-foreground">{email}</span> from the Dodera Software newsletter?
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">You can always re-subscribe from our website.</p>
+            {state === UnsubscribeState.Error && (
+                <p role="alert" className="mt-6 rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-300">
+                    {errorMessage}
+                </p>
+            )}
+            <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+                <Button size="pill" onClick={handleUnsubscribe} disabled={state === UnsubscribeState.Loading}>
+                    {state === UnsubscribeState.Loading ? "Unsubscribing…" : "Yes, unsubscribe me"}
+                </Button>
+                <Button size="pill" variant="glass" asChild>
+                    <Link href="/">Cancel</Link>
+                </Button>
+            </div>
+        </Shell>
     );
 }

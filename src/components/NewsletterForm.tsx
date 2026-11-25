@@ -56,7 +56,7 @@ export function NewsletterForm() {
 
     if (status === "success") {
         return (
-            <p className="flex items-center gap-2 text-sm text-emerald-600">
+            <p className="flex items-center gap-2 text-sm text-emerald-400">
                 <Send className="size-3.5" />
                 {t.success}
             </p>
@@ -81,7 +81,7 @@ export function NewsletterForm() {
                 className="border-border"
             />
             {status === "error" && (
-                <p className="flex items-center gap-1 text-xs text-red-600">
+                <p className="flex items-center gap-1 text-xs text-red-400">
                     <AlertCircle className="size-3 shrink-0" /> {errorMsg}
                 </p>
             )}

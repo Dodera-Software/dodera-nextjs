@@ -1,19 +1,7 @@
 import type { Metadata } from "next";
-import { Navbar } from "@/components/Navbar";
-import { HeroSection } from "@/components/HeroSection";
-import { TrustedBy } from "@/components/TrustedBy";
-import { TestimonialsSection } from "@/components/TestimonialsSection";
-import { CaseStudiesSection } from "@/components/CaseStudiesSection";
-import { ServicesSection } from "@/components/ServicesSection";
-import { ProcessSection } from "@/components/ProcessSection";
-import { PricingSection } from "@/components/PricingSection";
-import { TeamSection } from "@/components/TeamSection";
-import { CTASection } from "@/components/CTASection";
-import { NotableClients } from "@/components/NotableClients";
-import { Footer } from "@/components/Footer";
 import { JsonLd } from "@/components/JsonLd";
-import { ScrollManager } from "@/components/ScrollManager";
-import { businessSchema, webSiteSchema } from "@/lib/structured-data";
+import { HomePage as Home } from "@/components/home/HomePage";
+import { businessSchema, productListSchema, productSchemas, webSiteSchema } from "@/lib/structured-data";
 import { SITE } from "@/config/seo";
 import { alternatesFor } from "@/i18n/routes";
 import { HOME_META } from "./seo";
@@ -43,28 +31,16 @@ export const metadata: Metadata = {
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-background">
+    <>
       <JsonLd
         data={[
           businessSchema(),
           webSiteSchema({ languages: ["en", "ro"] }),
+          productListSchema("en"),
+          ...productSchemas("en"),
         ]}
       />
-      <ScrollManager />
-      <Navbar />
-      <main>
-        <HeroSection />
-        <TrustedBy />
-        <NotableClients />
-        <TestimonialsSection />
-        <CaseStudiesSection />
-        <ServicesSection />
-        <ProcessSection />
-        <PricingSection />
-        <TeamSection />
-        <CTASection />
-      </main>
-      <Footer />
-    </div>
+      <Home />
+    </>
   );
 }

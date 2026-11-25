@@ -1,19 +1,19 @@
 import Link from "next/link";
 import Image from "next/image";
+import { cn } from "@/lib/utils";
 
 export interface LogoProps {
     className?: string;
-    /** Homepage of the current locale. */
     href?: string;
-    /** Accessible name of the link, in the page's language. */
     label?: string;
 }
 
-/** Reusable brand mark + wordmark used in Navbar and Footer. */
+const LOGO = { src: "/brand/logo-on-dark.svg", width: 1223, height: 317 } as const;
+
 export function Logo({ className, href = "/", label = "Dodera Software - Home" }: LogoProps) {
     return (
-        <Link href={href} aria-label={label} className={className}>
-            <Image src="/logo-icon.png" alt="Dodera Software" width={140} height={40} className="h-10 w-auto" priority />
+        <Link href={href} aria-label={label} className={cn("inline-flex shrink-0", className)}>
+            <Image src={LOGO.src} alt="Dodera Software" width={LOGO.width} height={LOGO.height} className="h-8 w-auto" priority unoptimized />
         </Link>
     );
 }

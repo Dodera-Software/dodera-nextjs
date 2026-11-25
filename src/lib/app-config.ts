@@ -51,22 +51,6 @@ export async function getConfig(key: string, fallback = ""): Promise<string> {
 }
 
 /**
- * Read all config rows, returned as a plain Record<string, string>.
- */
-export async function getAllConfig(): Promise<Record<string, string>> {
-    try {
-        const rows = await db
-            .select({ key: appConfig.key, value: appConfig.value })
-            .from(appConfig)
-            .orderBy(asc(appConfig.key));
-
-        return Object.fromEntries(rows.map((row) => [row.key, row.value]));
-    } catch {
-        return {};
-    }
-}
-
-/**
  * Read all config rows with metadata (for the admin UI).
  */
 export async function getAllConfigRows(): Promise<ConfigRow[]> {

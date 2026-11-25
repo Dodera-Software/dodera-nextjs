@@ -17,6 +17,8 @@ import { SITE, SERVICE_AREA, DEFAULT_META } from "@/config/seo";
 import { PRICE_FACTS } from "@/config/pricing";
 import { HTML_LANG, type Locale } from "@/i18n/config";
 import { isOrganizationByline } from "@/config/authors";
+import { PRODUCTS } from "@/config/products";
+import { getDictionary } from "@/i18n/dictionaries";
 
 /* ── Ids & helpers ───────────────────────────────────────── */
 
@@ -365,6 +367,41 @@ export function faqSchema(questions: { question: string; answer: string }[]) {
                 "@type": "Answer",
                 text: q.answer,
             },
+        })),
+    };
+}
+
+export function productSchemas(locale: Locale) {
+    const copy = getDictionary(locale).products.items;
+    return PRODUCTS.map((product) => ({
+        "@context": "https://schema.org",
+        "@type": product.facts.schemaType,
+        "@id": `${SITE.url}/#product-${product.id}`,
+        name: product.name,
+        url: product.url,
+        description: copy[product.id].lede,
+        applicationCategory: product.facts.category,
+        operatingSystem: product.facts.operatingSystem,
+        image: `${SITE.url}${product.images[0].src}`,
+        inLanguage: HTML_LANG[locale],
+        offers: { "@type": "Offer", price: 0, priceCurrency: PRICE_FACTS.currency },
+        author: { "@id": ORG_ID },
+        publisher: { "@id": ORG_ID },
+        ...(product.facts.license && { license: product.facts.license }),
+        ...(product.facts.sameAs && { sameAs: product.facts.sameAs }),
+    }));
+}
+
+export function productListSchema(locale: Locale) {
+    const t = getDictionary(locale).products;
+    return {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        name: `${t.titleA} ${t.titleB}`,
+        itemListElement: PRODUCTS.map((product, i) => ({
+            "@type": "ListItem",
+            position: i + 1,
+            item: { "@id": `${SITE.url}/#product-${product.id}` },
         })),
     };
 }

@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { JsonLd } from "@/components/JsonLd";
 import { ContactPage } from "@/components/ContactPage";
 import { SITE } from "@/config/seo";
@@ -19,13 +17,13 @@ export const metadata: Metadata = {
         url: absoluteUrl(STATIC_PATHS.contact.ro),
         type: "website",
         siteName: SITE.name,
-        images: [{ url: "/og-images/og-contact.png", width: 1200, height: 630, alt: SITE.name }],
+        images: [{ url: "/og-images/og-contact-ro.png", width: 1200, height: 630, alt: SITE.name }],
     },
 };
 
 export default function ContactPageRo() {
     return (
-        <div className="min-h-screen bg-background">
+        <>
             <JsonLd
                 data={[
                     breadcrumbSchema([
@@ -35,11 +33,7 @@ export default function ContactPageRo() {
                     businessSchema({ description: RO_META.home.description }),
                 ]}
             />
-            <Navbar />
-            <main>
-                <ContactPage locale="ro" />
-            </main>
-            <Footer />
-        </div>
+            <ContactPage />
+        </>
     );
 }

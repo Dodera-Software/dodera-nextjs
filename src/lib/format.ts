@@ -60,3 +60,11 @@ export function formatDateISO(dateStr: string): string {
         return dateStr;
     }
 }
+
+export function padIndex(n: number): string {
+    return String(n).padStart(2, "0");
+}
+
+export function lowerFirst(text: string): string {
+    return text.charAt(0).toLowerCase() + text.slice(1);
+}

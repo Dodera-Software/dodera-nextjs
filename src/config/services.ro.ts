@@ -44,7 +44,7 @@ export const SERVICE_PAGES_RO: Record<string, ServicePageData> = {
      * ────────────────────────────────────────────────────── */
     "software-development": {
         slug: "dezvoltare-software",
-        ogImage: "/og-images/og-software-development.png",
+        ogImage: "/og-images/og-software-development-ro.png",
         metaTitle: "Dezvoltare software în România",
         metaDescription:
             "Firmă de dezvoltare software din România: aplicații web, MVP-uri, SaaS și magazine online, pentru clienți din țară și din străinătate. De la 300 EUR.",
@@ -505,7 +505,7 @@ export const SERVICE_PAGES_RO: Record<string, ServicePageData> = {
      * ────────────────────────────────────────────────────── */
     "presentation-websites": {
         slug: "site-uri-de-prezentare",
-        ogImage: "/og-images/og-presentation-websites.png",
+        ogImage: "/og-images/og-presentation-websites-ro.png",
         metaTitle: "Creare site-uri de prezentare pentru firme",
         metaDescription:
             "Web design și creare site-uri de prezentare: rapide, optimizate SEO, ușor de actualizat. Livrare în 2–6 săptămâni, cu preț fix de la 300 EUR.",
@@ -741,7 +741,7 @@ export const SERVICE_PAGES_RO: Record<string, ServicePageData> = {
      * ────────────────────────────────────────────────────── */
     "ai-development": {
         slug: "dezvoltare-ai",
-        ogImage: "/og-images/og-ai-development.png",
+        ogImage: "/og-images/og-ai-development-ro.png",
         metaTitle: "Agenți AI și automatizări pentru firme",
         metaDescription:
             "Dezvoltăm agenți AI personalizați și automatizări n8n pentru companii din România, conectate la ERP, CRM și email. Proiecte cu preț fix de la 300 EUR.",
@@ -1079,7 +1079,7 @@ export const SERVICE_PAGES_RO: Record<string, ServicePageData> = {
      * ────────────────────────────────────────────────────── */
     "technical-documentation": {
         slug: "documentatie-tehnica",
-        ogImage: "/og-images/og-technical-documentation.png",
+        ogImage: "/og-images/og-technical-documentation-ro.png",
         metaTitle: "Documentație tehnică și baze de cunoștințe",
         metaDescription:
             "Transformăm codul și documentele interne în documentație tehnică structurată și baze de cunoștințe pregătite pentru AI. Preț fix, de la 300 EUR.",

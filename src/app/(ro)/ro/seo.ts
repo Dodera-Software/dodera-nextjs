@@ -14,7 +14,10 @@ export const RO_DEFAULT_META = {
 } as const;
 
 export const RO_META = {
-    home: RO_DEFAULT_META,
+    home: {
+        title: RO_DEFAULT_META.title,
+        description: "Software personalizat, agenți AI și site-uri din România, de la echipa care a creat Pipstep, doderminal, InteliLang și video-kit.",
+    },
     services: {
         title: "Servicii de dezvoltare software și AI",
         description:
