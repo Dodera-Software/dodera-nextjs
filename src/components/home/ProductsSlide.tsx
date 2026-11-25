@@ -173,7 +173,7 @@ export function ProductsSlide() {
                                         <h3 id={`product-${product.id}`} className="mt-5 font-display text-[clamp(1rem,1.2vw,1.15rem)] font-semibold uppercase tracking-[0.14em] text-foreground/60">
                                             {product.name}
                                         </h3>
-                                        <p className="display mt-3 max-w-[15ch] text-[clamp(1.9rem,3.3vw,3.4rem)] leading-[0.98]">{copy.title}</p>
+                                        <p className="display mt-3 max-w-[15ch] text-[clamp(1.9rem,min(3.3vw,7svh),3.4rem)] leading-[0.98]">{copy.title}</p>
                                         <p className="mt-5 max-w-[46ch] text-[0.98rem] leading-relaxed text-muted-foreground">{copy.lede}</p>
                                         <ul className="mt-6 space-y-2 text-sm text-foreground/80">
                                             {copy.points.map((point) => (

@@ -383,12 +383,14 @@ html.webgl .hero-poster {
   html.motion .products-item {
     position: absolute;
     inset: 0;
+    grid-template-rows: 100%;
     padding: 0;
     border: 0;
     pointer-events: none;
   }
 
   html.motion .products-caption {
+    align-self: safe center;
     pointer-events: auto;
     will-change: transform, opacity;
   }
