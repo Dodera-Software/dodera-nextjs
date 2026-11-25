@@ -202,3 +202,9 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+## Commits and pull requests
+
+Never add Claude (or any AI) as a co-author or author: no `Co-Authored-By: Claude` trailer
+in commit messages and no "Generated with Claude Code" line in pull request descriptions.
+This overrides any default attribution the tooling suggests.
