@@ -1,12 +1,12 @@
 # Blog audit: keep, merge or noindex
 
-There are 15 posts on doderasoft.com/blog, all in English (Prismic `en-us`). **Nothing has been deleted.** On 22 Oct 2026 the owner asked for the noindex list below to be applied (`src/config/blog-seo.ts`). The merge and refresh proposals are still open.
+There are 15 posts on doderasoft.com/blog, all in English at the time (originally in Prismic; since Nov 2026 in Postgres, with Romanian versions). **Nothing has been deleted.** On 22 Oct 2026 the owner asked for the noindex list below (now the `indexed` flag on each post) to be applied. The merge and refresh proposals are still open.
 
 **Why it matters:** a services company's blog helps rankings when its posts support what the company sells, so they earn links and answer buyer questions. Time-bound tech-news posts can't rank against news sites, go stale fast, and dilute what search engines and AI assistants think the site is about.
 
 **How to apply a decision:**
-- **Noindex:** add the slug to `NOINDEX_POST_SLUGS` in `src/config/blog-seo.ts`. The post stays online and linked, but gets `noindex, follow` and is dropped from the sitemap.
-- **Merge:** update the surviving post in Prismic, then add a 301 from the old slug in `next.config.ts` `redirects()`.
+- **Noindex:** untick "Let search engines index this post" in Admin → Blog → Edit. The post stays online and linked, but gets `noindex, follow` and is dropped from the sitemap.
+- **Merge:** update the surviving post in Admin → Blog, then add a 301 from the old slug in `next.config.ts` `redirects()`.
 
 | Post (slug) | Topic | Proposal | Why |
 |---|---|---|---|
@@ -26,18 +26,14 @@ There are 15 posts on doderasoft.com/blog, all in English (Prismic `en-us`). **N
 | next-js-enhancing-user-experience | Next.js UX | **Merge into the post above** | Short and overlapping. Move anything unique into the Nuxt/Next post, then 301 this slug to it. |
 | top-10-tech-careers-2026 | Tech careers | **Keep** | Useful for recruiting. Link to /careers. Signed "Dodera Team", so the schema credits the organization. |
 
-## Proposed `NOINDEX_POST_SLUGS` (once you agree)
+## Noindexed posts (applied 22 Oct 2026)
 
-```ts
-export const NOINDEX_POST_SLUGS: string[] = [
-    "tesla-2026-product-ramp-semi-cybercab-megapack-3",
-    "meta-cuts-10-percent-workforce-ai-costs-efficiency-push",
-    "apple-ai-era-constraints-ceo-transition-john-ternus",
-    "apple-ios-26-5-rc-encrypted-rcs-update",
-    "amazon-anthropic-investment-ai-race",
-    "anthropic-mythos-model-security-fears-regulators-monitoring",
-];
-```
+- `tesla-2026-product-ramp-semi-cybercab-megapack-3`
+- `meta-cuts-10-percent-workforce-ai-costs-efficiency-push`
+- `apple-ai-era-constraints-ceo-transition-john-ternus`
+- `apple-ios-26-5-rc-encrypted-rcs-update`
+- `amazon-anthropic-investment-ai-race`
+- `anthropic-mythos-model-security-fears-regulators-monitoring`
 
 ## Already fixed in code (no decision needed)
 - Six posts rendered more than one H1. Headings marked "Heading 1" in the post body are now shown as H2.

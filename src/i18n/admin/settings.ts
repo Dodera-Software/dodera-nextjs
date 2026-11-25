@@ -13,18 +13,9 @@ export const settingsCopy = {
         },
         updated: (date: string) => `Updated ${date}`,
         emptyDisables: "(empty = disabled)",
-        selectModel: "Select a model…",
-        on: "On",
-        off: "Off",
         wholeNumber: "Use a whole number (0 or more).",
         saved: (key: string) => `“${key}” saved`,
         help: {
-            [ConfigKey.ContactFollowupEnabled]: "Whether to generate AI follow-up suggestions for new contact messages.",
-            [ConfigKey.ContactFollowupModel]:
-                "OpenAI model for AI lead follow-ups: gpt-4o-mini for cost, gpt-4o or gpt-5 for the best quality.",
-            [ConfigKey.SocialPostModel]: "OpenAI model used when generating social posts.",
-            [ConfigKey.ImageGenerationModel]: "Model used for AI image generation (e.g. dall-e-3 or gpt-image-1).",
-            [ConfigKey.ContactFollowupDailyLimit]: "Max AI calls per day (UTC). 0 = unlimited.",
             [ConfigKey.ContactRateLimitMax]: "Max contact form submissions allowed per IP within the time window.",
             [ConfigKey.ContactRateLimitWindowMinutes]: "Window in minutes for the contact form IP rate limit.",
         } as Partial<Record<string, string>>,

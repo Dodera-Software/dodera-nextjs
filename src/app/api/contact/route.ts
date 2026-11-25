@@ -2,7 +2,6 @@ import { NextRequest, NextResponse, after } from "next/server";
 import { db } from "@/db";
 import { contacts } from "@/db/schema";
 import { z } from "zod";
-import { generateFollowUp, type LeadData } from "@/lib/contact-followup-service";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { RateLimitScope } from "@/config/rate-limit";
 
@@ -46,11 +45,17 @@ const contactSchema = z.object({
 
 /* ── Slack notification ────────────────────────────────────── */
 
-interface SlackLeadData extends LeadData {
-    followUp?: string;
+interface LeadData {
+    name: string;
+    email: string;
+    company: string;
+    phone: string;
+    service_type?: string;
+    budget?: string;
+    message: string;
 }
 
-async function notifySlack(data: SlackLeadData) {
+async function notifySlack(data: LeadData) {
     const webhookUrl = process.env.SLACK_LEADS_WEBHOOK_URL;
     if (!webhookUrl || webhookUrl.includes("XXXX")) return;
 
@@ -65,14 +70,6 @@ async function notifySlack(data: SlackLeadData) {
     if (data.service_type) lines.push(`*Service:* ${data.service_type}`);
     if (data.budget) lines.push(`*Budget:* ${data.budget}`);
     lines.push(``, `*Message:*`, `>${data.message.replace(/\n/g, "\n>")}`);
-
-    if (data.followUp) {
-        lines.push(
-            ``,
-            `*💡 Suggested follow-up:*`,
-            `>${data.followUp.replace(/\n/g, "\n>")}`,
-        );
-    }
 
     await fetch(webhookUrl, {
         method: "POST",
@@ -155,7 +152,7 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        /* Notify Slack + AI follow-up — runs after the response is sent */
+        /* Notify Slack + Telegram — runs after the response is sent */
         after(async () => {
             const lead: LeadData = {
                 name: parsed.data.name,
@@ -166,9 +163,8 @@ export async function POST(request: NextRequest) {
                 budget: parsed.data.budget ?? "",
                 message: parsed.data.message,
             };
-            const followUp = await generateFollowUp(lead);
             await Promise.all([
-                notifySlack({ ...lead, followUp }),
+                notifySlack(lead),
                 notifyTelegram(lead),
             ]);
         });

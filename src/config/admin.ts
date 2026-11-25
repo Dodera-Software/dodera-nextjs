@@ -1,7 +1,7 @@
 import {
     Briefcase,
     FileText,
-    ImageIcon,
+    Newspaper,
     Key,
     LayoutDashboard,
     Mail,
@@ -9,7 +9,6 @@ import {
     MessageSquare,
     MonitorSmartphone,
     Settings,
-    Share2,
     SquareKanban,
     Users,
     type LucideIcon,
@@ -24,8 +23,7 @@ export enum AdminRoute {
     Careers = "/admin/careers",
     Mockups = "/admin/mockups",
     Tokens = "/admin/tokens",
-    GenerateImage = "/admin/generate-image",
-    SocialPost = "/admin/generate-social-post",
+    Blog = "/admin/blog",
     SendEmail = "/admin/send-email",
     WelcomeEmail = "/admin/welcome-email",
     ApiDocs = "/admin/api-docs",
@@ -53,8 +51,7 @@ export const ADMIN_NAV: AdminNavEntry[] = [
     { route: AdminRoute.Subscribers, group: AdminNavGroup.People, icon: Users },
     { route: AdminRoute.Careers, group: AdminNavGroup.People, icon: Briefcase },
     { route: AdminRoute.Mockups, group: AdminNavGroup.Studio, icon: MonitorSmartphone },
-    { route: AdminRoute.GenerateImage, group: AdminNavGroup.Content, icon: ImageIcon },
-    { route: AdminRoute.SocialPost, group: AdminNavGroup.Content, icon: Share2 },
+    { route: AdminRoute.Blog, group: AdminNavGroup.Content, icon: Newspaper },
     { route: AdminRoute.SendEmail, group: AdminNavGroup.Content, icon: Mail },
     { route: AdminRoute.WelcomeEmail, group: AdminNavGroup.Content, icon: MailCheck },
     { route: AdminRoute.Tokens, group: AdminNavGroup.System, icon: Key },
@@ -99,13 +96,10 @@ export enum AdminQueryKey {
     Smtp = "smtp",
     Intelilang = "intelilang",
     BlogPosts = "blog-posts",
-    BlogPostExamples = "blog-post-examples",
-    SocialPostExamples = "social-post-examples",
+    Blog = "blog",
     WelcomeEmailTemplate = "welcome-email-template",
 }
 
 export const ADMIN_LINKS = {
     coolify: process.env.NEXT_PUBLIC_ADMIN_LINK_COOLIFY,
-    prismicMigration: process.env.NEXT_PUBLIC_ADMIN_LINK_PRISMIC_MIGRATION,
-    prismicMigrationFallback: "https://dodera-nextjs.prismic.io/builder/migration",
 } as const;

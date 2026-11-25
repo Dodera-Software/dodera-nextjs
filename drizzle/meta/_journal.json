@@ -50,6 +50,27 @@
       "when": 1795622004490,
       "tag": "0006_drop_rate_limit_log",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1795623735526,
+      "tag": "0007_drop_ai_tables",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1795623735951,
+      "tag": "0008_blog",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1795623736349,
+      "tag": "0009_blog_import",
+      "breakpoints": true
     }
   ]
 }

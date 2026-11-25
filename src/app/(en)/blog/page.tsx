@@ -5,10 +5,11 @@ import { absoluteUrl, alternatesFor, hreflangFor } from "@/i18n/routes";
 import { BLOG_META } from "./seo";
 import { JsonLd } from "@/components/JsonLd";
 import { breadcrumbSchema, collectionPageSchema } from "@/lib/structured-data";
-import { getAllPosts } from "@/lib/cms";
+import { connection } from "next/server";
+import { getAllPosts } from "@/lib/blog";
 
 export async function generateMetadata(): Promise<Metadata> {
-    // hreflang to /ro/blog only once Romanian posts exist (it is noindex while empty).
+    await connection();
     const hasRo = (await getAllPosts("ro")).length > 0;
     const alternates = hasRo
         ? { canonical: absoluteUrl("/blog"), languages: hreflangFor({ en: "/blog", ro: "/ro/blog" }) }
@@ -39,7 +40,8 @@ const BASE_METADATA: Metadata = {
 type PageProps = { searchParams: Promise<{ tag?: string | string[] }> };
 
 export default async function BlogPage({ searchParams }: PageProps) {
-    const posts = await getAllPosts();
+    await connection();
+    const posts = await getAllPosts("en");
     const { tag } = await searchParams;
     const activeTag = (Array.isArray(tag) ? tag[0] : tag) ?? "";
 

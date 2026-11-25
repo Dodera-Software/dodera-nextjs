@@ -67,9 +67,9 @@ Merge #81 first. Nothing has been merged.
 - **Testimonials:** a testimonial now needs a company, a link and `verified: true` to be shown. None of the 5 qualifies, so the section is hidden. The text is kept in `config/testimonials.ts` with the reasons.
 
 ### Phase 5: blog
-- Romanian blog support: posts per locale from Prismic (`ro-ro`), hreflang between translations via Prismic's linked translations, `/ro/blog` and `/ro/blog/[slug]`. `/ro/blog` stays noindex and out of the sitemap until the first Romanian post exists.
+- Romanian blog support: posts per locale (originally Prismic `ro-ro`; since Nov 2026 Postgres, EN/RO paired by `translation_key`), hreflang between translations, `/ro/blog` and `/ro/blog/[slug]`. `/ro/blog` stays noindex and out of the sitemap until the first Romanian post exists.
 - An author page `/blog/authors/amalia-s` (ProfilePage + Person schema). Posts link to the author, and "Dodera Team" posts are credited to the organization.
-- `NOINDEX_POST_SLUGS` in `src/config/blog-seo.ts` is empty; you decide what goes in it.
+- Per-post noindex is the "Let search engines index this post" switch in Admin → Blog → Edit.
 - `docs/seo/content-plan-ro.md`: 15 Romanian buyer-question articles, each with a target query, an outline and a quotable "Răspuns rapid".
 - `docs/seo/blog-audit.md`: keep / merge / noindex proposals for the 15 existing posts.
 
@@ -198,7 +198,7 @@ Owner decision: replace unsupported numbers with honest wording ("dedicated team
 2. ✅ Sitemap submitted in Google Search Console and Bing Webmaster Tools (owner).
 3. ⏳ Google Business Profile — in progress; same NAP as the site; add its link to the config afterwards.
 4. ⏳ **LinkedIn headquarters → Satu Mare** (see above); Clutch, GoodFirms, DesignRush with identical details.
-5. ⏳ Prismic: add the `ro-ro` locale (Settings → Translations & locales), then publish from `docs/seo/content-plan-ro.md`.
+5. ✅ Romanian blog: all posts have Romanian versions (Nov 2026); new ones come from `/new-blog`.
 6. Decide the blog noindex/merge list (`docs/seo/blog-audit.md`).
 
 ## 7. Known limitations
@@ -225,7 +225,7 @@ Owner decision: replace unsupported numbers with honest wording ("dedicated team
 - Search Console and Bing: sitemap already submitted
 
 **Still open, outside the code:**
-- **Prismic:** add the Romanian locale (Settings → Translations & locales → `ro-ro`). The code is ready, and `/ro/blog` goes live in search with the first post.
+- **Romanian blog:** done in Nov 2026, posts live in Postgres with EN/RO pairs.
 - **LinkedIn:** change the headquarters from Cluj-Napoca to the registered address, so the company details match everywhere.
 - **Google Business Profile:** in progress. When it exists, put its link in `src/config/seo.ts` `googleBusinessProfile`.
 - **Founder and opening hours:** not public anywhere, so they stay hidden. Fill `founder` / `openingHours` in `src/config/seo.ts` if you ever want them shown.

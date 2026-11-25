@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { JsonLd } from "@/components/JsonLd";
 import { BlogIndex } from "@/components/BlogIndex";
 import { SITE } from "@/config/seo";
-import { getAllPosts } from "@/lib/cms";
+import { connection } from "next/server";
+import { getAllPosts } from "@/lib/blog";
 import { absoluteUrl, hreflangFor } from "@/i18n/routes";
 import { breadcrumbSchema, collectionPageSchema } from "@/lib/structured-data";
 
@@ -10,13 +11,8 @@ const TITLE = "Blog: software, AI și site-uri";
 const DESCRIPTION =
     "Articole în română despre dezvoltare software, agenți AI, automatizări n8n și site-uri de prezentare, cu prețuri reale și exemple din proiectele noastre.";
 
-/*
- * Romanian blog listing. Posts come from Prismic's "ro-ro" locale.
- * While there are none, the page says so, links to the English blog and is
- * noindex (an empty listing shouldn't be in Google), and it stays out of the
- * sitemap and hreflang.
- */
 export async function generateMetadata(): Promise<Metadata> {
+    await connection();
     const posts = await getAllPosts("ro");
     const languages = posts.length > 0 ? hreflangFor({ en: "/blog", ro: "/ro/blog" }) : undefined;
     return {
@@ -31,6 +27,7 @@ export async function generateMetadata(): Promise<Metadata> {
 type PageProps = { searchParams: Promise<{ tag?: string | string[] }> };
 
 export default async function BlogPageRo({ searchParams }: PageProps) {
+    await connection();
     const posts = await getAllPosts("ro");
     const { tag } = await searchParams;
     const activeTag = (Array.isArray(tag) ? tag[0] : tag) ?? "";

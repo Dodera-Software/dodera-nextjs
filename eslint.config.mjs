@@ -9,6 +9,10 @@ const eslintConfig = defineConfig([
     files: ["src/components/RootDocument.tsx"],
     rules: { "@next/next/no-head-element": "off" },
   },
+  {
+    files: ["src/lib/blog-cover.tsx"],
+    rules: { "@next/next/no-img-element": "off" },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

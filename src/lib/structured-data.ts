@@ -246,6 +246,8 @@ export function articleSchema(opts: {
     /** Author page or profile (LinkedIn) URL. */
     authorUrl?: string;
     locale?: Locale;
+    keywords?: string[];
+    citations?: { title: string; url: string }[];
 }) {
     // A post signed with a person's name gets a Person author; posts with no
     // byline, or signed by the company ("Dodera Team"), go to the organization.
@@ -271,6 +273,8 @@ export function articleSchema(opts: {
         publisher: { ...orgRef(), logo: logoObject() },
         mainEntityOfPage: { "@type": "WebPage", "@id": opts.url },
         ...(opts.locale && { inLanguage: HTML_LANG[opts.locale] }),
+        ...(opts.keywords?.length && { keywords: opts.keywords.join(", ") }),
+        ...(opts.citations?.length && { citation: opts.citations.map((c) => ({ "@type": "CreativeWork", name: c.title, url: c.url })) }),
     };
 }
 

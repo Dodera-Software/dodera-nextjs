@@ -233,7 +233,9 @@ export interface Dictionary {
         back: string;
         updated: string;
         article: string;
-        comingSoon: string;
+        readTime: (minutes: number) => string;
+        draftNotice: string;
+        sourcesTitle: string;
         ctaTitle: string;
         ctaText: string;
         ctaButton: string;

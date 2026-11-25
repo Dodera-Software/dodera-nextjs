@@ -1,9 +1,6 @@
 import type { JobStatus, JobType } from "@/config/careers";
 import type { LeadActivityKind, LeadStage } from "@/config/leads";
-import type { ImageModel } from "@/config/ai-models";
 import type { ApiAuth, HttpMethod } from "@/config/api-docs";
-import type { SocialPlatform } from "@/config/social-post";
-import type { ImageSize } from "@/lib/image-sizes";
 
 export interface AdminSession {
     id: number;
@@ -43,19 +40,7 @@ export interface ApiToken {
     last_used_at: string | null;
 }
 
-// ── Dashboard ───────────────────────────────────────────────
-
-export interface AutoPostResult {
-    message: string;
-    uid?: string;
-    generated_post?: { title: string; excerpt: string; category: string };
-}
-
-export interface BlogPostExample {
-    id: number;
-    content: string;
-    created_at: string;
-}
+// ── Blog ────────────────────────────────────────────────────
 
 export interface AdminBlogPost {
     slug: string;
@@ -63,33 +48,33 @@ export interface AdminBlogPost {
     excerpt: string;
     category: string;
     date: string | null;
-    read_time: string;
     tags: string[];
     url: string;
     image: string | null;
-    body_plain: string;
 }
 
-export interface SocialPostExample {
+export interface BlogPostRow {
     id: number;
-    platform: SocialPlatform;
-    content: string;
-    created_at: string;
+    translationKey: string;
+    locale: "en" | "ro";
+    slug: string;
+    status: "draft" | "published";
+    title: string;
+    excerpt: string;
+    body: string;
+    category: string;
+    tags: string[];
+    author: string;
+    metaTitle: string | null;
+    metaDescription: string | null;
+    sources: { title: string; url: string }[];
+    indexed: boolean;
+    publishedAt: string | null;
+    createdAt: string;
+    updatedAt: string;
 }
 
-export interface GeneratedImage {
-    url: string;
-    prompt: string;
-    size: ImageSize;
-    model: ImageModel;
-}
-
-export interface ImageRequest {
-    id: number;
-    prompt: string;
-    size: ImageSize;
-    model: ImageModel;
-}
+// ── Email ───────────────────────────────────────────────────
 
 export interface SmtpCheck {
     ok: boolean;

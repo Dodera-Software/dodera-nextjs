@@ -1,3 +1,4 @@
+import type { Locale } from "@/i18n/config";
 import type { LucideIcon } from "lucide-react";
 
 // ── Team ────────────────────────────────────────────────
@@ -85,36 +86,32 @@ export interface ServicePageData {
 export interface BlogAuthor {
     name: string;
     slug?: string;
-    avatar?: string;
-    bio?: string;
+}
+
+export interface BlogSource {
+    title: string;
+    url: string;
 }
 
 export interface BlogPost {
+    key: string;
     slug: string;
+    locale: Locale;
     title: string;
     excerpt: string;
     date: string;
-    /** ISO date string for last modification (defaults to date if not set). */
-    updatedAt?: string;
-    readTime: string;
+    updatedAt: string;
+    readMinutes: number;
     category: string;
     tags: string[];
-    /** CMS fields — populated when a headless CMS is connected. */
-    author?: BlogAuthor;
-    /** Featured image URL (absolute or relative). */
-    image?: string;
-    /** Full HTML or rich-text body from CMS. Undefined for placeholder posts. */
-    body?: string;
-    /** Optional SEO overrides from CMS. */
-    seo?: {
-        metaTitle?: string;
-        metaDescription?: string;
-        ogImage?: string;
-    };
-    /** Site locale of this post ("en" | "ro"). */
-    locale?: "en" | "ro";
-    /** The same post in other languages (Prismic alternate_languages), for hreflang. */
-    alternates?: { locale: "en" | "ro"; slug: string }[];
+    author: BlogAuthor;
+    image: string;
+    body: string;
+    seo: { metaTitle?: string; metaDescription?: string };
+    sources: BlogSource[];
+    indexed: boolean;
+    draft: boolean;
+    alternates: { locale: Locale; slug: string }[];
 }
 
 // ── Process ─────────────────────────────────────────────

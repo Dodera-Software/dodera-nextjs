@@ -105,15 +105,11 @@ Compare against the same query in the Supabase SQL editor
 
 1. **New Resource → Application** → this Git repo, branch `main` (after merge), build pack **Dockerfile**.
 2. Environment variables (see `.env.example`): `DATABASE_URL` (use the
-   Coolify-internal hostname), `SITE_URL`, `PRISMIC_*`, `OPENAI_API_KEY`,
-   `SLACK_LEADS_WEBHOOK_URL`, `ZOHO_SMTP_PASSWORD`, `ADMIN_JWT_SECRET`,
-   `UNSUBSCRIBE_TOKEN_SECRET`, `NEXT_PUBLIC_ADMIN_LINK_COOLIFY`,
-   `NEXT_PUBLIC_ADMIN_LINK_PRISMIC_MIGRATION`.
-   Mark the two `NEXT_PUBLIC_*` vars plus `PRISMIC_REPOSITORY_NAME` and
-   `PRISMIC_ACCESS_TOKEN` **Available at Buildtime** — the `NEXT_PUBLIC_*`
-   values are inlined during `next build`, and the blog pages are SSG so
-   the build needs Prismic access or the fallback posts get baked in.
-   Everything else stays runtime-only.
+   Coolify-internal hostname), `SITE_URL`, `SLACK_LEADS_WEBHOOK_URL`,
+   `ZOHO_SMTP_PASSWORD`, `ADMIN_JWT_SECRET`, `UNSUBSCRIBE_TOKEN_SECRET`,
+   `NEXT_PUBLIC_ADMIN_LINK_COOLIFY`.
+   Mark `NEXT_PUBLIC_ADMIN_LINK_COOLIFY` **Available at Buildtime** (it is
+   inlined during `next build`). Everything else stays runtime-only.
 3. Set the app's health check to `GET /api/health` (the Dockerfile also ships a `HEALTHCHECK`).
 4. Add the domain, let Coolify provision TLS.
 
@@ -125,8 +121,7 @@ subscribers, tokens, careers), a job application with CV upload, and
 ## 7. Cut over
 
 1. Point the `doderasoft.com` DNS records at the Hetzner IP.
-2. Update the Prismic webhook (`/api/revalidate?secret=...`) if it pointed at the Vercel URL.
-3. Keep Supabase and Vercel alive but idle for a week or two as rollback,
+2. Keep Supabase and Vercel alive but idle for a week or two as rollback,
    then delete them. Remove `SUPABASE_URL`/`SUPABASE_SECRET_KEY` from `.env`.
 
 Note: the daily auto-post cron was removed on purpose. `/api/auto-post`

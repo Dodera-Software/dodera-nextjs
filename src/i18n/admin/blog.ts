@@ -1,0 +1,77 @@
+export const blogCopy = {
+    eyebrow: "Content",
+    title: "Blog",
+    description: "Posts written with /new-blog in Claude Code arrive here as drafts. Preview, edit, then publish.",
+    guide: {
+        eyebrow: "Writing a post",
+        title: "How to write a new post",
+        description: "Steps 1 and 2 are needed once per person.",
+        steps: [
+            {
+                title: "Create an API token",
+                text: "In API tokens, create a token (for example \"blog – your name\") and copy it. It is shown only once.",
+            },
+            {
+                title: "Add two lines to .env.local",
+                text: "In your copy of the dodera-nextjs repo, create or open .env.local and add:",
+            },
+            {
+                title: "Run /new-blog in Claude Code",
+                text: "Open Claude Code in the repo folder and type /new-blog. Pick one of the trending topics it suggests; it writes the English and Romanian versions and uploads them here as a draft.",
+            },
+            {
+                title: "Review and publish",
+                text: "Preview each language, fix anything with Edit, then Publish. Both languages go live together.",
+            },
+        ],
+        openTokens: "Open API tokens",
+        envToken: "<your token>",
+        drafts: "Drafts are visible on their normal URL only while you are signed in here.",
+    },
+    list: {
+        title: "Posts",
+        description: (count: number) => `${count} ${count === 1 ? "post" : "posts"}, each in English and Romanian`,
+        empty: { title: "No posts yet", description: "Follow the steps above to write the first one." },
+        published: "Published",
+        draft: "Draft",
+        noindex: "noindex",
+        publishedOn: (date: string) => `Published ${date}`,
+        createdOn: (date: string) => `Created ${date}`,
+        preview: "Preview",
+        publish: "Publish",
+        unpublish: "Unpublish",
+    },
+    status: {
+        publishTitle: "Publish this post?",
+        publishDescription: "Both the English and Romanian versions go live right away.",
+        unpublishTitle: "Unpublish this post?",
+        unpublishDescription: "Both versions disappear from the blog and the sitemap.",
+        published: "Published",
+        unpublished: "Moved back to drafts",
+    },
+    remove: {
+        title: "Delete this post?",
+        description: (title: string) => `“${title}” is deleted in both languages. This cannot be undone.`,
+        done: "Post deleted",
+    },
+    form: {
+        title: (locale: string, slug: string) => `Edit ${locale.toUpperCase()} · ${slug}`,
+        description: "On a published post, changes go live as soon as you save.",
+        fields: {
+            title: "Title",
+            excerpt: "Excerpt",
+            metaTitle: "SEO title",
+            metaDescription: "SEO description",
+            body: "Body (Markdown)",
+            indexed: "Let search engines index this post",
+        },
+        errors: {
+            title: "Use 10 to 140 characters.",
+            excerpt: "Use 40 to 320 characters.",
+            metaTitle: "Use at most 70 characters.",
+            metaDescription: "Use at most 170 characters.",
+            body: "The body needs at least 600 characters.",
+        },
+        saved: "Post saved",
+    },
+} as const;

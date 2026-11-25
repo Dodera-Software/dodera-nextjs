@@ -1,340 +1,45 @@
-import "server-only";
 import { NextRequest, NextResponse } from "next/server";
-import * as prismic from "@prismicio/client";
-import type { BlogPostDocumentData } from "../../../../prismicio-types";
 import { z } from "zod";
-import { repositoryName } from "@/lib/prismic";
+import { blogPostPath } from "@/config/blog";
+import { BlogConflict, draftSchema, listAllPosts, saveDraft } from "@/lib/blog-store";
+import type { Locale } from "@/i18n/config";
 
-/* ── Rich-text helpers ──────────────────────────────────────── */
-
-/**
- * Minimal Prismic RichText node schema (paragraph, heading, etc.)
- * Used when the caller sends body_richtext directly.
- */
-const richTextNodeSchema = z.object({
-    type: z.string(),
-    text: z.string().optional(),
-    spans: z.array(z.any()).optional(),
-    url: z.string().optional(),
-    alt: z.string().optional(),
-    dimensions: z.object({ width: z.number(), height: z.number() }).optional(),
-}).passthrough();
-
-/**
- * Parse markdown-style links [anchor](url) out of a raw string.
- * Returns the plain text (link syntax removed) and Prismic hyperlink spans.
- * Relative URLs (e.g. /services/ai-development) are expanded to absolute.
- */
-const SITE_ORIGIN = "https://doderasoft.com";
-// Matches **bold** and [link](url) in a single pass
-const INLINE_RE = /\*\*([^*]+)\*\*|\[([^\]]+)\]\(((?:https?:\/\/|\/)[^)]+)\)/g;
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function extractInlineSpans(raw: string): { plainText: string; spans: any[] } {
-    let plainText = "";
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const spans: any[] = [];
-    let lastIndex = 0;
-
-    INLINE_RE.lastIndex = 0;
-    let match: RegExpExecArray | null;
-
-    while ((match = INLINE_RE.exec(raw)) !== null) {
-        plainText += raw.slice(lastIndex, match.index);
-        if (match[1] !== undefined) {
-            // **bold**
-            const start = plainText.length;
-            plainText += match[1];
-            spans.push({ type: "strong", start, end: plainText.length });
-        } else {
-            // [anchor](url)
-            const anchorText = match[2];
-            const url = match[3];
-            const start = plainText.length;
-            plainText += anchorText;
-            const absoluteUrl = url.startsWith("/") ? `${SITE_ORIGIN}${url}` : url;
-            spans.push({ type: "hyperlink", start, end: plainText.length, data: { link_type: "Web", url: absoluteUrl } });
-        }
-        lastIndex = match.index + match[0].length;
-    }
-
-    plainText += raw.slice(lastIndex);
-    return { plainText, spans };
+export async function GET() {
+    const rows = await listAllPosts();
+    return NextResponse.json({
+        status: "success",
+        posts: rows.map((row) => ({
+            key: row.translationKey,
+            locale: row.locale,
+            slug: row.slug,
+            status: row.status,
+            title: row.title,
+            category: row.category,
+            tags: row.tags,
+            sources: row.sources.map((s) => s.url),
+            publishedAt: row.publishedAt,
+            createdAt: row.createdAt,
+        })),
+    });
 }
-
-/**
- * Convert a markdown body string to a Prismic RichTextField.
- * Processes line-by-line so headings are never merged with paragraph content,
- * even when the AI omits the blank line between a heading and the next paragraph.
- * Also handles **bold**, [links](url), - list items, and 1. ordered lists.
- */
-function textToRichText(text: string): prismic.RichTextField {
-    const lines = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n");
-    const nodes: prismic.RTNode[] = [];
-    let paragraphBuffer: string[] = [];
-
-    const flushParagraph = () => {
-        if (paragraphBuffer.length === 0) return;
-        const combined = paragraphBuffer.join(" ").trim();
-        if (combined) {
-            const { plainText, spans } = extractInlineSpans(combined);
-            nodes.push({ type: prismic.RichTextNodeType.paragraph, text: plainText, spans });
-        }
-        paragraphBuffer = [];
-    };
-
-    const headingRules = [
-        { prefix: "### ", type: prismic.RichTextNodeType.heading3 },
-        { prefix: "## ", type: prismic.RichTextNodeType.heading2 },
-        { prefix: "# ", type: prismic.RichTextNodeType.heading1 },
-    ] as const;
-
-    for (const line of lines) {
-        const trimmed = line.trim();
-        if (!trimmed) {
-            flushParagraph();
-            continue;
-        }
-
-        const heading = headingRules.find(r => trimmed.startsWith(r.prefix));
-        if (heading) {
-            flushParagraph();
-            nodes.push({ type: heading.type, text: trimmed.slice(heading.prefix.length), spans: [] });
-            continue;
-        }
-
-        if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
-            flushParagraph();
-            const { plainText, spans } = extractInlineSpans(trimmed.slice(2));
-            nodes.push({ type: prismic.RichTextNodeType.listItem, text: plainText, spans });
-            continue;
-        }
-
-        if (/^\d+\.\s+/.test(trimmed)) {
-            flushParagraph();
-            const { plainText, spans } = extractInlineSpans(trimmed.replace(/^\d+\.\s+/, ""));
-            nodes.push({ type: prismic.RichTextNodeType.oListItem, text: plainText, spans });
-            continue;
-        }
-
-        paragraphBuffer.push(trimmed);
-    }
-    flushParagraph();
-
-    return nodes as prismic.RichTextField;
-}
-
-/* ── Request validation ─────────────────────────────────────── */
-
-const blogPostPayloadSchema = z.object({
-    /** URL slug — must be unique across all blog posts */
-    uid: z
-        .string()
-        .trim()
-        .min(1, "uid is required")
-        .max(200)
-        .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "uid must be lowercase-alphanumeric with hyphens (e.g. 'my-blog-post')"),
-
-    title: z.string().trim().min(1, "title is required").max(300),
-    excerpt: z.string().trim().max(600).optional().default(""),
-    date: z
-        .string()
-        .trim()
-        .regex(/^\d{4}-\d{2}-\d{2}$/, "date must be YYYY-MM-DD")
-        .optional(),
-    read_time: z.string().trim().max(30).optional(),
-    category: z.string().trim().max(100).optional(),
-    tags: z.array(z.string().trim().max(50)).max(20).optional(),
-
-    /** Plain text / simple markdown body (split by double newlines) */
-    body: z.string().optional(),
-    /** OR: full Prismic RichText array (takes precedence over body) */
-    body_richtext: z.array(richTextNodeSchema).optional(),
-
-    /** Featured image URL (will be uploaded as a Prismic asset) */
-    featured_image_url: z.string().url().optional(),
-    featured_image_alt: z.string().max(300).optional(),
-
-    author_name: z.string().trim().max(100).optional(),
-    /** Author avatar URL */
-    author_avatar_url: z.string().url().optional(),
-
-    meta_title: z.string().trim().max(300).optional(),
-    meta_description: z.string().trim().max(500).optional(),
-    /** OG image URL */
-    og_image_url: z.string().url().optional(),
-
-    /** Prismic locale (default: en-us) */
-    lang: z.string().trim().default("en-us"),
-
-    /** Whether to auto-publish (default: false → stays as draft) */
-    publish: z.boolean().default(true),
-});
-
-export type BlogPostPayload = z.infer<typeof blogPostPayloadSchema>;
-
-/* ── Route handler ──────────────────────────────────────────── */
 
 export async function POST(request: NextRequest) {
+    const parsed = draftSchema.safeParse(await request.json().catch(() => null));
+    if (!parsed.success) {
+        return NextResponse.json({ status: "error", message: "Invalid post.", issues: z.flattenError(parsed.error).fieldErrors }, { status: 400 });
+    }
+
     try {
-        const rawBody = await request.json();
-
-        /* Validate payload */
-        const parsed = blogPostPayloadSchema.safeParse(rawBody);
-        if (!parsed.success) {
-            return NextResponse.json(
-                { status: "error", errors: parsed.error.flatten().fieldErrors },
-                { status: 400 },
-            );
-        }
-
-        const payload = parsed.data;
-
-        /* Verify Prismic write token is configured */
-        const writeToken = process.env.PRISMIC_WRITE_TOKEN;
-        if (!writeToken) {
-            console.error("PRISMIC_WRITE_TOKEN is not set in environment variables.");
-            return NextResponse.json(
-                { status: "error", message: "Server misconfiguration: Prismic write token not set." },
-                { status: 500 },
-            );
-        }
-
-        /* Create Prismic write client & migration */
-        const writeClient = prismic.createWriteClient(repositoryName, {
-            writeToken,
-            accessToken: process.env.PRISMIC_ACCESS_TOKEN || undefined,
+        const rows = await saveDraft(parsed.data);
+        const origin = request.nextUrl.origin;
+        return NextResponse.json({
+            status: "success",
+            key: parsed.data.key,
+            preview: Object.fromEntries(rows.map((row) => [row.locale, `${origin}${blogPostPath(row.slug, row.locale as Locale)}`])),
+            admin: `${origin}/admin/blog`,
         });
-
-        const migration = prismic.createMigration();
-
-        /**
-         * Fetch an external image URL and return a File object so Prismic
-         * never needs to call back to a foreign URL (many CDN links, including
-         * OpenAI-generated ones, are short-lived or blocked by Prismic).
-         * Results are cached within this request to avoid fetching the same
-         * URL twice (e.g. featured_image_url === og_image_url).
-         */
-        const fileCache = new Map<string, File>();
-        async function fetchAsFile(url: string, filename: string): Promise<File> {
-            if (fileCache.has(url)) return fileCache.get(url)!;
-            const res = await fetch(url);
-            if (!res.ok) throw new Error(`Failed to fetch asset from ${url}: ${res.statusText}`);
-            const buffer = await res.arrayBuffer();
-            const contentType = res.headers.get("content-type") ?? "image/png";
-            const ext = contentType.split("/")[1]?.split(";")[0] ?? "png";
-            const safeFilename = filename.endsWith(`.${ext}`) ? filename : `${filename}.${ext}`;
-            const file = new File([buffer], safeFilename, { type: contentType });
-            fileCache.set(url, file);
-            return file;
-        }
-
-        /* Handle image assets — download externally hosted images first so
-           Prismic receives binary data rather than a foreign URL. */
-        let featuredImage;
-        if (payload.featured_image_url) {
-            const file = await fetchAsFile(payload.featured_image_url, payload.title);
-            featuredImage = migration.createAsset(
-                file,
-                file.name,
-                { alt: payload.featured_image_alt || payload.title },
-            );
-        }
-
-        let authorAvatar;
-        if (payload.author_avatar_url) {
-            const file = await fetchAsFile(payload.author_avatar_url, `${payload.author_name || "author"}-avatar`);
-            authorAvatar = migration.createAsset(file, file.name);
-        }
-
-        let ogImage;
-        if (payload.og_image_url) {
-            const file = await fetchAsFile(payload.og_image_url, `${payload.uid}-og`);
-            ogImage = migration.createAsset(
-                file,
-                file.name,
-                { alt: payload.meta_title || payload.title },
-            );
-        }
-
-        /* Build the body rich text */
-        let bodyRichText: prismic.RichTextField;
-        if (payload.body_richtext && payload.body_richtext.length > 0) {
-            // Direct Prismic RichText
-            bodyRichText = payload.body_richtext as prismic.RichTextField;
-        } else if (payload.body) {
-            // Convert plain text / simple markdown
-            bodyRichText = textToRichText(payload.body);
-        } else {
-            bodyRichText = [];
-        }
-
-        /* Build tags group */
-        const tags = (payload.tags?.map((tag) => ({ tag })) ?? []) as BlogPostDocumentData["tags"];
-
-        /* Create the document */
-        migration.createDocument(
-            {
-                type: "blog_post",
-                uid: payload.uid,
-                lang: payload.lang,
-                data: {
-                    title: payload.title,
-                    excerpt: payload.excerpt || null,
-                    date: payload.date || new Date().toISOString().slice(0, 10),
-                    updated_at: null,
-                    read_time: payload.read_time || null,
-                    category: payload.category || null,
-                    tags,
-                    featured_image: featuredImage ?? undefined,
-                    author_name: payload.author_name || null,
-                    author_avatar: authorAvatar ?? undefined,
-                    body: bodyRichText,
-                    meta_title: payload.meta_title || null,
-                    meta_description: payload.meta_description || null,
-                    og_image: ogImage ?? undefined,
-                },
-            },
-            payload.title,
-        );
-
-        /* Run the migration (creates assets + document in Prismic) */
-        await writeClient.migrate(migration, {
-            reporter: (event) => {
-                // Log progress server-side for debugging
-                console.log(`[Prismic Migration] ${JSON.stringify(event)}`);
-            },
-        });
-
-        return NextResponse.json(
-            {
-                status: "success",
-                message: `Blog post "${payload.title}" created successfully.`,
-                uid: payload.uid,
-            },
-            { status: 201 },
-        );
     } catch (err) {
-        console.error("Blog post creation error:", err);
-
-        let message = "Unknown error occurred.";
-        let details: string | undefined;
-
-        if (err instanceof Error) {
-            message = err.message;
-            // Prismic errors often have a `cause` or response body
-            if ("cause" in err && err.cause) {
-                details = String(err.cause);
-                console.error("Error cause:", err.cause);
-            }
-            if (err.stack) {
-                console.error("Stack:", err.stack);
-            }
-        }
-
-        return NextResponse.json(
-            { status: "error", message, ...(details ? { details } : {}) },
-            { status: 500 },
-        );
+        if (err instanceof BlogConflict) return NextResponse.json({ status: "error", message: err.message }, { status: 409 });
+        throw err;
     }
 }

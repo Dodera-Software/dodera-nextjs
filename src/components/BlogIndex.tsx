@@ -7,7 +7,7 @@ import { Slide } from "@/components/deck/Slide";
 import { DeckPage } from "@/components/slides/DeckPage";
 import { PageHeroSlide } from "@/components/slides/PageHeroSlide";
 import { CtaSlide } from "@/components/slides/CtaSlide";
-import { blogPostPath } from "@/config/blog-seo";
+import { blogPostPath } from "@/config/blog";
 import { cn } from "@/lib/utils";
 import { useDict, useLocale } from "@/i18n/LocaleProvider";
 import type { BlogPost } from "@/types";
@@ -115,15 +115,14 @@ export function BlogIndex({ posts, activeTag }: { posts: BlogPost[]; activeTag: 
                             {filtered.map((post) => (
                                 <li key={post.slug} className="bg-background">
                                     <Link href={blogPostPath(post.slug, locale)} className="group flex h-full flex-col transition-colors duration-500 hover:bg-card">
-                                        {post.image && (
-                                            <span className="relative block aspect-[16/9] overflow-hidden">
-                                                <Image src={post.image} alt="" fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover transition-transform duration-700 ease-out-expo group-hover:scale-105" />
-                                            </span>
-                                        )}
+                                        <span className="relative block aspect-[1200/630] overflow-hidden">
+                                            <Image src={post.image} alt="" fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover transition-transform duration-700 ease-out-expo group-hover:scale-105" />
+                                        </span>
                                         <span className="flex flex-1 flex-col p-7">
                                             <span className="font-mono text-[11px] uppercase tracking-[0.1em] text-muted-foreground">
                                                 <time dateTime={post.date}>{new Date(post.date).toLocaleDateString(blogPost.dateLocale, DATE_FORMAT)}</time>
-                                                {post.readTime && <> · {post.readTime}</>}
+                                                {" · "}
+                                                {blogPost.readTime(post.readMinutes)}
                                             </span>
                                             <span className="mt-4 block text-xl font-semibold leading-snug">{post.title}</span>
                                             <span className="mt-3 line-clamp-3 text-sm leading-relaxed text-muted-foreground">{post.excerpt}</span>
