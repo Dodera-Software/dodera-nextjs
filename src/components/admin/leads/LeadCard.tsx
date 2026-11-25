@@ -9,7 +9,7 @@ import { ArrowRight, CalendarClock, Facebook, Globe, Instagram, Link2, Loader2, 
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { MockPolicy, mockPolicy } from "@/config/leads";
-import { outreachRuleFor, type OutreachRule } from "@/config/outreach-rules";
+import { outreachRuleFor, type OutreachRule, OutreachApproach } from "@/config/outreach-rules";
 import { StatusTone } from "@/config/ui";
 import { leadsCopy as copy } from "@/i18n/admin/leads";
 import { FOLLOW_UP_TONE, externalHref, followUpState, formatEur, formatFollowUp, leadHref, mockStatus } from "@/lib/leads-client";
@@ -191,7 +191,7 @@ export function SortableLeadCard(props: LeadCardProps) {
 }
 
 function OutreachRuleSummary({ rule }: { rule: OutreachRule }) {
-    const direct = rule.approach === "direct";
+    const direct = rule.approach === OutreachApproach.Direct;
     return (
         <div className="space-y-1.5 text-xs">
             <p className={cn("font-medium", direct ? "text-emerald-400" : "text-brand-bright")}>

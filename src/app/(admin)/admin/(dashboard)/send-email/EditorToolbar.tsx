@@ -131,7 +131,7 @@ function LinkButton({ editor, active }: { editor: Editor; active: boolean }) {
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-80">
-                <form onSubmit={apply} className="space-y-3">
+                <form noValidate onSubmit={apply} className="space-y-3">
                     <label className="block font-mono text-[0.68rem] uppercase tracking-[0.08em] text-muted-foreground" htmlFor="email-link-url">
                         {copy.link.label}
                     </label>

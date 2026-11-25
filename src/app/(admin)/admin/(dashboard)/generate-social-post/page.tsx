@@ -163,7 +163,7 @@ export default function GenerateSocialPostPage() {
 
                             <AdminPanel title={copy.platforms.title} description={copy.platforms.description} flush>
                                 <div className="space-y-5 p-6">
-                                    <Tabs value={platform ?? ""} onValueChange={(value) => choosePlatform(value as SocialPlatform)}>
+                                    <Tabs value={platform ?? ""} activationMode="manual" onValueChange={(value) => choosePlatform(value as SocialPlatform)}>
                                         <TabsList className="flex h-auto w-full flex-wrap sm:w-auto">
                                             {SOCIAL_PLATFORMS.map(({ id, icon: Icon }) => (
                                                 <TabsTrigger key={id} value={id} disabled={generate.isPending} className="flex-1 sm:flex-none">

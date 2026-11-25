@@ -103,7 +103,7 @@ function JobOpeningForm({ job, onDone }: { job: JobOpening | null; onDone: () =>
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit((values) => save.mutate(values))} className="space-y-5 pt-2">
+            <form noValidate onSubmit={form.handleSubmit((values) => save.mutate(values))} className="space-y-5 pt-2">
                 <FormField
                     control={form.control}
                     name="title"

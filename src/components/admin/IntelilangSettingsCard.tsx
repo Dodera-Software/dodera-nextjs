@@ -83,7 +83,7 @@ function IntelilangForm({ settings }: { settings: IntelilangSettings }) {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit((values) => save.mutate(values))} className="space-y-5">
+            <form noValidate onSubmit={form.handleSubmit((values) => save.mutate(values))} className="space-y-5">
                 {!settings.can_store_secret && (
                     <Alert tone={StatusTone.Warning} icon={ShieldAlert}>
                         {copy.noEncryptionKey}

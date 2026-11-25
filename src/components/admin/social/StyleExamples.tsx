@@ -97,7 +97,7 @@ export function StyleExamples({ platform }: { platform: SocialPlatform }) {
             <CollapsibleContent className="space-y-4 pt-4">
                 <p className="text-sm text-muted-foreground">{copy.description(label)}</p>
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit((v) => add.mutate(v.content))} className="space-y-3">
+                    <form noValidate onSubmit={form.handleSubmit((v) => add.mutate(v.content))} className="space-y-3">
                         <FormField
                             control={form.control}
                             name="content"

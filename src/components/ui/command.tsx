@@ -6,12 +6,19 @@ import { Search } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
+function containsFilter(value: string, search: string, keywords?: string[]): number {
+    const terms = search.toLowerCase().split(/\s+/).filter(Boolean);
+    const haystack = [value, ...(keywords ?? [])].join(" ").toLowerCase();
+    return terms.every((term) => haystack.includes(term)) ? 1 : 0;
+}
+
 const Command = React.forwardRef<
     React.ComponentRef<typeof CommandPrimitive>,
     React.ComponentPropsWithoutRef<typeof CommandPrimitive>
 >(({ className, ...props }, ref) => (
     <CommandPrimitive
         ref={ref}
+        filter={containsFilter}
         className={cn("flex size-full flex-col overflow-hidden rounded-2xl bg-popover text-popover-foreground", className)}
         {...props}
     />

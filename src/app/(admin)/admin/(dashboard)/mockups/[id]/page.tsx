@@ -48,7 +48,6 @@ export default function MockupProjectPage() {
         success: (r) => r.message ?? copy.detail.deleted,
         onSuccess: () => {
             router.replace(AdminRoute.Mockups);
-            queryClient.removeQueries({ queryKey: [AdminQueryKey.Mockups, projectId] });
             queryClient.invalidateQueries({ queryKey: [AdminQueryKey.Mockups], exact: true });
             queryClient.invalidateQueries({ queryKey: [AdminQueryKey.Leads] });
         },

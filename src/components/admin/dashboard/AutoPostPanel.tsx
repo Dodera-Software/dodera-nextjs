@@ -75,7 +75,7 @@ export function AutoPostPanel() {
                     </CollapsibleTrigger>
                     <CollapsibleContent>
                         <Form {...form}>
-                            <form onSubmit={onSubmit} className="grid gap-5 pt-5 md:grid-cols-[minmax(0,16rem)_1fr]">
+                            <form noValidate onSubmit={onSubmit} className="grid gap-5 pt-5 md:grid-cols-[minmax(0,16rem)_1fr]">
                                 <FormField
                                     control={form.control}
                                     name="author"

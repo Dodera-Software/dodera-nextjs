@@ -45,7 +45,7 @@ export function ConfigRowForm({ row }: { row: ConfigRow }) {
 
     return (
         <Form {...form}>
-            <form
+            <form noValidate
                 onSubmit={form.handleSubmit((values) => save.mutate(values.value))}
                 className="grid gap-3 px-6 py-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)_auto] lg:items-start lg:gap-5"
             >
