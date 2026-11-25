@@ -8,8 +8,7 @@ import { getDictionary } from "@/i18n/dictionaries";
 import { ROUTES, absoluteUrl, type PageId, type StaticPageId } from "@/i18n/routes";
 import type { Locale } from "@/i18n/config";
 import { connection } from "next/server";
-import { getIndexedPostSources } from "@/lib/blog";
-import { MARKDOWN_HEADERS, latestPostsMarkdown, productsMarkdown } from "@/lib/llms";
+import { MARKDOWN_HEADERS, latestPostsMarkdown, llmsPosts, productsMarkdown } from "@/lib/llms";
 
 const PAGE_TITLES: Record<StaticPageId, Record<Locale, string>> = {
     home: { en: "Home", ro: "Acasă" },
@@ -47,7 +46,7 @@ function pageList(locale: Locale): string {
 
 export async function GET() {
     await connection();
-    const [postsEn, postsRo] = await Promise.all([getIndexedPostSources("en"), getIndexedPostSources("ro")]);
+    const [postsEn, postsRo] = await Promise.all([llmsPosts("en"), llmsPosts("ro")]);
     const p = PRICE_FACTS;
     const hasRomanian = Object.values(ROUTES).some((r) => r.paths.ro);
 
