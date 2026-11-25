@@ -36,7 +36,7 @@ export function BlogPostContent({ post }: BlogPostContentProps) {
             <Slide id={PostSlide.Intro} label={post.title} labelledBy="post-title" fit>
                 {post.draft && <p className="absolute inset-x-0 top-20 z-10 bg-brand py-2 text-center font-mono text-xs uppercase tracking-[0.08em] text-white">{t.draftNotice}</p>}
                 <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(55%_60%_at_85%_20%,hsl(var(--brand)/0.18),transparent_70%)]" />
-                <div className="wrap relative grid gap-12 pb-20 pt-32 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-end lg:gap-16 lg:pb-28 lg:pt-40">
+                <div className="wrap relative grid gap-12 pb-20 pt-32 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-center lg:gap-16 lg:pb-28 lg:pt-40">
                     <div>
                         <Link href={links.blog} className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.08em] text-muted-foreground transition-colors hover:text-foreground">
                             <ArrowLeft className="size-4" aria-hidden="true" />
