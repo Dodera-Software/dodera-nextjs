@@ -206,7 +206,7 @@ export async function autoPost(options: AutoPostOptions = {}): Promise<AutoPostS
         if (!raw) throw new Error("OpenAI returned an empty response.");
         generatedPost = parseGeneratedPost(raw);
         console.log(`[auto-post-service] Generated — uid="${generatedPost.uid}" title="${generatedPost.title}"`);
-    } catch (err) {
+    } catch {
         return {
             status: "error",
             message: "Failed to generate blog post via OpenAI.",

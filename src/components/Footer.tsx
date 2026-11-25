@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, Mail, MapPin, Phone } from "lucide-react";
+import { ArrowRight, Mail, MapPin, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 import { NewsletterForm } from "@/components/NewsletterForm";
@@ -9,13 +9,17 @@ import { SocialIconList } from "@/components/SocialIconList";
 import { COMPANY } from "@/config/site";
 import { PRODUCTS } from "@/config/products";
 import { SITE } from "@/config/seo";
-import { useDict } from "@/i18n/LocaleProvider";
+import { useDict, useLocale } from "@/i18n/LocaleProvider";
+import { PRODUCT_PATHS } from "@/i18n/paths";
+import { AnalyticsEvent, CtaLocation } from "@/config/analytics";
+import { trackAttrs } from "@/lib/analytics";
 
 const linkClass = "text-sm text-foreground/60 transition-colors hover:text-foreground";
 const headingClass = "font-mono text-xs uppercase tracking-[0.1em] text-muted-foreground";
 
 export function Footer() {
     const { footer: t, links, breadcrumb } = useDict();
+    const locale = useLocale();
     return (
         <footer className="relative overflow-hidden border-t border-foreground/[0.08] bg-background">
             <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-[radial-gradient(60%_70%_at_50%_100%,hsl(var(--brand)/0.16),transparent_70%)]" />
@@ -23,7 +27,7 @@ export function Footer() {
                 <div className="flex flex-wrap items-end justify-between gap-8 border-b border-foreground/[0.08] pb-14">
                     <p className="display-md max-w-[18ch]">{t.cta}</p>
                     <Button size="pill" asChild>
-                        <Link href={links.contact}>
+                        <Link href={links.contact} {...trackAttrs(AnalyticsEvent.CtaClick, { location: CtaLocation.Footer })}>
                             {t.contactButton}
                             <ArrowRight aria-hidden="true" />
                         </Link>
@@ -76,10 +80,9 @@ export function Footer() {
                             <ul className="mt-5 space-y-3">
                                 {PRODUCTS.map((product) => (
                                     <li key={product.id}>
-                                        <a href={product.url} target="_blank" rel="noopener" className={`group inline-flex items-center gap-1 ${linkClass}`}>
+                                        <Link href={PRODUCT_PATHS[product.id][locale]!} className={linkClass} {...trackAttrs(AnalyticsEvent.ProductOpen, { product: product.id, location: CtaLocation.Footer })}>
                                             {product.name}
-                                            <ArrowUpRight className="size-3.5 opacity-50 transition-opacity group-hover:opacity-100" aria-hidden="true" />
-                                        </a>
+                                        </Link>
                                     </li>
                                 ))}
                             </ul>

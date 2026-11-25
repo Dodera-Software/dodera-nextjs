@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
-import { ArrowUpRight } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Slide } from "@/components/deck/Slide";
 import { useDeck, useSlideState } from "@/components/deck/Deck";
@@ -12,8 +13,11 @@ import { HomeSlide } from "@/config/home";
 import { MOTION } from "@/config/theme";
 import { PRODUCTS } from "@/config/products";
 import { padIndex } from "@/lib/format";
-import { useDict } from "@/i18n/LocaleProvider";
-import { ProductVisual } from "./ProductVisual";
+import { useDict, useLocale } from "@/i18n/LocaleProvider";
+import { PRODUCT_PATHS } from "@/i18n/paths";
+import { ProductVisual } from "@/components/products/ProductVisual";
+import { AnalyticsEvent, CtaLocation } from "@/config/analytics";
+import { trackAttrs } from "@/lib/analytics";
 
 const COUNT = PRODUCTS.length;
 const HOLD_SCREENS = 0.4;
@@ -67,7 +71,8 @@ function renderStage({ frame, captions, visuals, bar }: StageNodes, x: number) {
 }
 
 export function ProductsSlide() {
-    const { products: t, deck: deckCopy } = useDict();
+    const { products: t, productPage, deck: deckCopy } = useDict();
+    const locale = useLocale();
     const deck = useDeck();
     const frameRef = useRef<HTMLDivElement>(null);
     const captionRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -178,15 +183,16 @@ export function ProductsSlide() {
                                                 </li>
                                             ))}
                                         </ul>
-                                        <a
-                                            href={product.url}
-                                            target="_blank"
-                                            rel="noopener"
-                                            className="group mt-8 inline-flex items-center gap-2 border-b border-foreground/25 pb-1 text-sm font-semibold text-foreground transition-colors hover:border-foreground"
-                                        >
-                                            {copy.cta}
-                                            <ArrowUpRight className="size-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />
-                                        </a>
+                                        <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-3">
+                                            <Link href={PRODUCT_PATHS[product.id][locale]!} {...trackAttrs(AnalyticsEvent.ProductOpen, { product: product.id, location: CtaLocation.HomeProducts })} className="group inline-flex items-center gap-2 border-b border-foreground/25 pb-1 text-sm font-semibold text-foreground transition-colors hover:border-foreground">
+                                                {productPage.learnMore}
+                                                <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" />
+                                            </Link>
+                                            <a href={product.url} target="_blank" rel="noopener" {...trackAttrs(AnalyticsEvent.ProductVisit, { product: product.id, location: CtaLocation.HomeProducts })} className="group inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground">
+                                                {copy.cta}
+                                                <ArrowUpRight className="size-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />
+                                            </a>
+                                        </div>
                                     </div>
                                     <div className="products-visual-wrap">
                                         <div ref={(el) => { visualRefs.current[i] = el; }} className="products-visual">

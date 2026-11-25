@@ -69,7 +69,7 @@ export function ContactPage() {
                             </Row>
                             {SITE.openingHours && (
                                 <Row icon={Clock}>
-                                    {t.hours}: {SITE.openingHours.opens}–{SITE.openingHours.closes}
+                                    {t.hours}: {t.weekdays} {SITE.openingHours.opens}–{SITE.openingHours.closes}
                                 </Row>
                             )}
                         </address>

@@ -10,6 +10,10 @@ export interface ProductCopy {
     lede: string;
     points: string[];
     cta: string;
+    metaTitle: string;
+    metaDescription: string;
+    features: { title: string; body: string }[];
+    facts: { label: string; value: string }[];
 }
 
 /**
@@ -93,6 +97,22 @@ export interface Dictionary {
         intro: string;
         railAria: string;
         items: Record<ProductId, ProductCopy>;
+    };
+    productPage: {
+        products: string;
+        featuresLabel: string;
+        factsTitle: string;
+        talk: string;
+        learnMore: string;
+        builtTitle: (name: string) => string;
+        builtText: (name: string) => string;
+        builtCta: string;
+        moreTitle: string;
+        indexTitle: string;
+        indexHighlight: string;
+        indexLead: string;
+        indexMetaTitle: string;
+        indexMetaDescription: string;
     };
     studio: {
         label: string;
@@ -239,6 +259,7 @@ export interface Dictionary {
         highlight: string;
         lead: string;
         stats: { value: string; label: string }[];
+        founderLabel: string;
         storyLabel: string;
         storyTitle: string;
         story: string[];
@@ -282,6 +303,7 @@ export interface Dictionary {
         phone: string;
         email: string;
         hours: string;
+        weekdays: string;
         maps: string;
         registration: string;
         taxId: string;

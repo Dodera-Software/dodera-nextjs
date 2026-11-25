@@ -9,6 +9,8 @@ import { HomeSlide } from "@/config/home";
 import { padIndex } from "@/lib/format";
 import { useDict } from "@/i18n/LocaleProvider";
 import { SlideHeading } from "@/components/slides/SlideHeading";
+import { AnalyticsEvent, CtaLocation } from "@/config/analytics";
+import { trackAttrs } from "@/lib/analytics";
 
 
 export function ServicesSlide() {
@@ -19,7 +21,7 @@ export function ServicesSlide() {
                 <div className="flex flex-col justify-between gap-10">
                     <SlideHeading id="services-heading" eyebrow={t.label} title={t.titleA} continuation={t.titleB} lede={t.intro} size="md" />
                     <Button size="pill" asChild className="reveal self-start">
-                        <Link href={links.contact}>
+                        <Link href={links.contact} {...trackAttrs(AnalyticsEvent.CtaClick, { location: CtaLocation.HomeServices })}>
                             {t.cta}
                             <ArrowRight aria-hidden="true" />
                         </Link>

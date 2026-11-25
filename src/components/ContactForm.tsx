@@ -11,6 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { EMAIL_RE, NAME_RE, PHONE_RE, DANGEROUS_RE, CONTACT_LIMITS } from "@/lib/validation";
 import { useDict } from "@/i18n/LocaleProvider";
 import type { Dictionary } from "@/i18n/dictionaries";
+import { AnalyticsEvent } from "@/config/analytics";
+import { track } from "@/lib/analytics";
 
 const LIMITS = CONTACT_LIMITS;
 
@@ -122,6 +124,7 @@ export function ContactForm() {
             }
 
             setSubmitted(true);
+            track(AnalyticsEvent.ContactSent);
         } catch {
             setServerError(t.errors.network);
         } finally {

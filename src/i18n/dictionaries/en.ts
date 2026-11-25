@@ -13,7 +13,7 @@ import { lowerFirst } from "@/lib/format";
 export const en: Dictionary = {
     links: {
         home: "/",
-        contact: "/#contact",
+        contact: "/contact",
         services: "/#services",
         process: "/#process",
         privacy: "/privacy-policy",
@@ -100,6 +100,52 @@ export const en: Dictionary = {
                 lede: "A path of 105 short guided lessons, easy to hard. Pip, a courier-pigeon coach, talks you through each one in your ears and on your wrist.",
                 points: ["Seven stages, from a daily walk to a half marathon", "On Apple Watch, or on iPhone with GPS and AirPods", "Every lesson saved to Apple Health"],
                 cta: "Visit pipstep.app",
+                metaTitle: "Pipstep: walking to running app for iPhone and Apple Watch",
+                metaDescription: "Pipstep turns a five-minute walk into running with 105 short guided lessons, a voice coach on Apple Watch or iPhone, and Apple Health. Free, no ads.",
+                features: [
+                    {
+                        title: "105 small lessons, easy to hard.",
+                        body: "Seven stages take you from a daily walk to tiny jogs, your first 5 and 10 kilometres, and all the way to a half marathon. No plan to write, no paces to know: just press Start.",
+                    },
+                    {
+                        title: "A coach in your ears and on your wrist.",
+                        body: "Pip talks you through every step in your AirPods and taps your wrist on Apple Watch, so your iPhone can stay at home. No watch? Lessons run on iPhone with GPS and a Live Activity.",
+                    },
+                    {
+                        title: "Pip grows with you.",
+                        body: "Stars, a streak with campfires, feathers to spend and outfits for Pip. With every unit you finish, Little Pip becomes Runner Pip, then Marathon Pip.",
+                    },
+                    {
+                        title: "Habit school, a minute at a time.",
+                        body: "Quick quizzes, little try-its and walk-and-listen lessons on sleep, water, warming up and staying safe.",
+                    },
+                    {
+                        title: "Pip's Delivery Run.",
+                        body: "A little game for the sofa and rest days: swipe Pip between lanes and post every letter. Duel a friend on the same street and climb the weekly league.",
+                    }
+                ],
+                facts: [
+                    {
+                        label: "Platforms",
+                        value: "iPhone and Apple Watch",
+                    },
+                    {
+                        label: "Price",
+                        value: "The whole path is free, no ads. Pipstep Plus is optional.",
+                    },
+                    {
+                        label: "Account",
+                        value: "Not needed. Sign in only for friends features.",
+                    },
+                    {
+                        label: "Health",
+                        value: "Every lesson saved to Apple Health, with route and heart rate",
+                    },
+                    {
+                        label: "Privacy",
+                        value: "Works offline. Health data stays on your devices.",
+                    }
+                ],
             },
             doderminal: {
                 kind: "Mac app · Free",
@@ -107,6 +153,52 @@ export const en: Dictionary = {
                 lede: "A native macOS app: a session per project, a git worktree per agent, a notification when one needs you, and the diff, pull request and merge in the same window.",
                 points: ["Free, no account and no sign-up", "macOS 15 or later, Apple silicon and Intel", "31 MB just opened, 0.0% CPU while idle"],
                 cta: "Download at doderminal.com",
+                metaTitle: "doderminal: run every Claude Code agent at once on your Mac",
+                metaDescription: "doderminal is a free, native macOS app for Claude Code: a session per project, a git worktree per agent, notifications when one needs you, and reviews in one window.",
+                features: [
+                    {
+                        title: "Five agents, five worktrees, one list.",
+                        body: "Every Claude Code session sits in one sidebar, grouped by project, with a dot that says working, needs you, done or failed. Each new agent gets its own git worktree, so no two agents edit the same files.",
+                    },
+                    {
+                        title: "Answer your agents from the notification.",
+                        body: "When an agent finishes, needs permission or asks a question while you are elsewhere, a Mac notification says what it wants. Approve, deny or reply right there.",
+                    },
+                    {
+                        title: "Let Claude review. Post only what holds up.",
+                        body: "Open a pull request and your own Claude Code reviews it in a separate checkout. Tick the findings you agree with and submit them as one review.",
+                    },
+                    {
+                        title: "Read every change before it ships.",
+                        body: "See what each agent changed, stage or discard one hunk at a time, and comment under a line straight to the agent that wrote it.",
+                    },
+                    {
+                        title: "A board that keeps itself up to date.",
+                        body: "Work Board shows every session as a card in In progress, Needs you, In review and Done, moving on its own from what the agents and GitHub report.",
+                    }
+                ],
+                facts: [
+                    {
+                        label: "Price",
+                        value: "Free. No account and no sign-up.",
+                    },
+                    {
+                        label: "Runs on",
+                        value: "macOS 15 or later, Apple silicon and Intel",
+                    },
+                    {
+                        label: "Needs",
+                        value: "Claude Code installed",
+                    },
+                    {
+                        label: "Memory",
+                        value: "31 MB just opened, 74 MB with 22 terminals",
+                    },
+                    {
+                        label: "Speed",
+                        value: "0.0% CPU while idle, 3.2 ms from key press to screen",
+                    }
+                ],
             },
             intelilang: {
                 kind: "Web app · Early access",
@@ -114,6 +206,52 @@ export const en: Dictionary = {
                 lede: "One memory per project, from meetings, Slack, GitHub and Jira. Everyone on the project asks the same chat, and every answer carries its quote and source.",
                 points: ["Answers shaped by who asks: client, team or leadership", "Works in Slack, Claude, Claude Code, Cursor and VS Code", "Free in early access, in English and Romanian"],
                 cta: "Try intelilang.com",
+                metaTitle: "InteliLang: AI project memory for meetings, Slack, GitHub and Jira",
+                metaDescription: "InteliLang keeps one memory per project from meetings, Slack, GitHub and Jira. Ask what was decided and see the sentence it came from. Free in early access.",
+                features: [
+                    {
+                        title: "Everything your project already says, kept.",
+                        body: "Connect Slack, GitHub, Google Meet, Jira, meeting recordings and documents once. What was said becomes memory anyone on the project can ask about, each entry holding the sentence it came from.",
+                    },
+                    {
+                        title: "One question, the right answer for each role.",
+                        body: "The client, the developer and the CEO ask the same chat and get answers built only from what they are allowed to see, enforced by the database on every query.",
+                    },
+                    {
+                        title: "Answers you can check.",
+                        body: "Ask in plain words, in your own language. Every answer names its sources: decisions with the sentence they came from, action items, open questions and risks.",
+                    },
+                    {
+                        title: "Ask from the tools you already use.",
+                        body: "Use it on the web, as a Claude connector, in Claude Code, Cursor and VS Code, or mention @InteliLang in Slack and the answer arrives in the thread.",
+                    },
+                    {
+                        title: "Built to be trusted with a project's memory.",
+                        body: "Row-level security, never used to train AI, encrypted keys, an activity log, and old content that deletes itself on your schedule.",
+                    }
+                ],
+                facts: [
+                    {
+                        label: "Price",
+                        value: "Free in early access. Paid plans later, per company, never per person.",
+                    },
+                    {
+                        label: "AI",
+                        value: "Runs on your own Anthropic key, with no markup",
+                    },
+                    {
+                        label: "Languages",
+                        value: "English and Romanian",
+                    },
+                    {
+                        label: "Made for",
+                        value: "Studios, agencies and product teams",
+                    },
+                    {
+                        label: "Learns from",
+                        value: "Slack, GitHub, Google Meet, Jira, recordings and documents",
+                    }
+                ],
             },
             "video-kit": {
                 kind: "Claude Code plugin · Open source",
@@ -121,8 +259,66 @@ export const en: Dictionary = {
                 lede: "Launch films, feature teasers and what's-new clips for your product, from its code or its website, rendered with Remotion. No video skills needed.",
                 points: ["/video-kit:make, /video-kit:website and /video-kit:changelog", "Mac, Windows, or Linux with Docker", "The film here was made by video-kit itself"],
                 cta: "Get it on GitHub",
+                metaTitle: "video-kit: product videos from your code, a Claude Code plugin",
+                metaDescription: "video-kit is a free, open-source Claude Code plugin that makes launch films, feature teasers and what's-new videos from your product's code or website.",
+                features: [
+                    {
+                        title: "Launch films from your product's code.",
+                        body: "/video-kit:make asks what kind of video you need and how it should look, reads how your product works, shows you a plan and still frames to approve, then renders the film.",
+                    },
+                    {
+                        title: "No code? Just a website.",
+                        body: "/video-kit:website reads a site's colours, logo, fonts and wording, takes clean screenshots and makes the video. This film was made from doderasoft.com alone.",
+                    },
+                    {
+                        title: "A narrator, recorded on your computer.",
+                        body: "/video-kit:voiceover writes a line for each scene, lets you pick a voice and times the video to it. Free, open voices: no account, nothing uploaded.",
+                    },
+                    {
+                        title: "What's new, in 15 to 30 seconds.",
+                        body: "/video-kit:changelog finds the changes your users will notice, checks each one in the code and turns them into a short release video.",
+                    }
+                ],
+                facts: [
+                    {
+                        label: "Price",
+                        value: "Free and open source (MIT)",
+                    },
+                    {
+                        label: "Runs on",
+                        value: "Mac, Windows, or Linux with Docker",
+                    },
+                    {
+                        label: "You get",
+                        value: "4K and 1080p video, a cover image and a YouTube thumbnail",
+                    },
+                    {
+                        label: "Rendered with",
+                        value: "Remotion",
+                    },
+                    {
+                        label: "Install",
+                        value: "/plugin install video-kit@dodera",
+                    }
+                ],
             },
         },
+    },
+    productPage: {
+        products: "Products",
+        featuresLabel: "What it does",
+        factsTitle: "At a glance",
+        talk: "Build something like this",
+        learnMore: "See the product",
+        builtTitle: (name) => `Want a product like ${name}?`,
+        builtText: (name) => `${name} was designed, built and is run by our own team. Bring us your idea and we will build yours with the same care, from the first sketch to the launch.`,
+        builtCta: "Talk to the team behind it",
+        moreTitle: "More from Dodera",
+        indexTitle: "Products we build",
+        indexHighlight: "and run ourselves.",
+        indexMetaTitle: "Our products: Pipstep, doderminal, InteliLang and video-kit",
+        indexMetaDescription: "Products designed, built and run by Dodera Software: Pipstep, doderminal for Claude Code, InteliLang project memory and the video-kit plugin.",
+        indexLead: "Four products, designed, built and run by our team: a running coach for iPhone and Apple Watch, a Mac app for Claude Code, an AI memory for project teams and a plugin that makes product videos.",
     },
     studio: {
         label: "The studio",
@@ -285,6 +481,7 @@ export const en: Dictionary = {
             { value: "€300", label: "Projects from" },
             { value: "Romania", label: "Based in" },
         ],
+        founderLabel: "Founder",
         storyLabel: "Who we are",
         storyTitle: "A team of builders who care about craft.",
         story: [
@@ -353,6 +550,7 @@ export const en: Dictionary = {
         phone: "Phone",
         email: "Email",
         hours: "Hours",
+        weekdays: "Mon–Fri",
         maps: "Open in Google Maps",
         registration: "Reg. no.",
         taxId: "Tax ID (CUI)",

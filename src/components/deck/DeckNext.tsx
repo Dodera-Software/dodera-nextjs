@@ -6,6 +6,8 @@ import { cn } from "@/lib/utils";
 import { useDict } from "@/i18n/LocaleProvider";
 import { useDeck } from "./Deck";
 import { glideTo, glidingTo } from "./glide";
+import { AnalyticsEvent } from "@/config/analytics";
+import { trackAttrs } from "@/lib/analytics";
 
 interface NextTarget {
     index: number;
@@ -61,6 +63,7 @@ export function DeckNext() {
         <button
             type="button"
             data-deck-next
+            {...trackAttrs(AnalyticsEvent.DeckNext, { to: atEnd ? "top" : target.index })}
             onClick={() => glideTo(target.y)}
             tabIndex={hidden ? -1 : undefined}
             aria-hidden={hidden || undefined}

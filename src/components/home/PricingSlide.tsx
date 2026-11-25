@@ -7,6 +7,8 @@ import { Slide } from "@/components/deck/Slide";
 import { HomeSlide } from "@/config/home";
 import { useDict } from "@/i18n/LocaleProvider";
 import { SlideHeading } from "@/components/slides/SlideHeading";
+import { AnalyticsEvent, CtaLocation } from "@/config/analytics";
+import { trackAttrs } from "@/lib/analytics";
 
 export function PricingSlide() {
     const { pricing: t, deck, links } = useDict();
@@ -40,7 +42,7 @@ export function PricingSlide() {
                 </div>
                 <div className="reveal mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
                     <Button size="pill" asChild>
-                        <Link href={links.contact}>
+                        <Link href={links.contact} {...trackAttrs(AnalyticsEvent.CtaClick, { location: CtaLocation.HomePricing })}>
                             {t.getStarted}
                             <ArrowRight aria-hidden="true" />
                         </Link>

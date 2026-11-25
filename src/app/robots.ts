@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { SITE } from "@/config/seo";
 
 /** Internal paths no crawler needs. */
-const DISALLOW = ["/api/", "/_next/", "/404", "/admin/", "/slice-simulator", "/unsubscribe"];
+const DISALLOW = ["/api/", "/_next/", "/404", "/admin/", "/unsubscribe"];
 
 /*
  * AI search & assistant crawlers. The "*" group already allows them; they

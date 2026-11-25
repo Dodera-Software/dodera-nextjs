@@ -1,9 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import { Slide } from "@/components/deck/Slide";
-import { FounderSection } from "@/components/FounderSection";
 import { PricingSlide } from "@/components/home/PricingSlide";
 import { ContactSlide } from "@/components/home/ContactSlide";
 import { DeckPage } from "@/components/slides/DeckPage";
@@ -28,6 +27,7 @@ enum AboutSlide {
 export function AboutPage() {
     const { about: t, breadcrumb, links } = useDict();
     const locale = useLocale();
+    const founder = SITE.founder;
 
     return (
         <DeckPage>
@@ -60,12 +60,32 @@ export function AboutPage() {
                 </div>
             </SplitSlide>
 
-            {SITE.founder && (
-                <Slide id={AboutSlide.Founder} label={SITE.founder.name} fit>
-                    <div className="wrap py-24 lg:py-32">
-                        <FounderSection locale={locale} />
+            {founder && (
+                <SplitSlide id={AboutSlide.Founder} label={founder.name} eyebrow={t.founderLabel} title={founder.name} tone={SlideTone.Glow}>
+                    <div className="reveal flex flex-col gap-8 sm:flex-row sm:items-start">
+                        {founder.photo ? (
+                            <Image src={founder.photo} alt={founder.name} width={144} height={144} className="size-36 shrink-0 rounded-3xl object-cover" />
+                        ) : (
+                            <span aria-hidden="true" className="display grid size-36 shrink-0 place-items-center rounded-3xl border border-foreground/10 bg-card text-5xl text-gradient-brand">
+                                {founder.name.split(" ").map((part) => part[0]).join("")}
+                            </span>
+                        )}
+                        <div>
+                            <p className="font-mono text-xs uppercase tracking-[0.1em] text-brand-bright">{founder.jobTitle[locale]}</p>
+                            <p className="lede mt-4 text-foreground/80">{founder.bio[locale]}</p>
+                            <ul className="mt-6 flex flex-wrap gap-6">
+                                {founder.profiles.map((profile) => (
+                                    <li key={profile}>
+                                        <a href={profile} target="_blank" rel="noopener noreferrer me" className="group inline-flex items-center gap-2 border-b border-foreground/25 pb-1 text-sm font-semibold hover:border-foreground">
+                                            {new URL(profile).hostname.replace("www.", "")}
+                                            <ArrowUpRight className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />
+                                        </a>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
                     </div>
-                </Slide>
+                </SplitSlide>
             )}
 
             <SplitSlide id={AboutSlide.Values} label={t.valuesLabel} eyebrow={t.valuesLabel} title={t.valuesTitle} tone={SlideTone.Raised}>

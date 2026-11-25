@@ -3,6 +3,7 @@ import { PRICE_FACTS } from "@/config/pricing";
 import { SERVICE_PAGES } from "@/config/services";
 import { SERVICE_PAGES_RO } from "@/config/services.ro";
 import { CASE_STUDIES } from "@/config/case-studies";
+import { PRODUCTS } from "@/config/products";
 import { getDictionary } from "@/i18n/dictionaries";
 import { ROUTES, absoluteUrl, type PageId, type StaticPageId } from "@/i18n/routes";
 import type { Locale } from "@/i18n/config";
@@ -19,12 +20,16 @@ const PAGE_TITLES: Record<StaticPageId, Record<Locale, string>> = {
     careers: { en: "Careers", ro: "Cariere" },
     privacy: { en: "Privacy policy", ro: "Politica de confidențialitate" },
     caseStudies: { en: "Case studies", ro: "Studii de caz" },
+    products: { en: "Our products", ro: "Produsele noastre" },
 };
 
 function pageTitle(id: PageId, locale: Locale): string {
     if (id.startsWith("case:")) {
         const items = locale === "ro" ? getDictionary("ro").caseStudies.items : CASE_STUDIES;
         return items.find((c) => c.id === id.slice("case:".length))?.headline ?? id;
+    }
+    if (id.startsWith("product:")) {
+        return PRODUCTS.find((p) => p.id === id.slice("product:".length))?.name ?? id;
     }
     if (id.startsWith("service:")) {
         const key = id.slice("service:".length);

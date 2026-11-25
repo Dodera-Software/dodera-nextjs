@@ -1,14 +1,5 @@
 ﻿/** Central SEO configuration – shared site identity and layout fallback. */
 
-/*
- * TODO(owner): facts still missing — every consumer (footer, JSON-LD,
- * llms.txt) skips a field while it is null, so nothing invented is shown:
- *   - openingHours  real business hours
- *   - founder       name, role, LinkedIn URL, short bio
- *   - googleBusinessProfile  GBP / Maps share link once the profile exists
- *   - geo           confirm the exact pin (currently street-level, OSM)
- */
-
 export interface OpeningHours {
     /** schema.org day names, e.g. ["Monday", "Tuesday"] */
     days: string[];
@@ -19,10 +10,8 @@ export interface OpeningHours {
 export interface Founder {
     name: string;
     jobTitle: { en: string; ro: string };
-    linkedin: string;
-    /** 2–4 sentences of real experience: years, past roles, notable work. */
+    profiles: string[];
     bio: { en: string; ro: string };
-    /** Square photo in /public, e.g. "/team/founder.jpg". Initials are shown until it exists. */
     photo?: string;
 }
 
@@ -57,8 +46,16 @@ export const SITE = {
     geo: { latitude: 47.7998, longitude: 22.8819 },
     mapsUrl: "https://www.google.com/maps/search/?api=1&query=Dodera+Software%2C+Strada+Banat+1%2C+440043+Satu+Mare",
     googleBusinessProfile: null as string | null,
-    openingHours: null as OpeningHours | null,
-    founder: null as Founder | null,
+    openingHours: { days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], opens: "09:00", closes: "18:00" } as OpeningHours | null,
+    founder: {
+        name: "Denis Dobra",
+        jobTitle: { en: "Founder", ro: "Fondator" },
+        profiles: ["https://github.com/denisdobra10"],
+        bio: {
+            en: "Denis founded Dodera Software in 2023 and leads its engineering and product work. Besides client projects, he is behind the studio's own products: Pipstep, doderminal, InteliLang and the video-kit plugin for Claude Code.",
+            ro: "Denis a fondat Dodera Software în 2023 și coordonează partea de inginerie și de produs. Pe lângă proiectele pentru clienți, se ocupă de produsele proprii ale studioului: Pipstep, doderminal, InteliLang și pluginul video-kit pentru Claude Code.",
+        },
+    } as Founder | null,
     social: {
         twitter: "@doderasoft",
         /* The URLs linked in the site header/footer (config/site.ts SOCIAL_LINKS). */

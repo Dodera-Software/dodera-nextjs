@@ -7,6 +7,8 @@ import { Slide } from "@/components/deck/Slide";
 import { HomeSlide } from "@/config/home";
 import { useDict } from "@/i18n/LocaleProvider";
 import { HeroVisual } from "./HeroVisual";
+import { AnalyticsEvent, CtaLocation } from "@/config/analytics";
+import { trackAttrs } from "@/lib/analytics";
 
 export function HeroSlide() {
     const { hero: t, deck, links } = useDict();
@@ -22,7 +24,7 @@ export function HeroSlide() {
                     <p className="lede max-w-[54ch]">{t.text}</p>
                     <div className="flex flex-wrap gap-3">
                         <Button size="pill" asChild>
-                            <Link href={links.contact}>
+                            <Link href={links.contact} {...trackAttrs(AnalyticsEvent.CtaClick, { location: CtaLocation.HomeHero })}>
                                 {t.primaryCta}
                                 <ArrowRight aria-hidden="true" />
                             </Link>

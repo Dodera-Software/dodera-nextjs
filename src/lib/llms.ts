@@ -1,7 +1,7 @@
 import { PRODUCTS } from "@/config/products";
 import { SERVICE_PAGES } from "@/config/services";
 import { SERVICE_PAGES_RO } from "@/config/services.ro";
-import { CASE_STUDY_PATHS, SERVICE_PATHS } from "@/i18n/paths";
+import { CASE_STUDY_PATHS, PRODUCT_PATHS, SERVICE_PATHS } from "@/i18n/paths";
 import { getDictionary } from "@/i18n/dictionaries";
 import { absoluteUrl } from "@/i18n/routes";
 import type { Locale } from "@/i18n/config";
@@ -23,7 +23,7 @@ export function productsMarkdown(locale: Locale): string {
     const copy = getDictionary(locale).products.items;
     return PRODUCTS.map((product) => {
         const item = copy[product.id];
-        return `- **[${product.name}](${product.url})** (${item.kind}): ${item.title} ${item.lede}`;
+        return `- **[${product.name}](${absoluteUrl(PRODUCT_PATHS[product.id][locale]!)})** (${item.kind}, ${product.url}): ${item.title} ${item.lede}`;
     }).join("\n");
 }
 

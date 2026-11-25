@@ -40,10 +40,6 @@ export const COMPANY = {
     phone: "0748 650 469",
     address: "Strada Banat 1, 440043 Satu Mare",
     location: "Romania · International",
-    /* Was "Open 24 hours", which isn't true. TODO(owner): real hours, e.g.
-     * "Mon–Fri 09:00–17:00" (keep in sync with SITE.openingHours in config/seo.ts).
-     * The footer hides the line while this is null. */
-    hours: null as string | null,
     tagline:
         "Custom software and AI development from Romania, serving clients internationally.",
 } as const;
@@ -140,10 +136,11 @@ export const PROCESS_STEPS: ProcessStep[] = [
 // ── Navigation ───────────────────────────────────────────────
 
 export const NAV_LINKS: NavLink[] = [
+    { label: "Products", href: "/products" },
     { label: "About Us", href: "/about" },
     { label: "Blog", href: "/blog" },
     { label: "Careers", href: "/careers" },
-    { label: "Contact", href: "/#contact" },
+    { label: "Contact", href: "/contact" },
 ];
 
 // ── Social Media ────────────────────────────────────────
@@ -173,7 +170,7 @@ export const FOOTER_LINK_GROUPS: FooterLinkGroup[] = [
             { label: "Case Studies", href: "/case-studies" },
             { label: "Blog", href: "/blog" },
             { label: "Careers", href: "/careers" },
-            { label: "Contact", href: "/#contact" },
+            { label: "Contact", href: "/contact" },
         ],
     },
     {

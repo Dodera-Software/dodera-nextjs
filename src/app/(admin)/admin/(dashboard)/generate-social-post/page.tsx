@@ -577,7 +577,8 @@ export default function GenerateSocialPostPage() {
                                                                         onClick={() =>
                                                                             setExpandedExampleIds((prev) => {
                                                                                 const next = new Set(prev);
-                                                                                isExpanded ? next.delete(ex.id) : next.add(ex.id);
+                                                                                if (isExpanded) next.delete(ex.id);
+                                                                                else next.add(ex.id);
                                                                                 return next;
                                                                             })
                                                                         }

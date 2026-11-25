@@ -29,6 +29,7 @@ export const ro: Dictionary = {
     nav: {
         services: "Servicii",
         links: [
+            { label: "Produse", href: STATIC_PATHS.products.ro },
             { label: "Despre noi", href: STATIC_PATHS.about.ro },
             { label: "Blog", href: "/ro/blog" },
             { label: "Cariere", href: STATIC_PATHS.careers.ro },
@@ -137,6 +138,52 @@ export const ro: Dictionary = {
                 lede: "Un drum de 105 lecții scurte, ghidate, de la ușor la greu. Pip, un porumbel curier antrenor, vă însoțește la fiecare pas, în căști și pe încheietură.",
                 points: ["Șapte etape, de la plimbarea zilnică la semimaraton", "Pe Apple Watch sau pe iPhone, cu GPS și AirPods", "Fiecare lecție salvată în Apple Health"],
                 cta: "Vizitați pipstep.app",
+                metaTitle: "Pipstep: aplicație de la mers la alergare pentru iPhone și Apple Watch",
+                metaDescription: "Pipstep transformă o plimbare de cinci minute în alergare, cu 105 lecții ghidate scurte, antrenor vocal pe Apple Watch sau iPhone și Apple Health. Gratuit, fără reclame.",
+                features: [
+                    {
+                        title: "105 lecții scurte, de la ușor la greu.",
+                        body: "Șapte etape vă duc de la plimbarea zilnică la primele alergări ușoare, la primii 5 și 10 kilometri și până la semimaraton. Fără plan de scris și fără ritmuri de știut: apăsați Start.",
+                    },
+                    {
+                        title: "Un antrenor în căști și pe încheietură.",
+                        body: "Pip vă ghidează la fiecare pas în AirPods și vă atinge încheietura pe Apple Watch, așa că telefonul poate rămâne acasă. Fără ceas? Lecțiile merg pe iPhone, cu GPS și Live Activity.",
+                    },
+                    {
+                        title: "Pip crește odată cu dumneavoastră.",
+                        body: "Stele, o serie de zile cu focuri de tabără, pene de cheltuit și haine pentru Pip. Cu fiecare unitate terminată, Micul Pip devine Pip Alergătorul, apoi Pip Maratonistul.",
+                    },
+                    {
+                        title: "Școala obiceiurilor, câte un minut.",
+                        body: "Teste scurte, mici încercări și lecții de ascultat în timpul mersului despre somn, apă, încălzire și siguranță.",
+                    },
+                    {
+                        title: "Cursa de livrări a lui Pip.",
+                        body: "Un mic joc pentru canapea și zilele de pauză: mutați-l pe Pip între benzi și livrați fiecare scrisoare. Provocați un prieten pe aceeași stradă și urcați în liga săptămânală.",
+                    }
+                ],
+                facts: [
+                    {
+                        label: "Platforme",
+                        value: "iPhone și Apple Watch",
+                    },
+                    {
+                        label: "Preț",
+                        value: "Tot drumul este gratuit, fără reclame. Pipstep Plus este opțional.",
+                    },
+                    {
+                        label: "Cont",
+                        value: "Nu este necesar. Autentificare doar pentru funcțiile cu prieteni.",
+                    },
+                    {
+                        label: "Sănătate",
+                        value: "Fiecare lecție salvată în Apple Health, cu traseu și puls",
+                    },
+                    {
+                        label: "Confidențialitate",
+                        value: "Funcționează offline. Datele de sănătate rămân pe dispozitivele dumneavoastră.",
+                    }
+                ],
             },
             doderminal: {
                 kind: "Aplicație Mac · Gratuită",
@@ -144,6 +191,52 @@ export const ro: Dictionary = {
                 lede: "O aplicație nativă pentru macOS: o sesiune pentru fiecare proiect, un git worktree pentru fiecare agent, o notificare când unul are nevoie de dumneavoastră, iar diff-ul, pull request-ul și merge-ul în aceeași fereastră.",
                 points: ["Gratuită, fără cont și fără înregistrare", "macOS 15 sau mai nou, Apple silicon și Intel", "31 MB la pornire, 0,0% CPU în repaus"],
                 cta: "Descărcați de pe doderminal.com",
+                metaTitle: "doderminal: toți agenții Claude Code în paralel, pe Mac",
+                metaDescription: "doderminal este o aplicație gratuită pentru macOS pentru Claude Code: o sesiune pe proiect, un git worktree pe agent, notificări când un agent are nevoie de dumneavoastră.",
+                features: [
+                    {
+                        title: "Cinci agenți, cinci worktree-uri, o singură listă.",
+                        body: "Fiecare sesiune Claude Code stă într-o bară laterală, grupată pe proiecte, cu un punct care arată dacă lucrează, are nevoie de dumneavoastră, a terminat sau a eșuat. Fiecare agent nou primește propriul git worktree, așa că doi agenți nu modifică niciodată aceleași fișiere.",
+                    },
+                    {
+                        title: "Răspundeți agenților din notificare.",
+                        body: "Când un agent termină, cere permisiune sau pune o întrebare cât sunteți în altă aplicație, o notificare Mac spune ce vrea. Aprobați, refuzați sau răspundeți chiar acolo.",
+                    },
+                    {
+                        title: "Claude revizuiește. Publicați doar ce rămâne valabil.",
+                        body: "Deschideți un pull request, iar propriul Claude Code îl revizuiește într-o copie separată. Bifați observațiile cu care sunteți de acord și trimiteți-le ca o singură revizuire.",
+                    },
+                    {
+                        title: "Citiți fiecare modificare înainte să ajungă în producție.",
+                        body: "Vedeți ce a schimbat fiecare agent, acceptați sau renunțați la fiecare bucată în parte și lăsați un comentariu sub o linie, direct agentului care a scris-o.",
+                    },
+                    {
+                        title: "Un panou care se actualizează singur.",
+                        body: "Work Board arată fiecare sesiune ca un card în În lucru, Are nevoie de dumneavoastră, În revizuire și Gata, mutat automat după ce raportează agenții și GitHub.",
+                    }
+                ],
+                facts: [
+                    {
+                        label: "Preț",
+                        value: "Gratuit. Fără cont și fără înregistrare.",
+                    },
+                    {
+                        label: "Rulează pe",
+                        value: "macOS 15 sau mai nou, Apple silicon și Intel",
+                    },
+                    {
+                        label: "Necesită",
+                        value: "Claude Code instalat",
+                    },
+                    {
+                        label: "Memorie",
+                        value: "31 MB la pornire, 74 MB cu 22 de terminale",
+                    },
+                    {
+                        label: "Viteză",
+                        value: "0,0% CPU în repaus, 3,2 ms de la tastă la ecran",
+                    }
+                ],
             },
             intelilang: {
                 kind: "Aplicație web · Acces timpuriu",
@@ -151,6 +244,52 @@ export const ro: Dictionary = {
                 lede: "O memorie pentru fiecare proiect, din ședințe, Slack, GitHub și Jira. Toată echipa întreabă același chat, iar fiecare răspuns vine cu citatul și sursa lui.",
                 points: ["Răspunsuri potrivite celui care întreabă: client, echipă sau conducere", "Funcționează în Slack, Claude, Claude Code, Cursor și VS Code", "Gratuit în acces timpuriu, în română și engleză"],
                 cta: "Încercați intelilang.com",
+                metaTitle: "InteliLang: memorie AI de proiect pentru ședințe, Slack, GitHub și Jira",
+                metaDescription: "InteliLang păstrează o memorie pentru fiecare proiect din ședințe, Slack, GitHub și Jira. Întrebați ce s-a decis și vedeți fraza din care vine. Gratuit în acces timpuriu.",
+                features: [
+                    {
+                        title: "Tot ce spune deja proiectul, păstrat.",
+                        body: "Conectați o singură dată Slack, GitHub, Google Meet, Jira, înregistrări de ședințe și documente. Ce s-a spus acolo devine memorie pe care oricine din proiect o poate întreba, fiecare intrare cu fraza din care vine.",
+                    },
+                    {
+                        title: "O întrebare, răspunsul potrivit pentru fiecare rol.",
+                        body: "Clientul, programatorul și directorul întreabă același chat și primesc răspunsuri construite doar din ce au voie să vadă, verificat de baza de date la fiecare interogare.",
+                    },
+                    {
+                        title: "Răspunsuri pe care le puteți verifica.",
+                        body: "Întrebați în cuvinte simple, în limba dumneavoastră. Fiecare răspuns își numește sursele: decizii cu fraza din care vin, sarcini, întrebări deschise și riscuri.",
+                    },
+                    {
+                        title: "Întrebați din instrumentele pe care le folosiți deja.",
+                        body: "Pe web, ca conector Claude, în Claude Code, Cursor și VS Code, sau menționați @InteliLang în Slack și răspunsul apare în fir.",
+                    },
+                    {
+                        title: "Construit ca să i se poată încredința memoria unui proiect.",
+                        body: "Securitate la nivel de rând, nefolosit niciodată la antrenarea AI, chei criptate, jurnal de activitate și conținut vechi care se șterge singur, după regulile dumneavoastră.",
+                    }
+                ],
+                facts: [
+                    {
+                        label: "Preț",
+                        value: "Gratuit în acces timpuriu. Planuri plătite mai târziu, pe firmă, niciodată pe persoană.",
+                    },
+                    {
+                        label: "AI",
+                        value: "Rulează pe propria cheie Anthropic, fără adaos",
+                    },
+                    {
+                        label: "Limbi",
+                        value: "Română și engleză",
+                    },
+                    {
+                        label: "Pentru",
+                        value: "Studiouri, agenții și echipe de produs",
+                    },
+                    {
+                        label: "Învață din",
+                        value: "Slack, GitHub, Google Meet, Jira, înregistrări și documente",
+                    }
+                ],
             },
             "video-kit": {
                 kind: "Plugin Claude Code · Open source",
@@ -158,8 +297,66 @@ export const ro: Dictionary = {
                 lede: "Filme de lansare, teasere și clipuri cu noutăți pentru produsul dumneavoastră, din codul sau site-ul lui, randate cu Remotion. Fără experiență video.",
                 points: ["/video-kit:make, /video-kit:website și /video-kit:changelog", "Mac, Windows sau Linux cu Docker", "Filmul de aici a fost făcut chiar de video-kit"],
                 cta: "Pe GitHub",
+                metaTitle: "video-kit: videoclipuri de produs din cod, plugin Claude Code",
+                metaDescription: "video-kit este un plugin Claude Code gratuit și open source care face filme de lansare, teasere și clipuri cu noutăți din codul sau site-ul produsului dumneavoastră.",
+                features: [
+                    {
+                        title: "Filme de lansare din codul produsului.",
+                        body: "/video-kit:make vă întreabă ce fel de video vă trebuie și cum să arate, citește cum funcționează produsul, vă arată un plan și cadre de aprobat, apoi randează filmul.",
+                    },
+                    {
+                        title: "Nu aveți cod? Ajunge un site.",
+                        body: "/video-kit:website citește culorile, logoul, fonturile și textele unui site, face capturi curate și creează videoclipul. Filmul acesta a fost făcut doar din doderasoft.com.",
+                    },
+                    {
+                        title: "Un narator, înregistrat pe calculatorul dumneavoastră.",
+                        body: "/video-kit:voiceover scrie câte o replică pentru fiecare scenă, vă lasă să alegeți o voce și potrivește videoclipul pe ea. Voci gratuite și deschise: fără cont, nimic încărcat online.",
+                    },
+                    {
+                        title: "Noutățile, în 15–30 de secunde.",
+                        body: "/video-kit:changelog găsește modificările pe care le vor observa utilizatorii, verifică fiecare în cod și le transformă într-un clip scurt de lansare.",
+                    }
+                ],
+                facts: [
+                    {
+                        label: "Preț",
+                        value: "Gratuit și open source (MIT)",
+                    },
+                    {
+                        label: "Rulează pe",
+                        value: "Mac, Windows sau Linux cu Docker",
+                    },
+                    {
+                        label: "Primiți",
+                        value: "Video 4K și 1080p, imagine de copertă și thumbnail YouTube",
+                    },
+                    {
+                        label: "Randat cu",
+                        value: "Remotion",
+                    },
+                    {
+                        label: "Instalare",
+                        value: "/plugin install video-kit@dodera",
+                    }
+                ],
             },
         },
+    },
+    productPage: {
+        products: "Produse",
+        featuresLabel: "Ce face",
+        factsTitle: "Pe scurt",
+        talk: "Construiți ceva asemănător",
+        learnMore: "Vedeți produsul",
+        builtTitle: (name) => `Vreți un produs ca ${name}?`,
+        builtText: (name) => `${name} a fost gândit, construit și este întreținut de echipa noastră. Aduceți-ne ideea dumneavoastră și o construim cu aceeași grijă, de la prima schiță până la lansare.`,
+        builtCta: "Vorbiți cu echipa din spatele lui",
+        moreTitle: "Mai multe de la Dodera",
+        indexTitle: "Produse pe care le construim",
+        indexHighlight: "și le întreținem noi.",
+        indexMetaTitle: "Produsele noastre: Pipstep, doderminal, InteliLang și video-kit",
+        indexMetaDescription: "Produse gândite, construite și întreținute de Dodera Software: Pipstep, doderminal pentru Claude Code, memoria de proiect InteliLang și pluginul video-kit.",
+        indexLead: "Patru produse gândite, construite și întreținute de echipa noastră: un antrenor de alergare pentru iPhone și Apple Watch, o aplicație Mac pentru Claude Code, o memorie AI pentru echipe de proiect și un plugin care face videoclipuri de produs.",
     },
     studio: {
         label: "Studioul",
@@ -502,6 +699,7 @@ export const ro: Dictionary = {
             { value: "300 €", label: "Proiecte de la" },
             { value: "România", label: "Sediul" },
         ],
+        founderLabel: "Fondator",
         storyLabel: "Cine suntem",
         storyTitle: "Oameni care construiesc cu grijă.",
         story: [
@@ -570,6 +768,7 @@ export const ro: Dictionary = {
         phone: "Telefon",
         email: "Email",
         hours: "Program",
+        weekdays: "Luni–Vineri",
         maps: "Deschideți în Google Maps",
         registration: "Nr. Reg. Com.",
         taxId: "CUI",
