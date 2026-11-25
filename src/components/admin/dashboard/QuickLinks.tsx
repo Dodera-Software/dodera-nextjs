@@ -13,7 +13,6 @@ interface QuickLink {
 
 const LINKS = ([
     { label: copy.coolify, hint: copy.coolifyHint, url: ADMIN_LINKS.coolify },
-    { label: copy.prismic, hint: copy.prismicHint, url: ADMIN_LINKS.prismicMigration },
 ] satisfies QuickLink[]).filter((link) => !!link.url);
 
 export function QuickLinks() {

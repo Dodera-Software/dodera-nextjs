@@ -5,7 +5,7 @@ Propuneri, nu articole scrise. Fiecare răspunde la o întrebare pe care o pune 
 **Reguli pentru toate articolele**
 - Prețurile sunt doar cele publicate pe site: proiect cu preț fix de la 300 EUR, sarcină de la 50 EUR, 20–80 EUR/oră, abonament de la 150 EUR/lună. Duratele sunt doar cele deja afirmate pe site.
 - Unde lipsește un interval de preț pe tip de proiect (de ex. „site de prezentare: X–Y EUR”), completați-l înainte de publicare. Fără cifre inventate.
-- Autor cu nume real (pagină de autor + schema Person). Articolul se publică în Prismic, în locale-ul `ro-ro`.
+- Autor cu nume real (pagină de autor + schema Person). Articolul se scrie cu `/new-blog` (EN + RO) și se publică din Admin → Blog.
 - Fiecare articol trimite către pagina de serviciu potrivită. Accentul este pe România și pe clienții internaționali, nu pe un oraș anume.
 - Un singur H1, H2-uri formulate ca întrebări (bune pentru extragerea răspunsurilor), un tabel acolo unde există o comparație.
 

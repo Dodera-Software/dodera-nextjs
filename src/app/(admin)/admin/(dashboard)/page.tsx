@@ -2,7 +2,6 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { AdminPage } from "@/components/admin/AdminPage";
-import { AutoPostPanel } from "@/components/admin/dashboard/AutoPostPanel";
 import { DashboardStats } from "@/components/admin/dashboard/DashboardStats";
 import { QuickLinks } from "@/components/admin/dashboard/QuickLinks";
 import { dashboardCopy as copy } from "@/i18n/admin/dashboard";
@@ -17,10 +16,7 @@ export default function AdminDashboardPage() {
             description={copy.description}
         >
             <DashboardStats />
-            <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
-                <AutoPostPanel />
-                <QuickLinks />
-            </div>
+            <QuickLinks />
         </AdminPage>
     );
 }

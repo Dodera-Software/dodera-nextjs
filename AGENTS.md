@@ -1,7 +1,7 @@
 # doderasoft.com — guide for AI agents and contributors
 
-Next.js 16 (App Router), React 19, Tailwind 3, TypeScript. Content: Prismic (blog) and
-typed config files (everything else). Data: Postgres + Drizzle. Deployed with Coolify
+Next.js 16 (App Router), React 19, Tailwind 3, TypeScript. Content: typed config files;
+blog posts in Postgres. Data: Postgres + Drizzle. Deployed with Coolify
 (Dockerfile). Setup, scripts and deployment: `README.md`, `MIGRATION.md`, `MOCKUPS.md`.
 
 The site was redesigned in November 2026 (PR #86). Follow the patterns below; do not
@@ -155,6 +155,20 @@ English only.
 founder (left empty on purpose; when filled it shows on About and in JSON-LD). Testimonials (`config/testimonials.ts`) stay hidden until each
 has a real company and a public link; never invent client facts.
 
+## Blog
+
+Posts live in `blog_posts` (one row per language, EN/RO paired by `translation_key`,
+Markdown body, `draft`/`published` status, `indexed` flag, cited `sources`). Read through
+`src/lib/blog.ts` (cached under the `blog` tag), write through `src/lib/blog-store.ts`
+(revalidates the tag). Pages: `components/blog/BlogPostRoute`, `BlogIndex`,
+`BlogPostContent`; covers are generated per post by `src/lib/blog-cover.tsx`.
+
+New posts come from the `/new-blog` skill (`.claude/skills/new-blog/SKILL.md`): trending
+topic → user picks → EN + RO draft via `POST /api/blog` (`npm run blog -- push`). Only a
+person publishes, in Admin → Blog. Blog posts use a casual, social-media voice and address
+Romanian readers with "tu"; the rest of the site keeps the formal "dumneavoastră". The
+site has no AI generation features at runtime; writing happens in Claude Code.
+
 ## Analytics
 
 Umami (`src/config/analytics.ts`). Events are the `AnalyticsEvent` enum; clicks are tagged
@@ -168,7 +182,7 @@ English at `/`, Romanian under `/ro` with Romanian slugs. Each locale has its ow
 layout (`(en)`, `(ro)`); admin has `(admin)`. Paths per page: `src/i18n/paths.ts`;
 route map (canonical, hreflang, sitemap, lastmod sources): `src/i18n/routes.ts`.
 A page joins hreflang/sitemap only once it exists in both locales. Romanian copy uses
-the formal "dumneavoastră". Service pages: `src/config/services.ts` / `services.ro.ts`.
+the formal "dumneavoastră" (blog posts excepted, see Blog). Service pages: `src/config/services.ts` / `services.ro.ts`.
 
 ## SEO / GEO
 

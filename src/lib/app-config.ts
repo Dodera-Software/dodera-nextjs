@@ -88,27 +88,3 @@ export async function setConfig(key: string, value: string): Promise<void> {
 
     setCached(key, value); // update cache immediately
 }
-
-/* ── Typed helpers for known keys ────────────────────────── */
-
-export async function getContactFollowupModel(): Promise<string> {
-    return getConfig("contact_followup_model", "gpt-4o-mini");
-}
-
-export async function getContactFollowupEnabled(): Promise<boolean> {
-    const raw = await getConfig("contact_followup_enabled", "true");
-    return raw.trim().toLowerCase() !== "false";
-}
-
-export async function getImageGenerationModel(): Promise<string> {
-    return getConfig("image_generation_model", "dall-e-3");
-}
-
-export async function getSocialPostModel(): Promise<string> {
-    return getConfig("social_post_model", "gpt-4o");
-}
-
-export async function getContactFollowupDailyLimit(): Promise<number> {
-    const raw = await getConfig("contact_followup_daily_limit", "10");
-    return Math.max(0, parseInt(raw, 10) || 0);
-}

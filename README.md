@@ -1,8 +1,9 @@
 # Dodera — doderasoft.com
 
-Next.js 16 app for [doderasoft.com](https://doderasoft.com). Content lives in
-Prismic; application data (contacts, newsletter, careers, admin, API tokens)
-lives in Postgres, accessed via [Drizzle ORM](https://orm.drizzle.team).
+Next.js 16 app for [doderasoft.com](https://doderasoft.com). Page copy lives in
+typed config files; blog posts and application data (contacts, newsletter,
+careers, admin, API tokens) live in Postgres, accessed via
+[Drizzle ORM](https://orm.drizzle.team).
 Deployed on a Hetzner server with [Coolify](https://coolify.io) (Dockerfile
 build, see `MIGRATION.md` for the full setup/runbook).
 
@@ -35,6 +36,25 @@ npm run admin:seed        # create/update the admin dashboard user
 npm run token:generate -- --name "CI pipeline" [--expires 90]
 npm run token:list
 npm run token:revoke -- --name "CI pipeline"
+```
+
+## Blog
+
+Posts live in the `blog_posts` table, one row per language, paired by
+`translation_key`. Bodies are Markdown; cover images are generated from the
+title (`/blog/<slug>/cover`).
+
+New posts are written with the `/new-blog` skill in Claude Code
+(`.claude/skills/new-blog`): it finds what is trending, lets you pick a topic,
+writes the post in English and Romanian and uploads it as a draft through
+`POST /api/blog`. Each contributor puts `BLOG_API_URL` and `BLOG_API_TOKEN`
+(Admin → API Tokens) in their own `.env.local`. Review, edit and publish in
+Admin → **Blog**; drafts are visible on their normal URL only to signed-in admins.
+
+```bash
+npm run blog -- list            # every post, drafts too
+npm run blog -- check <folder>  # style and length checks
+npm run blog -- push <folder>   # upload as a draft
 ```
 
 ## Mockup previews

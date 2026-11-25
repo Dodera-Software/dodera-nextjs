@@ -86,16 +86,16 @@ const nextConfig: NextConfig = {
   /* ── Image optimisation ──────────────────────────────── */
   images: {
     formats: ["image/avif", "image/webp"],
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "images.prismic.io",
-      },
-      {
-        protocol: "https",
-        hostname: "*.cdn.prismic.io",
-      },
+    localPatterns: [
+      { pathname: "/**", search: "" },
+      { pathname: "/blog/*/cover" },
+      { pathname: "/ro/blog/*/cover" },
     ],
+  },
+
+  outputFileTracingIncludes: {
+    "/blog/[slug]/cover": ["./src/assets/blog/**/*", "./public/brand/logo-on-dark.svg"],
+    "/ro/blog/[slug]/cover": ["./src/assets/blog/**/*", "./public/brand/logo-on-dark.svg"],
   },
 
   /* ── Powered-by header removal ───────────────────────── */

@@ -7,9 +7,10 @@ import { DeckPage } from "@/components/slides/DeckPage";
 import { PageHeroSlide } from "@/components/slides/PageHeroSlide";
 import { SplitSlide } from "@/components/slides/SplitSlide";
 import { AUTHORS, authorPath, getAuthorBySlug } from "@/config/authors";
-import { blogPostPath } from "@/config/blog-seo";
+import { blogPostPath } from "@/config/blog";
 import { SITE } from "@/config/seo";
-import { getAllPosts } from "@/lib/cms";
+import { getAllPosts } from "@/lib/blog";
+import { connection } from "next/server";
 import { formatDateShort } from "@/lib/format";
 import { absoluteUrl } from "@/i18n/routes";
 import { authorProfileSchema, breadcrumbSchema } from "@/lib/structured-data";
@@ -35,16 +36,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
 }
 
-/**
- * Author page (Person). English and Romanian posts by the author are both
- * listed, each in its own language.
- */
 export default async function AuthorPage({ params }: PageProps) {
     const author = getAuthorBySlug((await params).slug);
     if (!author) notFound();
 
+    await connection();
     const [en, ro] = await Promise.all([getAllPosts("en"), getAllPosts("ro")]);
-    const byAuthor = (p: { author?: { slug?: string } }) => p.author?.slug === author.slug;
+    const byAuthor = (p: { author: { slug?: string } }) => p.author.slug === author.slug;
     const posts = [
         ...en.filter(byAuthor).map((p) => ({ ...p, href: blogPostPath(p.slug, "en"), lang: "en" })),
         ...ro.filter(byAuthor).map((p) => ({ ...p, href: blogPostPath(p.slug, "ro"), lang: "ro" })),

@@ -9,8 +9,6 @@
 export const PROTECTED_API_ROUTES: string[] = [
     "/api/ping",
     "/api/blog",
-    "/api/auto-post",
-    "/api/generate-image",
 ];
 
 /**
@@ -20,8 +18,5 @@ export const PROTECTED_API_ROUTES: string[] = [
 export const PUBLIC_API_ROUTES: string[] = [
     "/api/contact",
     "/api/newsletter",
-    "/api/revalidate",
-    "/api/preview",
-    "/api/exit-preview",
     "/api/admin",   // admin routes use their own JWT-based auth
 ];

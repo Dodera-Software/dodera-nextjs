@@ -1,10 +1,11 @@
 import type { MetadataRoute } from "next";
-import { getAllPosts } from "@/lib/cms";
+import { connection } from "next/server";
+import { getAllPosts } from "@/lib/blog";
 import { LOCALES } from "@/i18n/config";
 import { ROUTES, absoluteUrl, hreflangFor, type PageId } from "@/i18n/routes";
 import LASTMOD from "@/config/lastmod.json";
 import { AUTHORS, authorPath } from "@/config/authors";
-import { NOINDEX_POST_SLUGS, blogPostPath } from "@/config/blog-seo";
+import { blogPostPath } from "@/config/blog";
 import type { BlogPost } from "@/types";
 
 /**
@@ -13,10 +14,11 @@ import type { BlogPost } from "@/types";
  * One entry per page per locale, each listing its hreflang alternates.
  * lastmod is real: the last git commit touching the page's sources
  * (src/config/lastmod.json, `npm run seo:lastmod`) or, for blog posts,
- * the CMS publication dates. Pages without a known date get no lastmod
+ * the post's last update in the database. Pages without a known date get no lastmod
  * rather than the request time.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+    await connection();
     const [posts, postsRo] = await Promise.all([getAllPosts("en"), getAllPosts("ro")]);
     const lastmod = LASTMOD as Partial<Record<PageId, string>>;
 
@@ -38,21 +40,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         });
     });
 
-    /* ── Blog posts (both languages, paired via Prismic alternate_languages) ── */
+    /* ── Blog posts (both languages, paired by translation key) ── */
     const postEntry = (post: BlogPost, locale: "en" | "ro") => {
         const languages = hreflangFor({
             [locale]: blogPostPath(post.slug, locale),
-            ...Object.fromEntries((post.alternates ?? []).map((a) => [a.locale, blogPostPath(a.slug, a.locale)])),
+            ...Object.fromEntries(post.alternates.map((a) => [a.locale, blogPostPath(a.slug, a.locale)])),
         });
         return {
             url: absoluteUrl(blogPostPath(post.slug, locale)),
-            lastModified: new Date(post.updatedAt ?? post.date),
+            lastModified: new Date(post.updatedAt),
             changeFrequency: "monthly" as const,
             priority: 0.6,
             ...(languages && { alternates: { languages } }),
         };
     };
-    const indexable = (p: BlogPost) => !NOINDEX_POST_SLUGS.includes(p.slug);
+    const indexable = (p: BlogPost) => p.indexed;
     const blogPosts: MetadataRoute.Sitemap = [
         ...posts.filter(indexable).map((p) => postEntry(p, "en")),
         ...postsRo.filter(indexable).map((p) => postEntry(p, "ro")),

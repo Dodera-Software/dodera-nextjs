@@ -7,10 +7,8 @@ import { Loader2, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import { AdminQueryKey } from "@/config/admin";
-import { BOOLEAN_CONFIG, CONFIG_FIELDS, ConfigFieldKind, DEFAULT_CONFIG_FIELD } from "@/config/admin-settings";
+import { CONFIG_FIELDS, ConfigFieldKind, DEFAULT_CONFIG_FIELD } from "@/config/admin-settings";
 import { useAdminMutation } from "@/hooks/use-admin";
 import { adminCommon } from "@/i18n/admin/common";
 import { settingsCopy } from "@/i18n/admin/settings";
@@ -61,45 +59,15 @@ export function ConfigRowForm({ row }: { row: ConfigRow }) {
                     name="value"
                     render={({ field: input }) => (
                         <FormItem className="min-w-0">
-                            {field.kind === ConfigFieldKind.Boolean ? (
-                                <div className="flex h-10 items-center gap-3">
-                                    <FormControl>
-                                        <Switch
-                                            checked={input.value === BOOLEAN_CONFIG.on}
-                                            onCheckedChange={(checked) => input.onChange(checked ? BOOLEAN_CONFIG.on : BOOLEAN_CONFIG.off)}
-                                            aria-label={row.key}
-                                        />
-                                    </FormControl>
-                                    <span className="text-sm text-muted-foreground">
-                                        {input.value === BOOLEAN_CONFIG.on ? copy.on : copy.off}
-                                    </span>
-                                </div>
-                            ) : field.kind === ConfigFieldKind.Select ? (
-                                <Select value={input.value} onValueChange={input.onChange}>
-                                    <FormControl>
-                                        <SelectTrigger className="font-mono" aria-label={row.key}>
-                                            <SelectValue placeholder={copy.selectModel} />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        {field.options?.map((option) => (
-                                            <SelectItem key={option.value} value={option.value} className="font-mono">
-                                                {option.label}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            ) : (
-                                <FormControl>
-                                    <Input
-                                        {...input}
-                                        inputMode={field.kind === ConfigFieldKind.Number ? "numeric" : undefined}
-                                        placeholder={field.kind === ConfigFieldKind.Text ? copy.emptyDisables : undefined}
-                                        className="font-mono"
-                                        aria-label={row.key}
-                                    />
-                                </FormControl>
-                            )}
+                            <FormControl>
+                                <Input
+                                    {...input}
+                                    inputMode={field.kind === ConfigFieldKind.Number ? "numeric" : undefined}
+                                    placeholder={field.kind === ConfigFieldKind.Text ? copy.emptyDisables : undefined}
+                                    className="font-mono"
+                                    aria-label={row.key}
+                                />
+                            </FormControl>
                             <FormMessage />
                         </FormItem>
                     )}

@@ -1,4 +1,4 @@
-import { Globe, KeyRound, Lock, Webhook, type LucideIcon } from "lucide-react";
+import { Globe, KeyRound, Lock, type LucideIcon } from "lucide-react";
 import { StatusTone } from "@/config/ui";
 
 export enum HttpMethod {
@@ -12,11 +12,10 @@ export enum HttpMethod {
 export enum ApiAuth {
     ApiToken = "api-token",
     AdminSession = "admin-session",
-    WebhookSecret = "webhook-secret",
     None = "none",
 }
 
-export const API_AUTH_ORDER: ApiAuth[] = [ApiAuth.ApiToken, ApiAuth.AdminSession, ApiAuth.WebhookSecret, ApiAuth.None];
+export const API_AUTH_ORDER: ApiAuth[] = [ApiAuth.ApiToken, ApiAuth.AdminSession, ApiAuth.None];
 
 export const HTTP_METHOD_TONE: Record<HttpMethod, StatusTone> = {
     [HttpMethod.Get]: StatusTone.Success,
@@ -29,6 +28,5 @@ export const HTTP_METHOD_TONE: Record<HttpMethod, StatusTone> = {
 export const API_AUTH_STYLE: Record<ApiAuth, { tone: StatusTone; icon: LucideIcon }> = {
     [ApiAuth.ApiToken]: { tone: StatusTone.Warning, icon: KeyRound },
     [ApiAuth.AdminSession]: { tone: StatusTone.Info, icon: Lock },
-    [ApiAuth.WebhookSecret]: { tone: StatusTone.Brand, icon: Webhook },
     [ApiAuth.None]: { tone: StatusTone.Success, icon: Globe },
 };
