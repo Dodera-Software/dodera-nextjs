@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { DeckController, type SlideState } from "./deck-controller";
 import { DeckNext } from "./DeckNext";
 import { glideTo } from "./glide";
+import { startPerfProbe } from "./perf-probe";
 
 const DeckContext = createContext<DeckController | null>(null);
 
@@ -38,6 +39,7 @@ export function Deck({ children }: { children: React.ReactNode }) {
         if (!root) return;
         const controller = new DeckController(root);
         setDeck(controller);
+        startPerfProbe();
 
         const goToHash = (hash: string, smooth: boolean) => {
             const id = decodeURIComponent(hash.replace(/^#/, ""));

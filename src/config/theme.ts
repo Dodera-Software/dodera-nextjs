@@ -12,6 +12,16 @@ export const MOTION_QUERY = "(min-width: 1024px) and (prefers-reduced-motion: no
 
 export const WEBGL_CLASS = "webgl";
 
+export const LITE_CLASS = "lite";
+
+export const PERF = {
+    liteCores: 4,
+    liteMemoryGb: 4,
+    probeFrames: 60,
+    probeDelayMs: 1200,
+    slowFrameMs: 24,
+} as const;
+
 export const MOTION = {
     ease: "cubic-bezier(0.65, 0, 0.35, 1)",
     easeOut: "cubic-bezier(0.16, 1, 0.3, 1)",

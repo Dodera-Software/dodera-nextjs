@@ -26,7 +26,7 @@ const SERVICE_DATA = { en: SERVICE_PAGES, ro: SERVICE_PAGES_RO } as const;
 
 function Metric({ cs, size = "lg" }: { cs: CaseStudy; size?: "lg" | "xl" }) {
     return (
-        <span className={size === "xl" ? "display block bg-gradient-to-b from-foreground to-foreground/40 bg-clip-text text-[clamp(6rem,14vw,13rem)] leading-[0.85] text-transparent" : "display block bg-gradient-to-b from-foreground to-foreground/40 bg-clip-text text-[clamp(4rem,7vw,6.5rem)] leading-none text-transparent"}>
+        <span className={size === "xl" ? "display block text-gradient-metal text-[clamp(6rem,14vw,13rem)] leading-[0.85]" : "display block text-gradient-metal text-[clamp(4rem,7vw,6.5rem)] leading-none"}>
             {cs.metric}
         </span>
     );

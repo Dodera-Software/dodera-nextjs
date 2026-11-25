@@ -100,7 +100,6 @@ export const ro: Dictionary = {
         success: "Abonare reușită!",
     },
     hero: {
-        eyebrow: "Studio software · România · Din 2023",
         titleA: "Software care",
         titleB: "aduce rezultate.",
         text: "Proiectăm, construim și întreținem software personalizat, agenți AI și site-uri pentru startupuri și companii moderne. Lansăm și produse proprii, așa că știm ce înseamnă să pui un produs în fața oamenilor reali.",

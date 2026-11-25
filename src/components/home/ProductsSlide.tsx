@@ -50,13 +50,11 @@ function renderStage({ frame, captions, visuals, bar }: StageNodes, x: number) {
         if (caption) {
             caption.style.opacity = shown.toFixed(3);
             caption.style.transform = `translate3d(0, ${(-d * 90).toFixed(1)}px, 0)`;
-            caption.style.filter = away > 0.02 ? `blur(${(away * 12).toFixed(1)}px)` : "";
             caption.style.visibility = shown > 0.01 ? "visible" : "hidden";
         }
         if (visual) {
             visual.style.opacity = shown.toFixed(3);
             visual.style.transform = `translate3d(0, ${(-d * 38).toFixed(2)}%, ${(-away * 320).toFixed(0)}px) rotateX(${(d * 16).toFixed(2)}deg) rotateY(${(-6 + d * 4).toFixed(2)}deg) scale(${(1 - away * 0.1).toFixed(3)})`;
-            visual.style.filter = away > 0.02 ? `blur(${(away * 10).toFixed(1)}px)` : "";
             visual.style.visibility = shown > 0.01 ? "visible" : "hidden";
         }
     });

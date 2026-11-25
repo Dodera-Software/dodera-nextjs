@@ -28,7 +28,7 @@ export function WorkSlide() {
                         return (
                             <article key={study.id} className="reveal group relative flex flex-col bg-background p-8 transition-colors duration-500 hover:bg-card lg:p-10">
                                 <p className="font-mono text-[11px] uppercase tracking-[0.1em] text-muted-foreground">{study.industry}</p>
-                                <p className="display mt-6 bg-gradient-to-b from-foreground to-foreground/45 bg-clip-text text-[clamp(4rem,6.5vw,6.25rem)] leading-none text-transparent">
+                                <p className="display mt-6 text-gradient-metal text-[clamp(4rem,6.5vw,6.25rem)] leading-none">
                                     {study.metric}
                                 </p>
                                 <p className="mt-3 max-w-[26ch] text-sm text-foreground/70">{study.metricLabel}</p>

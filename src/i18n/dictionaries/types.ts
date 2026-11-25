@@ -71,7 +71,6 @@ export interface Dictionary {
         success: string;
     };
     hero: {
-        eyebrow: string;
         titleA: string;
         titleB: string;
         text: string;
