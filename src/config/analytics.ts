@@ -10,3 +10,26 @@ export const ANALYTICS = {
     websiteId: "7144126b-d599-4206-816c-e500043f6784",
     domains: new URL(SITE.url).hostname,
 } as const;
+
+export enum AnalyticsEvent {
+    DeckNext = "deck-next",
+    CtaClick = "cta-click",
+    ProductOpen = "product-open",
+    ProductVisit = "product-visit",
+    ContactSent = "contact-sent",
+    NewsletterSubscribed = "newsletter-subscribed",
+    ApplicationSent = "application-sent",
+}
+
+export enum CtaLocation {
+    Nav = "nav",
+    HomeHero = "home-hero",
+    HomeServices = "home-services",
+    HomePricing = "home-pricing",
+    ServiceHero = "service-hero",
+    ProductHero = "product-hero",
+    PageEnd = "page-end",
+    Footer = "footer",
+    HomeProducts = "home-products",
+    ProductsIndex = "products-index",
+}

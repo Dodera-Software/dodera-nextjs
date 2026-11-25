@@ -2,6 +2,8 @@ import Link from "next/link";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slide } from "@/components/deck/Slide";
+import { AnalyticsEvent, CtaLocation } from "@/config/analytics";
+import { trackAttrs } from "@/lib/analytics";
 
 export interface CtaLink {
     label: string;
@@ -30,7 +32,7 @@ export function CtaSlide({ id, label, title, text, action, relatedTitle, related
                     </h2>
                     <p className="lede mt-8 max-w-[52ch]">{text}</p>
                     <Button size="pill" asChild className="mt-10">
-                        <Link href={action.href}>
+                        <Link href={action.href} {...trackAttrs(AnalyticsEvent.CtaClick, { location: CtaLocation.PageEnd, slide: id })}>
                             {action.label}
                             <ArrowRight aria-hidden="true" />
                         </Link>

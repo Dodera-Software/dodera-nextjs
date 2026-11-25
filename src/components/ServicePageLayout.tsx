@@ -16,6 +16,8 @@ import { CtaSlide } from "@/components/slides/CtaSlide";
 import { useDict, useLocale } from "@/i18n/LocaleProvider";
 import { CASE_STUDY_PATHS } from "@/i18n/paths";
 import type { ServicePageData } from "@/types";
+import { AnalyticsEvent, CtaLocation } from "@/config/analytics";
+import { trackAttrs } from "@/lib/analytics";
 
 const ICON_MAP: Record<string, LucideIcon | React.ComponentType<{ className?: string }>> = {
     Bot,
@@ -86,7 +88,7 @@ export function ServicePageLayout({ data, parentLabel, parentHref, servicesHref 
                 actions={
                     <>
                         <Button size="pill" asChild>
-                            <Link href={links.contact}>
+                            <Link href={links.contact} {...trackAttrs(AnalyticsEvent.CtaClick, { location: CtaLocation.ServiceHero })}>
                                 {t.discuss}
                                 <ArrowRight aria-hidden="true" />
                             </Link>

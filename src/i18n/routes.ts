@@ -16,7 +16,7 @@ import type { Metadata } from "next";
 import { SITE } from "@/config/seo";
 import { SERVICE_PAGE_SLUGS } from "@/config/services";
 import { DEFAULT_LOCALE, HTML_LANG, LOCALES, type Locale } from "./config";
-import { CASE_STUDY_PATHS, SERVICE_PATHS, STATIC_PATHS } from "./paths";
+import { CASE_STUDY_PATHS, PRODUCT_PATHS, SERVICE_PATHS, STATIC_PATHS } from "./paths";
 
 export interface PageRoute {
     paths: Partial<Record<Locale, string>>;
@@ -80,6 +80,12 @@ const STATIC_ROUTES = {
         changeFrequency: "monthly",
         priority: 0.8,
     },
+    products: {
+        paths: STATIC_PATHS.products,
+        sources: ["src/app/(en)/products/page.tsx", "src/app/(ro)/ro/produse/page.tsx", "src/components/products", "src/config/products.ts"],
+        changeFrequency: "monthly",
+        priority: 0.9,
+    },
     privacy: {
         paths: STATIC_PATHS.privacy,
         sources: ["src/app/(en)/privacy-policy/page.tsx", "src/app/(ro)/ro/politica-de-confidentialitate/page.tsx"],
@@ -91,7 +97,8 @@ const STATIC_ROUTES = {
 export type StaticPageId = keyof typeof STATIC_ROUTES;
 export type ServicePageId = `service:${string}`;
 export type CaseStudyPageId = `case:${string}`;
-export type PageId = StaticPageId | ServicePageId | CaseStudyPageId;
+export type ProductPageId = `product:${string}`;
+export type PageId = StaticPageId | ServicePageId | CaseStudyPageId | ProductPageId;
 
 function serviceRoute(key: string): PageRoute {
     return {
@@ -114,6 +121,17 @@ export const ROUTES: Record<PageId, PageRoute> = {
                 sources: ["src/config/case-studies.ts", "src/i18n/dictionaries/ro.ts", "src/components/CaseStudyPage.tsx"],
                 changeFrequency: "yearly",
                 priority: 0.7,
+            } satisfies PageRoute,
+        ]),
+    ),
+    ...Object.fromEntries(
+        Object.entries(PRODUCT_PATHS).map(([id, paths]) => [
+            `product:${id}`,
+            {
+                paths,
+                sources: ["src/config/products.ts", "src/components/products", "src/i18n/dictionaries/en.ts", "src/i18n/dictionaries/ro.ts"],
+                changeFrequency: "monthly",
+                priority: 0.8,
             } satisfies PageRoute,
         ]),
     ),

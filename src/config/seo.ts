@@ -1,14 +1,5 @@
 ﻿/** Central SEO configuration – shared site identity and layout fallback. */
 
-/*
- * TODO(owner): facts still missing — every consumer (footer, JSON-LD,
- * llms.txt) skips a field while it is null, so nothing invented is shown:
- *   - openingHours  real business hours
- *   - founder       name, role, LinkedIn URL, short bio
- *   - googleBusinessProfile  GBP / Maps share link once the profile exists
- *   - geo           confirm the exact pin (currently street-level, OSM)
- */
-
 export interface OpeningHours {
     /** schema.org day names, e.g. ["Monday", "Tuesday"] */
     days: string[];
@@ -19,10 +10,8 @@ export interface OpeningHours {
 export interface Founder {
     name: string;
     jobTitle: { en: string; ro: string };
-    linkedin: string;
-    /** 2–4 sentences of real experience: years, past roles, notable work. */
+    profiles: string[];
     bio: { en: string; ro: string };
-    /** Square photo in /public, e.g. "/team/founder.jpg". Initials are shown until it exists. */
     photo?: string;
 }
 
@@ -57,7 +46,7 @@ export const SITE = {
     geo: { latitude: 47.7998, longitude: 22.8819 },
     mapsUrl: "https://www.google.com/maps/search/?api=1&query=Dodera+Software%2C+Strada+Banat+1%2C+440043+Satu+Mare",
     googleBusinessProfile: null as string | null,
-    openingHours: null as OpeningHours | null,
+    openingHours: { days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], opens: "09:00", closes: "18:00" } as OpeningHours | null,
     founder: null as Founder | null,
     social: {
         twitter: "@doderasoft",

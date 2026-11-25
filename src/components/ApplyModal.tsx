@@ -79,6 +79,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FieldError } from "@/components/ui/field-error";
+import { AnalyticsEvent } from "@/config/analytics";
+import { track } from "@/lib/analytics";
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
 const ALLOWED_EXTENSIONS = [".pdf", ".doc", ".docx", ".rtf", ".odt", ".txt"];
@@ -203,6 +205,7 @@ export function ApplyModal({ job, open, onOpenChange }: Props) {
             }
 
             setSubmitted(true);
+            track(AnalyticsEvent.ApplicationSent);
         } catch {
             setServerError(t.network);
         } finally {

@@ -7,6 +7,7 @@
  */
 
 import type { Locale } from "./config";
+import { ProductId } from "@/config/products";
 
 export type LocalePaths = Partial<Record<Locale, string>>;
 
@@ -19,7 +20,12 @@ export const STATIC_PATHS = {
     careers: { en: "/careers", ro: "/ro/cariere" },
     privacy: { en: "/privacy-policy", ro: "/ro/politica-de-confidentialitate" },
     caseStudies: { en: "/case-studies", ro: "/ro/studii-de-caz" },
+    products: { en: "/products", ro: "/ro/produse" },
 } satisfies Record<string, LocalePaths>;
+
+export const PRODUCT_PATHS: Record<ProductId, LocalePaths> = Object.fromEntries(
+    Object.values(ProductId).map((id) => [id, { en: `/products/${id}`, ro: `/ro/produse/${id}` }]),
+) as Record<ProductId, LocalePaths>;
 
 /** Case-study pages, keyed by case-study id (config/case-studies.ts). */
 export const CASE_STUDY_PATHS: Record<string, LocalePaths> = {
@@ -94,6 +100,7 @@ const ALL_PATHS: LocalePaths[] = [
     ...Object.values(STATIC_PATHS),
     ...Object.values(SERVICE_PATHS),
     ...Object.values(CASE_STUDY_PATHS),
+    ...Object.values(PRODUCT_PATHS),
 ];
 
 /**

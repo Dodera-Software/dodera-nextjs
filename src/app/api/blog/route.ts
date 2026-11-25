@@ -273,7 +273,7 @@ export async function POST(request: NextRequest) {
         const tags = (payload.tags?.map((tag) => ({ tag })) ?? []) as BlogPostDocumentData["tags"];
 
         /* Create the document */
-        const document = migration.createDocument(
+        migration.createDocument(
             {
                 type: "blog_post",
                 uid: payload.uid,

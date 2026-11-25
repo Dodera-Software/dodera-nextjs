@@ -39,7 +39,9 @@ slide over each other. Inspired by doderminal.com (`~/Work/dev/dodera/doderminal
 - **Type:** Mona Sans for display (`.display`, `.display-xl`, `.display-lg`,
   `.display-md`, `font-display`), Inter for body, JetBrains Mono for labels
   (`.eyebrow`, `font-mono text-xs uppercase tracking-[0.08em]`).
-  Headline highlight: the gradient span used in `PageHeroSlide`; two-tone headings: `.two-tone` + `<em>`.
+  Gradient text: `.text-gradient-brand` (crimson → amber), `.text-gradient-metal` (big
+  numbers), `.text-gradient-ember`. Never hand-roll `bg-clip-text` (it clips the last letter
+  of wrapped lines). Two-tone headings: `.two-tone` + `<em>`.
 - **Surfaces:** hairlines (`border-foreground/10`), `.glass` panels, `rounded-3xl`
   grids with `gap-px` dividers, `.grain` overlay, crimson radial glows. No drop-shadow
   cards on white, no emoji, no icon-in-a-coloured-square grids.
@@ -67,6 +69,12 @@ Every public page is a deck of slides (`src/components/deck`, `src/components/sl
   Without `.motion` everything is a normal scrolling page with CSS scroll reveals.
   Every slide must read well in both modes and on phones.
 - Constants (easing, glide timing, cover scale) live in `MOTION` in `src/config/theme.ts`.
+- The Next pill stays hidden on every page's hero and appears halfway past it.
+- **Performance / lite mode:** weak devices (≤4 cores or ≤4 GB, or slow frames measured
+  after load by `deck/perf-probe.ts`) get `html.lite`: no backdrop blur, grain or reveal blur,
+  lighter shadows, 3D field at 1×. Never animate `filter` (blur) per scroll frame, never use
+  `mix-blend-mode` on full-screen layers, and only promote layers (`will-change`) while they
+  move. New heavy effects must have a lite fallback in `globals.css`.
 
 ### Shared slide blocks — build pages from these
 
@@ -93,7 +101,26 @@ stage → services → case studies → process → pricing → studio → conta
 
 **Products** (`src/config/products.ts`, copy in `dictionary.products.items`), in this
 order: Pipstep, doderminal, InteliLang, video-kit. Visuals in `public/products/`
-(optimised WebP). Each product has an accent colour, a visual type and schema facts.
+(optimised WebP). Each product has an accent colour, a visual type, schema facts and
+`features` media (`MediaKind`) aligned by index with its copy `features`.
+
+**Product pages:** `/products` + `/products/<id>` (RO `/ro/produse/...`), built by
+`components/products/ProductsIndex` and `ProductPage` (hero, one slide per feature, facts,
+CTA). Metadata, JSON-LD and static params come from `src/lib/product-pages.ts`. A new
+product = config entry + copy in both dictionaries + visuals + its two share images.
+
+## Company facts
+
+`SITE` in `src/config/seo.ts` holds opening hours (contact page, JSON-LD) and an optional
+founder (left empty on purpose; when filled it shows on About and in JSON-LD). Testimonials (`config/testimonials.ts`) stay hidden until each
+has a real company and a public link; never invent client facts.
+
+## Analytics
+
+Umami (`src/config/analytics.ts`). Events are the `AnalyticsEvent` enum; clicks are tagged
+with `trackAttrs(event, data)` (Umami `data-umami-event` attributes), outcomes such as a
+sent form call `track(event)` from `src/lib/analytics.ts`. CTAs pass a `CtaLocation`.
+Tag every new primary CTA and product link.
 
 ## i18n
 
@@ -115,6 +142,12 @@ the formal "dumneavoastră". Service pages: `src/config/services.ts` / `services
 - After changing page sources run `npm run seo:lastmod` (sitemap dates); list new
   source files in that page's `sources` in `src/i18n/routes.ts`.
 - `robots.ts` allows AI crawlers explicitly; keep it that way.
+
+## Dependencies
+
+Prefer releases at least two weeks old. `eslint-plugin-react-hooks` is pinned to 7.0.1 via
+`overrides` (7.1 flags the admin pages' data-loading effects; refactor those before
+unpinning). `react-email-editor` is pinned (newer types break the admin editor).
 
 ## Before you finish
 

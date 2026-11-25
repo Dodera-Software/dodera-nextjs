@@ -11,6 +11,8 @@ import { SocialIconList } from "@/components/SocialIconList";
 import { useDict, useLocale } from "@/i18n/LocaleProvider";
 import { switchLocalePath } from "@/i18n/paths";
 import { HTML_LANG } from "@/i18n/config";
+import { AnalyticsEvent, CtaLocation } from "@/config/analytics";
+import { trackAttrs } from "@/lib/analytics";
 
 /** Link to the same page in the other language. */
 function LanguageSwitch({ className, onClick }: { className?: string; onClick?: () => void }) {
@@ -113,7 +115,7 @@ export function Navbar() {
                     <LanguageSwitch className="font-mono text-xs font-semibold uppercase tracking-[0.1em] text-foreground/60 transition-colors hover:text-foreground" />
 
                     <Button size="sm" asChild className="h-9 rounded-full px-4">
-                        <Link href={links.contact}>{t.getStarted}</Link>
+                        <Link href={links.contact} {...trackAttrs(AnalyticsEvent.CtaClick, { location: CtaLocation.Nav })}>{t.getStarted}</Link>
                     </Button>
                 </div>
 
@@ -264,7 +266,7 @@ export function Navbar() {
 
                             <div className="pt-3">
                                 <Button className="w-full" size="sm" asChild>
-                                    <Link href={links.contact} onClick={() => setMobileOpen(false)}>{t.getStarted}</Link>
+                                    <Link href={links.contact} onClick={() => setMobileOpen(false)} {...trackAttrs(AnalyticsEvent.CtaClick, { location: CtaLocation.Nav })}>{t.getStarted}</Link>
                                 </Button>
                             </div>
 

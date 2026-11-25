@@ -144,7 +144,7 @@ export function businessSchema(opts: { description?: string } = {}) {
                 "@type": "Person",
                 name: founder.name,
                 jobTitle: founder.jobTitle.en,
-                sameAs: [founder.linkedin],
+                sameAs: founder.profiles,
                 ...(founder.photo && { image: `${SITE.url}${founder.photo}` }),
             },
         }),

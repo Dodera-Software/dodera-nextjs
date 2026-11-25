@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { EMAIL_RE } from "@/lib/validation";
 import { useDict } from "@/i18n/LocaleProvider";
+import { AnalyticsEvent } from "@/config/analytics";
+import { track } from "@/lib/analytics";
 
 type Status = "idle" | "loading" | "success" | "error";
 
@@ -48,6 +50,7 @@ export function NewsletterForm() {
             }
 
             setStatus("success");
+            track(AnalyticsEvent.NewsletterSubscribed);
         } catch {
             setStatus("error");
             setErrorMsg(t.networkError);
