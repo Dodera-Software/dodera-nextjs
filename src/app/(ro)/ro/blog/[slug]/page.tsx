@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { JsonLd } from "@/components/JsonLd";
-import { ScrollManager } from "@/components/ScrollManager";
 import { BlogPostContent } from "@/components/BlogPostContent";
 import { getAllPostSlugs, getPostBySlug } from "@/lib/cms";
 import { authorPath } from "@/config/authors";
@@ -61,7 +58,7 @@ export default async function BlogPostPageRo({ params }: PageProps) {
     const url = absoluteUrl(blogPostPath(post.slug, "ro"));
 
     return (
-        <div className="min-h-screen bg-background">
+        <>
             <JsonLd
                 data={[
                     breadcrumbSchema([
@@ -82,12 +79,7 @@ export default async function BlogPostPageRo({ params }: PageProps) {
                     }),
                 ]}
             />
-            <ScrollManager />
-            <Navbar />
-            <main>
-                <BlogPostContent post={post} />
-            </main>
-            <Footer />
-        </div>
+            <BlogPostContent post={post} />
+        </>
     );
 }

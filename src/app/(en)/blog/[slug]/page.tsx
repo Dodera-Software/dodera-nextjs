@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { JsonLd } from "@/components/JsonLd";
-import { ScrollManager } from "@/components/ScrollManager";
 import { BlogPostContent } from "@/components/BlogPostContent";
 import { getPostBySlug, getAllPostSlugs } from "@/lib/cms";
 import { SITE } from "@/config/seo";
@@ -97,14 +94,9 @@ export default async function BlogPostPage({ params }: PageProps) {
     ];
 
     return (
-        <div className="min-h-screen bg-background">
+        <>
             <JsonLd data={structuredData} />
-            <ScrollManager />
-            <Navbar />
-            <main>
-                <BlogPostContent post={post} />
-            </main>
-            <Footer />
-        </div>
+            <BlogPostContent post={post} />
+        </>
     );
 }

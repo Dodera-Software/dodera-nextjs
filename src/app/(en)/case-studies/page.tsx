@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { JsonLd } from "@/components/JsonLd";
 import { CaseStudiesHub } from "@/components/CaseStudyPage";
-import { CASE_STUDIES } from "@/config/case-studies";
 import { SITE } from "@/config/seo";
 import { STATIC_PATHS } from "@/i18n/paths";
 import { absoluteUrl, alternatesFor } from "@/i18n/routes";
@@ -17,12 +14,12 @@ export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION,
     alternates: alternatesFor("caseStudies", "en"),
-    openGraph: { title: TITLE, description: DESCRIPTION, url: absoluteUrl(STATIC_PATHS.caseStudies.en), type: "website", siteName: SITE.name },
+    openGraph: { title: TITLE, description: DESCRIPTION, url: absoluteUrl(STATIC_PATHS.caseStudies.en), type: "website", siteName: SITE.name, images: [{ url: "/og-images/og-case-studies.png", width: 1200, height: 630, alt: SITE.name }] },
 };
 
 export default function CaseStudiesHubEn() {
     return (
-        <div className="min-h-screen bg-background">
+        <>
             <JsonLd
                 data={[
                     breadcrumbSchema([
@@ -32,11 +29,7 @@ export default function CaseStudiesHubEn() {
                     collectionPageSchema({ name: TITLE, description: DESCRIPTION, url: absoluteUrl(STATIC_PATHS.caseStudies.en), locale: "en" }),
                 ]}
             />
-            <Navbar />
-            <main>
-                <CaseStudiesHub locale="en" items={CASE_STUDIES} />
-            </main>
-            <Footer />
-        </div>
+            <CaseStudiesHub locale="en" />
+        </>
     );
 }

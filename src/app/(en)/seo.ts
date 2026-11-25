@@ -8,7 +8,7 @@
 export const HOME_META = {
     title: "Dodera Software - Custom Software & AI Development",
     description:
-        "We build web applications, presentation websites, AI systems and workflow automations for companies of all sizes. Based in Romania, serving clients globally.",
+        "Custom software, AI agents and websites from Romania, built by the team behind Pipstep, doderminal, InteliLang and video-kit. Clients worldwide.",
     keywords: [
         "software development",
         "AI development",
@@ -23,5 +23,9 @@ export const HOME_META = {
         "scalable infrastructure",
         "smart documentation",
         "codebase indexing",
+        "Pipstep",
+        "doderminal",
+        "InteliLang",
+        "video-kit",
     ],
 } as const;

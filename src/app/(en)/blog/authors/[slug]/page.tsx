@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Linkedin } from "lucide-react";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
+import { ArrowUpRight, Linkedin } from "lucide-react";
 import { JsonLd } from "@/components/JsonLd";
-import { Breadcrumb } from "@/components/Breadcrumb";
+import { DeckPage } from "@/components/slides/DeckPage";
+import { PageHeroSlide } from "@/components/slides/PageHeroSlide";
+import { SplitSlide } from "@/components/slides/SplitSlide";
 import { AUTHORS, authorPath, getAuthorBySlug } from "@/config/authors";
 import { blogPostPath } from "@/config/blog-seo";
 import { SITE } from "@/config/seo";
@@ -53,7 +53,7 @@ export default async function AuthorPage({ params }: PageProps) {
     const url = absoluteUrl(authorPath(author.slug));
 
     return (
-        <div className="min-h-screen bg-background">
+        <>
             <JsonLd
                 data={[
                     breadcrumbSchema([
@@ -71,42 +71,40 @@ export default async function AuthorPage({ params }: PageProps) {
                     }),
                 ]}
             />
-            <Navbar />
-            <main>
-                <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Blog", href: "/blog" }, { label: author.displayName }]} />
-                <section aria-labelledby="author-heading" className="relative pb-12 pt-32">
-                    <div className="absolute inset-0 grid-bg" />
-                    <div className="relative z-10 mx-auto max-w-3xl px-6">
-                        <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Author · {SITE.name}</p>
-                        <h1 id="author-heading" className="mb-3 text-4xl font-bold tracking-tight">{author.displayName}</h1>
-                        {author.jobTitle && <p className="mb-4 font-medium text-primary">{author.jobTitle.en}</p>}
-                        {author.bio && <p className="mb-4 text-lg leading-relaxed text-muted-foreground">{author.bio.en}</p>}
-                        {author.linkedin && (
-                            <a href={author.linkedin} target="_blank" rel="noopener noreferrer me" className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline">
+            <DeckPage>
+                <PageHeroSlide
+                    id="author"
+                    label={author.displayName}
+                    title={author.displayName}
+                    description={[author.jobTitle?.en, author.bio?.en].filter(Boolean).join(". ") || undefined}
+                    breadcrumb={[{ label: "Home", href: "/" }, { label: "Blog", href: "/blog" }, { label: author.displayName }]}
+                    actions={
+                        author.linkedin && (
+                            <a href={author.linkedin} target="_blank" rel="noopener noreferrer me" className="inline-flex items-center gap-2 border-b border-foreground/25 pb-1 text-sm font-semibold hover:border-foreground">
                                 <Linkedin className="size-4" aria-hidden="true" /> LinkedIn
                             </a>
-                        )}
-                    </div>
-                </section>
-
-                <section aria-labelledby="author-posts" className="pb-24">
-                    <div className="mx-auto max-w-3xl px-6">
-                        <h2 id="author-posts" className="mb-6 text-xl font-bold tracking-tight">Articles ({posts.length})</h2>
-                        <ul className="divide-y divide-border rounded-xl border border-border bg-card">
-                            {posts.map((p) => (
-                                <li key={p.href} className="p-5">
-                                    <Link href={p.href} hrefLang={p.lang} className="font-semibold hover:text-primary">{p.title}</Link>
-                                    <p className="mt-1 text-xs text-muted-foreground">
-                                        <time dateTime={p.date}>{formatDateShort(p.date)}</time> · {p.category}
-                                        {p.lang === "ro" && " · Română"}
-                                    </p>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                </section>
-            </main>
-            <Footer />
-        </div>
+                        )
+                    }
+                />
+                <SplitSlide id="articles" label="Articles" eyebrow="Blog" title={`Articles (${posts.length})`}>
+                    <ul className="border-t border-foreground/10">
+                        {posts.map((p) => (
+                            <li key={p.href} className="reveal border-b border-foreground/10">
+                                <Link href={p.href} hrefLang={p.lang} className="group flex items-start justify-between gap-6 py-5">
+                                    <span>
+                                        <span className="block text-lg font-semibold transition-colors group-hover:text-brand-bright">{p.title}</span>
+                                        <span className="mt-1 block font-mono text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
+                                            <time dateTime={p.date}>{formatDateShort(p.date)}</time> · {p.category}
+                                            {p.lang === "ro" && " · Română"}
+                                        </span>
+                                    </span>
+                                    <ArrowUpRight className="mt-1 size-5 shrink-0 text-foreground/40 transition-colors group-hover:text-brand-bright" aria-hidden="true" />
+                                </Link>
+                            </li>
+                        ))}
+                    </ul>
+                </SplitSlide>
+            </DeckPage>
+        </>
     );
 }

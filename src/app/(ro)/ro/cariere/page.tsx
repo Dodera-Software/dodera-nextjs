@@ -1,8 +1,5 @@
 import type { Metadata } from "next";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { JsonLd } from "@/components/JsonLd";
-import { ScrollManager } from "@/components/ScrollManager";
 import { SITE } from "@/config/seo";
 import { STATIC_PATHS } from "@/i18n/paths";
 import { absoluteUrl, alternatesFor } from "@/i18n/routes";
@@ -20,26 +17,21 @@ export const metadata: Metadata = {
         url: absoluteUrl(STATIC_PATHS.careers.ro),
         type: "website",
         siteName: SITE.name,
-        images: [{ url: "/og-images/og-careers.png", width: 1200, height: 630, alt: "Dodera Software — Cariere" }],
+        images: [{ url: "/og-images/og-careers-ro.png", width: 1200, height: 630, alt: "Dodera Software — Cariere" }],
     },
 };
 
 /* Same component as /careers; it picks the Romanian copy from the locale. */
 export default function CareersPageRo() {
     return (
-        <div className="min-h-screen bg-background">
+        <>
             <JsonLd
                 data={breadcrumbSchema([
                     { name: "Acasă", url: absoluteUrl("/ro") },
                     { name: "Cariere", url: absoluteUrl(STATIC_PATHS.careers.ro) },
                 ])}
             />
-            <ScrollManager />
-            <Navbar />
-            <main>
-                <CareersPageContent />
-            </main>
-            <Footer />
-        </div>
+            <CareersPageContent />
+        </>
     );
 }

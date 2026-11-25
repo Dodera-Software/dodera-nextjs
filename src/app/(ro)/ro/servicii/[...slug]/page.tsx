@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { ServicePageLayout } from "@/components/ServicePageLayout";
 import { JsonLd } from "@/components/JsonLd";
-import { ScrollManager } from "@/components/ScrollManager";
 import { SERVICE_PAGES_RO, serviceKeyFromRoSlug } from "@/config/services.ro";
 import { SERVICE_PATHS, STATIC_PATHS } from "@/i18n/paths";
 import { absoluteUrl, alternatesFor } from "@/i18n/routes";
@@ -87,20 +84,10 @@ export default async function ServicePageRo({ params }: PageProps) {
     ];
 
     return (
-        <div className="min-h-screen bg-background">
+        <>
             <JsonLd data={structuredData} />
-            <ScrollManager />
-            <Navbar />
-            <main>
-                <ServicePageLayout
-                    data={data}
-                    parentLabel={parent?.heroLabel}
-                    parentHref={parentHref}
-                    servicesHref={STATIC_PATHS.services.ro}
-                />
-            </main>
-            <Footer />
-        </div>
+            <ServicePageLayout data={data} parentLabel={parent?.heroLabel} parentHref={parentHref} servicesHref={STATIC_PATHS.services.ro} />
+        </>
     );
 }
 

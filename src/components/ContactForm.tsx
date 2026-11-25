@@ -132,8 +132,8 @@ export function ContactForm() {
     if (submitted) {
         return (
             <div className="mx-auto max-w-lg rounded-xl border border-border bg-card p-10 text-center shadow-sm">
-                <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full border border-emerald-200 bg-emerald-50">
-                    <Send className="size-6 text-emerald-600" />
+                <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full border border-emerald-400/30 bg-emerald-400/10">
+                    <Send className="size-6 text-emerald-400" />
                 </div>
                 <h3 className="mb-2 text-xl font-bold">{t.sentTitle}</h3>
                 <p className="text-sm text-muted-foreground">
@@ -254,7 +254,7 @@ export function ContactForm() {
             </div>
 
             {serverError && (
-                <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                <div className="flex items-center gap-2 rounded-lg border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-300">
                     <AlertCircle className="size-4 shrink-0" />
                     {serverError}
                 </div>

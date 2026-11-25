@@ -1,71 +1,82 @@
 import Script from "next/script";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono, Mona_Sans } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "sonner";
 import { PrismicPreviewBar } from "@/components/PrismicPreviewBar";
 import { HTML_LANG, type Locale } from "@/i18n/config";
 import { LocaleProvider } from "@/i18n/LocaleProvider";
 import { ANALYTICS } from "@/config/analytics";
+import { MOTION_QUERY, MotionMode, Theme, WEBGL_CLASS } from "@/config/theme";
 
-/*
- * One Inter instance for every locale. `subsets` only picks the *preloaded*
- * files; latin-ext (ș, ț, ă, â, î) stays in the CSS and loads on demand on
- * Romanian pages. (A second instance with latin-ext preloaded made Romanian
- * pages download that file twice — two @font-face rules for one family.)
- */
 const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
+    subsets: ["latin"],
+    variable: "--font-inter",
+    display: "swap",
 });
 
-/* Only used by the hero terminal — not worth a preload on every page. */
+const monaSans = Mona_Sans({
+    subsets: ["latin"],
+    axes: ["wdth"],
+    variable: "--font-display",
+    display: "swap",
+});
+
 const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  variable: "--font-jetbrains-mono",
-  display: "swap",
-  preload: false,
+    subsets: ["latin"],
+    variable: "--font-jetbrains-mono",
+    display: "swap",
+    preload: false,
 });
 
-/**
- * The `<html>`/`<body>` shell shared by every root layout. Each locale has
- * its own root layout (route groups `(en)` and `(ro)`) so `lang` is right.
- */
+const NOTIFICATIONS_LABEL: Record<Locale, string> = {
+    en: "Notifications",
+    ro: "Notificări",
+};
+
+const motionScript = `(function(){var d=document.documentElement,c=navigator.connection;if(!matchMedia(${JSON.stringify(MOTION_QUERY)}).matches||(c&&c.saveData))return;d.classList.add(${JSON.stringify(MotionMode.Full)});try{var g=document.createElement("canvas").getContext("webgl2");if(g){d.classList.add(${JSON.stringify(WEBGL_CLASS)});var x=g.getExtension("WEBGL_lose_context");x&&x.loseContext()}}catch(e){}})()`;
+
 export function RootDocument({
-  locale,
-  children,
+    locale,
+    theme = Theme.Dark,
+    children,
 }: Readonly<{
-  locale: Locale;
-  children: React.ReactNode;
+    locale: Locale;
+    theme?: Theme;
+    children: React.ReactNode;
 }>) {
-  return (
-    <html lang={HTML_LANG[locale]} className="dark">
-      <body
-        className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased bg-background text-foreground`}
-      >
-        <TooltipProvider>
-          <LocaleProvider locale={locale}>{children}</LocaleProvider>
-          <Toaster
-            position="top-center"
-            containerAriaLabel={locale === "ro" ? "Notificări" : "Notifications"}
-            toastOptions={{
-              style: {
-                background: "hsl(var(--card))",
-                color: "hsl(var(--card-foreground))",
-                border: "1px solid hsl(var(--border))",
-              },
-            }}
-          />
-        </TooltipProvider>
-        <PrismicPreviewBar />
-        <Script
-          src={ANALYTICS.src}
-          data-website-id={ANALYTICS.websiteId}
-          data-domains={ANALYTICS.domains}
-          data-do-not-track="true"
-          strategy="afterInteractive"
-        />
-      </body>
-    </html>
-  );
+    return (
+        <html lang={HTML_LANG[locale]} data-theme={theme} suppressHydrationWarning>
+            <body className={`${inter.variable} ${monaSans.variable} ${jetbrainsMono.variable} font-sans antialiased bg-background text-foreground`}>
+                <link rel="describedby" type="text/markdown" href="/llms.txt" title="llms.txt" />
+                <link rel="describedby" type="text/markdown" href="/llms-full.txt" title="llms-full.txt" />
+                <TooltipProvider>
+                    <LocaleProvider locale={locale}>{children}</LocaleProvider>
+                    <Toaster
+                        position="top-center"
+                        containerAriaLabel={NOTIFICATIONS_LABEL[locale]}
+                        toastOptions={{
+                            style: {
+                                background: "hsl(var(--card))",
+                                color: "hsl(var(--card-foreground))",
+                                border: "1px solid hsl(var(--border))",
+                            },
+                        }}
+                    />
+                </TooltipProvider>
+                {theme === Theme.Dark && (
+                    <Script id="motion-mode" strategy="beforeInteractive">
+                        {motionScript}
+                    </Script>
+                )}
+                <PrismicPreviewBar />
+                <Script
+                    src={ANALYTICS.src}
+                    data-website-id={ANALYTICS.websiteId}
+                    data-domains={ANALYTICS.domains}
+                    data-do-not-track="true"
+                    strategy="afterInteractive"
+                />
+            </body>
+        </html>
+    );
 }

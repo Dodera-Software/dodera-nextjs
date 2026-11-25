@@ -23,8 +23,3 @@ export const OG_LOCALE: Record<Locale, string> = {
     ro: "ro_RO",
 };
 
-/** Language name as shown in the language switcher (in its own language). */
-export const LOCALE_LABEL: Record<Locale, string> = {
-    en: "English",
-    ro: "Română",
-};

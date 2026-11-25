@@ -222,8 +222,8 @@ export function ApplyModal({ job, open, onOpenChange }: Props) {
 
                 {submitted ? (
                     <div className="flex flex-col items-center gap-4 py-6 text-center">
-                        <div className="flex size-14 items-center justify-center rounded-full border border-emerald-200 bg-emerald-50">
-                            <CheckCircle2 className="size-7 text-emerald-600" />
+                        <div className="flex size-14 items-center justify-center rounded-full border border-emerald-400/30 bg-emerald-400/10">
+                            <CheckCircle2 className="size-7 text-emerald-400" />
                         </div>
                         <div>
                             <p className="font-semibold">{t.submittedTitle}</p>
@@ -345,7 +345,7 @@ export function ApplyModal({ job, open, onOpenChange }: Props) {
                         </div>
 
                         {serverError && (
-                            <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                            <div className="flex items-center gap-2 rounded-lg border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-300">
                                 <AlertCircle className="size-4 shrink-0" />
                                 {serverError}
                             </div>

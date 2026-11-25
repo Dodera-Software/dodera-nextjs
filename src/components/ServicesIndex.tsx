@@ -1,109 +1,83 @@
+"use client";
+
+import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-import { Breadcrumb } from "@/components/Breadcrumb";
-import type { Service } from "@/types";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { Slide } from "@/components/deck/Slide";
+import { DeckPage } from "@/components/slides/DeckPage";
+import { PageHeroSlide } from "@/components/slides/PageHeroSlide";
+import { CtaSlide } from "@/components/slides/CtaSlide";
+import { padIndex } from "@/lib/format";
+import { useDict } from "@/i18n/LocaleProvider";
 
-export interface ServicesIndexProps {
-    services: Service[];
-    labels: {
-        home: string;
-        breadcrumb: string;
-        eyebrow: string;
-        title: string;
-        intro: string;
-        subServices: string;
-        learnMore: string;
-        ctaTitle: string;
-        ctaText: string;
-        ctaButton: string;
-    };
-    homeHref: string;
-    contactHref: string;
-}
+const INTRO_ID = "services";
+const CTA_ID = "start";
 
-/**
- * Services overview (/services, /ro/servicii): every service hub with its
- * sub-pages, so the "Services" nav item has a real, crawlable destination.
- * Server component — no client JS.
- */
-export function ServicesIndex({ services, labels, homeHref, contactHref }: ServicesIndexProps) {
+export function ServicesIndex() {
+    const { servicesIndex: t, services, breadcrumb, links } = useDict();
     return (
-        <>
-            <Breadcrumb items={[{ label: labels.home, href: homeHref }, { label: labels.breadcrumb }]} />
-
-            <section aria-labelledby="services-index-heading" className="relative pb-16 pt-32">
-                <div className="absolute inset-0 grid-bg" />
-                <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
-                    <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                        {labels.eyebrow}
-                    </p>
-                    <h1 id="services-index-heading" className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl">
-                        {labels.title}
-                    </h1>
-                    <p className="mx-auto max-w-2xl text-lg leading-relaxed text-muted-foreground">
-                        {labels.intro}
-                    </p>
-                </div>
-            </section>
-
-            <section className="relative pb-24">
-                <div className="mx-auto grid max-w-6xl gap-6 px-6 md:grid-cols-2">
-                    {services.map((s) => (
-                        <article key={s.href} className="flex flex-col rounded-xl border border-border bg-card p-8 shadow-sm">
-                            <div className="mb-6 flex size-12 items-center justify-center rounded-lg border border-border bg-primary/10">
-                                <s.icon className="size-6 text-primary" aria-hidden="true" />
-                            </div>
-                            <h2 className="mb-1 text-2xl font-bold tracking-tight">
-                                <Link href={s.href} className="transition-colors hover:text-primary">
-                                    {s.title}
+        <DeckPage>
+            <PageHeroSlide
+                id={INTRO_ID}
+                label={t.eyebrow}
+                title={t.title}
+                highlight={t.highlight}
+                description={t.intro}
+                breadcrumb={[{ label: breadcrumb.home, href: links.home }, { label: breadcrumb.services }]}
+            />
+            {services.items.map((service, i) => (
+                <Slide key={service.href} id={service.href.split("/").pop() ?? `service-${i}`} label={service.title} labelledBy={`service-${i}-title`}>
+                    {service.image && (
+                        <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 hidden w-[46%] lg:block">
+                            <Image src={service.image} alt="" fill sizes="46vw" className="object-cover opacity-50 [mask-image:linear-gradient(to_right,transparent,black_45%)]" />
+                            <div className="absolute inset-0 bg-gradient-to-r from-background via-background/40 to-background/10" />
+                        </div>
+                    )}
+                    <span aria-hidden="true" className="display pointer-events-none absolute -bottom-[0.12em] left-[2vw] select-none text-[clamp(10rem,28vw,26rem)] leading-none text-foreground/[0.035]">
+                        {padIndex(i + 1)}
+                    </span>
+                    <div className="wrap relative flex flex-col pb-28 pt-24 lg:min-h-[100svh] lg:pt-32">
+                        <div className="max-w-2xl">
+                            <p className="eyebrow reveal">
+                                <span className="eyebrow-dot" aria-hidden="true" />
+                                {padIndex(i + 1)} / {padIndex(services.items.length)} · {service.subtitle}
+                            </p>
+                            <h2 id={`service-${i}-title`} className="display-lg reveal mt-6">
+                                <Link href={service.href} className="transition-colors hover:text-brand-bright">
+                                    {service.title}
                                 </Link>
                             </h2>
-                            <p className="mb-4 text-sm text-muted-foreground">{s.subtitle}</p>
-                            <p className="mb-6 flex-1 text-sm leading-relaxed text-muted-foreground">{s.description}</p>
-
-                            {s.highlights.length > 0 && (
-                                <>
-                                    <h3 className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                                        {labels.subServices}
-                                    </h3>
-                                    <ul className="mb-6 space-y-2">
-                                        {s.highlights.map((h) => (
-                                            <li key={h.href}>
-                                                <Link href={h.href} className="text-sm text-foreground/80 transition-colors hover:text-primary">
+                            <p className="lede reveal mt-8">{service.description}</p>
+                            <p className="reveal mt-6 flex flex-wrap gap-x-4 gap-y-1 font-mono text-[11px] uppercase tracking-[0.1em] text-foreground/40">
+                                {service.tags.map((tag) => (
+                                    <span key={tag}>{tag}</span>
+                                ))}
+                            </p>
+                            {service.highlights.length > 0 && (
+                                <div className="reveal mt-10">
+                                    <h3 className="eyebrow">{t.subServices}</h3>
+                                    <ul className="mt-4 border-t border-foreground/10">
+                                        {service.highlights.map((h) => (
+                                            <li key={h.href} className="border-b border-foreground/10">
+                                                <Link href={h.href} className="group flex items-center justify-between gap-4 py-4 text-lg font-medium">
                                                     {h.label}
+                                                    <ArrowUpRight className="size-5 text-foreground/40 transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-brand-bright" aria-hidden="true" />
                                                 </Link>
                                             </li>
                                         ))}
                                     </ul>
-                                </>
+                                </div>
                             )}
-
-                            <Link href={s.href} className="inline-flex items-center gap-1 text-sm font-medium text-primary">
-                                {labels.learnMore}
-                                <span className="sr-only">: {s.title}</span>
-                                <ArrowRight className="size-4" aria-hidden="true" />
+                            <Link href={service.href} className="reveal group mt-10 inline-flex items-center gap-2 border-b border-foreground/25 pb-1 text-sm font-semibold hover:border-foreground">
+                                {t.learnMore}
+                                <span className="sr-only">: {service.title}</span>
+                                <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
                             </Link>
-                        </article>
-                    ))}
-                </div>
-            </section>
-
-            <section aria-labelledby="services-cta-heading" className="relative py-24">
-                <div className="absolute inset-0 grid-bg" />
-                <div className="relative z-10 mx-auto max-w-3xl px-6 text-center">
-                    <h2 id="services-cta-heading" className="mb-6 text-3xl font-bold tracking-tight sm:text-4xl">
-                        {labels.ctaTitle}
-                    </h2>
-                    <p className="mx-auto mb-8 max-w-xl text-lg leading-relaxed text-muted-foreground">{labels.ctaText}</p>
-                    <Link
-                        href={contactHref}
-                        className="inline-flex h-11 items-center gap-1 rounded-md bg-primary px-8 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-                    >
-                        {labels.ctaButton}
-                        <ArrowRight className="ml-1 size-4" aria-hidden="true" />
-                    </Link>
-                </div>
-            </section>
-        </>
+                        </div>
+                    </div>
+                </Slide>
+            ))}
+            <CtaSlide id={CTA_ID} label={t.ctaTitle} title={t.ctaTitle} text={t.ctaText} action={{ label: t.ctaButton, href: links.contact }} />
+        </DeckPage>
     );
 }

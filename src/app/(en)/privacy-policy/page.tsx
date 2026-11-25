@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
+import { LegalPage } from "@/components/slides/LegalPage";
 import { PRIVACY_META } from "./seo";
 import { COMPANY } from "@/config/site";
 import { SITE } from "@/config/seo";
@@ -20,27 +18,14 @@ const LAST_UPDATED = "March 17, 2026";
 
 export default function PrivacyPolicyPage() {
     return (
-        <div className="min-h-screen bg-background">
+        <>
             <JsonLd
                 data={breadcrumbSchema([
                     { name: "Home", url: SITE.url },
                     { name: "Privacy Policy", url: `${SITE.url}/privacy-policy` },
                 ])}
             />
-            <Navbar />
-
-            <main className="mx-auto max-w-3xl px-6 pb-24 pt-32">
-                <div className="mb-12">
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                        Legal
-                    </p>
-                    <h1 className="mb-4 text-4xl font-bold tracking-tight">Privacy Policy</h1>
-                    <p className="text-sm text-muted-foreground">
-                        Last updated: {LAST_UPDATED}
-                    </p>
-                </div>
-
-                <div className="prose prose-lg max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-foreground prose-p:text-foreground/80 prose-p:leading-relaxed prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-li:text-foreground/80 prose-strong:text-foreground prose-hr:border-border">
+            <LegalPage home={{ label: "Home", href: "/" }} title="Privacy Policy" updated={`Last updated: ${LAST_UPDATED}`}>
 
                     <p>
                         {COMPANY.name} ({COMPANY.legalName}) (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) operates{" "}
@@ -179,14 +164,7 @@ export default function PrivacyPolicyPage() {
                         <a href={`tel:${COMPANY.phone.replace(/\s/g, "")}`}>{COMPANY.phone}</a><br />
                         <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>
                     </p>
-                </div>
-
-                <div className="mt-12 flex gap-4 text-sm">
-                    <Link href="/" className="text-primary hover:underline">← Back to Home</Link>
-                </div>
-            </main>
-
-            <Footer />
-        </div>
+            </LegalPage>
+        </>
     );
 }

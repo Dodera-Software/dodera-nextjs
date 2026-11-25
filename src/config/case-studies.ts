@@ -23,6 +23,12 @@ export interface CaseStudy {
  * shown where it is known (freight project).
  */
 
+export const CASE_STUDY_SERVICES: Record<CaseStudy["id"], string[]> = {
+    "freight-automation": ["ai-development/ai-powered-automations", "ai-development"],
+    "saas-reporting": ["software-development", "software-development/enterprise-platforms"],
+    "clinic-booking": ["software-development", "software-development/saas-products"],
+};
+
 export const CASE_STUDIES: CaseStudy[] = [
     {
         id: "freight-automation",

@@ -32,7 +32,7 @@ export const SITE = {
     tagline: "Custom Software & AI Development",
     url: "https://doderasoft.com",
     locale: "en_US",
-    themeColor: "#e1432b",
+    themeColor: "#0a0a0c",
     email: "office@doderasoft.com",
     /** Display format (national). */
     phone: "0748 650 469",

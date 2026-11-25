@@ -96,11 +96,6 @@ const ALL_PATHS: LocalePaths[] = [
     ...Object.values(CASE_STUDY_PATHS),
 ];
 
-/** Locale implied by a pathname. */
-export function localeOfPath(pathname: string): Locale {
-    return pathname === "/ro" || pathname.startsWith("/ro/") ? "ro" : "en";
-}
-
 /**
  * The equivalent of `pathname` in `target` — used by the language switcher.
  * Pages without a translation fall back to the target locale's homepage.

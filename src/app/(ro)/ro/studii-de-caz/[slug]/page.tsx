@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { JsonLd } from "@/components/JsonLd";
-import { CaseStudyPage, caseStudyDescription } from "@/components/CaseStudyPage";
+import { CaseStudyPage } from "@/components/CaseStudyPage";
 import { SITE } from "@/config/seo";
 import { getDictionary } from "@/i18n/dictionaries";
 import { CASE_STUDY_PATHS, STATIC_PATHS } from "@/i18n/paths";
@@ -26,12 +24,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const cs = find((await params).slug);
     if (!cs) return {};
     const title = cs.seoTitle ?? cs.headline;
-    const description = caseStudyDescription("ro", cs);
+    const description = getDictionary("ro").caseStudyPage.description(cs);
     return {
         title,
         description,
         alternates: alternatesFor(`case:${cs.id}`, "ro"),
-        openGraph: { title, description, url: absoluteUrl(CASE_STUDY_PATHS[cs.id].ro!), type: "article", siteName: SITE.name },
+        openGraph: { title, description, url: absoluteUrl(CASE_STUDY_PATHS[cs.id].ro!), type: "article", siteName: SITE.name, images: [{ url: "/og-images/og-case-studies-ro.png", width: 1200, height: 630, alt: SITE.name }] },
     };
 }
 
@@ -41,7 +39,7 @@ export default async function CaseStudyPageRo({ params }: PageProps) {
     const url = absoluteUrl(CASE_STUDY_PATHS[cs.id].ro!);
 
     return (
-        <div className="min-h-screen bg-background">
+        <>
             <JsonLd
                 data={[
                     breadcrumbSchema([
@@ -49,14 +47,10 @@ export default async function CaseStudyPageRo({ params }: PageProps) {
                         { name: "Studii de caz", url: absoluteUrl(STATIC_PATHS.caseStudies.ro) },
                         { name: cs.headline, url },
                     ]),
-                    caseStudySchema({ headline: cs.headline, description: caseStudyDescription("ro", cs), url, industry: cs.industry, locale: "ro" }),
+                    caseStudySchema({ headline: cs.headline, description: getDictionary("ro").caseStudyPage.description(cs), url, industry: cs.industry, locale: "ro" }),
                 ]}
             />
-            <Navbar />
-            <main>
-                <CaseStudyPage locale="ro" caseStudy={cs} />
-            </main>
-            <Footer />
-        </div>
+            <CaseStudyPage locale="ro" caseStudy={cs} />
+        </>
     );
 }

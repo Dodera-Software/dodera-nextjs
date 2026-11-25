@@ -1,13 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Inbox, MapPin, Clock, ChevronDown, ChevronUp } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { ArrowRight, Clock, Inbox, MapPin, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ApplyModal, type ApplyJobInfo } from "@/components/ApplyModal";
-import { useLocale } from "@/i18n/LocaleProvider";
-import { fadeInUp, fadeInUpLg, viewportOnce, stagger } from "@/lib/animations";
+import { DeckPage } from "@/components/slides/DeckPage";
+import { PageHeroSlide } from "@/components/slides/PageHeroSlide";
+import { SplitSlide } from "@/components/slides/SplitSlide";
+import { SlideTone } from "@/config/ui";
+import { SITE } from "@/config/seo";
+import { padIndex } from "@/lib/format";
+import { useDict } from "@/i18n/LocaleProvider";
 
 interface JobOpening {
     id: number;
@@ -16,99 +20,23 @@ interface JobOpening {
     location: string;
     type: string;
     description: string | null;
-    apply_url: string | null;
 }
 
-const WHY_ITEMS_EN = [
-    {
-        title: "Real ownership",
-        body: "Every engineer owns their work end-to-end. You design, build, and ship features that reach real users.",
-    },
-    {
-        title: "Fully remote",
-        body: "Working from everywhere you are most productive. We are built for distributed collaboration across time zones.",
-    },
-    {
-        title: "High-impact projects",
-        body: "Our clients range from seed-stage startups to established companies. You will work on meaningful problems with tangible results.",
-    },
-    {
-        title: "Modern tech stack",
-        body: "Next.js, TypeScript, Laravel, AI tooling. We use the best tools for the job and stay current with the ecosystem.",
-    },
-    {
-        title: "Transparent culture",
-        body: "Honest feedback, clear expectations and a proactive mindset. We communicate openly and resolve issues before they become problems.",
-    },
-    {
-        title: "Competitive rates",
-        body: "We value great work and pay accordingly, with engagement models flexible enough to suit contractors and full-time team members alike.",
-    },
-];
+enum CareersSlide {
+    Intro = "intro",
+    Openings = "openings",
+    Why = "why",
+}
 
-const WHY_ITEMS_RO = [
-    {
-        title: "Responsabilitate reală",
-        body: "Fiecare inginer își duce munca de la cap la coadă: proiectează, construiește și publică funcționalități folosite de utilizatori reali.",
-    },
-    {
-        title: "Lucru de la distanță",
-        body: "Lucrați de unde sunteți cel mai productiv. Suntem obișnuiți să colaborăm la distanță, în fusuri orare diferite.",
-    },
-    {
-        title: "Proiecte care contează",
-        body: "Clienții noștri sunt atât startupuri, cât și companii consacrate. Veți lucra la probleme reale, cu rezultate pe care le vedeți.",
-    },
-    {
-        title: "Tehnologii moderne",
-        body: "Next.js, TypeScript, Laravel, instrumente AI. Folosim cele mai potrivite instrumente pentru fiecare proiect și ținem pasul cu ele.",
-    },
-    {
-        title: "Cultură transparentă",
-        body: "Feedback sincer, așteptări clare și inițiativă. Comunicăm deschis și rezolvăm problemele înainte să devină probleme mari.",
-    },
-    {
-        title: "Plată corectă",
-        body: "Apreciem munca bună și o plătim pe măsură, cu forme de colaborare potrivite atât pentru colaboratori, cât și pentru angajați.",
-    },
-];
-
-/* Static copy; job postings themselves come from the admin (/api/careers) as written there. */
-const COPY = {
-    en: {
-        eyebrow: "Careers",
-        titleA: "Be part of",
-        titleB: "team.",
-        lead: "We are a small, focused team of engineers and designers who care deeply about craft and ownership. We move fast, communicate openly, and build things that matter for clients around the world. If you are passionate about tech, you already belong here.",
-        openTitle: "Open Positions",
-        noneTitle: "No open positions right now",
-        noneText: "We don't have any positions open at the moment. If you have a standout skill and think you belong on this team, send us a message. We'd love to meet you.",
-        contact: "Contact Us",
-        apply: "Apply for this position",
-        whyTitle: "Why join Dodera?",
-        why: WHY_ITEMS_EN,
-    },
-    ro: {
-        eyebrow: "Cariere",
-        titleA: "Alăturați-vă echipei",
-        titleB: "",
-        lead: "Suntem o echipă mică și concentrată de ingineri și designeri cărora le pasă cu adevărat de calitate și de responsabilitate. Lucrăm repede, comunicăm deschis și construim lucruri care contează pentru clienți din întreaga lume. Dacă sunteți pasionat de tehnologie, locul dumneavoastră este aici.",
-        openTitle: "Posturi disponibile",
-        noneTitle: "Momentan nu avem posturi deschise",
-        noneText: "Nu avem posturi deschise în acest moment. Dacă aveți o abilitate care vă diferențiază și credeți că vă potriviți în echipă, scrieți-ne. Ne-ar face plăcere să vă cunoaștem.",
-        contact: "Scrieți-ne",
-        apply: "Aplicați pentru acest post",
-        whyTitle: "De ce Dodera?",
-        why: WHY_ITEMS_RO,
-    },
-} as const;
+enum JobsState {
+    Loading = "loading",
+    Ready = "ready",
+}
 
 export function CareersPageContent() {
-    const t = COPY[useLocale()];
-    const WHY_ITEMS = t.why;
+    const { careers: t, breadcrumb, links } = useDict();
     const [openings, setOpenings] = useState<JobOpening[]>([]);
-    const [loadingJobs, setLoadingJobs] = useState(true);
-    const [expandedId, setExpandedId] = useState<number | null>(null);
+    const [state, setState] = useState(JobsState.Loading);
     const [applyJob, setApplyJob] = useState<ApplyJobInfo | null>(null);
 
     useEffect(() => {
@@ -117,212 +45,91 @@ export function CareersPageContent() {
             .then((d) => {
                 if (d.status === "success") setOpenings(d.data);
             })
-            .catch(() => { })
-            .finally(() => setLoadingJobs(false));
+            .catch(() => {})
+            .finally(() => setState(JobsState.Ready));
     }, []);
 
     return (
-        <>
-            {/* Hero */}
-            <section aria-labelledby="careers-hero-heading" className="relative pb-10 pt-32">
-                <div className="absolute inset-0 grid-bg" />
-                <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
-                    <motion.p
-                        variants={fadeInUp}
-                        initial="hidden"
-                        animate="visible"
-                        transition={{ duration: 0.4 }}
-                        className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted-foreground"
-                    >
-                        {t.eyebrow}
-                    </motion.p>
-                    <motion.h1
-                        id="careers-hero-heading"
-                        variants={fadeInUpLg}
-                        initial="hidden"
-                        animate="visible"
-                        transition={{ duration: 0.4, delay: 0.08 }}
-                        className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl"
-                    >
-                        {t.titleA}{" "}
-                        <span className="whitespace-nowrap text-primary">Dodera Software</span>{" "}
-                        {t.titleB}
-                    </motion.h1>
-                    <motion.p
-                        variants={fadeInUp}
-                        initial="hidden"
-                        animate="visible"
-                        transition={{ duration: 0.4, delay: 0.16 }}
-                        className="mx-auto max-w-2xl text-lg leading-relaxed text-muted-foreground"
-                    >
-                        {t.lead}
-                    </motion.p>
-                </div>
-            </section>
+        <DeckPage>
+            <PageHeroSlide
+                id={CareersSlide.Intro}
+                label={t.eyebrow}
+                title={t.title}
+                highlight={t.highlight}
+                description={t.lead}
+                breadcrumb={[{ label: breadcrumb.home, href: links.home }, { label: t.eyebrow }]}
+            />
 
-            {/* Open Positions */}
-            <section aria-labelledby="open-roles-heading" className="relative py-12">
-                <div className="relative z-10 mx-auto max-w-3xl px-6">
-                    <motion.h2
-                        id="open-roles-heading"
-                        variants={fadeInUp}
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={viewportOnce}
-                        className="mb-8 text-center text-2xl font-bold tracking-tight sm:text-3xl"
-                    >
-                        {t.openTitle}
-                    </motion.h2>
-
-                    {loadingJobs ? (
-                        <div className="flex justify-center py-10">
-                            <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <SplitSlide id={CareersSlide.Openings} label={t.openTitle} eyebrow={t.eyebrow} title={t.openTitle} tone={SlideTone.Glow}>
+                {state === JobsState.Loading ? (
+                    <div className="flex py-10" role="status">
+                        <div className="size-6 animate-spin rounded-full border-2 border-brand-bright border-t-transparent" />
+                    </div>
+                ) : openings.length === 0 ? (
+                    <div className="glass reveal flex flex-col items-start gap-6 rounded-3xl p-10">
+                        <span className="grid size-14 place-items-center rounded-2xl border border-foreground/10 bg-foreground/5">
+                            <Inbox className="size-6 text-muted-foreground" aria-hidden="true" />
+                        </span>
+                        <div>
+                            <h3 className="display text-2xl">{t.noneTitle}</h3>
+                            <p className="mt-3 max-w-[52ch] leading-relaxed text-muted-foreground">{t.noneText}</p>
                         </div>
-                    ) : openings.length === 0 ? (
-                        <motion.div
-                            variants={fadeInUpLg}
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={viewportOnce}
-                            className="flex flex-col items-center gap-6 text-center"
-                        >
-                            <div className="flex size-16 items-center justify-center rounded-2xl border border-border bg-card">
-                                <Inbox className="size-7 text-muted-foreground" />
-                            </div>
-                            <div>
-                                <h3 className="mb-3 text-xl font-bold tracking-tight">
-                                    {t.noneTitle}
-                                </h3>
-                                <p className="text-base leading-relaxed text-muted-foreground">
-                                    {t.noneText}
-                                </p>
-                            </div>
-                            <Button size="lg" asChild>
-                                <Link href="mailto:office@doderasoft.com">
-                                    {t.contact}
-                                    <ArrowRight className="ml-1 size-4" />
-                                </Link>
-                            </Button>
-                        </motion.div>
-                    ) : (
-                        <div className="space-y-4">
-                            {openings.map((job, i) => (
-                                <motion.div
-                                    key={job.id}
-                                    variants={fadeInUpLg}
-                                    initial="hidden"
-                                    whileInView="visible"
-                                    viewport={viewportOnce}
-                                    transition={stagger(i)}
-                                    className="rounded-xl border border-border bg-card overflow-hidden"
-                                >
-                                    {/* Header row — always visible */}
-                                    <button
-                                        onClick={() => setExpandedId(expandedId === job.id ? null : job.id)}
-                                        className="w-full text-left px-6 py-5 flex items-start justify-between gap-4 hover:bg-muted/30 transition-colors"
-                                        aria-expanded={expandedId === job.id}
-                                    >
-                                        <div className="flex-1">
-                                            <h3 className="text-lg font-semibold">{job.title}</h3>
-                                            {job.department && (
-                                                <p className="mt-0.5 text-sm text-muted-foreground">{job.department}</p>
-                                            )}
-                                            <div className="mt-2 flex flex-wrap gap-3 text-xs text-muted-foreground">
-                                                <span className="flex items-center gap-1">
-                                                    <MapPin className="size-3.5" />
+                        <Button size="pill" asChild>
+                            <Link href={`mailto:${SITE.email}`}>
+                                {t.contact}
+                                <ArrowRight aria-hidden="true" />
+                            </Link>
+                        </Button>
+                    </div>
+                ) : (
+                    <ul className="border-t border-foreground/10">
+                        {openings.map((job) => (
+                            <li key={job.id} className="reveal border-b border-foreground/10">
+                                <details className="group">
+                                    <summary className="flex cursor-pointer list-none items-start justify-between gap-6 py-6 [&::-webkit-details-marker]:hidden">
+                                        <span>
+                                            <span className="display block text-2xl">{job.title}</span>
+                                            {job.department && <span className="mt-1 block text-sm text-muted-foreground">{job.department}</span>}
+                                            <span className="mt-3 flex flex-wrap gap-4 font-mono text-xs uppercase tracking-[0.08em] text-muted-foreground">
+                                                <span className="flex items-center gap-1.5">
+                                                    <MapPin className="size-3.5" aria-hidden="true" />
                                                     {job.location}
                                                 </span>
-                                                <span className="flex items-center gap-1">
-                                                    <Clock className="size-3.5" />
+                                                <span className="flex items-center gap-1.5">
+                                                    <Clock className="size-3.5" aria-hidden="true" />
                                                     {job.type}
                                                 </span>
-                                            </div>
-                                        </div>
-                                        <div className="shrink-0 mt-1 text-muted-foreground">
-                                            {expandedId === job.id ? (
-                                                <ChevronUp className="size-5" />
-                                            ) : (
-                                                <ChevronDown className="size-5" />
-                                            )}
-                                        </div>
-                                    </button>
-
-                                    {/* Expandable body */}
-                                    <AnimatePresence initial={false}>
-                                        {expandedId === job.id && (
-                                            <motion.div
-                                                key="body"
-                                                initial={{ height: 0, opacity: 0 }}
-                                                animate={{ height: "auto", opacity: 1 }}
-                                                exit={{ height: 0, opacity: 0 }}
-                                                transition={{ duration: 0.25, ease: "easeInOut" }}
-                                                className="overflow-hidden"
-                                            >
-                                                <div className="px-6 pb-6 border-t border-border pt-4 space-y-4">
-                                                    {job.description && (
-                                                        <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
-                                                            {job.description}
-                                                        </p>
-                                                    )}
-                                                    <Button onClick={() => setApplyJob({ id: job.id, title: job.title })}>
-                                                        {t.apply}
-                                                        <ArrowRight className="ml-1 size-4" />
-                                                    </Button>
-                                                </div>
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
-                                </motion.div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            </section>
-
-            {/* Apply modal */}
-            {applyJob && (
-                <ApplyModal
-                    job={applyJob}
-                    open={!!applyJob}
-                    onOpenChange={(open) => { if (!open) setApplyJob(null); }}
-                />
-            )}
-
-            {/* Why Dodera */}
-            <section aria-labelledby="why-heading" className="relative py-20 bg-card/30 overflow-hidden">
-                {/* Red glow */}
-                <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-primary/10 blur-3xl" />
-                <div className="relative mx-auto max-w-4xl px-6">
-                    <motion.div
-                        variants={fadeInUp}
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={viewportOnce}
-                        className="mb-12 text-center"
-                    >
-                        <h2 id="why-heading" className="text-3xl font-bold tracking-tight sm:text-4xl">
-                            {t.whyTitle}
-                        </h2>
-                    </motion.div>
-
-                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                        {WHY_ITEMS.map((item, i) => (
-                            <motion.div
-                                key={item.title}
-                                variants={fadeInUpLg}
-                                initial="hidden"
-                                whileInView="visible"
-                                viewport={viewportOnce}
-                                transition={stagger(i)}
-                                className="rounded-xl border border-border bg-card p-6"
-                            >
-                                <h3 className="mb-2 text-base font-semibold">{item.title}</h3>
-                                <p className="text-sm leading-relaxed text-muted-foreground">{item.body}</p>
-                            </motion.div>
+                                            </span>
+                                        </span>
+                                        <Plus className="mt-2 size-5 shrink-0 text-foreground/50 transition-transform duration-300 group-open:rotate-45" aria-hidden="true" />
+                                    </summary>
+                                    <div className="space-y-6 pb-8">
+                                        {job.description && <p className="whitespace-pre-line text-[0.95rem] leading-relaxed text-muted-foreground">{job.description}</p>}
+                                        <Button size="pill" onClick={() => setApplyJob({ id: job.id, title: job.title })}>
+                                            {t.apply}
+                                            <ArrowRight aria-hidden="true" />
+                                        </Button>
+                                    </div>
+                                </details>
+                            </li>
                         ))}
-                    </div>
-                </div>
-            </section>
-        </>
+                    </ul>
+                )}
+            </SplitSlide>
+
+            <SplitSlide id={CareersSlide.Why} label={t.whyTitle} eyebrow={t.whyLabel} title={t.whyTitle} tone={SlideTone.Raised}>
+                <ol className="grid gap-px overflow-hidden rounded-3xl border border-foreground/10 bg-foreground/10 sm:grid-cols-2">
+                    {t.why.map((item, i) => (
+                        <li key={item.title} className="reveal bg-card p-7">
+                            <span className="font-mono text-xs text-brand-bright">{padIndex(i + 1)}</span>
+                            <h3 className="display mt-5 text-xl leading-tight">{item.title}</h3>
+                            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
+                        </li>
+                    ))}
+                </ol>
+            </SplitSlide>
+
+            {applyJob && <ApplyModal job={applyJob} open onOpenChange={(open) => !open && setApplyJob(null)} />}
+        </DeckPage>
     );
 }

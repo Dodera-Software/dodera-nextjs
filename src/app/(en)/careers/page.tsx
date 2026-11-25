@@ -1,8 +1,5 @@
 import type { Metadata } from "next";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { JsonLd } from "@/components/JsonLd";
-import { ScrollManager } from "@/components/ScrollManager";
 import { SITE } from "@/config/seo";
 import { alternatesFor } from "@/i18n/routes";
 import { CAREERS_META } from "./seo";
@@ -43,7 +40,7 @@ export const metadata: Metadata = {
 
 export default function CareersPage() {
     return (
-        <div className="min-h-screen bg-background">
+        <>
             <JsonLd
                 data={[
                     breadcrumbSchema([
@@ -52,13 +49,8 @@ export default function CareersPage() {
                     ]),
                 ]}
             />
-            <ScrollManager />
-            <Navbar />
-            <main>
-                <CareersPageContent />
-            </main>
-            <Footer />
-        </div>
+            <CareersPageContent />
+        </>
     );
 }
 

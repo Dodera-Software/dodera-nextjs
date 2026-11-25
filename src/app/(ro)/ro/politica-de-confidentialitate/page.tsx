@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
+import { LegalPage } from "@/components/slides/LegalPage";
 import { JsonLd } from "@/components/JsonLd";
 import { COMPANY } from "@/config/site";
 import { SITE } from "@/config/seo";
@@ -27,27 +26,14 @@ const LAST_UPDATED = "17 martie 2026";
 
 export default function PrivacyPolicyRo() {
     return (
-        <div className="min-h-screen bg-background">
+        <>
             <JsonLd
                 data={breadcrumbSchema([
                     { name: "Acasă", url: absoluteUrl("/ro") },
                     { name: "Politica de confidențialitate", url: absoluteUrl(STATIC_PATHS.privacy.ro) },
                 ])}
             />
-            <Navbar />
-
-            <main className="mx-auto max-w-3xl px-6 pb-24 pt-32">
-                <div className="mb-12">
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                        Informații legale
-                    </p>
-                    <h1 className="mb-4 text-4xl font-bold tracking-tight">Politica de confidențialitate</h1>
-                    <p className="text-sm text-muted-foreground">
-                        Ultima actualizare: {LAST_UPDATED}
-                    </p>
-                </div>
-
-                <div className="prose prose-lg max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-foreground prose-p:text-foreground/80 prose-p:leading-relaxed prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-li:text-foreground/80 prose-strong:text-foreground prose-hr:border-border">
+            <LegalPage home={{ label: "Acasă", href: "/ro" }} title="Politica de confidențialitate" updated={`Ultima actualizare: ${LAST_UPDATED}`}>
 
                     <p>
                         {COMPANY.name} ({COMPANY.legalName}) („noi”) administrează site-ul{" "}
@@ -187,14 +173,7 @@ export default function PrivacyPolicyRo() {
                         Varianta în limba engleză a acestei politici este disponibilă la{" "}
                         <Link href={STATIC_PATHS.privacy.en} hrefLang="en">Privacy Policy</Link>.
                     </p>
-                </div>
-
-                <div className="mt-12 flex gap-4 text-sm">
-                    <Link href="/ro" className="text-primary hover:underline">← Înapoi la pagina principală</Link>
-                </div>
-            </main>
-
-            <Footer />
-        </div>
+            </LegalPage>
+        </>
     );
 }
