@@ -1,5 +1,6 @@
 import { PRODUCTS } from "@/config/products";
 import { blogPostPath } from "@/config/blog";
+import { getIndexedPostSources } from "@/lib/blog";
 import { SITE } from "@/config/seo";
 import { SERVICE_PAGES } from "@/config/services";
 import { SERVICE_PAGES_RO } from "@/config/services.ro";
@@ -12,6 +13,15 @@ import type { BlogPost, ServicePageData } from "@/types";
 export type LlmsPost = BlogPost & { markdown: string };
 
 export const LLMS_LATEST_POSTS = 10;
+
+export async function llmsPosts(locale: Locale): Promise<LlmsPost[]> {
+    try {
+        return await getIndexedPostSources(locale);
+    } catch (error) {
+        console.error("[llms] blog posts unavailable, serving without them", error);
+        return [];
+    }
+}
 
 const SERVICE_DATA: Record<Locale, Record<string, ServicePageData>> = { en: SERVICE_PAGES, ro: SERVICE_PAGES_RO };
 
