@@ -62,7 +62,7 @@ export function LeadTimeline({ lead }: { lead: LeadDetail }) {
         <AdminPanel title={copy.timeline.title} description={copy.timeline.description}>
             <div className="space-y-6">
                 <Form {...form}>
-                    <form onSubmit={submit} className="space-y-2">
+                    <form noValidate onSubmit={submit} className="space-y-2">
                         <FormField
                             control={form.control}
                             name="body"

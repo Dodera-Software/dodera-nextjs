@@ -2,7 +2,7 @@
 
 import { CheckCircle2, ChevronDown, ExternalLink, Info, Lock, Scale, Send } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { outreachRuleFor, OUTREACH_RULES } from "@/config/outreach-rules";
+import { OutreachApproach, outreachRuleFor, OUTREACH_RULES } from "@/config/outreach-rules";
 import { leadsCopy as copy } from "@/i18n/admin/leads";
 import { cn } from "@/lib/utils";
 
@@ -20,7 +20,7 @@ export function OutreachRuleNote({ country }: { country: string }) {
         );
     }
 
-    const direct = rule.approach === "direct";
+    const direct = rule.approach === OutreachApproach.Direct;
 
     return (
         <div className="space-y-2 rounded-2xl border border-foreground/10 bg-foreground/[0.03] px-3.5 py-3 text-xs">

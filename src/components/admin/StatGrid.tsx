@@ -16,7 +16,7 @@ export function StatGrid({ children, className }: { children: ReactNode; classNa
     return (
         <div
             className={cn(
-                "grid grid-cols-2 gap-px overflow-hidden rounded-3xl border border-foreground/10 bg-foreground/10 xl:grid-cols-4",
+                "grid grid-cols-2 gap-px overflow-hidden rounded-3xl border border-foreground/10 bg-foreground/10 xl:grid-cols-4 [&>*:last-child:nth-child(odd)]:col-span-2 xl:[&>*:last-child:nth-child(odd)]:col-span-1",
                 className,
             )}
         >

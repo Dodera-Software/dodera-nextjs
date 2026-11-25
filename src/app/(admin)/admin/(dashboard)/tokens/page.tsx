@@ -262,7 +262,7 @@ function CreateTokenDialog({
                     <DialogDescription>{copy.create.description}</DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit((values) => create.mutate(values))} className="space-y-4">
+                    <form noValidate onSubmit={form.handleSubmit((values) => create.mutate(values))} className="space-y-4">
                         <FormField
                             control={form.control}
                             name="name"
@@ -330,7 +330,7 @@ function RenameTokenForm({ token, onDone }: { token: ApiToken; onDone: () => voi
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit((values) => rename.mutate(values))} className="space-y-4">
+            <form noValidate onSubmit={form.handleSubmit((values) => rename.mutate(values))} className="space-y-4">
                 <FormField
                     control={form.control}
                     name="name"

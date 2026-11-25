@@ -91,7 +91,7 @@ function ProjectForm({ project, domain, onDone }: { project?: MockupProjectDetai
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit((values) => save.mutate(values))} className="space-y-4">
+            <form noValidate onSubmit={form.handleSubmit((values) => save.mutate(values))} className="space-y-4">
                 <FormField
                     control={form.control}
                     name="name"

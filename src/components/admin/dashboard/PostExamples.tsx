@@ -104,7 +104,7 @@ export function PostExamples() {
                     <p className="text-sm text-muted-foreground/70">{copy.empty}</p>
                 )}
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit((v) => add.mutate(v.content))} className="space-y-3">
+                    <form noValidate onSubmit={form.handleSubmit((v) => add.mutate(v.content))} className="space-y-3">
                         <FormField
                             control={form.control}
                             name="content"

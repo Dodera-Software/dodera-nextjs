@@ -123,7 +123,7 @@ export default function WelcomeEmailPage() {
 
             <AdminPanel>
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit((values) => save.mutate(values))} className="max-w-xl">
+                    <form noValidate onSubmit={form.handleSubmit((values) => save.mutate(values))} className="max-w-xl">
                         <FormField
                             control={form.control}
                             name="subject"

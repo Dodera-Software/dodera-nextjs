@@ -155,7 +155,7 @@ export default function GenerateImagePage() {
             <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)]">
                 <AdminPanel className="lg:sticky lg:top-6">
                     <Form {...form}>
-                        <form onSubmit={submit} className="space-y-5">
+                        <form noValidate onSubmit={submit} className="space-y-5">
                             <FormField
                                 control={form.control}
                                 name="prompt"

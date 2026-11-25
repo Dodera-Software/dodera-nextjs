@@ -196,7 +196,7 @@ export default function SendEmailPage() {
     return (
         <AdminPage eyebrow={copy.eyebrow} title={copy.title} description={copy.description} actions={<SmtpStatus />}>
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <form noValidate onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                     <AdminPanel>
                         <div className="space-y-6">
                             <FormField
