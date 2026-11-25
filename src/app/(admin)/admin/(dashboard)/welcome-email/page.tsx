@@ -1,186 +1,155 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useCallback, useEffect, useRef, useState } from "react";
-import type { EditorRef } from "react-email-editor";
-import { Save, Loader2, RotateCcw, MailCheck } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { toast } from "sonner";
-import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import type { Editor, EditorRef } from "react-email-editor";
+import { Info, Loader2, RotateCcw, Save } from "lucide-react";
+import { AdminPage } from "@/components/admin/AdminPage";
+import { AdminPanel } from "@/components/admin/AdminPanel";
+import { Alert } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
+import { AdminQueryKey } from "@/config/admin";
+import { WELCOME_EDITOR } from "@/config/admin-email";
+import { StatusTone } from "@/config/ui";
+import { useAdminMutation } from "@/hooks/use-admin";
+import { emailCopy } from "@/i18n/admin/email";
+import { adminFetch } from "@/lib/admin-api";
 
-/* Unlayer editor — client-only (needs window / iframe) */
-const EmailEditor = dynamic(
-    () => import("react-email-editor"),
-    {
-        ssr: false,
-        loading: () => (
-            <div className="flex items-center justify-center" style={{ height: 640 }}>
-                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-            </div>
-        ),
-    },
-);
+const copy = emailCopy.welcome;
 
-type UnlayerDesign = Record<string, unknown>;
+const EmailEditor = dynamic(() => import("react-email-editor"), {
+    ssr: false,
+    loading: () => <Skeleton className="w-full rounded-none" style={{ height: WELCOME_EDITOR.minHeight }} />,
+});
 
-export default function WelcomeEmailPage() {
-    const [subject, setSubject] = useState("");
-    const [saving, setSaving] = useState(false);
-    const [editorReady, setEditorReady] = useState(false);
-    const editorRef = useRef<EditorRef>(null);
-    /* Holds a design that arrived before the editor iframe was ready */
-    const pendingDesign = useRef<UnlayerDesign | null>(null);
+type UnlayerDesign = Parameters<Editor["loadDesign"]>[0];
 
-    /* ── Load template from API ────────────────────────────────── */
-    const fetchTemplate = useCallback(async () => {
-        try {
-            const res = await fetch("/api/admin/welcome-email-template");
-            const data = await res.json();
-            if (data.status !== "success") throw new Error("Failed to load template");
-
-            setSubject(data.subject ?? "");
-
-            if (data.design) {
-                const design: UnlayerDesign =
-                    typeof data.design === "string" ? JSON.parse(data.design) : data.design;
-                /* If the editor iframe is ready, load immediately; otherwise queue */
-                if (editorRef.current?.editor) {
-                    editorRef.current.editor.loadDesign(design);
-                } else {
-                    pendingDesign.current = design;
-                }
-            }
-        } catch {
-            toast.error("Failed to load welcome email template.");
-        }
-    }, []);
-
-    useEffect(() => {
-        fetchTemplate();
-    }, [fetchTemplate]);
-
-    /* ── Called by Unlayer when the iframe editor is ready ─────── */
-    const onReady = useCallback(() => {
-        setEditorReady(true);
-        if (pendingDesign.current && editorRef.current?.editor) {
-            editorRef.current.editor.loadDesign(pendingDesign.current);
-            pendingDesign.current = null;
-        }
-    }, []);
-
-    /* ── Save ──────────────────────────────────────────────────── */
-    const handleSave = useCallback(() => {
-        if (!subject.trim()) {
-            toast.error("Subject line is required.");
-            return;
-        }
-        if (!editorRef.current?.editor) {
-            toast.error("Editor not ready.");
-            return;
-        }
-
-        setSaving(true);
-        editorRef.current.editor.exportHtml(async ({ design, html }: { design: UnlayerDesign; html: string }) => {
-            try {
-                const res = await fetch("/api/admin/welcome-email-template", {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        subject: subject.trim(),
-                        html,
-                        design: JSON.stringify(design),
-                    }),
-                });
-                const data = await res.json();
-                if (data.status !== "success") throw new Error(data.message ?? "Save failed");
-                toast.success("Welcome email template saved!");
-            } catch (err) {
-                toast.error(err instanceof Error ? err.message : "Failed to save template.");
-            } finally {
-                setSaving(false);
-            }
-        });
-    }, [subject]);
-
-    /* ── Reset: reload design from DB ─────────────────────────── */
-    const handleReset = useCallback(async () => {
-        await fetchTemplate();
-        toast.info("Template reloaded from database.");
-    }, [fetchTemplate]);
-
-    return (
-        <div className="space-y-6">
-            <AdminPageHeader
-                title="Welcome Email"
-                subtitle="Edit the automated email sent to new newsletter subscribers"
-                actions={
-                    <div className="flex items-center gap-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleReset}
-                            disabled={saving}
-                        >
-                            <RotateCcw className="w-4 h-4 mr-1.5" />Reset
-                        </Button>
-                        <Button
-                            size="sm"
-                            onClick={handleSave}
-                            disabled={saving || !editorReady}
-                        >
-                            {saving
-                                ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
-                                : <Save className="w-4 h-4 mr-1.5" />}
-                            Save Template
-                        </Button>
-                    </div>
-                }
-            />
-
-            {/* Info banner */}
-            <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/50 px-4 py-3 text-sm text-muted-foreground">
-                <MailCheck className="w-4 h-4 mt-0.5 shrink-0 text-foreground/60" />
-                <p>
-                    This email is automatically sent to new subscribers (only for first-time subscriptions).
-                    An unsubscribe link is appended automatically when the email is sent.
-                </p>
-            </div>
-
-            {/* Subject */}
-            <div className="space-y-2">
-                <Label htmlFor="welcome-subject">Subject Line</Label>
-                <Input
-                    id="welcome-subject"
-                    value={subject}
-                    onChange={(e) => setSubject(e.target.value)}
-                    placeholder="Welcome to the Dodera newsletter!"
-                    className="max-w-xl"
-                />
-            </div>
-
-            {/* Unlayer drag-and-drop editor */}
-            <div className="space-y-2">
-                <Label>Email Body</Label>
-                <div className="rounded-lg border border-border overflow-hidden">
-                    <EmailEditor
-                        ref={editorRef}
-                        onReady={onReady}
-                        minHeight="640px"
-                        options={{
-                            features: {
-                                devTab: false,
-                            },
-                        }}
-                    />
-                </div>
-                <p className="text-xs text-muted-foreground">
-                    Drag and drop blocks to build your email. An unsubscribe footer is appended automatically when sent.
-                </p>
-            </div>
-        </div>
-    );
+interface WelcomeTemplate {
+    subject: string;
+    html: string;
+    design: string | UnlayerDesign | null;
 }
 
+const schema = z.object({ subject: z.string().trim().min(1, copy.subject.required) });
 
+type Values = z.infer<typeof schema>;
+
+function parseDesign(design: WelcomeTemplate["design"]): UnlayerDesign | null {
+    if (!design) return null;
+    if (typeof design !== "string") return design;
+    try {
+        return JSON.parse(design) as UnlayerDesign;
+    } catch {
+        return null;
+    }
+}
+
+export default function WelcomeEmailPage() {
+    const queryClient = useQueryClient();
+    const editorRef = useRef<EditorRef>(null);
+    const [ready, setReady] = useState(false);
+
+    const template = useQuery({
+        queryKey: [AdminQueryKey.WelcomeEmailTemplate],
+        queryFn: () => adminFetch<WelcomeTemplate>("/api/admin/welcome-email-template"),
+    });
+
+    const form = useForm<Values>({
+        resolver: zodResolver(schema),
+        defaultValues: { subject: "" },
+        values: template.data ? { subject: template.data.subject } : undefined,
+    });
+
+    const design = useMemo(() => parseDesign(template.data?.design ?? null), [template.data]);
+
+    useEffect(() => {
+        if (ready && design) editorRef.current?.editor?.loadDesign(design);
+    }, [ready, design]);
+
+    const save = useAdminMutation({
+        mutationFn: async ({ subject }: Values) => {
+            const editor = editorRef.current?.editor;
+            if (!editor) throw new Error(copy.notReady);
+            const exported = await new Promise<{ design: UnlayerDesign; html: string }>((resolve) =>
+                editor.exportHtml((data: { design: UnlayerDesign; html: string }) => resolve(data)),
+            );
+            return adminFetch("/api/admin/welcome-email-template", {
+                method: "PUT",
+                json: { subject: subject.trim(), html: exported.html, design: JSON.stringify(exported.design) },
+            });
+        },
+        success: copy.saved,
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: [AdminQueryKey.WelcomeEmailTemplate], refetchType: "none" }),
+    });
+
+    async function reset() {
+        const { data } = await template.refetch();
+        if (!data) return;
+        form.reset({ subject: data.subject });
+        const fresh = parseDesign(data.design);
+        if (fresh) editorRef.current?.editor?.loadDesign(fresh);
+        toast.info(copy.reloaded);
+    }
+
+    return (
+        <AdminPage
+            eyebrow={copy.eyebrow}
+            title={copy.title}
+            description={copy.description}
+            actions={
+                <>
+                    <Button variant="glass" size="sm" className="rounded-full" onClick={reset} disabled={save.isPending || template.isFetching}>
+                        <RotateCcw className={template.isFetching ? "animate-spin" : undefined} />
+                        {copy.reset}
+                    </Button>
+                    <Button size="sm" className="rounded-full" onClick={form.handleSubmit((values) => save.mutate(values))} disabled={save.isPending || !ready}>
+                        {save.isPending ? <Loader2 className="animate-spin" /> : <Save />}
+                        {copy.save}
+                    </Button>
+                </>
+            }
+        >
+            <Alert tone={StatusTone.Neutral} icon={Info}>
+                {copy.notice}
+            </Alert>
+
+            <AdminPanel>
+                <Form {...form}>
+                    <form noValidate onSubmit={form.handleSubmit((values) => save.mutate(values))} className="max-w-xl">
+                        <FormField
+                            control={form.control}
+                            name="subject"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>{copy.subject.label}</FormLabel>
+                                    <FormControl>
+                                        <Input {...field} placeholder={copy.subject.placeholder} disabled={template.isPending} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </form>
+                </Form>
+            </AdminPanel>
+
+            <AdminPanel title={copy.body.title} description={copy.body.hint} flush>
+                {template.isError && <p className="border-b border-foreground/[0.07] px-6 py-4 text-sm text-red-400">{template.error.message}</p>}
+                <EmailEditor
+                    ref={editorRef}
+                    onReady={() => setReady(true)}
+                    minHeight={WELCOME_EDITOR.minHeight}
+                    options={{ features: { devTab: false }, appearance: { theme: WELCOME_EDITOR.theme } }}
+                />
+            </AdminPanel>
+        </AdminPage>
+    );
+}

@@ -9,6 +9,7 @@ import {
     DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { ConfirmVariant } from "@/config/ui";
 
 export interface ConfirmDialogProps {
     open: boolean;
@@ -16,9 +17,9 @@ export interface ConfirmDialogProps {
     title: string;
     description: string;
     onConfirm: () => void;
-    confirmLabel?: string;
-    cancelLabel?: string;
-    variant?: "default" | "destructive";
+    confirmLabel: string;
+    cancelLabel: string;
+    variant?: ConfirmVariant;
 }
 
 export function ConfirmDialog({
@@ -27,23 +28,24 @@ export function ConfirmDialog({
     title,
     description,
     onConfirm,
-    confirmLabel = "Confirm",
-    cancelLabel = "Cancel",
-    variant = "destructive",
+    confirmLabel,
+    cancelLabel,
+    variant = ConfirmVariant.Destructive,
 }: ConfirmDialogProps) {
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-sm">
+            <DialogContent className="max-w-sm rounded-3xl">
                 <DialogHeader>
-                    <DialogTitle>{title}</DialogTitle>
+                    <DialogTitle className="font-display">{title}</DialogTitle>
                     <DialogDescription>{description}</DialogDescription>
                 </DialogHeader>
-                <DialogFooter className="gap-2 sm:gap-0">
-                    <Button variant="outline" onClick={() => onOpenChange(false)}>
+                <DialogFooter className="gap-2">
+                    <Button variant="glass" size="sm" className="rounded-full" onClick={() => onOpenChange(false)}>
                         {cancelLabel}
                     </Button>
                     <Button
-                        variant={variant}
+                        size="sm"
+                        className={variant === ConfirmVariant.Destructive ? "rounded-full bg-red-500 text-white hover:bg-red-500/90" : "rounded-full"}
                         onClick={onConfirm}
                     >
                         {confirmLabel}

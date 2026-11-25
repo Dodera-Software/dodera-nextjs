@@ -1,10 +1,16 @@
-/**
- * Browser-side helpers for the Leads admin pages (no server imports).
- */
-import { useEffect, useState } from "react";
+"use client";
+
+import { queryOptions, useQuery, useQueryClient, type MutationFunction } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
-import { COMMON_COUNTRIES, mockPolicy, OUTREACH_STAGES } from "@/config/leads";
-import type { Lead } from "@/types/admin";
+import { toast } from "sonner";
+import { AdminQueryKey } from "@/config/admin";
+import { COMMON_COUNTRIES, LeadStage, MockPolicy, mockPolicy, OUTREACH_STAGES } from "@/config/leads";
+import { StatusTone } from "@/config/ui";
+import { useAdminMutation } from "@/hooks/use-admin";
+import { leadsCopy as copy } from "@/i18n/admin/leads";
+import { sessionQuery } from "@/lib/admin-queries";
+import { adminFetch } from "@/lib/admin-api";
+import type { Lead, LeadDetail, LeadSuggestions, LinkableMockup } from "@/types/admin";
 
 const eur = new Intl.NumberFormat("en-IE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 });
 
@@ -12,147 +18,145 @@ export function formatEur(value: number): string {
     return eur.format(value);
 }
 
-/** Today as YYYY-MM-DD in the viewer's timezone (follow-up dates have no time). */
-export function todayIso(): string {
+export function leadHref(id: number): string {
+    return `/admin/leads/${id}`;
+}
+
+function todayIso(): string {
     return format(new Date(), "yyyy-MM-dd");
 }
 
-export type FollowUpState = "overdue" | "today" | "upcoming";
+export enum FollowUpState {
+    Overdue = "overdue",
+    Today = "today",
+    Upcoming = "upcoming",
+}
+
+export const FOLLOW_UP_TONE: Record<FollowUpState, StatusTone> = {
+    [FollowUpState.Overdue]: StatusTone.Danger,
+    [FollowUpState.Today]: StatusTone.Warning,
+    [FollowUpState.Upcoming]: StatusTone.Neutral,
+};
 
 export function followUpState(date: string): FollowUpState {
     const today = todayIso();
-    if (date < today) return "overdue";
-    if (date === today) return "today";
-    return "upcoming";
+    if (date < today) return FollowUpState.Overdue;
+    if (date === today) return FollowUpState.Today;
+    return FollowUpState.Upcoming;
 }
-
-export const FOLLOW_UP_CLASSES: Record<FollowUpState, string> = {
-    overdue: "bg-destructive/10 text-destructive",
-    today: "bg-amber-500/10 text-amber-500",
-    upcoming: "bg-muted text-muted-foreground",
-};
 
 export function formatFollowUp(date: string): string {
-    const state = followUpState(date);
-    if (state === "today") return "Today";
-    return format(parseISO(date), "MMM d");
+    return followUpState(date) === FollowUpState.Today ? copy.followUp.today : format(parseISO(date), "MMM d");
 }
 
-export interface LeadSuggestions {
-    countries: string[];
-    categories: string[];
-    cities: string[];
-}
-
-/** Autocomplete values: what's already on the board first, then common countries. */
-export function useLeadSuggestions(): LeadSuggestions {
-    const [data, setData] = useState<LeadSuggestions>({ countries: [...COMMON_COUNTRIES], categories: [], cities: [] });
-    useEffect(() => {
-        let cancelled = false;
-        fetch("/api/admin/leads/suggestions")
-            .then((res) => res.json())
-            .then((body) => {
-                if (cancelled || body?.status !== "success") return;
-                const used: LeadSuggestions = body.data;
-                setData({
-                    countries: [...new Set([...used.countries, ...COMMON_COUNTRIES])],
-                    categories: used.categories,
-                    cities: used.cities,
-                });
-            })
-            .catch(() => {});
-        return () => { cancelled = true; };
-    }, []);
-    return data;
-}
-
-/* ── Mock status (card badge + lead page) ─────────────────── */
-
-export type MockTone = "muted" | "ready" | "sent" | "attention" | "waiting";
-
-export interface MockStatus {
-    label: string;
-    tone: MockTone;
-    /** One line explaining what to do next, for tooltips and the lead page. */
-    hint: string;
-}
-
-export const MOCK_TONE_CLASSES: Record<MockTone, string> = {
-    muted: "bg-muted text-muted-foreground",
-    ready: "bg-sky-400/10 text-sky-500",
-    sent: "bg-emerald-500/10 text-emerald-500",
-    attention: "bg-amber-500/10 text-amber-500",
-    waiting: "bg-violet-400/10 text-violet-400",
-};
-
-/**
- * Where the lead's mock site stands in the outreach flow. The mock is built
- * for everyone; outside the "on request" countries it goes with the first
- * message, inside them only once the business is interested.
- */
-export function mockStatus(lead: Lead): MockStatus {
-    const onRequest = mockPolicy(lead.country) === "on-request";
-    const reached = OUTREACH_STAGES.has(lead.stage);
-    const live = lead.preview?.live_version ?? null;
-
-    if (lead.mockup_sent_at) {
-        return { label: live !== null ? `Mock v${live} sent` : "Mock sent", tone: "sent", hint: "The business has the preview link." };
-    }
-    if (!lead.preview) {
-        return {
-            label: "No mock",
-            tone: lead.stage === "mockup" || reached ? "attention" : "muted",
-            hint: "Create the preview project and deploy the mock site.",
-        };
-    }
-    if (live === null) {
-        return { label: "Mock not deployed", tone: "attention", hint: "Deploy the mock site to get a working link." };
-    }
-    if (!reached) {
-        return {
-            label: `Mock v${live} ready`,
-            tone: "ready",
-            hint: onRequest
-                ? `${lead.country}: the first message goes out without the mock — send it only if they ask.`
-                : "It goes out with the first message — moving the card to Contacted marks it as sent.",
-        };
-    }
-    if (onRequest && lead.stage === "contacted") {
-        return {
-            label: "Mock on request",
-            tone: "waiting",
-            hint: `${lead.country}: don't attach the mock yet — send it once they're interested.`,
-        };
-    }
-    if (lead.stage === "lost") {
-        return { label: "Mock not sent", tone: "muted", hint: "The mock was never sent." };
-    }
-    return {
-        label: "Send the mock",
-        tone: "attention",
-        hint: onRequest
-            ? "They're interested — send the preview link and mark it as sent."
-            : "The mock should have gone with the first message — send the link and mark it as sent.",
-    };
-}
-
-/** Links saved before they were normalized may lack a scheme ("acme.com"). */
 export function externalHref(link: string): string {
     return /^https?:\/\//i.test(link) ? link : `https://${link}`;
 }
 
-/** The signed-in admin's name, for signing outreach messages. Null until loaded. */
+export function copyToClipboard(text: string, message: string = copy.linkCopied): void {
+    navigator.clipboard.writeText(text);
+    toast.success(message);
+}
+
+export function leadQuery(id: number) {
+    return queryOptions({
+        queryKey: [AdminQueryKey.Leads, id],
+        queryFn: () => adminFetch<{ data: LeadDetail }>(`/api/admin/leads/${id}`).then((r) => r.data),
+    });
+}
+
+export const linkableMockupsQuery = queryOptions({
+    queryKey: [AdminQueryKey.Mockups, AdminQueryKey.Leads],
+    queryFn: () => adminFetch<{ data: LinkableMockup[] }>("/api/admin/leads/linkable-mockups").then((r) => r.data),
+});
+
+export function patchLead(id: number, body: Record<string, unknown>): Promise<LeadDetail> {
+    return adminFetch<{ data: LeadDetail }>(`/api/admin/leads/${id}`, { method: "PATCH", json: body }).then((r) => r.data);
+}
+
+export function useLeadMutation<TVariables = void>({
+    leadId,
+    mutationFn,
+    success,
+    alsoInvalidates = [],
+}: {
+    leadId: number;
+    mutationFn: MutationFunction<LeadDetail, TVariables>;
+    success?: string | ((data: LeadDetail, variables: TVariables) => string);
+    alsoInvalidates?: AdminQueryKey[];
+}) {
+    const queryClient = useQueryClient();
+    return useAdminMutation<LeadDetail, TVariables>({
+        mutationFn: async (variables, context) => {
+            const lead = await mutationFn(variables, context);
+            queryClient.setQueryData(leadQuery(leadId).queryKey, lead);
+            return lead;
+        },
+        invalidates: [AdminQueryKey.Leads, ...alsoInvalidates],
+        success,
+    });
+}
+
+const EMPTY_SUGGESTIONS: LeadSuggestions = { countries: [...COMMON_COUNTRIES], categories: [], cities: [] };
+
+export function useLeadSuggestions(): LeadSuggestions {
+    const { data } = useQuery({
+        queryKey: [AdminQueryKey.LeadSuggestions],
+        queryFn: () => adminFetch<{ data: LeadSuggestions }>("/api/admin/leads/suggestions").then((r) => r.data),
+        select: (used): LeadSuggestions => ({
+            countries: [...new Set([...used.countries, ...COMMON_COUNTRIES])],
+            categories: used.categories,
+            cities: used.cities,
+        }),
+    });
+    return data ?? EMPTY_SUGGESTIONS;
+}
+
 export function useAdminName(): string | null {
-    const [name, setName] = useState<string | null>(null);
-    useEffect(() => {
-        let cancelled = false;
-        fetch("/api/admin/session")
-            .then((res) => res.json())
-            .then((body) => {
-                if (!cancelled && typeof body?.user?.name === "string") setName(body.user.name);
-            })
-            .catch(() => {});
-        return () => { cancelled = true; };
-    }, []);
-    return name;
+    return useQuery(sessionQuery).data?.name ?? null;
+}
+
+interface MockStatus {
+    label: string;
+    tone: StatusTone;
+    hint: string;
+}
+
+export function mockStatus(lead: Lead): MockStatus {
+    const onRequest = mockPolicy(lead.country) === MockPolicy.OnRequest;
+    const reached = OUTREACH_STAGES.has(lead.stage);
+    const live = lead.preview?.live_version ?? null;
+    const country = lead.country ?? "";
+
+    if (lead.mockup_sent_at) {
+        return { label: copy.mock.sent(live), tone: StatusTone.Success, hint: copy.mock.sentHint };
+    }
+    if (!lead.preview) {
+        return {
+            label: copy.mock.none,
+            tone: lead.stage === LeadStage.Mockup || reached ? StatusTone.Warning : StatusTone.Neutral,
+            hint: copy.mock.noneHint,
+        };
+    }
+    if (live === null) {
+        return { label: copy.mock.notDeployed, tone: StatusTone.Warning, hint: copy.mock.notDeployedHint };
+    }
+    if (!reached) {
+        return {
+            label: copy.mock.ready(live),
+            tone: StatusTone.Info,
+            hint: onRequest ? copy.mock.readyOnRequestHint(country) : copy.mock.readyWithMessageHint,
+        };
+    }
+    if (onRequest && lead.stage === LeadStage.Contacted) {
+        return { label: copy.mock.onRequest, tone: StatusTone.Brand, hint: copy.mock.onRequestHint(country) };
+    }
+    if (lead.stage === LeadStage.Lost) {
+        return { label: copy.mock.notSent, tone: StatusTone.Neutral, hint: copy.mock.notSentHint };
+    }
+    return {
+        label: copy.mock.send,
+        tone: StatusTone.Warning,
+        hint: onRequest ? copy.mock.sendOnRequestHint : copy.mock.sendWithMessageHint,
+    };
 }

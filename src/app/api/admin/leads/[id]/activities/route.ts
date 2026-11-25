@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAdminSession } from "@/lib/admin-auth";
-import { LEAD_LIMITS } from "@/config/leads";
+import { LEAD_LIMITS, LeadActivityKind } from "@/config/leads";
 import { addActivity, getLead, getLeadDetail } from "@/lib/leads";
 
 /* ── POST /api/admin/leads/[id]/activities — add a note to the timeline ── */
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         if (!(await getLead(id))) {
             return NextResponse.json({ status: "error", message: "Lead not found." }, { status: 404 });
         }
-        await addActivity(id, "note", text, session.email);
+        await addActivity(id, LeadActivityKind.Note, text, session.email);
         return NextResponse.json({ status: "success", data: await getLeadDetail(id) }, { status: 201 });
     } catch (err) {
         console.error("Error adding lead note:", err);

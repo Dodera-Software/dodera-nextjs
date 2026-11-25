@@ -1,339 +1,202 @@
 "use client";
 
-import { useEffect, useState, useCallback, Fragment } from "react";
-import {
-    Search,
-    Trash2,
-    Loader2,
-    MessageSquare,
-    RefreshCw,
-    ChevronDown,
-    ChevronUp,
-    Download,
-} from "lucide-react";
+import { useState } from "react";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { Download, MessageSquare, RefreshCw, Trash2 } from "lucide-react";
+import { AdminPage } from "@/components/admin/AdminPage";
+import { DataTable, columnHelper, stopRowClick } from "@/components/admin/DataTable";
+import { SearchInput, Toolbar } from "@/components/admin/SearchInput";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useConfirm } from "@/hooks/use-confirm";
-import { toast } from "sonner";
-import type { Contact, Pagination } from "@/types/admin";
-import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { AdminPagination } from "@/components/admin/AdminPagination";
-import { formatDateShort, formatDateISO } from "@/lib/format";
+import { useAdminMutation, useDebouncedValue } from "@/hooks/use-admin";
+import { ADMIN_PAGE_SIZE, AdminQueryKey } from "@/config/admin";
+import { adminCommon } from "@/i18n/admin/common";
+import { contactsCopy as copy } from "@/i18n/admin/contacts";
+import { adminFetch, downloadCsv, type Paginated } from "@/lib/admin-api";
+import { formatDateISO, formatDateShort } from "@/lib/format";
+import type { Contact } from "@/types/admin";
+
+const col = columnHelper<Contact>();
+
+const EXPORT_PAGE_SIZE = 200;
+
+async function fetchAllContacts(search: string): Promise<Contact[]> {
+    const all: Contact[] = [];
+    for (let page = 1; ; page++) {
+        const res = await adminFetch<Paginated<Contact>>("/api/admin/contacts", {
+            query: { page, limit: EXPORT_PAGE_SIZE, search },
+        });
+        all.push(...res.data);
+        if (page >= res.pagination.totalPages) return all;
+    }
+}
+
+function Muted({ value }: { value: string | null }) {
+    return <span className="text-muted-foreground">{value || adminCommon.empty}</span>;
+}
 
 export default function ContactsPage() {
-    const [contacts, setContacts] = useState<Contact[]>([]);
-    const [pagination, setPagination] = useState<Pagination>({
-        page: 1,
-        limit: 25,
-        total: 0,
-        totalPages: 0,
-    });
-    const [search, setSearch] = useState("");
-    const [loading, setLoading] = useState(true);
-    const [deleting, setDeleting] = useState<number | null>(null);
-    const [expanded, setExpanded] = useState<number | null>(null);
-    const [exporting, setExporting] = useState(false);
     const confirm = useConfirm();
+    const [page, setPage] = useState(1);
+    const [search, setSearch] = useState("");
+    const query = useDebouncedValue(search.trim());
 
-    const fetchContacts = useCallback(
-        async (page = 1, searchQuery = search) => {
-            setLoading(true);
-            try {
-                const params = new URLSearchParams({
-                    page: String(page),
-                    limit: String(pagination.limit),
-                });
-                if (searchQuery) params.set("search", searchQuery);
+    const contacts = useQuery({
+        queryKey: [AdminQueryKey.Contacts, page, query],
+        queryFn: () =>
+            adminFetch<Paginated<Contact>>("/api/admin/contacts", {
+                query: { page, limit: ADMIN_PAGE_SIZE, search: query },
+            }),
+        placeholderData: keepPreviousData,
+    });
 
-                const res = await fetch(`/api/admin/contacts?${params}`);
-                const data = await res.json();
+    const rows = contacts.data?.data ?? [];
+    const total = contacts.data?.pagination.total ?? 0;
 
-                if (data.status === "success") {
-                    setContacts(data.data);
-                    setPagination(data.pagination);
-                }
-            } catch {
-                console.error("Failed to fetch contacts");
-            } finally {
-                setLoading(false);
-            }
+    const remove = useAdminMutation({
+        mutationFn: (id: number) => adminFetch("/api/admin/contacts", { method: "DELETE", json: { id } }),
+        invalidates: [AdminQueryKey.Contacts],
+        success: copy.remove.done,
+        onSuccess: () => {
+            if (rows.length === 1 && page > 1) setPage(page - 1);
         },
-        [search, pagination.limit],
-    );
+    });
 
-    useEffect(() => {
-        fetchContacts();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    const exportCsv = useAdminMutation({
+        mutationFn: () => fetchAllContacts(query),
+        success: (data) => copy.exportCsv.done(data.length),
+        onSuccess: (data) =>
+            downloadCsv(
+                copy.exportCsv.filename(new Date().toISOString().slice(0, 10)),
+                [...copy.exportCsv.header],
+                data.map((c) => [c.id, c.name, c.email, c.company, c.phone, c.message, formatDateISO(c.created_at)]),
+            ),
+    });
 
-    async function handleDelete(id: number, name: string) {
+    async function onRemove(contact: Contact) {
         const ok = await confirm({
-            title: "Delete contact",
-            description: `Delete contact from "${name}"? This cannot be undone.`,
-            confirmLabel: "Delete",
+            title: copy.remove.title,
+            description: copy.remove.description(contact.name),
+            confirmLabel: adminCommon.actions.delete,
         });
-        if (!ok) return;
-
-        doDelete(id);
+        if (ok) remove.mutate(contact.id);
     }
 
-    async function doDelete(id: number) {
-        setDeleting(id);
-        try {
-            const res = await fetch("/api/admin/contacts", {
-                method: "DELETE",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ id }),
-            });
-
-            if (res.ok) {
-                setContacts((prev) => prev.filter((c) => c.id !== id));
-                setPagination((prev) => ({ ...prev, total: prev.total - 1 }));
-                if (expanded === id) setExpanded(null);
-                toast.success("Contact deleted");
-            } else {
-                toast.error("Failed to delete contact");
-            }
-        } catch {
-            toast.error("Failed to delete contact");
-        } finally {
-            setDeleting(null);
-        }
-    }
-
-    function handleSearch(e: React.FormEvent) {
-        e.preventDefault();
-        fetchContacts(1, search);
-    }
-
-    async function handleExportCSV() {
-        setExporting(true);
-        try {
-            const params = new URLSearchParams({ page: "1", limit: "10000" });
-            if (search) params.set("search", search);
-
-            const res = await fetch(`/api/admin/contacts?${params}`);
-            const data = await res.json();
-            if (data.status !== "success") return;
-
-            const rows: Contact[] = data.data;
-            const escape = (v: string | null | undefined) =>
-                `"${(v ?? "").replace(/"/g, '""')}"`;
-
-            const header = ["ID", "Name", "Email", "Company", "Phone", "Message", "Date"];
-            const csv = [
-                header.join(","),
-                ...rows.map((c) =>
-                    [
-                        c.id,
-                        escape(c.name),
-                        escape(c.email),
-                        escape(c.company),
-                        escape(c.phone),
-                        escape(c.message),
-                        formatDateISO(c.created_at),
-                    ].join(","),
-                ),
-            ].join("\n");
-
-            const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `contacts-${new Date().toISOString().slice(0, 10)}.csv`;
-            a.click();
-            URL.revokeObjectURL(url);
-            toast.success(`Exported ${rows.length} contact${rows.length !== 1 ? "s" : ""}`);
-        } catch {
-            toast.error("Failed to export contacts");
-        } finally {
-            setExporting(false);
-        }
-    }
+    const columns = col.columns([
+        col.accessor("name", { header: copy.columns.name, cell: (c) => <span className="font-medium">{c.getValue()}</span> }),
+        col.accessor("email", {
+            header: copy.columns.email,
+            cell: (c) => (
+                <a
+                    href={`mailto:${c.getValue()}`}
+                    onClick={stopRowClick}
+                    className="break-all text-muted-foreground transition-colors hover:text-foreground"
+                >
+                    {c.getValue()}
+                </a>
+            ),
+        }),
+        col.accessor("company", {
+            header: copy.columns.company,
+            cell: (c) => <Muted value={c.getValue()} />,
+            meta: { className: "hidden md:table-cell" },
+        }),
+        col.accessor("phone", {
+            header: copy.columns.phone,
+            cell: (c) => <Muted value={c.getValue()} />,
+            meta: { className: "hidden lg:table-cell" },
+        }),
+        col.accessor("created_at", {
+            header: copy.columns.date,
+            cell: (c) => <span className="whitespace-nowrap text-muted-foreground tabular-nums">{formatDateShort(c.getValue())}</span>,
+            meta: { className: "hidden sm:table-cell" },
+        }),
+        col.display({
+            id: "actions",
+            header: () => <span className="sr-only">{adminCommon.table.actions}</span>,
+            meta: { align: "right" },
+            cell: (c) => (
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-8 rounded-full text-muted-foreground hover:bg-red-400/10 hover:text-red-400"
+                    aria-label={adminCommon.actions.delete}
+                    disabled={remove.isPending && remove.variables === c.row.original.id}
+                    onClick={(e) => {
+                        stopRowClick(e);
+                        onRemove(c.row.original);
+                    }}
+                >
+                    <Trash2 />
+                </Button>
+            ),
+        }),
+    ]);
 
     return (
-        <div className="space-y-6">
-            <AdminPageHeader
-                title="Contacts"
-                subtitle={`${pagination.total} total contact submission${pagination.total !== 1 ? "s" : ""}`}
-                actions={
-                    <>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleExportCSV}
-                            disabled={exporting || pagination.total === 0}
-                        >
-                            {exporting ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : (
-                                <Download className="w-4 h-4" />
-                            )}
-                            Export CSV
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => fetchContacts(pagination.page)}
-                        >
-                            <RefreshCw className="w-4 h-4" />
-                            Refresh
-                        </Button>
-                    </>
-                }
-            />
-
-            {/* Search */}
-            <form onSubmit={handleSearch} className="flex gap-2">
-                <div className="relative flex-1 max-w-sm">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                        type="text"
+        <AdminPage
+            eyebrow={copy.eyebrow}
+            title={copy.title}
+            description={contacts.data ? copy.description(total) : undefined}
+            actions={
+                <>
+                    <Button
+                        variant="glass"
+                        size="sm"
+                        className="rounded-full"
+                        onClick={() => exportCsv.mutate()}
+                        disabled={exportCsv.isPending || total === 0}
+                    >
+                        <Download className={exportCsv.isPending ? "animate-pulse" : undefined} />
+                        {adminCommon.actions.export}
+                    </Button>
+                    <Button variant="glass" size="sm" className="rounded-full" onClick={() => contacts.refetch()} disabled={contacts.isFetching}>
+                        <RefreshCw className={contacts.isFetching ? "animate-spin" : undefined} />
+                        {adminCommon.actions.refresh}
+                    </Button>
+                </>
+            }
+        >
+            <div className="space-y-4">
+                <Toolbar>
+                    <SearchInput
                         value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        placeholder="Search by name, email or company..."
-                        className="pl-9"
+                        onChange={(value) => {
+                            setSearch(value);
+                            setPage(1);
+                        }}
+                        placeholder={copy.search}
                     />
-                </div>
-                <Button type="submit">Search</Button>
-            </form>
-
-            {/* Table */}
-            <div className="rounded-xl border border-border overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                        <thead>
-                            <tr className="border-b border-border bg-card">
-                                <th className="text-left px-4 py-3 font-medium text-muted-foreground w-8" />
-                                <th className="text-left px-4 py-3 font-medium text-muted-foreground">
-                                    Name
-                                </th>
-                                <th className="text-left px-4 py-3 font-medium text-muted-foreground">
-                                    Email
-                                </th>
-                                <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden md:table-cell">
-                                    Company
-                                </th>
-                                <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden lg:table-cell">
-                                    Phone
-                                </th>
-                                <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden sm:table-cell">
-                                    Date
-                                </th>
-                                <th className="text-right px-4 py-3 font-medium text-muted-foreground">
-                                    Actions
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {loading ? (
-                                <tr>
-                                    <td colSpan={7} className="px-4 py-12 text-center">
-                                        <Loader2 className="w-6 h-6 animate-spin mx-auto text-muted-foreground" />
-                                    </td>
-                                </tr>
-                            ) : contacts.length === 0 ? (
-                                <tr>
-                                    <td
-                                        colSpan={7}
-                                        className="px-4 py-12 text-center text-muted-foreground"
-                                    >
-                                        <MessageSquare className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                                        No contacts found.
-                                    </td>
-                                </tr>
-                            ) : (
-                                contacts.map((contact) => (
-                                    <Fragment key={contact.id}>
-                                        <tr
-                                            className="border-b border-border last:border-0 hover:bg-accent/50 transition-colors cursor-pointer"
-                                            onClick={() =>
-                                                setExpanded(
-                                                    expanded === contact.id ? null : contact.id,
-                                                )
-                                            }
-                                        >
-                                            <td className="px-4 py-3 text-muted-foreground">
-                                                {expanded === contact.id ? (
-                                                    <ChevronUp className="w-4 h-4" />
-                                                ) : (
-                                                    <ChevronDown className="w-4 h-4" />
-                                                )}
-                                            </td>
-                                            <td className="px-4 py-3 font-medium">
-                                                {contact.name}
-                                            </td>
-                                            <td className="px-4 py-3 text-muted-foreground">
-                                                <a
-                                                    href={`mailto:${contact.email}`}
-                                                    className="hover:text-foreground hover:underline"
-                                                    onClick={(e) => e.stopPropagation()}
-                                                >
-                                                    {contact.email}
-                                                </a>
-                                            </td>
-                                            <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">
-                                                {contact.company || (
-                                                    <span className="opacity-40">—</span>
-                                                )}
-                                            </td>
-                                            <td className="px-4 py-3 text-muted-foreground hidden lg:table-cell">
-                                                {contact.phone || (
-                                                    <span className="opacity-40">—</span>
-                                                )}
-                                            </td>
-                                            <td className="px-4 py-3 text-muted-foreground hidden sm:table-cell whitespace-nowrap">
-                                                {formatDateShort(contact.created_at)}
-                                            </td>
-                                            <td
-                                                className="px-4 py-3 text-right"
-                                                onClick={(e) => e.stopPropagation()}
-                                            >
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() =>
-                                                        handleDelete(contact.id, contact.name)
-                                                    }
-                                                    disabled={deleting === contact.id}
-                                                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                                                >
-                                                    {deleting === contact.id ? (
-                                                        <Loader2 className="w-3 h-3 animate-spin" />
-                                                    ) : (
-                                                        <Trash2 className="w-3 h-3" />
-                                                    )}
-                                                </Button>
-                                            </td>
-                                        </tr>
-                                        {expanded === contact.id && (
-                                            <tr
-
-                                                className="border-b border-border bg-accent/30"
-                                            >
-                                                <td colSpan={7} className="px-6 py-4">
-                                                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
-                                                        Message
-                                                    </p>
-                                                    <p className="text-sm whitespace-pre-wrap leading-relaxed">
-                                                        {contact.message}
-                                                    </p>
-                                                </td>
-                                            </tr>
-                                        )}
-                                    </Fragment>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                </Toolbar>
+                <DataTable
+                    columns={columns}
+                    data={rows}
+                    getRowId={(c) => String(c.id)}
+                    loading={contacts.isPending}
+                    error={contacts.error}
+                    onRetry={() => contacts.refetch()}
+                    server={{ page, total, limit: ADMIN_PAGE_SIZE, onPageChange: setPage }}
+                    empty={query ? { icon: MessageSquare, title: adminCommon.table.noMatches } : { icon: MessageSquare, ...copy.empty }}
+                    renderDetail={(contact) => (
+                        <div className="space-y-4">
+                            <dl className="grid gap-4 sm:grid-cols-2 lg:hidden">
+                                <div className="space-y-1 md:hidden">
+                                    <dt className="font-mono text-[0.68rem] uppercase tracking-[0.08em] text-muted-foreground">{copy.detail.company}</dt>
+                                    <dd className="text-sm">{contact.company || adminCommon.empty}</dd>
+                                </div>
+                                <div className="space-y-1">
+                                    <dt className="font-mono text-[0.68rem] uppercase tracking-[0.08em] text-muted-foreground">{copy.detail.phone}</dt>
+                                    <dd className="text-sm">{contact.phone || adminCommon.empty}</dd>
+                                </div>
+                            </dl>
+                            <div className="space-y-1.5">
+                                <p className="font-mono text-[0.68rem] uppercase tracking-[0.08em] text-muted-foreground">{copy.detail.message}</p>
+                                <p className="whitespace-pre-wrap text-sm leading-relaxed">{contact.message}</p>
+                            </div>
+                        </div>
+                    )}
+                />
             </div>
-
-            <AdminPagination
-                pagination={pagination}
-                onPageChange={(page) => fetchContacts(page)}
-            />
-
-        </div>
+        </AdminPage>
     );
 }

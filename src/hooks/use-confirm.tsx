@@ -1,46 +1,30 @@
 "use client";
 
-import {
-    createContext,
-    useContext,
-    useState,
-    useCallback,
-    ReactNode,
-} from "react";
+import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
+import type { ConfirmVariant } from "@/config/ui";
+import { adminCommon } from "@/i18n/admin/common";
 
 export interface ConfirmOptions {
     title: string;
     description: string;
     confirmLabel?: string;
     cancelLabel?: string;
-    variant?: "default" | "destructive";
+    variant?: ConfirmVariant;
 }
 
 type ConfirmFn = (options: ConfirmOptions) => Promise<boolean>;
-
-// ─── Context ─────────────────────────────────────────────────────────────────
-
-const ConfirmContext = createContext<ConfirmFn | null>(null);
-
-// ─── Provider ────────────────────────────────────────────────────────────────
 
 interface DialogState extends ConfirmOptions {
     resolve: (value: boolean) => void;
 }
 
+const ConfirmContext = createContext<ConfirmFn | null>(null);
+
 export function ConfirmDialogProvider({ children }: { children: ReactNode }) {
     const [dialog, setDialog] = useState<DialogState | null>(null);
 
-    const confirm: ConfirmFn = useCallback(
-        (options) =>
-            new Promise<boolean>((resolve) => {
-                setDialog({ ...options, resolve });
-            }),
-        [],
-    );
+    const confirm: ConfirmFn = useCallback((options) => new Promise<boolean>((resolve) => setDialog({ ...options, resolve })), []);
 
     function settle(confirmed: boolean) {
         dialog?.resolve(confirmed);
@@ -57,8 +41,8 @@ export function ConfirmDialogProvider({ children }: { children: ReactNode }) {
                 }}
                 title={dialog?.title ?? ""}
                 description={dialog?.description ?? ""}
-                confirmLabel={dialog?.confirmLabel}
-                cancelLabel={dialog?.cancelLabel}
+                confirmLabel={dialog?.confirmLabel ?? adminCommon.actions.confirm}
+                cancelLabel={dialog?.cancelLabel ?? adminCommon.actions.cancel}
                 variant={dialog?.variant}
                 onConfirm={() => settle(true)}
             />
@@ -66,25 +50,8 @@ export function ConfirmDialogProvider({ children }: { children: ReactNode }) {
     );
 }
 
-// ─── Hook ────────────────────────────────────────────────────────────────────
-
-/**
- * Returns an imperative `confirm(options)` function that shows a modal dialog
- * and resolves to `true` if confirmed, `false` if cancelled or dismissed.
- *
- * Must be used inside `<ConfirmDialogProvider>`.
- *
- * @example
- * const confirm = useConfirm();
- * async function handleDelete(id: number) {
- *   const ok = await confirm({ title: "Delete?", description: "This cannot be undone." });
- *   if (ok) doDelete(id);
- * }
- */
 export function useConfirm(): ConfirmFn {
     const ctx = useContext(ConfirmContext);
-    if (!ctx) {
-        throw new Error("useConfirm must be used inside <ConfirmDialogProvider>");
-    }
+    if (!ctx) throw new Error("useConfirm must be used inside <ConfirmDialogProvider>");
     return ctx;
 }

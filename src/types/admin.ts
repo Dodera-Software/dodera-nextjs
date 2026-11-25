@@ -1,10 +1,9 @@
-import type { ElementType } from "react";
-
-export interface AdminNavItem {
-    href: string;
-    label: string;
-    icon: ElementType;
-}
+import type { JobStatus, JobType } from "@/config/careers";
+import type { LeadActivityKind, LeadStage } from "@/config/leads";
+import type { ImageModel } from "@/config/ai-models";
+import type { ApiAuth, HttpMethod } from "@/config/api-docs";
+import type { SocialPlatform } from "@/config/social-post";
+import type { ImageSize } from "@/lib/image-sizes";
 
 export interface AdminSession {
     id: number;
@@ -46,35 +45,19 @@ export interface ApiToken {
 
 // ── Dashboard ───────────────────────────────────────────────
 
-export interface DashboardStats {
-    subscribers: number;
-    tokens: number;
-    activeTokens: number;
-}
-
 export interface AutoPostResult {
-    status: "success" | "error";
     message: string;
     uid?: string;
     generated_post?: { title: string; excerpt: string; category: string };
 }
 
-// ── Generate Image ──────────────────────────────────────────
-
-export interface ImageHistoryItem {
+export interface BlogPostExample {
     id: number;
-    prompt: string;
-    size: string;
-    model: string;
-    url?: string;
-    error?: string;
-    loading: boolean;
+    content: string;
+    created_at: string;
 }
 
-// ── Generate Social Post ────────────────────────────────────
-
-/** Blog post data returned by the admin blog listing API (richer than public BlogPost). */
-export interface SocialBlogPost {
+export interface AdminBlogPost {
     slug: string;
     title: string;
     excerpt: string;
@@ -87,15 +70,30 @@ export interface SocialBlogPost {
     body_plain: string;
 }
 
-// ── Send Email ──────────────────────────────────────────────
+export interface SocialPostExample {
+    id: number;
+    platform: SocialPlatform;
+    content: string;
+    created_at: string;
+}
 
-export interface BlogPostSummary {
-    slug: string;
-    title: string;
-    excerpt: string;
-    date: string;
-    category: string;
-    image: string | null;
+export interface GeneratedImage {
+    url: string;
+    prompt: string;
+    size: ImageSize;
+    model: ImageModel;
+}
+
+export interface ImageRequest {
+    id: number;
+    prompt: string;
+    size: ImageSize;
+    model: ImageModel;
+}
+
+export interface SmtpCheck {
+    ok: boolean;
+    error?: string;
 }
 
 // ── Careers ─────────────────────────────────────────────────
@@ -105,13 +103,23 @@ export interface JobOpening {
     title: string;
     department: string | null;
     location: string;
-    type: string;
-    status: "open" | "closed" | "draft";
+    type: JobType;
+    status: JobStatus;
     description: string | null;
     apply_url: string | null;
     sort_order: number;
     created_at: string;
     updated_at: string;
+}
+
+export interface JobApplication {
+    id: number;
+    job_id: number | null;
+    job_title: string;
+    full_name: string;
+    email: string;
+    cv_path: string;
+    created_at: string;
 }
 
 export interface AttachedFile {
@@ -135,22 +143,20 @@ export interface ConfigRow {
     updated_at: string;
 }
 
-// ── API Docs ────────────────────────────────────────────────
-
-export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+export interface ApiEndpointParam {
+    name: string;
+    type: string;
+    required: boolean;
+    description: string;
+}
 
 export interface ApiEndpoint {
     path: string;
     methods: HttpMethod[];
-    auth: "api-token" | "admin-session" | "webhook-secret" | "none";
+    auth: ApiAuth;
     description: string;
     details: string;
-    params?: {
-        name: string;
-        type: string;
-        required: boolean;
-        description: string;
-    }[];
+    params?: ApiEndpointParam[];
     response?: string;
 }
 
@@ -198,10 +204,6 @@ export interface IntelilangSettings {
     can_store_secret: boolean;
 }
 
-// ── Leads (kanban) ──────────────────────────────────────────
-
-export type LeadActivityKind = "note" | "created" | "stage" | "deploy" | "mock";
-
 export interface LeadActivity {
     id: number;
     kind: LeadActivityKind;
@@ -210,21 +212,23 @@ export interface LeadActivity {
     created_at: string;
 }
 
-/** The linked preview site, as much as a card needs to show. */
 export interface LeadPreview {
     project_id: number;
     name: string;
-    /** Public preview URL, or null when MOCKUPS_DOMAIN is not configured. */
     url: string | null;
-    /** Live version number, or null when nothing is deployed yet. */
     live_version: number | null;
+}
+
+export interface LinkableMockup extends LeadPreview {
+    slug: string;
+    client_name: string | null;
+    updated_at: string;
+    linked_lead: { id: number; name: string } | null;
 }
 
 export interface Lead {
     id: number;
-    /** The business. */
     name: string;
-    /** Null only on cards created before these fields existed. */
     country: string | null;
     city: string | null;
     category: string | null;
@@ -235,19 +239,15 @@ export interface Lead {
     email: string | null;
     phone: string | null;
     website: string | null;
-    stage: string;
+    stage: LeadStage;
     position: number;
     value_eur: number | null;
     next_step: string | null;
-    /** YYYY-MM-DD */
     follow_up_on: string | null;
     notes: string | null;
     preview: LeadPreview | null;
-    /** When the preview link was sent to the business; null = not sent. */
     mockup_sent_at: string | null;
-    /** Newest note on the timeline, shown as a marker on the card. */
     latest_note: string | null;
-    /** No preview linked yet, but an unlinked Mockups project matches the business name. */
     suggested_preview: LeadPreview | null;
     created_by: string | null;
     created_at: string;
@@ -256,4 +256,10 @@ export interface Lead {
 
 export interface LeadDetail extends Lead {
     activities: LeadActivity[];
+}
+
+export interface LeadSuggestions {
+    countries: string[];
+    categories: string[];
+    cities: string[];
 }

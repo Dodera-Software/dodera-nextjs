@@ -1,199 +1,105 @@
 "use client";
 
-import { useState } from "react";
-import { Shield, Globe, Copy, Check, ChevronDown, ChevronUp } from "lucide-react";
-import type { HttpMethod, ApiEndpoint } from "@/types/admin";
+import { ChevronDown } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { CopyButton } from "@/components/ui/copy-button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { API_AUTH_STYLE, HTTP_METHOD_TONE } from "@/config/api-docs";
+import { StatusTone } from "@/config/ui";
+import { apiDocsCopy as copy } from "@/i18n/admin/api-docs";
+import type { ApiEndpoint } from "@/types/admin";
 
-const METHOD_COLORS: Record<HttpMethod, string> = {
-    GET: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
-    POST: "bg-blue-500/15 text-blue-400 border-blue-500/30",
-    PUT: "bg-amber-500/15 text-amber-400 border-amber-500/30",
-    DELETE: "bg-red-500/15 text-red-400 border-red-500/30",
-    PATCH: "bg-purple-500/15 text-purple-400 border-purple-500/30",
-};
+const LABEL = "font-mono text-[0.68rem] uppercase tracking-[0.08em] text-muted-foreground";
 
-const AUTH_CONFIG = {
-    "api-token": {
-        label: "API Token",
-        icon: Shield,
-        color: "text-amber-400",
-        bg: "bg-amber-400/10",
-        border: "border-amber-400/20",
-        description: "Requires Authorization: Bearer <token> header",
-    },
-    "admin-session": {
-        label: "Admin Session",
-        icon: Shield,
-        color: "text-blue-400",
-        bg: "bg-blue-400/10",
-        border: "border-blue-400/20",
-        description: "Requires an active admin session cookie (login via /admin/login)",
-    },
-    "webhook-secret": {
-        label: "Webhook Secret",
-        icon: Shield,
-        color: "text-cyan-400",
-        bg: "bg-cyan-400/10",
-        border: "border-cyan-400/20",
-        description: "Requires ?secret= query parameter",
-    },
-    none: {
-        label: "Public",
-        icon: Globe,
-        color: "text-emerald-400",
-        bg: "bg-emerald-400/10",
-        border: "border-emerald-400/20",
-        description: "No authentication required",
-    },
-};
-
-export interface EndpointCardProps {
-    endpoint: ApiEndpoint;
-}
-
-export function EndpointCard({ endpoint }: EndpointCardProps) {
-    const [expanded, setExpanded] = useState(false);
-    const [copied, setCopied] = useState(false);
-    const authInfo = AUTH_CONFIG[endpoint.auth];
-    const AuthIcon = authInfo.icon;
-
-    const copyPath = () => {
-        navigator.clipboard.writeText(endpoint.path);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-    };
+export function EndpointCard({ endpoint }: { endpoint: ApiEndpoint }) {
+    const auth = API_AUTH_STYLE[endpoint.auth];
+    const AuthIcon = auth.icon;
+    const authCopy = copy.auth[endpoint.auth];
 
     return (
-        <div className="border border-border rounded-xl bg-card overflow-hidden transition-all hover:border-border/80">
-            <div
-                onClick={() => setExpanded(!expanded)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        setExpanded(!expanded);
-                    }
-                }}
-                className="w-full text-left p-4 flex items-start gap-4 cursor-pointer"
-            >
-                <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap mb-2">
+        <Collapsible className="group/endpoint border-b border-foreground/[0.07] last:border-0">
+            <div className="flex items-start gap-3 px-6 py-4">
+                <CollapsibleTrigger className="flex min-w-0 flex-1 flex-col gap-2 text-left outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                    <span className="flex flex-wrap items-center gap-2">
                         {endpoint.methods.map((method) => (
-                            <span
-                                key={method}
-                                className={`px-2 py-0.5 rounded text-xs font-mono font-bold border ${METHOD_COLORS[method]}`}
-                            >
+                            <Badge key={method} tone={HTTP_METHOD_TONE[method]} className="font-mono text-[0.68rem] font-semibold">
                                 {method}
-                            </span>
+                            </Badge>
                         ))}
-                        <code className="text-sm font-mono text-foreground">
-                            {endpoint.path}
-                        </code>
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                copyPath();
-                            }}
-                            className="text-muted-foreground hover:text-foreground transition-colors"
-                            title="Copy path"
-                        >
-                            {copied ? (
-                                <Check className="w-3.5 h-3.5 text-emerald-400" />
-                            ) : (
-                                <Copy className="w-3.5 h-3.5" />
-                            )}
-                        </button>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                        {endpoint.description}
-                    </p>
-                </div>
-                <div className="flex items-center gap-3 shrink-0">
-                    <div
-                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${authInfo.bg} ${authInfo.color} ${authInfo.border}`}
+                        <code className="break-all font-mono text-sm text-foreground">{endpoint.path}</code>
+                    </span>
+                    <span className="text-sm text-muted-foreground">{endpoint.description}</span>
+                </CollapsibleTrigger>
+                <div className="flex shrink-0 items-center gap-1">
+                    <Badge tone={auth.tone} className="hidden sm:inline-flex">
+                        <AuthIcon />
+                        {authCopy.label}
+                    </Badge>
+                    <CopyButton value={endpoint.path} label={copy.endpoint.copyPath} iconOnly />
+                    <CollapsibleTrigger
+                        aria-label={copy.endpoint.details}
+                        className="flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-foreground/[0.06] hover:text-foreground"
                     >
-                        <AuthIcon className="w-3 h-3" />
-                        {authInfo.label}
-                    </div>
-                    {expanded ? (
-                        <ChevronUp className="w-4 h-4 text-muted-foreground" />
-                    ) : (
-                        <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                    )}
+                        <ChevronDown className="size-4 transition-transform group-data-[state=open]/endpoint:rotate-180" />
+                    </CollapsibleTrigger>
                 </div>
             </div>
-
-            {expanded && (
-                <div className="px-4 pb-4 pt-0 border-t border-border/50">
-                    <div className="pt-4 space-y-4">
-                        <div>
-                            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
-                                Details
-                            </h4>
-                            <p className="text-sm text-foreground/80 leading-relaxed">
-                                {endpoint.details}
-                            </p>
+            <CollapsibleContent className="space-y-5 px-6 pb-6">
+                <section className="space-y-1.5">
+                    <h3 className={LABEL}>{copy.endpoint.details}</h3>
+                    <p className="text-sm leading-relaxed text-foreground/80">{endpoint.details}</p>
+                </section>
+                <section className="space-y-1.5">
+                    <h3 className={LABEL}>{copy.endpoint.authentication}</h3>
+                    <p className="flex items-center gap-2 text-sm text-foreground/80">
+                        <Badge tone={auth.tone} className="sm:hidden">
+                            <AuthIcon />
+                            {authCopy.label}
+                        </Badge>
+                        {authCopy.description}
+                    </p>
+                </section>
+                {endpoint.params && endpoint.params.length > 0 && (
+                    <section className="space-y-2">
+                        <h3 className={LABEL}>{copy.endpoint.parameters}</h3>
+                        <div className="overflow-x-auto rounded-2xl border border-foreground/10">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>{copy.endpoint.columns.name}</TableHead>
+                                        <TableHead>{copy.endpoint.columns.type}</TableHead>
+                                        <TableHead>{copy.endpoint.columns.required}</TableHead>
+                                        <TableHead>{copy.endpoint.columns.description}</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {endpoint.params.map((param, index) => (
+                                        <TableRow key={`${param.name}-${index}`}>
+                                            <TableCell className="whitespace-nowrap font-mono text-xs">{param.name}</TableCell>
+                                            <TableCell className="font-mono text-xs text-muted-foreground">{param.type}</TableCell>
+                                            <TableCell>
+                                                <Badge tone={param.required ? StatusTone.Warning : StatusTone.Neutral}>
+                                                    {param.required ? copy.endpoint.required : copy.endpoint.optional}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell className="min-w-[14rem] text-xs text-muted-foreground">{param.description}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
                         </div>
-
-                        <div>
-                            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
-                                Authentication
-                            </h4>
-                            <p className="text-sm text-foreground/80">
-                                {authInfo.description}
-                            </p>
-                        </div>
-
-                        {endpoint.params && endpoint.params.length > 0 && (
-                            <div>
-                                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                                    Parameters
-                                </h4>
-                                <div className="rounded-lg border border-border overflow-hidden">
-                                    <table className="w-full text-sm">
-                                        <thead>
-                                            <tr className="bg-muted/30">
-                                                <th className="text-left px-3 py-2 text-xs font-semibold text-muted-foreground">Name</th>
-                                                <th className="text-left px-3 py-2 text-xs font-semibold text-muted-foreground">Type</th>
-                                                <th className="text-left px-3 py-2 text-xs font-semibold text-muted-foreground">Required</th>
-                                                <th className="text-left px-3 py-2 text-xs font-semibold text-muted-foreground">Description</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {endpoint.params.map((param) => (
-                                                <tr key={param.name} className="border-t border-border/50">
-                                                    <td className="px-3 py-2 font-mono text-xs text-foreground">{param.name}</td>
-                                                    <td className="px-3 py-2 font-mono text-xs text-muted-foreground">{param.type}</td>
-                                                    <td className="px-3 py-2">
-                                                        {param.required ? (
-                                                            <span className="text-xs font-medium text-amber-400">Yes</span>
-                                                        ) : (
-                                                            <span className="text-xs text-muted-foreground">No</span>
-                                                        )}
-                                                    </td>
-                                                    <td className="px-3 py-2 text-xs text-muted-foreground">{param.description}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        )}
-
-                        {endpoint.response && (
-                            <div>
-                                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
-                                    Example Response
-                                </h4>
-                                <pre className="bg-muted/30 border border-border rounded-lg px-3 py-2 text-xs font-mono text-foreground/80 overflow-x-auto">
-                                    {endpoint.response}
-                                </pre>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            )}
-        </div>
+                    </section>
+                )}
+                {endpoint.response && (
+                    <section className="space-y-1.5">
+                        <h3 className={LABEL}>{copy.endpoint.response}</h3>
+                        <pre className="overflow-x-auto rounded-2xl border border-foreground/10 bg-foreground/[0.03] px-4 py-3 font-mono text-xs text-foreground/80">
+                            {endpoint.response}
+                        </pre>
+                    </section>
+                )}
+            </CollapsibleContent>
+        </Collapsible>
     );
 }

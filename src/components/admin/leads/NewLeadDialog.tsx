@@ -1,214 +1,110 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Facebook, Instagram, Loader2, MapPin } from "lucide-react";
-import { toast } from "sonner";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { LEAD_LIMITS, LEAD_STAGES, type LeadStage } from "@/config/leads";
-import { OutreachRuleNote } from "@/components/admin/leads/OutreachRuleNote";
-import { useLeadSuggestions } from "@/lib/leads-client";
+import { LeadBusinessFields } from "@/components/admin/leads/LeadFormFields";
+import { AdminQueryKey } from "@/config/admin";
+import { LEAD_STAGES, LeadStage } from "@/config/leads";
+import { useAdminMutation } from "@/hooks/use-admin";
+import { adminCommon } from "@/i18n/admin/common";
+import { leadsCopy as copy } from "@/i18n/admin/leads";
+import { adminFetch } from "@/lib/admin-api";
+import { emptyNewLead, newLeadSchema, type NewLeadValues } from "@/lib/lead-forms";
 import type { LeadDetail } from "@/types/admin";
 
 interface NewLeadDialogProps {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-    /** Column the dialog was opened from. */
-    initialStage: LeadStage;
+    stage: LeadStage | null;
+    onClose: () => void;
     onCreated: (lead: LeadDetail) => void;
 }
 
-const EMPTY = {
-    country: "",
-    name: "",
-    city: "",
-    category: "",
-    facebook_url: "",
-    instagram_url: "",
-    google_maps_url: "",
-};
-
-/**
- * Add a business you found: the same columns as the old Notion table.
- * Country, Business, Category and Google Maps are required; City, Facebook
- * and Instagram are optional (add whichever of the two you found).
- */
-export function NewLeadDialog({ open, onOpenChange, initialStage, onCreated }: NewLeadDialogProps) {
-    const suggestions = useLeadSuggestions();
-    const [form, setForm] = useState(EMPTY);
-    const [stage, setStage] = useState<LeadStage>(initialStage);
-    const [saving, setSaving] = useState(false);
-
-    useEffect(() => {
-        if (!open) return;
-        // Keep the last country: businesses are usually added a country at a time.
-        setForm((prev) => ({ ...EMPTY, country: prev.country }));
-        setStage(initialStage);
-    }, [open, initialStage]);
-
-    const set = (key: keyof typeof EMPTY) => (e: React.ChangeEvent<HTMLInputElement>) =>
-        setForm((prev) => ({ ...prev, [key]: e.target.value }));
-
-    const canSave = form.country.trim() && form.name.trim() && form.category.trim() && form.google_maps_url.trim();
-
-    async function handleSubmit(e: React.FormEvent) {
-        e.preventDefault();
-        if (saving || !canSave) return;
-        setSaving(true);
-        try {
-            const res = await fetch("/api/admin/leads", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ ...form, stage }),
-            });
-            const data = await res.json();
-            if (res.ok && data.status === "success") {
-                onCreated(data.data);
-                onOpenChange(false);
-            } else {
-                toast.error(data.message ?? "Failed to add the business");
-            }
-        } catch {
-            toast.error("Failed to add the business");
-        } finally {
-            setSaving(false);
-        }
-    }
-
+export function NewLeadDialog({ stage, onClose, onCreated }: NewLeadDialogProps) {
+    const [lastCountry, setLastCountry] = useState("");
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+        <Dialog open={stage !== null} onOpenChange={(open) => !open && onClose()}>
+            <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto rounded-3xl border-foreground/10">
                 <DialogHeader>
-                    <DialogTitle>New business</DialogTitle>
-                    <DialogDescription>Fields marked * are required. Add Facebook, Instagram or both — whatever you found.</DialogDescription>
+                    <DialogTitle className="font-display text-xl">{copy.newLead.title}</DialogTitle>
+                    <DialogDescription>{copy.newLead.description}</DialogDescription>
                 </DialogHeader>
-
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-2">
-                            <Label htmlFor="leadCountry">Country *</Label>
-                            <Input
-                                id="leadCountry"
-                                list="lead-countries"
-                                value={form.country}
-                                onChange={set("country")}
-                                required
-                                maxLength={LEAD_LIMITS.name}
-                                autoFocus={!form.country}
-                            />
-                            <datalist id="lead-countries">
-                                {suggestions.countries.map((c) => <option key={c} value={c} />)}
-                            </datalist>
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="leadCity">City</Label>
-                            <Input id="leadCity" list="lead-cities" value={form.city} onChange={set("city")} maxLength={LEAD_LIMITS.name} />
-                            <datalist id="lead-cities">
-                                {suggestions.cities.map((c) => <option key={c} value={c} />)}
-                            </datalist>
-                        </div>
-                    </div>
-                    <OutreachRuleNote country={form.country} />
-                    <div className="space-y-2">
-                        <Label htmlFor="leadName">Business *</Label>
-                        <Input
-                            id="leadName"
-                            value={form.name}
-                            onChange={set("name")}
-                            required
-                            maxLength={LEAD_LIMITS.name}
-                            placeholder="Happy Paws Grooming"
-                            autoFocus={!!form.country}
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="leadCategory">Category *</Label>
-                        <Input
-                            id="leadCategory"
-                            list="lead-categories"
-                            value={form.category}
-                            onChange={set("category")}
-                            required
-                            maxLength={LEAD_LIMITS.name}
-                            placeholder="Pet grooming"
-                        />
-                        <datalist id="lead-categories">
-                            {suggestions.categories.map((c) => <option key={c} value={c} />)}
-                        </datalist>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-2">
-                            <Label htmlFor="leadFacebook" className="flex items-center gap-1.5">
-                                <Facebook className="w-3.5 h-3.5" /> Facebook
-                            </Label>
-                            <Input
-                                id="leadFacebook"
-                                value={form.facebook_url}
-                                onChange={set("facebook_url")}
-                                maxLength={LEAD_LIMITS.url}
-                                placeholder="Page link or name"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="leadInstagram" className="flex items-center gap-1.5">
-                                <Instagram className="w-3.5 h-3.5" /> Instagram
-                            </Label>
-                            <Input
-                                id="leadInstagram"
-                                value={form.instagram_url}
-                                onChange={set("instagram_url")}
-                                maxLength={LEAD_LIMITS.url}
-                                placeholder="@handle or link"
-                            />
-                        </div>
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="leadMaps" className="flex items-center gap-1.5">
-                            <MapPin className="w-3.5 h-3.5" /> Google Maps *
-                        </Label>
-                        <Input
-                            id="leadMaps"
-                            value={form.google_maps_url}
-                            onChange={set("google_maps_url")}
-                            required
-                            maxLength={LEAD_LIMITS.url}
-                            placeholder="https://maps.app.goo.gl/…"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Stage</Label>
-                        <Select value={stage} onValueChange={(v) => setStage(v as LeadStage)}>
-                            <SelectTrigger>
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {LEAD_STAGES.map((s) => (
-                                    <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <DialogFooter className="gap-2 sm:gap-0">
-                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                            Cancel
-                        </Button>
-                        <Button type="submit" disabled={saving || !canSave}>
-                            {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-                            {saving ? "Adding…" : "Add business"}
-                        </Button>
-                    </DialogFooter>
-                </form>
+                {stage !== null && (
+                    <NewLeadForm
+                        defaults={emptyNewLead(lastCountry, stage)}
+                        onCancel={onClose}
+                        onCreated={(lead) => {
+                            setLastCountry(lead.country ?? "");
+                            onClose();
+                            onCreated(lead);
+                        }}
+                    />
+                )}
             </DialogContent>
         </Dialog>
+    );
+}
+
+function NewLeadForm({
+    defaults,
+    onCancel,
+    onCreated,
+}: {
+    defaults: NewLeadValues;
+    onCancel: () => void;
+    onCreated: (lead: LeadDetail) => void;
+}) {
+    const form = useForm<NewLeadValues>({ resolver: zodResolver(newLeadSchema), defaultValues: defaults });
+
+    const create = useAdminMutation({
+        mutationFn: (values: NewLeadValues) =>
+            adminFetch<{ data: LeadDetail }>("/api/admin/leads", { method: "POST", json: values }).then((r) => r.data),
+        invalidates: [AdminQueryKey.Leads, AdminQueryKey.LeadSuggestions],
+        onSuccess: onCreated,
+    });
+
+    return (
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit((values) => create.mutate(values))} className="space-y-4" noValidate>
+                <LeadBusinessFields focusName={Boolean(defaults.country)} />
+                <FormField
+                    control={form.control}
+                    name="stage"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>{copy.form.stage}</FormLabel>
+                            <Select value={field.value} onValueChange={field.onChange}>
+                                <FormControl>
+                                    <SelectTrigger className="rounded-xl border-foreground/10 bg-foreground/[0.03]">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    {LEAD_STAGES.map((s) => (
+                                        <SelectItem key={s.id} value={s.id}>
+                                            {s.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <DialogFooter className="gap-2 pt-2 sm:gap-2">
+                    <Button type="button" variant="glass" size="sm" className="rounded-full" onClick={onCancel}>
+                        {adminCommon.actions.cancel}
+                    </Button>
+                    <Button type="submit" size="sm" className="rounded-full" disabled={create.isPending}>
+                        {create.isPending && <Loader2 className="animate-spin" />}
+                        {create.isPending ? copy.newLead.submitting : copy.newLead.submit}
+                    </Button>
+                </DialogFooter>
+            </form>
+        </Form>
     );
 }

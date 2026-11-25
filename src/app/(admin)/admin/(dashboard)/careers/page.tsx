@@ -1,341 +1,185 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import {
-    Plus,
-    Loader2,
-    RefreshCw,
-    X,
-    Check,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { useConfirm } from "@/hooks/use-confirm";
-import { toast } from "sonner";
-import type { JobOpening } from "@/types/admin";
-import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { useState } from "react";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { Download, Inbox, Plus, RefreshCw } from "lucide-react";
+import { AdminPage } from "@/components/admin/AdminPage";
+import { DataTable, columnHelper, stopRowClick } from "@/components/admin/DataTable";
+import { JobOpeningSheet } from "@/components/admin/JobOpeningSheet";
 import { JobOpeningsTable } from "@/components/admin/JobOpeningsTable";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ADMIN_PAGE_SIZE, AdminQueryKey } from "@/config/admin";
+import { JobStatus } from "@/config/careers";
+import { useAdminMutation } from "@/hooks/use-admin";
+import { useConfirm } from "@/hooks/use-confirm";
+import { adminCommon } from "@/i18n/admin/common";
+import { careersCopy as copy } from "@/i18n/admin/careers";
+import { adminFetch, type Paginated } from "@/lib/admin-api";
+import { formatDateShort } from "@/lib/format";
+import type { JobApplication, JobOpening } from "@/types/admin";
 
-const STATUS_OPTIONS = ["open", "closed", "draft"] as const;
-const TYPE_OPTIONS = ["Full-time", "Part-time", "Contract", "Internship"] as const;
-
-interface JobFormData {
-    title: string;
-    department: string;
-    location: string;
-    type: string;
-    status: string;
-    description: string;
-    apply_url: string;
-    sort_order: number;
+enum CareersTab {
+    Openings = "openings",
+    Applications = "applications",
 }
 
-const EMPTY_FORM: JobFormData = {
-    title: "",
-    department: "",
-    location: "Remote",
-    type: "Full-time",
-    status: "open",
-    description: "",
-    apply_url: "",
-    sort_order: 0,
-};
+const col = columnHelper<JobApplication>();
+
+const applicationColumns = col.columns([
+    col.accessor("full_name", { header: copy.applications.columns.name, cell: (c) => <span className="font-medium">{c.getValue()}</span> }),
+    col.accessor("email", {
+        header: copy.applications.columns.email,
+        cell: (c) => (
+            <a href={`mailto:${c.getValue()}`} className="break-all text-muted-foreground transition-colors hover:text-foreground">
+                {c.getValue()}
+            </a>
+        ),
+    }),
+    col.accessor("job_title", {
+        header: copy.applications.columns.position,
+        cell: (c) => <span className="text-muted-foreground">{c.getValue()}</span>,
+        meta: { className: "hidden md:table-cell" },
+    }),
+    col.accessor("created_at", {
+        header: copy.applications.columns.received,
+        cell: (c) => <span className="whitespace-nowrap text-muted-foreground tabular-nums">{formatDateShort(c.getValue())}</span>,
+        meta: { className: "hidden sm:table-cell" },
+    }),
+    col.display({
+        id: "cv",
+        header: () => <span className="sr-only">{copy.applications.cv}</span>,
+        meta: { align: "right" },
+        cell: (c) => (
+            <Button asChild variant="ghost" size="icon" className="size-8 rounded-full text-muted-foreground">
+                <a
+                    href={`/api/admin/careers/applications/${c.row.original.id}/cv`}
+                    download
+                    aria-label={copy.applications.cv}
+                    title={copy.applications.cv}
+                    onClick={stopRowClick}
+                >
+                    <Download />
+                </a>
+            </Button>
+        ),
+    }),
+]);
 
 export default function CareersAdminPage() {
-    const [openings, setOpenings] = useState<JobOpening[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [saving, setSaving] = useState(false);
-    const [deleting, setDeleting] = useState<number | null>(null);
-    const [editingId, setEditingId] = useState<number | "new" | null>(null);
-    const [form, setForm] = useState<JobFormData>(EMPTY_FORM);
     const confirm = useConfirm();
+    const [tab, setTab] = useState(CareersTab.Openings);
+    const [sheetOpen, setSheetOpen] = useState(false);
+    const [editing, setEditing] = useState<JobOpening | null>(null);
+    const [page, setPage] = useState(1);
 
-    const fetchOpenings = useCallback(async () => {
-        setLoading(true);
-        try {
-            const res = await fetch("/api/admin/careers");
-            const data = await res.json();
-            if (data.status === "success") {
-                setOpenings(data.data);
-            }
-        } catch {
-            toast.error("Failed to fetch job openings");
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+    const openings = useQuery({
+        queryKey: [AdminQueryKey.Careers],
+        queryFn: () => adminFetch<{ data: JobOpening[] }>("/api/admin/careers").then((r) => r.data),
+    });
 
-    useEffect(() => {
-        fetchOpenings();
-    }, [fetchOpenings]);
+    const applications = useQuery({
+        queryKey: [AdminQueryKey.Applications, page],
+        queryFn: () =>
+            adminFetch<Paginated<JobApplication>>("/api/admin/careers/applications", {
+                query: { page, limit: ADMIN_PAGE_SIZE },
+            }),
+        placeholderData: keepPreviousData,
+    });
 
-    function startNew() {
-        setForm(EMPTY_FORM);
-        setEditingId("new");
+    const setStatus = useAdminMutation({
+        mutationFn: ({ job, status }: { job: JobOpening; status: JobStatus }) =>
+            adminFetch("/api/admin/careers", { method: "PATCH", json: { id: job.id, status } }),
+        invalidates: [AdminQueryKey.Careers],
+        success: (_, { status }) => copy.statusChanged(copy.status[status]),
+    });
+
+    const remove = useAdminMutation({
+        mutationFn: (job: JobOpening) => adminFetch("/api/admin/careers", { method: "DELETE", json: { id: job.id } }),
+        invalidates: [AdminQueryKey.Careers],
+        success: copy.remove.done,
+        onSuccess: (_, job) => {
+            if (editing?.id === job.id) setSheetOpen(false);
+        },
+    });
+
+    function openSheet(job: JobOpening | null) {
+        setEditing(job);
+        setSheetOpen(true);
     }
 
-    function startEdit(job: JobOpening) {
-        setForm({
-            title: job.title,
-            department: job.department ?? "",
-            location: job.location,
-            type: job.type,
-            status: job.status,
-            description: job.description ?? "",
-            apply_url: job.apply_url ?? "",
-            sort_order: job.sort_order,
-        });
-        setEditingId(job.id);
-    }
-
-    function cancelEdit() {
-        setEditingId(null);
-        setForm(EMPTY_FORM);
-    }
-
-    function handleFormChange(
-        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
-    ) {
-        const { name, value } = e.target;
-        setForm((prev) => ({ ...prev, [name]: name === "sort_order" ? Number(value) : value }));
-    }
-
-    async function handleSave() {
-        if (!form.title.trim()) {
-            toast.error("Title is required");
-            return;
-        }
-        setSaving(true);
-        try {
-            const isNew = editingId === "new";
-            const res = await fetch("/api/admin/careers", {
-                method: isNew ? "POST" : "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(
-                    isNew
-                        ? form
-                        : { id: editingId, ...form },
-                ),
-            });
-            const data = await res.json();
-            if (data.status === "success") {
-                toast.success(isNew ? "Job opening created" : "Job opening updated");
-                setEditingId(null);
-                setForm(EMPTY_FORM);
-                await fetchOpenings();
-            } else {
-                toast.error(data.message ?? "Failed to save");
-            }
-        } catch {
-            toast.error("Failed to save job opening");
-        } finally {
-            setSaving(false);
-        }
-    }
-
-    async function handleDelete(job: JobOpening) {
+    async function onDelete(job: JobOpening) {
         const ok = await confirm({
-            title: "Delete job opening",
-            description: `Delete "${job.title}"? This cannot be undone.`,
-            confirmLabel: "Delete",
+            title: copy.remove.title,
+            description: copy.remove.description(job.title),
+            confirmLabel: adminCommon.actions.delete,
         });
-        if (!ok) return;
-
-        setDeleting(job.id);
-        try {
-            const res = await fetch("/api/admin/careers", {
-                method: "DELETE",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ id: job.id }),
-            });
-            if (res.ok) {
-                setOpenings((prev) => prev.filter((j) => j.id !== job.id));
-                if (editingId === job.id) cancelEdit();
-                toast.success("Job opening deleted");
-            } else {
-                toast.error("Failed to delete job opening");
-            }
-        } catch {
-            toast.error("Failed to delete job opening");
-        } finally {
-            setDeleting(null);
-        }
+        if (ok) remove.mutate(job);
     }
 
-    async function handleStatusToggle(job: JobOpening) {
-        const next = job.status === "open" ? "closed" : "open";
-        try {
-            const res = await fetch("/api/admin/careers", {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ id: job.id, status: next }),
-            });
-            const data = await res.json();
-            if (data.status === "success") {
-                setOpenings((prev) =>
-                    prev.map((j) => (j.id === job.id ? { ...j, status: next as JobOpening["status"] } : j)),
-                );
-                toast.success(`Marked as ${next}`);
-            } else {
-                toast.error("Failed to update status");
-            }
-        } catch {
-            toast.error("Failed to update status");
-        }
-    }
+    const busyId = setStatus.isPending ? setStatus.variables.job.id : remove.isPending ? remove.variables.id : null;
+    const openCount = openings.data?.filter((job) => job.status === JobStatus.Open).length ?? 0;
+    const applicationsTotal = applications.data?.pagination.total ?? 0;
+    const fetching = openings.isFetching || applications.isFetching;
 
     return (
-        <div className="space-y-6">
-            <AdminPageHeader
-                title="Careers"
-                subtitle={`${openings.filter((j) => j.status === "open").length} open position${openings.filter((j) => j.status === "open").length !== 1 ? "s" : ""}`}
-                actions={
-                    <>
-                        <Button variant="outline" size="sm" onClick={fetchOpenings} disabled={loading}>
-                            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
-                        </Button>
-                        <Button size="sm" onClick={startNew} disabled={editingId === "new"}>
-                            <Plus className="w-4 h-4 mr-1" />
-                            Add Position
-                        </Button>
-                    </>
-                }
-            />
-
-            {/* ── Form (new or edit) ── */}
-            {editingId !== null && (
-                <div className="rounded-xl border border-border bg-card p-6 space-y-4">
-                    <h2 className="text-base font-semibold">
-                        {editingId === "new" ? "New Position" : "Edit Position"}
-                    </h2>
-                    <div className="grid gap-4 sm:grid-cols-2">
-                        <div className="sm:col-span-2">
-                            <label className="mb-1 block text-xs font-medium text-muted-foreground">
-                                Title *
-                            </label>
-                            <Input
-                                name="title"
-                                value={form.title}
-                                onChange={handleFormChange}
-                                placeholder="e.g. Senior Full-Stack Engineer"
-                            />
-                        </div>
-                        <div>
-                            <label className="mb-1 block text-xs font-medium text-muted-foreground">
-                                Department
-                            </label>
-                            <Input
-                                name="department"
-                                value={form.department}
-                                onChange={handleFormChange}
-                                placeholder="e.g. Engineering"
-                            />
-                        </div>
-                        <div>
-                            <label className="mb-1 block text-xs font-medium text-muted-foreground">
-                                Location
-                            </label>
-                            <Input
-                                name="location"
-                                value={form.location}
-                                onChange={handleFormChange}
-                                placeholder="e.g. Remote"
-                            />
-                        </div>
-                        <div>
-                            <label className="mb-1 block text-xs font-medium text-muted-foreground">
-                                Type
-                            </label>
-                            <select
-                                name="type"
-                                value={form.type}
-                                onChange={handleFormChange}
-                                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                            >
-                                {TYPE_OPTIONS.map((t) => (
-                                    <option key={t} value={t}>{t}</option>
-                                ))}
-                            </select>
-                        </div>
-                        <div>
-                            <label className="mb-1 block text-xs font-medium text-muted-foreground">
-                                Status
-                            </label>
-                            <select
-                                name="status"
-                                value={form.status}
-                                onChange={handleFormChange}
-                                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                            >
-                                {STATUS_OPTIONS.map((s) => (
-                                    <option key={s} value={s}>{s}</option>
-                                ))}
-                            </select>
-                        </div>
-                        <div>
-                            <label className="mb-1 block text-xs font-medium text-muted-foreground">
-                                Apply URL
-                            </label>
-                            <Input
-                                name="apply_url"
-                                value={form.apply_url}
-                                onChange={handleFormChange}
-                                placeholder="https://..."
-                            />
-                        </div>
-                        <div>
-                            <label className="mb-1 block text-xs font-medium text-muted-foreground">
-                                Sort Order
-                            </label>
-                            <Input
-                                name="sort_order"
-                                type="number"
-                                value={form.sort_order}
-                                onChange={handleFormChange}
-                                placeholder="0"
-                            />
-                        </div>
-                        <div className="sm:col-span-2">
-                            <label className="mb-1 block text-xs font-medium text-muted-foreground">
-                                Description
-                            </label>
-                            <Textarea
-                                name="description"
-                                value={form.description}
-                                onChange={handleFormChange}
-                                placeholder="Role overview, responsibilities, requirements..."
-                                rows={5}
-                            />
-                        </div>
-                    </div>
-                    <div className="flex gap-2 justify-end">
-                        <Button variant="outline" size="sm" onClick={cancelEdit} disabled={saving}>
-                            <X className="w-4 h-4 mr-1" />
-                            Cancel
-                        </Button>
-                        <Button size="sm" onClick={handleSave} disabled={saving}>
-                            {saving ? (
-                                <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                            ) : (
-                                <Check className="w-4 h-4 mr-1" />
-                            )}
-                            {editingId === "new" ? "Create" : "Save"}
-                        </Button>
-                    </div>
-                </div>
-            )}
-
-            {/* ── Table ── */}
-            <JobOpeningsTable
-                loading={loading}
-                openings={openings}
-                editingId={editingId}
-                deleting={deleting}
-                onStatusToggle={handleStatusToggle}
-                onEdit={startEdit}
-                onDelete={handleDelete}
-            />
-        </div>
+        <AdminPage
+            eyebrow={copy.eyebrow}
+            title={copy.title}
+            description={openings.data && applications.data ? copy.description(openCount, applicationsTotal) : undefined}
+            actions={
+                <>
+                    <Button
+                        variant="glass"
+                        size="sm"
+                        className="rounded-full"
+                        onClick={() => {
+                            openings.refetch();
+                            applications.refetch();
+                        }}
+                        disabled={fetching}
+                    >
+                        <RefreshCw className={fetching ? "animate-spin" : undefined} />
+                        {adminCommon.actions.refresh}
+                    </Button>
+                    <Button size="sm" className="rounded-full" onClick={() => openSheet(null)}>
+                        <Plus />
+                        {copy.add}
+                    </Button>
+                </>
+            }
+        >
+            <Tabs value={tab} onValueChange={(value) => setTab(value === CareersTab.Applications ? CareersTab.Applications : CareersTab.Openings)} className="space-y-4">
+                <TabsList>
+                    <TabsTrigger value={CareersTab.Openings}>{copy.tabs.openings}</TabsTrigger>
+                    <TabsTrigger value={CareersTab.Applications}>{copy.tabs.applications}</TabsTrigger>
+                </TabsList>
+                <TabsContent value={CareersTab.Openings}>
+                    <JobOpeningsTable
+                        openings={openings.data ?? []}
+                        loading={openings.isPending}
+                        error={openings.error}
+                        onRetry={() => openings.refetch()}
+                        busyId={busyId}
+                        onStatusChange={(job, status) => setStatus.mutate({ job, status })}
+                        onEdit={openSheet}
+                        onDelete={onDelete}
+                    />
+                </TabsContent>
+                <TabsContent value={CareersTab.Applications}>
+                    <DataTable
+                        columns={applicationColumns}
+                        data={applications.data?.data ?? []}
+                        getRowId={(a) => String(a.id)}
+                        loading={applications.isPending}
+                        error={applications.error}
+                        onRetry={() => applications.refetch()}
+                        server={{ page, total: applicationsTotal, limit: ADMIN_PAGE_SIZE, onPageChange: setPage }}
+                        empty={{ icon: Inbox, ...copy.applications.empty }}
+                    />
+                </TabsContent>
+            </Tabs>
+            <JobOpeningSheet open={sheetOpen} job={editing} onClose={() => setSheetOpen(false)} />
+        </AdminPage>
     );
 }

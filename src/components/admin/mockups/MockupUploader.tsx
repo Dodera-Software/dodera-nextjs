@@ -1,11 +1,20 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState, type DragEvent } from "react";
-import { UploadCloud, FolderUp, FileUp, Rocket, Loader2, X, AlertTriangle, FileCode2, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useMemo, useRef, useState, type DragEvent } from "react";
+import { AlertTriangle, FileCode2, FileUp, FolderUp, Loader2, Rocket, Trash2, UploadCloud, X } from "lucide-react";
 import { toast } from "sonner";
-import type { MockupProjectDetail } from "@/types/admin";
+import { AdminPanel } from "@/components/admin/AdminPanel";
+import { Alert } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
+import { AdminQueryKey } from "@/config/admin";
+import { MOCKUP_FIELD_LIMITS } from "@/config/admin-mockups";
+import { StatusTone } from "@/config/ui";
+import { useAdminMutation } from "@/hooks/use-admin";
+import { mockupsCopy } from "@/i18n/admin/mockups";
+import { errorMessage } from "@/lib/admin-api";
 import {
     detectEntry,
     formatBytes,
@@ -15,28 +24,24 @@ import {
     uploadDeployment,
     type StagedFile,
 } from "@/lib/mockups-client";
+import { cn } from "@/lib/utils";
+import type { MockupProjectDetail } from "@/types/admin";
+
+const copy = mockupsCopy.uploader;
+const FOLDER_PICKER = { webkitdirectory: "", directory: "" } as Record<string, string>;
 
 interface MockupUploaderProps {
     projectId: number;
-    /** InteliLang is set up in Settings: offer to tell it about this version. */
     intelilangConnected: boolean;
-    /** Called with the refreshed project after a successful deploy. */
-    onDeployed: (project: MockupProjectDetail, message: string) => void;
+    onDeployed?: (project: MockupProjectDetail, message: string) => void;
 }
 
-/**
- * Drop zone + staging list + "Deploy" button. Accepts loose files, a whole
- * folder (drag-and-drop or the folder picker) or a .zip; the server unpacks
- * zips and strips a wrapper folder, so the staging list mirrors that here.
- */
 export function MockupUploader({ projectId, intelilangConnected, onDeployed }: MockupUploaderProps) {
     const [staged, setStaged] = useState<StagedFile[]>([]);
     const [sendToIntelilang, setSendToIntelilang] = useState(true);
     const [dragging, setDragging] = useState(false);
     const [note, setNote] = useState("");
-    const [uploading, setUploading] = useState(false);
     const [progress, setProgress] = useState(0);
-    const [error, setError] = useState<string | null>(null);
 
     const filesInputRef = useRef<HTMLInputElement>(null);
     const folderInputRef = useRef<HTMLInputElement>(null);
@@ -45,19 +50,38 @@ export function MockupUploader({ projectId, intelilangConnected, onDeployed }: M
     const entry = useMemo(() => detectEntry(displayPaths), [displayPaths]);
     const hasZip = useMemo(() => staged.some((s) => /\.zip$/i.test(s.path)), [staged]);
     const totalBytes = useMemo(() => staged.reduce((sum, s) => sum + s.file.size, 0), [staged]);
+
+    const deploy = useAdminMutation({
+        mutationFn: () =>
+            uploadDeployment({
+                projectId,
+                staged,
+                note,
+                sendToIntelilang: intelilangConnected && sendToIntelilang,
+                onProgress: setProgress,
+            }),
+        invalidates: [AdminQueryKey.Mockups, AdminQueryKey.Leads],
+        onSuccess: (result) => {
+            if (result.message.includes(copy.notSentMarker)) toast.warning(result.message);
+            else toast.success(result.message);
+            setStaged([]);
+            setNote("");
+            onDeployed?.(result.data, result.message);
+        },
+    });
+
+    const uploading = deploy.isPending;
     const canDeploy = staged.length > 0 && (entry !== null || hasZip) && !uploading;
 
-    const addFiles = useCallback((incoming: StagedFile[]) => {
+    function addFiles(incoming: StagedFile[]) {
         if (incoming.length === 0) return;
-        setError(null);
+        deploy.reset();
         setStaged((prev) => {
             const byPath = new Map(prev.map((s) => [s.path, s]));
-            for (const s of incoming) byPath.set(s.path, s); // same path → replace
+            for (const s of incoming) byPath.set(s.path, s);
             return [...byPath.values()].sort((a, b) => a.path.localeCompare(b.path));
         });
-    }, []);
-
-    const removeAt = (index: number) => setStaged((prev) => prev.filter((_, i) => i !== index));
+    }
 
     async function handleDrop(e: DragEvent<HTMLDivElement>) {
         e.preventDefault();
@@ -66,206 +90,154 @@ export function MockupUploader({ projectId, intelilangConnected, onDeployed }: M
         try {
             addFiles(await stagedFromDataTransfer(e.dataTransfer));
         } catch {
-            toast.error("Could not read the dropped files.");
+            toast.error(copy.readFailed);
         }
     }
 
-    async function handleDeploy() {
+    function startDeploy() {
         if (!canDeploy) return;
-        setUploading(true);
         setProgress(0);
-        setError(null);
-        try {
-            const result = await uploadDeployment(projectId, staged, note, setProgress, intelilangConnected && sendToIntelilang);
-            if (result.ok && result.data) {
-                if (result.message.includes("Not sent to InteliLang")) toast.warning(result.message);
-                else toast.success(result.message);
-                onDeployed(result.data, result.message);
-                setStaged([]);
-                setNote("");
-            } else {
-                setError(result.message);
-                toast.error(result.message);
-            }
-        } finally {
-            setUploading(false);
-        }
+        deploy.mutate();
+    }
+
+    function onPicked(list: FileList | null, input: HTMLInputElement) {
+        if (list) addFiles(stagedFromFileList(list));
+        input.value = "";
     }
 
     return (
-        <div className="rounded-xl border border-border bg-card p-5 space-y-4">
-            <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Rocket className="w-4 h-4 text-primary" />
-                </div>
-                <div>
-                    <p className="font-medium text-sm">Deploy a new version</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                        Upload the mockup files — it goes live on the project link right away.
-                    </p>
-                </div>
-            </div>
-
-            {/* Drop zone */}
-            <div
-                onDragOver={(e) => {
-                    e.preventDefault();
-                    if (!uploading) setDragging(true);
-                }}
-                onDragLeave={() => setDragging(false)}
-                onDrop={handleDrop}
-                className={`rounded-lg border-2 border-dashed px-4 py-8 text-center transition-colors ${dragging
-                    ? "border-primary bg-primary/5"
-                    : "border-border hover:border-muted-foreground/40"
-                    } ${uploading ? "opacity-60 pointer-events-none" : ""}`}
-            >
-                <UploadCloud className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-                <p className="text-sm font-medium">Drag &amp; drop your mockup here</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                    A folder, loose HTML / CSS / JS / images, or a .zip
-                </p>
-                <div className="flex flex-wrap justify-center gap-2 mt-4">
-                    <Button type="button" variant="outline" size="sm" onClick={() => filesInputRef.current?.click()}>
-                        <FileUp className="w-4 h-4" />
-                        Choose files
-                    </Button>
-                    <Button type="button" variant="outline" size="sm" onClick={() => folderInputRef.current?.click()}>
-                        <FolderUp className="w-4 h-4" />
-                        Choose folder
-                    </Button>
-                </div>
-                <input
-                    ref={filesInputRef}
-                    type="file"
-                    multiple
-                    className="hidden"
-                    onChange={(e) => {
-                        if (e.target.files) addFiles(stagedFromFileList(e.target.files));
-                        e.target.value = "";
+        <AdminPanel title={copy.title} description={copy.description}>
+            <div className="space-y-4">
+                <div
+                    onDragOver={(e) => {
+                        e.preventDefault();
+                        if (!uploading) setDragging(true);
                     }}
-                />
-                <input
-                    ref={folderInputRef}
-                    type="file"
-                    multiple
-                    className="hidden"
-                    // Non-standard attributes React doesn't type; every desktop browser honours them.
-                    {...({ webkitdirectory: "", directory: "" } as Record<string, string>)}
-                    onChange={(e) => {
-                        if (e.target.files) addFiles(stagedFromFileList(e.target.files));
-                        e.target.value = "";
-                    }}
-                />
-            </div>
-
-            {/* Staged files */}
-            {staged.length > 0 && (
-                <div className="space-y-2">
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <span>
-                            {staged.length} file{staged.length === 1 ? "" : "s"} · {formatBytes(totalBytes)}
-                            {entry && (
-                                <>
-                                    {" "}· entry <span className="font-mono text-foreground">{entry}</span>
-                                </>
-                            )}
-                        </span>
-                        <button
-                            type="button"
-                            onClick={() => setStaged([])}
-                            disabled={uploading}
-                            className="inline-flex items-center gap-1 hover:text-destructive transition-colors"
-                        >
-                            <Trash2 className="w-3 h-3" />
-                            Clear
-                        </button>
+                    onDragLeave={() => setDragging(false)}
+                    onDrop={handleDrop}
+                    className={cn(
+                        "rounded-2xl border border-dashed px-4 py-8 text-center transition-colors",
+                        dragging ? "border-brand bg-brand/5" : "border-foreground/15 hover:border-foreground/30",
+                        uploading && "pointer-events-none opacity-60",
+                    )}
+                >
+                    <UploadCloud className="mx-auto mb-3 size-7 text-muted-foreground" strokeWidth={1.5} />
+                    <p className="font-display text-sm font-semibold">{copy.drop}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{copy.dropHint}</p>
+                    <div className="mt-4 flex flex-wrap justify-center gap-2">
+                        <Button type="button" variant="glass" size="sm" className="rounded-full" onClick={() => filesInputRef.current?.click()}>
+                            <FileUp />
+                            {copy.chooseFiles}
+                        </Button>
+                        <Button type="button" variant="glass" size="sm" className="rounded-full" onClick={() => folderInputRef.current?.click()}>
+                            <FolderUp />
+                            {copy.chooseFolder}
+                        </Button>
                     </div>
-
-                    <ul className="max-h-48 overflow-y-auto rounded-lg border border-border divide-y divide-border text-xs">
-                        {staged.map((s, i) => (
-                            <li key={s.path} className="flex items-center gap-2 px-3 py-1.5">
-                                <FileCode2 className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
-                                <span className="font-mono truncate flex-1" title={s.path}>
-                                    {displayPaths[i]}
-                                </span>
-                                <span className="text-muted-foreground flex-shrink-0">{formatBytes(s.file.size)}</span>
-                                <button
-                                    type="button"
-                                    onClick={() => removeAt(i)}
-                                    disabled={uploading}
-                                    className="text-muted-foreground hover:text-destructive transition-colors p-0.5"
-                                    title="Remove"
-                                >
-                                    <X className="w-3.5 h-3.5" />
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
-
-                    {!entry && !hasZip && (
-                        <p className="flex items-start gap-2 rounded-lg bg-amber-500/10 border border-amber-500/20 px-3 py-2 text-xs text-amber-500">
-                            <AlertTriangle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
-                            No HTML file at the top level. Add an <span className="font-mono">index.html</span> (or the
-                            folder that contains it) so there is something to show at &ldquo;/&rdquo;.
-                        </p>
-                    )}
-                </div>
-            )}
-
-            {/* Note + deploy */}
-            <div className="flex flex-col sm:flex-row gap-2">
-                <Input
-                    type="text"
-                    value={note}
-                    onChange={(e) => setNote(e.target.value)}
-                    placeholder="What changed? (optional)"
-                    maxLength={200}
-                    disabled={uploading}
-                    className="h-9 text-sm"
-                />
-                <Button type="button" size="sm" onClick={handleDeploy} disabled={!canDeploy} className="h-9 sm:w-40">
-                    {uploading ? (
-                        <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            {progress < 100 ? `Uploading ${progress}%` : "Processing…"}
-                        </>
-                    ) : (
-                        <>
-                            <Rocket className="w-4 h-4" />
-                            Deploy
-                        </>
-                    )}
-                </Button>
-            </div>
-
-            {intelilangConnected && (
-                <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer select-none">
+                    <input ref={filesInputRef} type="file" multiple className="hidden" onChange={(e) => onPicked(e.target.files, e.target)} />
                     <input
-                        type="checkbox"
-                        checked={sendToIntelilang}
-                        onChange={(e) => setSendToIntelilang(e.target.checked)}
-                        disabled={uploading}
-                        className="mt-0.5 h-3.5 w-3.5 accent-primary"
+                        ref={folderInputRef}
+                        type="file"
+                        multiple
+                        className="hidden"
+                        {...FOLDER_PICKER}
+                        onChange={(e) => onPicked(e.target.files, e.target)}
                     />
-                    <span>
-                        <span className="font-medium text-foreground">Send to InteliLang</span> — the project there learns
-                        this version went live, with its link and note.
-                    </span>
-                </label>
-            )}
-
-            {uploading && (
-                <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
-                    <div className="h-full bg-primary transition-all" style={{ width: `${progress}%` }} />
                 </div>
-            )}
 
-            {error && (
-                <p className="flex items-start gap-2 rounded-lg bg-destructive/10 border border-destructive/20 px-3 py-2 text-xs text-destructive">
-                    <AlertTriangle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
-                    {error}
-                </p>
-            )}
-        </div>
+                {staged.length > 0 && (
+                    <div className="space-y-2">
+                        <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
+                            <span className="min-w-0 truncate tabular-nums">
+                                {copy.summary(staged.length, formatBytes(totalBytes))}
+                                {entry && (
+                                    <>
+                                        {" · "}
+                                        {copy.entry} <span className="font-mono text-foreground">{entry}</span>
+                                    </>
+                                )}
+                            </span>
+                            <button
+                                type="button"
+                                onClick={() => setStaged([])}
+                                disabled={uploading}
+                                className="inline-flex shrink-0 items-center gap-1 transition-colors hover:text-red-400"
+                            >
+                                <Trash2 className="size-3" />
+                                {copy.clear}
+                            </button>
+                        </div>
+
+                        <ul className="max-h-48 divide-y divide-foreground/[0.07] overflow-y-auto rounded-2xl border border-foreground/10 text-xs">
+                            {staged.map((s, i) => (
+                                <li key={s.path} className="flex items-center gap-2 px-3 py-1.5">
+                                    <FileCode2 className="size-3.5 shrink-0 text-muted-foreground" />
+                                    <span className="min-w-0 flex-1 truncate font-mono" title={s.path}>
+                                        {displayPaths[i]}
+                                    </span>
+                                    <span className="shrink-0 tabular-nums text-muted-foreground">{formatBytes(s.file.size)}</span>
+                                    <button
+                                        type="button"
+                                        onClick={() => setStaged((prev) => prev.filter((_, idx) => idx !== i))}
+                                        disabled={uploading}
+                                        className="p-0.5 text-muted-foreground transition-colors hover:text-red-400"
+                                        aria-label={copy.remove}
+                                        title={copy.remove}
+                                    >
+                                        <X className="size-3.5" />
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+
+                        {!entry && !hasZip && (
+                            <Alert tone={StatusTone.Warning} icon={AlertTriangle} className="text-xs">
+                                {copy.noEntry}
+                            </Alert>
+                        )}
+                    </div>
+                )}
+
+                <div className="flex flex-col gap-2 sm:flex-row">
+                    <Input
+                        type="text"
+                        value={note}
+                        onChange={(e) => setNote(e.target.value)}
+                        placeholder={copy.notePlaceholder}
+                        maxLength={MOCKUP_FIELD_LIMITS.note}
+                        disabled={uploading}
+                        className="h-9 rounded-full px-4"
+                    />
+                    <Button type="button" size="sm" onClick={startDeploy} disabled={!canDeploy} className="rounded-full sm:w-44">
+                        {uploading ? <Loader2 className="animate-spin" /> : <Rocket />}
+                        {uploading ? (progress < 100 ? copy.uploading(progress) : copy.processing) : copy.deploy}
+                    </Button>
+                </div>
+
+                {intelilangConnected && (
+                    <label className="flex cursor-pointer select-none items-start gap-2.5 text-xs text-muted-foreground">
+                        <Checkbox
+                            checked={sendToIntelilang}
+                            onCheckedChange={(checked) => setSendToIntelilang(checked === true)}
+                            disabled={uploading}
+                            className="mt-0.5"
+                        />
+                        <span>
+                            <span className="font-medium text-foreground">{copy.sendToIntelilang}</span>
+                            {" · "}
+                            {copy.sendToIntelilangHint}
+                        </span>
+                    </label>
+                )}
+
+                {uploading && <Progress value={progress} />}
+
+                {deploy.isError && (
+                    <Alert tone={StatusTone.Danger} icon={AlertTriangle} className="text-xs">
+                        {errorMessage(deploy.error)}
+                    </Alert>
+                )}
+            </div>
+        </AdminPanel>
     );
 }

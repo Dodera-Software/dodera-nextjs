@@ -1,0 +1,136 @@
+import { EmailImageAlign, EmailImageWidth, RecipientMode, TextAlignment } from "@/config/admin-email";
+
+export const emailCopy = {
+    send: {
+        eyebrow: "Content",
+        title: "Send email",
+        description: "Write a rich HTML email and send it to every subscriber or to a few addresses.",
+        smtp: {
+            checking: "Checking SMTP…",
+            ok: "SMTP connected",
+            failed: "SMTP error · retry",
+        },
+        recipients: {
+            label: "Recipients",
+            modes: {
+                [RecipientMode.All]: "All subscribers",
+                [RecipientMode.Custom]: "Specific emails",
+            } satisfies Record<RecipientMode, string>,
+            placeholder: "email@example.com, another@example.com",
+            hint: "Separate addresses with commas.",
+            required: "Enter at least one email address.",
+            invalid: (email: string) => `${email} is not a valid email address.`,
+        },
+        subject: {
+            label: "Subject",
+            placeholder: "Your email subject…",
+            required: "Subject is required.",
+        },
+        body: {
+            label: "Body",
+            placeholder: "Write your email message here…",
+            required: "The email body is empty.",
+        },
+        blog: {
+            trigger: "Load from blog post",
+            search: "Search blog posts…",
+            empty: "No blog posts found.",
+            subject: (title: string) => `New Post: ${title}`,
+            html: (post: { title: string; excerpt: string; url: string }) =>
+                [
+                    "<p>Hey there,</p>",
+                    "<p>We just published a new article and we think you'll find it really valuable:</p>",
+                    `<h2>${post.title}</h2>`,
+                    `<p>${post.excerpt}</p>`,
+                    `<p><a href="${post.url}">Read the full article →</a></p>`,
+                    "<p>Happy reading!<br/>The Dodera Team</p>",
+                ].join("\n"),
+        },
+        attachments: {
+            label: "Attachments",
+            add: "Attach files",
+            remove: (name: string) => `Remove ${name}`,
+        },
+        sender: "Sent from news@doderasoft.com via Zoho SMTP",
+        submit: "Send email",
+        submitting: "Sending…",
+        confirm: {
+            title: "Send email",
+            toAll: (subject: string) => `Send "${subject}" to all subscribers? This cannot be undone.`,
+            toCustom: (subject: string, to: string) => `Send "${subject}" to ${to}? This cannot be undone.`,
+            action: "Send",
+        },
+        result: {
+            sent: "Email sent",
+            failed: "Failed to send email.",
+            allRejected: "SMTP rejected all recipients.",
+            summary: (accepted: number, total: number, rejected: number) =>
+                `${accepted} / ${total} delivered${rejected > 0 ? `, ${rejected} rejected` : ""}`,
+        },
+    },
+    toolbar: {
+        label: "Formatting",
+        undo: "Undo",
+        redo: "Redo",
+        paragraph: "Paragraph",
+        heading: (level: number) => `Heading ${level}`,
+        bold: "Bold",
+        italic: "Italic",
+        underline: "Underline",
+        strike: "Strikethrough",
+        code: "Inline code",
+        bulletList: "Bullet list",
+        orderedList: "Numbered list",
+        align: {
+            [TextAlignment.Left]: "Align left",
+            [TextAlignment.Center]: "Align centre",
+            [TextAlignment.Right]: "Align right",
+            [TextAlignment.Justify]: "Justify",
+        } satisfies Record<TextAlignment, string>,
+        link: {
+            button: "Link",
+            label: "Link URL",
+            placeholder: "https://",
+            apply: "Apply",
+            remove: "Remove link",
+        },
+        image: {
+            insert: "Insert image",
+            align: "Image align",
+            size: "Image size",
+            remove: "Remove image",
+            alignments: {
+                [EmailImageAlign.None]: "Default",
+                [EmailImageAlign.Left]: "Image left",
+                [EmailImageAlign.Center]: "Image centre",
+                [EmailImageAlign.Right]: "Image right",
+            } satisfies Record<EmailImageAlign, string>,
+            widths: {
+                [EmailImageWidth.Small]: { short: "S", label: "Small (200 px)" },
+                [EmailImageWidth.Medium]: { short: "M", label: "Medium (400 px)" },
+                [EmailImageWidth.Large]: { short: "L", label: "Large (600 px)" },
+                [EmailImageWidth.Full]: { short: "Full", label: "Full width" },
+            } satisfies Record<EmailImageWidth, { short: string; label: string }>,
+        },
+    },
+    welcome: {
+        eyebrow: "Content",
+        title: "Welcome email",
+        description: "The automatic email new newsletter subscribers get.",
+        notice: "Sent only on a first-time subscription. An unsubscribe link is added automatically when it is sent.",
+        subject: {
+            label: "Subject line",
+            placeholder: "Welcome to the Dodera newsletter!",
+            required: "Subject line is required.",
+        },
+        body: {
+            title: "Email body",
+            hint: "Drag and drop blocks to build the email. The canvas shows the email's real colours.",
+        },
+        reset: "Reset",
+        reloaded: "Template reloaded from the database.",
+        save: "Save template",
+        saved: "Welcome email saved",
+        notReady: "The editor is still loading.",
+    },
+} as const;

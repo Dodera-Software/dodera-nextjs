@@ -1,116 +1,148 @@
-import { Loader2, Briefcase, Pencil, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import type { JobOpening } from "@/types/admin";
-import { formatDateShort } from "@/lib/format";
+"use client";
 
-const STATUS_STYLES: Record<string, string> = {
-    open: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-    closed: "bg-rose-500/10 text-rose-400 border-rose-500/20",
-    draft: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+import { Briefcase, ChevronDown, Pencil, Trash2 } from "lucide-react";
+import { DataTable, columnHelper, stopRowClick } from "@/components/admin/DataTable";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuLabel,
+    DropdownMenuRadioGroup,
+    DropdownMenuRadioItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { JOB_STATUSES, JobStatus } from "@/config/careers";
+import { StatusTone } from "@/config/ui";
+import { adminCommon } from "@/i18n/admin/common";
+import { careersCopy as copy } from "@/i18n/admin/careers";
+import { formatDateShort } from "@/lib/format";
+import type { JobOpening } from "@/types/admin";
+
+const JOB_STATUS_TONE: Record<JobStatus, StatusTone> = {
+    [JobStatus.Open]: StatusTone.Success,
+    [JobStatus.Closed]: StatusTone.Danger,
+    [JobStatus.Draft]: StatusTone.Warning,
 };
 
-interface JobOpeningsTableProps {
-    loading: boolean;
+const col = columnHelper<JobOpening>();
+
+export interface JobOpeningsTableProps {
     openings: JobOpening[];
-    editingId: number | "new" | null;
-    deleting: number | null;
-    onStatusToggle: (job: JobOpening) => void;
+    loading: boolean;
+    error: unknown;
+    onRetry: () => void;
+    busyId: number | null;
+    onStatusChange: (job: JobOpening, status: JobStatus) => void;
     onEdit: (job: JobOpening) => void;
     onDelete: (job: JobOpening) => void;
 }
 
-export function JobOpeningsTable({
-    loading,
-    openings,
-    editingId,
-    deleting,
-    onStatusToggle,
-    onEdit,
-    onDelete,
-}: JobOpeningsTableProps) {
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center py-20">
-                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-            </div>
-        );
-    }
-
-    if (openings.length === 0) {
-        return (
-            <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border py-20 text-center text-muted-foreground">
-                <Briefcase className="w-8 h-8" />
-                <p className="text-sm">No job openings yet. Click &quot;Add Position&quot; to create one.</p>
-            </div>
-        );
-    }
+export function JobOpeningsTable({ openings, loading, error, onRetry, busyId, onStatusChange, onEdit, onDelete }: JobOpeningsTableProps) {
+    const columns = col.columns([
+        col.accessor("title", {
+            header: copy.columns.title,
+            cell: (c) => (
+                <div className="min-w-0">
+                    <p className="font-medium">{c.getValue()}</p>
+                    {c.row.original.department && <p className="text-xs text-muted-foreground">{c.row.original.department}</p>}
+                </div>
+            ),
+        }),
+        col.accessor("type", {
+            header: copy.columns.type,
+            cell: (c) => <span className="text-muted-foreground">{c.getValue()}</span>,
+            meta: { className: "hidden md:table-cell" },
+        }),
+        col.accessor("location", {
+            header: copy.columns.location,
+            cell: (c) => <span className="text-muted-foreground">{c.getValue()}</span>,
+            meta: { className: "hidden sm:table-cell" },
+        }),
+        col.accessor("status", {
+            header: copy.columns.status,
+            cell: (c) => {
+                const job = c.row.original;
+                return (
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild disabled={busyId === job.id}>
+                            <button type="button" aria-label={copy.changeStatus} className="rounded-full disabled:opacity-50">
+                                <Badge tone={JOB_STATUS_TONE[job.status]} dot>
+                                    {copy.status[job.status]}
+                                    <ChevronDown />
+                                </Badge>
+                            </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start">
+                            <DropdownMenuLabel>{copy.changeStatus}</DropdownMenuLabel>
+                            <DropdownMenuRadioGroup
+                                value={job.status}
+                                onValueChange={(value) => {
+                                    const next = JOB_STATUSES.find((status) => status === value);
+                                    if (next && next !== job.status) onStatusChange(job, next);
+                                }}
+                            >
+                                {JOB_STATUSES.map((status) => (
+                                    <DropdownMenuRadioItem key={status} value={status}>
+                                        {copy.status[status]}
+                                    </DropdownMenuRadioItem>
+                                ))}
+                            </DropdownMenuRadioGroup>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                );
+            },
+        }),
+        col.accessor("created_at", {
+            header: copy.columns.created,
+            cell: (c) => <span className="whitespace-nowrap text-muted-foreground tabular-nums">{formatDateShort(c.getValue())}</span>,
+            meta: { className: "hidden lg:table-cell" },
+        }),
+        col.display({
+            id: "actions",
+            header: () => <span className="sr-only">{adminCommon.table.actions}</span>,
+            meta: { align: "right" },
+            cell: (c) => (
+                <div className="flex items-center justify-end gap-1">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-8 rounded-full text-muted-foreground"
+                        aria-label={adminCommon.actions.edit}
+                        onClick={(e) => {
+                            stopRowClick(e);
+                            onEdit(c.row.original);
+                        }}
+                    >
+                        <Pencil />
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-8 rounded-full text-muted-foreground hover:bg-red-400/10 hover:text-red-400"
+                        aria-label={adminCommon.actions.delete}
+                        disabled={busyId === c.row.original.id}
+                        onClick={(e) => {
+                            stopRowClick(e);
+                            onDelete(c.row.original);
+                        }}
+                    >
+                        <Trash2 />
+                    </Button>
+                </div>
+            ),
+        }),
+    ]);
 
     return (
-        <div className="rounded-xl border border-border bg-card overflow-hidden">
-            <table className="w-full text-sm">
-                <thead>
-                    <tr className="border-b border-border bg-muted/40">
-                        <th className="px-4 py-3 text-left font-medium text-muted-foreground">Title</th>
-                        <th className="hidden md:table-cell px-4 py-3 text-left font-medium text-muted-foreground">Type</th>
-                        <th className="hidden sm:table-cell px-4 py-3 text-left font-medium text-muted-foreground">Location</th>
-                        <th className="px-4 py-3 text-left font-medium text-muted-foreground">Status</th>
-                        <th className="hidden lg:table-cell px-4 py-3 text-left font-medium text-muted-foreground">Created</th>
-                        <th className="px-4 py-3 text-right font-medium text-muted-foreground">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {openings.map((job, i) => (
-                        <tr
-                            key={job.id}
-                            className={`border-b border-border last:border-0 ${i % 2 === 0 ? "" : "bg-muted/20"}`}
-                        >
-                            <td className="px-4 py-3 font-medium">
-                                <div>{job.title}</div>
-                                {job.department && (
-                                    <div className="text-xs text-muted-foreground">{job.department}</div>
-                                )}
-                            </td>
-                            <td className="hidden md:table-cell px-4 py-3 text-muted-foreground">{job.type}</td>
-                            <td className="hidden sm:table-cell px-4 py-3 text-muted-foreground">{job.location}</td>
-                            <td className="px-4 py-3">
-                                <button
-                                    onClick={() => onStatusToggle(job)}
-                                    className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium transition-opacity hover:opacity-80 ${STATUS_STYLES[job.status] ?? ""}`}
-                                >
-                                    {job.status}
-                                </button>
-                            </td>
-                            <td className="hidden lg:table-cell px-4 py-3 text-muted-foreground">
-                                {formatDateShort(job.created_at)}
-                            </td>
-                            <td className="px-4 py-3 text-right">
-                                <div className="flex items-center justify-end gap-1">
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => onEdit(job)}
-                                        disabled={editingId !== null}
-                                    >
-                                        <Pencil className="w-4 h-4" />
-                                    </Button>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => onDelete(job)}
-                                        disabled={deleting === job.id}
-                                    >
-                                        {deleting === job.id ? (
-                                            <Loader2 className="w-4 h-4 animate-spin" />
-                                        ) : (
-                                            <Trash2 className="w-4 h-4 text-destructive" />
-                                        )}
-                                    </Button>
-                                </div>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
+        <DataTable
+            columns={columns}
+            data={openings}
+            getRowId={(job) => String(job.id)}
+            loading={loading}
+            error={error}
+            onRetry={onRetry}
+            empty={{ icon: Briefcase, ...copy.empty }}
+        />
     );
 }
